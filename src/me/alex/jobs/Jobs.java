@@ -221,16 +221,16 @@ public class Jobs extends JavaPlugin{
 				addPlayer(online);
 			}
 			
-			log.info("Jobs started");		
+			log.info("Jobs " + this.getDescription().getVersion() + " started");		
 		}
 		catch (Exception e){
 			e.printStackTrace();
-			log.info("Jobs not started, there's an error with the configuration");
+			log.info("Jobs " + this.getDescription().getVersion() + " not started, there's an error with the configuration");
 		}
 	}
 	
 	public void onDisable(){
-		log.info("Jobs stopped");
+		log.info("Jobs " + this.getDescription().getVersion() + " stopped");
 		for(Player player: players.keySet()){
 			dao.saveJob(player, players.get(player));
 			players.get(player).stripTitle();
