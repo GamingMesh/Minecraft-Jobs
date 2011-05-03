@@ -1,6 +1,6 @@
 name: Jobs
 main: me.alex.jobs.Jobs
-version: 1.3.2
+version: 1.3.3
 commands:
     Jobs:
         description: Jobs

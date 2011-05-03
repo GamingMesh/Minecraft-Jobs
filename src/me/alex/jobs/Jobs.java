@@ -27,8 +27,8 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.yaml.snakeyaml.Yaml;
 
+import com.iConomy.*;
 import com.nidefawl.Stats.Stats;
-import com.nijiko.coelho.iConomy.iConomy;
 import com.nijiko.permissions.PermissionHandler;
 
 import cosine.boseconomy.BOSEconomy;

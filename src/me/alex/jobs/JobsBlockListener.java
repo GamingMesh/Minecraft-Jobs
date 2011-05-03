@@ -6,8 +6,9 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-import com.nijiko.coelho.iConomy.iConomy;
-import com.nijiko.coelho.iConomy.system.Account;
+import com.iConomy.iConomy;
+import com.iConomy.system.Account;
+import com.iConomy.system.Holdings;
 
 public class JobsBlockListener extends BlockListener{
 	public Jobs plugin;
@@ -20,9 +21,9 @@ public class JobsBlockListener extends BlockListener{
 			Block block = event.getBlock();
 			Player player = event.getPlayer();
 			if(plugin.getJob(player) != null){
-				double income = plugin.getJob(player).getBreakIncome(block);
+				double income = plugin.getJob(player).getBreakIncome(block);	
 				if(plugin.getiConomy() != null){
-					Account account = iConomy.getBank().getAccount(player.getName());
+					Holdings account = iConomy.getAccount(player.getName()).getHoldings();
 					account.add(income);
 				}
 				else if(plugin.getBOSEconomy() != null){
@@ -39,7 +40,7 @@ public class JobsBlockListener extends BlockListener{
 			if(plugin.getJob(player) != null){
 				double income = plugin.getJob(player).getPlaceIncome(block);
 				if(plugin.getiConomy() != null){
-					Account account = iConomy.getBank().getAccount(player.getName());
+					Holdings account = iConomy.getAccount(player.getName()).getHoldings();
 					account.add(income);
 				}
 				else if(plugin.getBOSEconomy() != null){

@@ -1,5 +1,6 @@
 package me.alex.jobs;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -8,7 +9,10 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
-import com.nijiko.coelho.iConomy.iConomy;
+import com.iConomy.*;
+import com.iConomy.system.Account;
+import com.iConomy.system.Bank;
+import com.iConomy.system.BankAccount;
 
 public class Job {
 	
@@ -194,8 +198,24 @@ public class Job {
 	
 	private void updateMoneyStats(){
 		if(plugin.getStats() != null){
-			if(plugin.getStats().get(player.getName(), "job", "money") <= iConomy.getBank().getAccount(player.getName()).getBalance()){
-				plugin.getStats().setStat(player.getName(), "job", "money", (int) iConomy.getBank().getAccount(player.getName()).getBalance());
+			double balance = 0.0;
+			Account account = iConomy.getAccount(player.getName());
+
+		    if(account == null) {
+		        // Nope, they don't have an account.
+		    }
+
+		    ArrayList<BankAccount> BankAccounts = account.getBankAccounts(); // Get all of their accounts.
+		    if(BankAccounts != null){
+			    for(BankAccount temp: BankAccounts){
+			    	balance += temp.getHoldings().balance();
+			    }
+		    }
+		    		    
+		    System.out.println(balance);
+		    
+			if(plugin.getStats().get(player.getName(), "job", "money") <= balance){
+				plugin.getStats().setStat(player.getName(), "job", "money", (int) balance);
 				plugin.getStats().saveAll();
 			}
 		}

@@ -4,8 +4,8 @@ import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerListener;
 import org.bukkit.plugin.Plugin;
 
+import com.iConomy.iConomy;
 import com.nidefawl.Stats.Stats;
-import com.nijiko.coelho.iConomy.iConomy;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
 import cosine.boseconomy.BOSEconomy;

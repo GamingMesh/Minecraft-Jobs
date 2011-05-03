@@ -11,8 +11,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityListener;
 
-import com.nijiko.coelho.iConomy.iConomy;
-import com.nijiko.coelho.iConomy.system.Account;
+import com.iConomy.*;
+import com.iConomy.system.Holdings;
 
 public class JobsEntityListener extends EntityListener{
 	private Jobs plugin;
@@ -61,7 +61,7 @@ public class JobsEntityListener extends EntityListener{
 								if(plugin.getJob(damager) != null){
 									double income = plugin.getJob(damager).getKillIncome(victim.getClass());
 									if(plugin.getiConomy() != null){
-										Account account = iConomy.getBank().getAccount(damager.getName());
+										Holdings account = iConomy.getAccount(damager.getName()).getHoldings();
 										account.add(income);
 									}
 									else if(plugin.getBOSEconomy() != null){
