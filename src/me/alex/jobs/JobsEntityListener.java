@@ -38,7 +38,7 @@ public class JobsEntityListener extends EntityListener{
 								damage -= victim.getLastDamage();
 							}
 							
-							if(victim.getHealth() - damage < 0){
+							if(victim.getHealth() - damage <= 0){
 								// entity has been killed by a player
 								// check if near a mob spawner
 								List<Entity> damagerSurround = damager.getNearbyEntities(5, 5, 5);
