@@ -53,11 +53,12 @@ public class JobsJobListener extends JobsEventListener{
 				if(JobsConfiguration.getInstance().getStats() != null &&
 						JobsConfiguration.getInstance().getStats().isEnabled()){
 					Stats stats = JobsConfiguration.getInstance().getStats();
-					if(progression.getLevel() > stats.get(event.getPlayer().getName(), "job", progression.getJob().getJobName())){
-						stats.setStat(event.getPlayer().getName(), "job", progression.getJob().getJobName(), progression.getLevel());
+					if(progression.getLevel() > stats.get(event.getPlayer().getName(), "job", progression.getJob().getName())){
+						stats.setStat(event.getPlayer().getName(), "job", progression.getJob().getName(), progression.getLevel());
 						stats.saveAll();
 					}
 				}
+				plugin.getPlayerJobInfo(event.getPlayer()).checkLevels();
 			}
 			else{
 				event.getJobProgression().setExperience(0.0);
@@ -77,12 +78,12 @@ public class JobsJobListener extends JobsEventListener{
 			if(JobsConfiguration.getInstance().isBroadcasting()){
 				Jobs.getJobsServer().broadcastMessage(event.getPlayer().getName() + " has been promoted to a " +
 						event.getNewTitle().getChatColor() + event.getNewTitle().getName() + ChatColor.WHITE + " " + 
-						event.getJobProgression().getJob().getJobChatColour() + event.getJobProgression().getJob().getJobName() + ChatColor.WHITE);
+						event.getJobProgression().getJob().getChatColour() + event.getJobProgression().getJob().getName() + ChatColor.WHITE);
 			}
 			else{
 				event.getPlayer().sendMessage("Congratulations, you have been promoted to a " + 
 						event.getNewTitle().getChatColor() + event.getNewTitle().getName() + ChatColor.WHITE + " " + 
-						event.getJobProgression().getJob().getJobChatColour() + event.getJobProgression().getJob().getJobName() + ChatColor.WHITE);
+						event.getJobProgression().getJob().getChatColour() + event.getJobProgression().getJob().getName() + ChatColor.WHITE);
 			}
 			event.getJobProgression().setTitle(event.getNewTitle());
 			plugin.getJob(event.getPlayer()).reloadHonorific();
@@ -98,7 +99,7 @@ public class JobsJobListener extends JobsEventListener{
 				// let the user join the job
 				info.joinJob(event.getNewJob());
 				JobsConfiguration.getInstance().getJobsDAO().joinJob(event.getPlayer(), event.getNewJob());
-				event.getPlayer().sendMessage("You have joined the job " + event.getNewJob().getJobChatColour() + event.getNewJob().getJobName());
+				event.getPlayer().sendMessage("You have joined the job " + event.getNewJob().getChatColour() + event.getNewJob().getName());
 				plugin.getJob(event.getPlayer()).reloadHonorific();
 				plugin.getJob(event.getPlayer()).reloadMaxExperience();
 				
@@ -106,8 +107,8 @@ public class JobsJobListener extends JobsEventListener{
 				if(JobsConfiguration.getInstance().getStats() != null &&
 						JobsConfiguration.getInstance().getStats().isEnabled()){
 					Stats stats = JobsConfiguration.getInstance().getStats();
-					if(1 > stats.get(event.getPlayer().getName(), "job", event.getNewJob().getJobName())){
-						stats.setStat(event.getPlayer().getName(), "job", event.getNewJob().getJobName(), 1);
+					if(1 > stats.get(event.getPlayer().getName(), "job", event.getNewJob().getName())){
+						stats.setStat(event.getPlayer().getName(), "job", event.getNewJob().getName(), 1);
 						stats.saveAll();
 					}
 				}
@@ -124,7 +125,7 @@ public class JobsJobListener extends JobsEventListener{
 				// let the user join the job
 				info.leaveJob(event.getOldJob());
 				JobsConfiguration.getInstance().getJobsDAO().quitJob(event.getPlayer(), event.getOldJob());
-				event.getPlayer().sendMessage("You have left the job " + event.getOldJob().getJobChatColour() + event.getOldJob().getJobName());
+				event.getPlayer().sendMessage("You have left the job " + event.getOldJob().getChatColour() + event.getOldJob().getName());
 				plugin.getJob(event.getPlayer()).reloadHonorific();
 				plugin.getJob(event.getPlayer()).reloadMaxExperience();
 				plugin.getJob(event.getPlayer()).checkLevels();

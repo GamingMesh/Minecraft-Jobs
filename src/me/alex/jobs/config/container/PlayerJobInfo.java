@@ -215,7 +215,7 @@ public class PlayerJobInfo {
 				
 				if(temp.getJob().getDisplayMethod().equals(DisplayMethod.FULL) || 
 						temp.getJob().getDisplayMethod().equals(DisplayMethod.JOB)){
-					honorific += temp.getJob().getJobChatColour() + temp.getJob().getJobShortName() + ChatColor.WHITE;
+					honorific += temp.getJob().getChatColour() + temp.getJob().getShortName() + ChatColor.WHITE;
 				}
 				
 				if(!temp.getJob().getDisplayMethod().equals(DisplayMethod.NONE)){
@@ -236,7 +236,7 @@ public class PlayerJobInfo {
 			}
 			
 			if(jobs.get(0).getDisplayMethod().equals(DisplayMethod.FULL) || jobs.get(0).getDisplayMethod().equals(DisplayMethod.JOB)){
-				honorific += jobs.get(0).getJobChatColour() + jobs.get(0).getJobName() + ChatColor.WHITE;
+				honorific += jobs.get(0).getChatColour() + jobs.get(0).getName() + ChatColor.WHITE;
 			}
 		}
 		return honorific.trim() + " ";

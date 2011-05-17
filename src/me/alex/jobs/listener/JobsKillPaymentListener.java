@@ -94,7 +94,7 @@ public class JobsKillPaymentListener extends EntityListener{
 								// pay for jobs
 								if(victim instanceof Player){
 									for(Job temp: plugin.getPlayerJobInfo((Player)victim).getJobs()){
-										plugin.getPlayerJobInfo(payee).killed((victim.getClass().toString().replace("class ", "")+":"+temp.getJobName()).trim());
+										plugin.getPlayerJobInfo(payee).killed((victim.getClass().toString().replace("class ", "")+":"+temp.getName()).trim());
 									}
 								}
 							}

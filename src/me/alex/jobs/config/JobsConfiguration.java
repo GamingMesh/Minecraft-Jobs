@@ -14,6 +14,7 @@ import me.alex.jobs.config.container.JobsBlockInfo;
 import me.alex.jobs.config.container.JobsLivingEntityInfo;
 import me.alex.jobs.config.container.Title;
 import me.alex.jobs.dao.JobsDAO;
+import me.alex.jobs.dao.JobsDAOFlatfile;
 import me.alex.jobs.dao.JobsDAOMySQL;
 import me.alex.jobs.economy.JobsEconomyLink;
 import me.alex.jobs.util.DisplayMethod;
@@ -130,7 +131,8 @@ public class JobsConfiguration {
 				((JobsDAOMySQL)dao).setUp();
 			}
 			else if(map.containsKey("storage-method") && ((String)map.get("storage-method")).equals("flatfile")){
-				// TODO create flatfile dao
+				// create flatfile dao
+				dao = new JobsDAOFlatfile();
 			}
 			else{
 				// invalid selection

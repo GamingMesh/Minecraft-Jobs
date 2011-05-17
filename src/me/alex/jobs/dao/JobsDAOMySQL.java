@@ -94,7 +94,7 @@ public class JobsDAOMySQL implements JobsDAO {
 			String sql1 = "DELETE FROM `jobs` WHERE `username` = ? AND `job` = ?;";
 			PreparedStatement prest = conn.prepareStatement(sql1);
 			prest.setString(1, player.getName());
-			prest.setString(2, job.getJobName());
+			prest.setString(2, job.getName());
 			prest.executeUpdate();
 			prest.close();
 			conn.close();
@@ -114,7 +114,7 @@ public class JobsDAOMySQL implements JobsDAO {
 				prest.setInt(1, (int)temp.getExperience());
 				prest.setInt(2, temp.getLevel());
 				prest.setString(3, jobInfo.getPlayer().getName());
-				prest.setString(4, temp.getJob().getJobName());
+				prest.setString(4, temp.getJob().getName());
 				prest.executeUpdate();
 			}
 			conn.close();
@@ -132,7 +132,7 @@ public class JobsDAOMySQL implements JobsDAO {
 			prest.setString(1, player.getName());
 			prest.setInt(2, 0);
 			prest.setInt(3, 1);
-			prest.setString(4, job.getJobName());
+			prest.setString(4, job.getName());
 			prest.executeUpdate();
 			prest.close();
 		} catch (SQLException e) {

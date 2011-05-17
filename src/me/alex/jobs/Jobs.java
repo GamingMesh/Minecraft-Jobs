@@ -202,7 +202,7 @@ public class Jobs extends JavaPlugin{
 					}
 					for(JobProgression temp: getJob((Player)sender).getJobsProgression()){
 						DecimalFormat format = new DecimalFormat("#.##");
-						sender.sendMessage(temp.getJob().getJobChatColour() + temp.getJob().getJobName() + ":");
+						sender.sendMessage(temp.getJob().getChatColour() + temp.getJob().getName() + ":");
 						sender.sendMessage("    Level: " + temp.getLevel());
 						sender.sendMessage("    Experience: " + format.format(temp.getExperience()) + " / " + format.format(temp.getMaxExperience()));
 					}
@@ -224,7 +224,7 @@ public class Jobs extends JavaPlugin{
 					
 					for(JobProgression temp: getJob((Player)sender).getJobsProgression()){
 						DecimalFormat format = new DecimalFormat("#.##");
-						sender.sendMessage(temp.getJob().getJobChatColour() + temp.getJob().getJobName() + ":");
+						sender.sendMessage(temp.getJob().getChatColour() + temp.getJob().getName() + ":");
 						sender.sendMessage("    Level: " + temp.getLevel());
 						sender.sendMessage("    Experience: " + format.format(temp.getExperience()) + " / " + format.format(temp.getMaxExperience()));
 					}
@@ -236,14 +236,14 @@ public class Jobs extends JavaPlugin{
 					for(Job temp: JobsConfiguration.getInstance().getJobs()){
 						if((JobsConfiguration.getInstance().getPermissions()!= null &&
 								JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-								JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.join."+temp.getJobName()))
+								JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.join."+temp.getName()))
 								||
 								((JobsConfiguration.getInstance().getPermissions()!= null) || (JobsConfiguration.getInstance().getPermissions().isEnabled()))){
 							if(temp.getMaxLevel() == null){
-								jobs.add(temp.getJobChatColour() + temp.getJobName());
+								jobs.add(temp.getChatColour() + temp.getName());
 							}
 							else{
-								jobs.add(temp.getJobChatColour() + temp.getJobName() + ChatColor.WHITE + " - max level: " + temp.getMaxLevel());
+								jobs.add(temp.getChatColour() + temp.getName() + ChatColor.WHITE + " - max level: " + temp.getMaxLevel());
 							}
 						}
 					}
@@ -273,7 +273,7 @@ public class Jobs extends JavaPlugin{
 						if(target != null && job != null){
 							try{
 								getServer().getPluginManager().callEvent(new JobsLeaveEvent(target, job));
-								target.sendMessage("You have been fired from " + job.getJobName());
+								target.sendMessage("You have been fired from " + job.getName());
 								sender.sendMessage("Your command has been performed.");
 							}
 							catch (Exception e){
@@ -293,7 +293,7 @@ public class Jobs extends JavaPlugin{
 						if(target != null && job != null){
 							try{
 								getServer().getPluginManager().callEvent(new JobsJoinEvent(target, job));
-								target.sendMessage("You have been employed in " + job.getJobName());
+								target.sendMessage("You have been employed in " + job.getName());
 								sender.sendMessage("Your command has been performed.");
 							}
 							catch (Exception e){
@@ -321,7 +321,7 @@ public class Jobs extends JavaPlugin{
 								}
 								players.get(target).getJobsProgression(job).setLevel(players.get(target).getJobsProgression(job).getLevel() + levelsGained);
 								players.get(target).checkLevels();
-								target.sendMessage("You have been promoted " + levelsGained + " levels in " + job.getJobName());
+								target.sendMessage("You have been promoted " + levelsGained + " levels in " + job.getName());
 								sender.sendMessage("Your command has been performed.");
 							}
 							catch (Exception e){
@@ -347,7 +347,7 @@ public class Jobs extends JavaPlugin{
 								players.get(target).getJobsProgression(job).setLevel(players.get(target).getJobsProgression(job).getLevel() - levelsLost);
 								players.get(target).reloadMaxExperience();
 								players.get(target).checkLevels();
-								target.sendMessage("You have been demoted " + levelsLost + " levels in " + job.getJobName());
+								target.sendMessage("You have been demoted " + levelsLost + " levels in " + job.getName());
 								sender.sendMessage("Your command has been performed.");
 							}
 							catch (Exception e){
@@ -369,14 +369,14 @@ public class Jobs extends JavaPlugin{
 								players.get(target).getJobsProgression(job).setExperience(players.get(target).getJobsProgression(job).getExperience() + Double.parseDouble(args[3]));
 								players.get(target).reloadMaxExperience();
 								players.get(target).checkLevels();
-								target.sendMessage("You have been granted " + args[3] + " experience in " + job.getJobName());
+								target.sendMessage("You have been granted " + args[3] + " experience in " + job.getName());
 								sender.sendMessage("Your command has been performed.");
 							}
 							catch (ClassCastException ex){
 								players.get(target).getJobsProgression(job).setExperience(players.get(target).getJobsProgression(job).getExperience() + (double)Integer.parseInt(args[3]));
 								players.get(target).reloadMaxExperience();
 								players.get(target).checkLevels();
-								target.sendMessage("You have been granted " + args[3] + " experience in " + job.getJobName());
+								target.sendMessage("You have been granted " + args[3] + " experience in " + job.getName());
 								sender.sendMessage("Your command has been performed.");
 							}
 							catch (Exception e){
@@ -397,13 +397,13 @@ public class Jobs extends JavaPlugin{
 							try{
 								players.get(target).getJobsProgression(job).setExperience(players.get(target).getJobsProgression(job).getExperience() - Double.parseDouble(args[3]));
 								players.get(target).checkLevels();
-								target.sendMessage("You have been removec " + args[3] + " experience in " + job.getJobName());
+								target.sendMessage("You have been removec " + args[3] + " experience in " + job.getName());
 								sender.sendMessage("Your command has been performed.");
 							}
 							catch (ClassCastException ex){
 								players.get(target).getJobsProgression(job).setExperience(players.get(target).getJobsProgression(job).getExperience() - (double)Integer.parseInt(args[3]));
 								players.get(target).checkLevels();
-								target.sendMessage("You have been removed " + args[3] + " experience in " + job.getJobName());
+								target.sendMessage("You have been removed " + args[3] + " experience in " + job.getName());
 								sender.sendMessage("Your command has been performed.");
 							}
 							catch (Exception e){
@@ -432,14 +432,15 @@ public class Jobs extends JavaPlugin{
 									players.get(target).reloadMaxExperience();
 									players.get(target).reloadHonorific();
 									players.get(target).checkLevels();
-									target.sendMessage("You have been transferred from " + oldjob.getJobName() + " to " + newjob.getJobName());
+									save(target);
+									target.sendMessage("You have been transferred from " + oldjob.getName() + " to " + newjob.getName());
 									sender.sendMessage("Your command has been performed.");
 									// stats plugin integration
 									if(JobsConfiguration.getInstance().getStats() != null &&
 											JobsConfiguration.getInstance().getStats().isEnabled()){
 										Stats stats = JobsConfiguration.getInstance().getStats();
-										if(info.getJobsProgression(newjob).getLevel() > stats.get(target.getName(), "job", newjob.getJobName())){
-											stats.setStat(target.getName(), "job", newjob.getJobName(), info.getJobsProgression(newjob).getLevel());
+										if(info.getJobsProgression(newjob).getLevel() > stats.get(target.getName(), "job", newjob.getName())){
+											stats.setStat(target.getName(), "job", newjob.getName(), info.getJobsProgression(newjob).getLevel());
 											stats.saveAll();
 										}
 									}

@@ -214,7 +214,7 @@ public class Job {
 	 * Get the job name
 	 * @return the job name
 	 */
-	public String getJobName(){
+	public String getName(){
 		return jobName;
 	}
 	
@@ -222,7 +222,7 @@ public class Job {
 	 * Get the shortened version of the jobName
 	 * @return the shortened version of the jobName
 	 */
-	public String getJobShortName(){
+	public String getShortName(){
 		return jobShortName;
 	}
 	
@@ -230,7 +230,7 @@ public class Job {
 	 * Get the Color of the job for chat
 	 * @return the Color of the job for chat
 	 */
-	public ChatColor getJobChatColour(){
+	public ChatColor getChatColour(){
 		return jobColour;
 	}
 	
