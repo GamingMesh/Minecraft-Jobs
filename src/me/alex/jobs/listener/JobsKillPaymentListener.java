@@ -3,6 +3,7 @@ package me.alex.jobs.listener;
 import java.util.List;
 
 import me.alex.jobs.Jobs;
+import me.alex.jobs.config.container.Job;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -80,7 +81,7 @@ public class JobsKillPaymentListener extends EntityListener{
 								
 								// not close to a mob spawner
 
-								// figure out who to pay (if a wolf is killing or a player is
+								// figure out who to pay (if a wolf is killing or a player is)
 								Player payee;
 								if(damageEvent.getDamager() instanceof Wolf){
 									payee = (Player)((Wolf)damageEvent.getDamager()).getOwner();
@@ -89,10 +90,12 @@ public class JobsKillPaymentListener extends EntityListener{
 									payee = (Player)damageEvent.getDamager();
 								}
 								// pay
-								plugin.getPlayerJobInfo(payee).killed(victim);
+								plugin.getPlayerJobInfo(payee).killed(victim.getClass().toString().replace("class ", "").trim());
 								// pay for jobs
 								if(victim instanceof Player){
-									plugin.getPlayerJobInfo((Player)victim).getJobs();
+									for(Job temp: plugin.getPlayerJobInfo((Player)victim).getJobs()){
+										plugin.getPlayerJobInfo(payee).killed((victim.getClass().toString().replace("class ", "")+":"+temp.getJobName()).trim());
+									}
 								}
 							}
 						}

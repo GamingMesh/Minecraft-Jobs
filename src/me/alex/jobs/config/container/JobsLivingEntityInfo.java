@@ -80,16 +80,13 @@ public class JobsLivingEntityInfo {
 	 * @return the money given
 	 * @return null if it isn't the mob
 	 */
-	public Double getMoneyFromKill(Parser equation, LivingEntity mob,
+	public Double getMoneyFromKill(Parser equation, String mob,
 			HashMap<String, Double> parameters) {
-		if(livingEntityClass.equals(mob.getClass())){
-			for(Entry<String, Double> temp: parameters.entrySet()){
-				equation.setVariable(temp.getKey(), temp.getValue());
-			}
-			equation.setVariable("baseincome", moneyGiven);
-			return equation.getValue();
+		for(Entry<String, Double> temp: parameters.entrySet()){
+			equation.setVariable(temp.getKey(), temp.getValue());
 		}
-		return null;
+		equation.setVariable("baseincome", moneyGiven);
+		return equation.getValue();
 	}
 
 	/**
@@ -101,15 +98,12 @@ public class JobsLivingEntityInfo {
 	 * @return the experience given
 	 * @return null if it isn't the mob
 	 */
-	public Double getXPFromKill(Parser equation, LivingEntity mob,
+	public Double getXPFromKill(Parser equation, String mob,
 			HashMap<String, Double> parameters) {
-		if(livingEntityClass.equals(mob.getClass())){
-			for(Entry<String, Double> temp: parameters.entrySet()){
-				equation.setVariable(temp.getKey(), temp.getValue());
-			}
-			equation.setVariable("basexp", xpGiven);
-			return equation.getValue();
+		for(Entry<String, Double> temp: parameters.entrySet()){
+			equation.setVariable(temp.getKey(), temp.getValue());
 		}
-		return null;
+		equation.setVariable("baseexperience", xpGiven);
+		return equation.getValue();
 	}
 }

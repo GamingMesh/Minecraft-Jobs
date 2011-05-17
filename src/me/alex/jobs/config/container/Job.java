@@ -28,9 +28,7 @@ public class Job {
 	// payment for placing a block
 	private HashMap<String, JobsBlockInfo> jobPlaceInfo;
 	// payment for killing a living entity
-	private HashMap<Class, JobsLivingEntityInfo> jobKillInfo;
-	// payment for killing a custom class
-	private HashMap<String, JobsLivingEntityInfo> jobKillCustomInfo;
+	private HashMap<String, JobsLivingEntityInfo> jobKillInfo;
 	// job name
 	private String jobName;
 	// job short name (for use in multiple jobs)
@@ -65,8 +63,7 @@ public class Job {
 	 */
 	public Job(HashMap<String, JobsBlockInfo> jobBreakInfo, 
 			HashMap<String, JobsBlockInfo> jobPlaceInfo, 
-			HashMap<Class, JobsLivingEntityInfo> jobKillInfo,
-			HashMap<String, JobsLivingEntityInfo> jobKillCustomInfo,
+			HashMap<String, JobsLivingEntityInfo> jobKillInfo,
 			String jobName,
 			String jobShortName,
 			ChatColor jobColour,
@@ -77,7 +74,6 @@ public class Job {
 		this.jobBreakInfo = jobBreakInfo;
 		this.jobPlaceInfo = jobPlaceInfo;
 		this.jobKillInfo = jobKillInfo;
-		this.jobKillCustomInfo = jobKillCustomInfo;
 		this.jobName = jobName;
 		this.jobShortName = jobShortName;
 		this.jobColour = jobColour;
@@ -93,9 +89,11 @@ public class Job {
 	 * @param param - parameters for the customisable equation
 	 * @return the income received for killing the LivingEntity
 	 */
-	public Double getKillIncome(LivingEntity mob, HashMap<String, Double> param){
-		if(jobKillInfo.containsKey(mob)){
-			return jobKillInfo.get(mob).getMoneyFromKill(incomeEquation, mob, param);
+	public Double getKillIncome(String mob, HashMap<String, Double> param){
+		if(jobKillInfo != null){
+			if(jobKillInfo.containsKey(mob)){
+				return jobKillInfo.get(mob).getMoneyFromKill(incomeEquation, mob, param);
+			}
 		}
 		return null;
 	}
@@ -106,53 +104,13 @@ public class Job {
 	 * @param param - parameters for the customisable equation
 	 * @return the exp received for killing the LivingEntity
 	 */
-	public Double getKillExp(LivingEntity mob, HashMap<String, Double> param){
-		if(jobKillInfo.containsKey(mob)){
-			return jobKillInfo.get(mob).getXPFromKill(expEquation, mob, param);
+	public Double getKillExp(String mob, HashMap<String, Double> param){
+		if(jobKillInfo != null){
+			if(jobKillInfo.containsKey(mob)){
+				return jobKillInfo.get(mob).getXPFromKill(expEquation, mob, param);
+			}
 		}
 		return null;
-	}
-	
-	/**
-	 * Function to get the income for killing a player with a job
-	 * @param job - the player's job
-	 * @param param - parameters for the customisable equation
-	 * @return the income received for killing the player with a job
-	 */
-	public Double getCustomKillIncome(Player mob, List<String> jobs, HashMap<String, Double> param){
-		Double income = null;
-		for(String temp: jobs){
-			if(jobKillCustomInfo.containsKey(temp)){
-				if(income == null){
-					income = jobKillCustomInfo.get(temp).getMoneyFromKill(expEquation, mob, param);
-				}
-				else{
-					income += jobKillCustomInfo.get(temp).getMoneyFromKill(expEquation, mob, param);
-				}
-			}
-		}
-		return income;
-	}
-	
-	/**
-	 * Function to get the exp for killing a player with a job
-	 * @param job - the player's job
-	 * @param param - parameters for the customisable equation
-	 * @return the exp received for killing the player with a job
-	 */
-	public Double getCustomKillExp(Player mob, List<String> jobs, HashMap<String, Double> param){
-		Double income = null;
-		for(String temp: jobs){
-			if(jobKillCustomInfo.containsKey(temp)){
-				if(income == null){
-					income = jobKillCustomInfo.get(temp).getXPFromKill(expEquation, mob, param);
-				}
-				else{
-					income += jobKillCustomInfo.get(temp).getXPFromKill(expEquation, mob, param);
-				}
-			}
-		}
-		return income;
 	}
 	
 	/**
@@ -163,14 +121,16 @@ public class Job {
 	 * @return null if job has no payment for this type of block
 	 */
 	public Double getPlaceIncome(Block block, HashMap<String, Double> param){
-		// try simple
-		if(jobPlaceInfo.containsKey(block.getType().toString())){
-			return jobPlaceInfo.get(block.getType().toString()).getMoneyFromBlock(incomeEquation, block, param);
-		}
-		else{
-			// try with sub-class
-			if(jobPlaceInfo.containsKey(block.getType().toString()+":"+block.getData())){
-				return jobPlaceInfo.get(block.getType().toString()+":"+block.getData()).getMoneyFromBlock(incomeEquation, block, param);
+		if(jobPlaceInfo != null){
+			// try simple
+			if(jobPlaceInfo.containsKey(block.getType().toString())){
+				return jobPlaceInfo.get(block.getType().toString()).getMoneyFromBlock(incomeEquation, block, param);
+			}
+			else{
+				// try with sub-class
+				if(jobPlaceInfo.containsKey(block.getType().toString()+":"+block.getData())){
+					return jobPlaceInfo.get(block.getType().toString()+":"+block.getData()).getMoneyFromBlock(incomeEquation, block, param);
+				}
 			}
 		}
 		return null;
@@ -184,14 +144,16 @@ public class Job {
 	 * @return null if job has no payment for this type of block
 	 */
 	public Double getPlaceExp(Block block, HashMap<String, Double> param){
-		// try simple
-		if(jobPlaceInfo.containsKey(block.getType().toString())){
-			return jobPlaceInfo.get(block.getType().toString()).getXPFromBlock(expEquation, block, param);
-		}
-		else{
-			// try with sub-class
-			if(jobPlaceInfo.containsKey(block.getType().toString()+":"+block.getData())){
-				return jobPlaceInfo.get(block.getType().toString()+":"+block.getData()).getXPFromBlock(expEquation, block, param);
+		if(jobPlaceInfo != null){
+			// try simple
+			if(jobPlaceInfo.containsKey(block.getType().toString())){
+				return jobPlaceInfo.get(block.getType().toString()).getXPFromBlock(expEquation, block, param);
+			}
+			else{
+				// try with sub-class
+				if(jobPlaceInfo.containsKey(block.getType().toString()+":"+block.getData())){
+					return jobPlaceInfo.get(block.getType().toString()+":"+block.getData()).getXPFromBlock(expEquation, block, param);
+				}
 			}
 		}
 		return null;
@@ -205,14 +167,16 @@ public class Job {
 	 * @return null if job has no payment for this type of block
 	 */
 	public Double getBreakIncome(Block block, HashMap<String, Double> param){
-		// try simple
-		if(jobBreakInfo.containsKey(block.getType().toString())){
-			return jobBreakInfo.get(block.getType().toString()).getMoneyFromBlock(incomeEquation, block, param);
-		}
-		else{
-			// try with sub-class
-			if(jobBreakInfo.containsKey(block.getType().toString()+":"+block.getData())){
-				return jobBreakInfo.get(block.getType().toString()+":"+block.getData()).getMoneyFromBlock(incomeEquation, block, param);
+		if(jobBreakInfo != null){
+			// try simple
+			if(jobBreakInfo.containsKey(block.getType().toString())){
+				return jobBreakInfo.get(block.getType().toString()).getMoneyFromBlock(incomeEquation, block, param);
+			}
+			else{
+				// try with sub-class
+				if(jobBreakInfo.containsKey(block.getType().toString()+":"+block.getData())){
+					return jobBreakInfo.get(block.getType().toString()+":"+block.getData()).getMoneyFromBlock(incomeEquation, block, param);
+				}
 			}
 		}
 		return null;
@@ -226,14 +190,16 @@ public class Job {
 	 * @return null if job has no payment for this type of block
 	 */
 	public Double getBreakExp(Block block, HashMap<String, Double> param){
-		// try simple
-		if(jobBreakInfo.containsKey(block.getType().toString())){
-			return jobBreakInfo.get(block.getType().toString()).getXPFromBlock(expEquation, block, param);
-		}
-		else{
-			// try with sub-class
-			if(jobBreakInfo.containsKey(block.getType().toString()+":"+block.getData())){
-				return jobBreakInfo.get(block.getType().toString()+":"+block.getData()).getXPFromBlock(expEquation, block, param);
+		if(jobBreakInfo != null){
+			// try simple
+			if(jobBreakInfo.containsKey(block.getType().toString())){
+				return jobBreakInfo.get(block.getType().toString()).getXPFromBlock(expEquation, block, param);
+			}
+			else{
+				// try with sub-class
+				if(jobBreakInfo.containsKey(block.getType().toString()+":"+block.getData())){
+					return jobBreakInfo.get(block.getType().toString()+":"+block.getData()).getXPFromBlock(expEquation, block, param);
+				}
 			}
 		}
 		return null;

@@ -529,7 +529,7 @@ public class JobsConfiguration {
 						}
 						
 						// kill
-						HashMap<Class, JobsLivingEntityInfo> jobKillInfo = null;
+						HashMap<String, JobsLivingEntityInfo> jobKillInfo = null;
 						if(jobInfoMap.containsKey("Kill")){
 							// kill tag exists
 							Map<String, Object> jobKillMap = (Map<String, Object>) jobInfoMap.get("Kill");
@@ -551,7 +551,7 @@ public class JobsConfiguration {
 									Double income;
 									Double experience;
 									if (jobKillInfo == null){
-										jobKillInfo = new HashMap<Class, JobsLivingEntityInfo>();
+										jobKillInfo = new HashMap<String, JobsLivingEntityInfo>();
 									}
 									Map<String, Object> blockData = (Map<String, Object>) jobKillEntity.getValue();
 									// income
@@ -608,7 +608,7 @@ public class JobsConfiguration {
 										Jobs.disablePlugin();
 										return;
 									}
-									jobKillInfo.put(victim, new JobsLivingEntityInfo(victim, experience, income));
+									jobKillInfo.put(("org.bukkit.craftbukkit.entity.Craft"+entityType).trim(), new JobsLivingEntityInfo(victim, experience, income));
 								}
 							}
 						}
@@ -618,8 +618,80 @@ public class JobsConfiguration {
 						}
 						
 						// custom-kill TODO 
-						
-						jobs.put(jobName, new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, null, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod));
+						if(jobInfoMap.containsKey("custom-kill")){
+							// kill tag exists
+							Map<String, Object> jobKillMap = (Map<String, Object>) jobInfoMap.get("custom-kill");
+							if(jobKillMap.size() == 0){
+								// no kill entities detected
+								jobKillInfo = null;
+							}
+							else{
+								// has some kill entities
+								for(Entry<String, Object> jobKillEntity: jobKillMap.entrySet()){
+									String entityType = jobKillEntity.getKey();
+									// puts it in the correct case
+									Double income;
+									Double experience;
+									if (jobKillInfo == null){
+										jobKillInfo = new HashMap<String, JobsLivingEntityInfo>();
+									}
+									Map<String, Object> blockData = (Map<String, Object>) jobKillEntity.getValue();
+									// income
+									if(blockData.containsKey("income")){
+										try{
+											income = (Double) blockData.get("income");
+										}
+										catch(ClassCastException e){
+											try{
+												int temp = (Integer) blockData.get("income");
+												income = (double) temp;
+											}
+											catch (Exception ex){
+												System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid " + jobKillEntity.getKey() + " custom-kill income property. Disabling jobs!");
+												Jobs.disablePlugin();
+												return;
+											}
+										}
+									}
+									else{
+										// error
+										System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing " + jobKillEntity.getKey() + " custom-kill income property. Disabling jobs!");
+										Jobs.disablePlugin();
+										return;
+									}
+									// experience
+									if(blockData.containsKey("experience")){
+										try{
+											experience = (Double) blockData.get("experience");
+										}
+										catch(ClassCastException e){
+											try{
+												int temp = (Integer) blockData.get("experience");
+												experience = (double) temp;
+											}
+											catch (Exception ex){
+												System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid " + jobKillEntity.getKey() + " custom-kill experience property. Disabling jobs!");
+												Jobs.disablePlugin();
+												return;
+											}
+										}
+									}
+									else{
+										// error
+										System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing " + jobKillEntity.getKey() + " custom-kill experience property. Disabling jobs!");
+										Jobs.disablePlugin();
+										return;
+									}
+									try {
+										jobKillInfo.put(("org.bukkit.craftbukkit.entity.CraftPlayer:"+entityType).trim(), new JobsLivingEntityInfo(Class.forName("org.bukkit.craftbukkit.entity.CraftPlayer"), experience, income, entityType));
+									} catch (ClassNotFoundException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								}
+							}
+						}
+						jobs.put(jobName, new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod));
 					}
 				}
 			}

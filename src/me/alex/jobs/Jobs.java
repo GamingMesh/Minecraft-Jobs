@@ -94,16 +94,16 @@ public class Jobs extends JavaPlugin{
 							if(getServer().getPluginManager().getPlugin("iConomy").getDescription().getVersion().startsWith("4")){
 								JobsConfiguration.getInstance().setEconomyLink(
 										new JobsiConomy4Link((com.nijiko.coelho.iConomy.iConomy)getServer().getPluginManager().getPlugin("iConomy")));
-			                    System.out.println("[Jobs] Successfully linked with iConomy 4.");
+			                    System.err.println("[Jobs] Successfully linked with iConomy 4.");
 							}
 							else{
 								JobsConfiguration.getInstance().setEconomyLink(new JobsiConomyLink((iConomy)getServer().getPluginManager().getPlugin("iConomy")));
-			                    System.out.println("[Jobs] Successfully linked with iConomy 5+.");
+			                    System.err.println("[Jobs] Successfully linked with iConomy 5+.");
 							}
 						}
 						else {
 							JobsConfiguration.getInstance().setEconomyLink(new JobsBOSEconomyLink((BOSEconomy)getServer().getPluginManager().getPlugin("BOSEconomy")));
-		                    System.out.println("[Jobs] Successfully linked with BOSEconomy.");
+		                    System.err.println("[Jobs] Successfully linked with BOSEconomy.");
 						}
 					}
 				}
@@ -112,7 +112,7 @@ public class Jobs extends JavaPlugin{
 				if(JobsConfiguration.getInstance().getStats() == null){
 					if(getServer().getPluginManager().getPlugin("Stats") != null){
 						JobsConfiguration.getInstance().setStats((Stats)getServer().getPluginManager().getPlugin("Stats"));
-	                    System.out.println("[Jobs] Successfully linked with Stats.");
+	                    System.err.println("[Jobs] Successfully linked with Stats.");
 					}
 				}
 				
@@ -120,7 +120,7 @@ public class Jobs extends JavaPlugin{
 				if(JobsConfiguration.getInstance().getPermissions() == null){
 					if(getServer().getPluginManager().getPlugin("Permissions") != null){
 						JobsConfiguration.getInstance().setPermissions((Permissions)getServer().getPluginManager().getPlugin("Permissions"));
-	                    System.out.println("[Jobs] Successfully linked with Permissions.");
+	                    System.err.println("[Jobs] Successfully linked with Permissions.");
 					}
 				}
 			}
@@ -130,19 +130,19 @@ public class Jobs extends JavaPlugin{
 				if(event.getPlugin().getDescription().getName().equalsIgnoreCase("iConomy") || 
 						event.getPlugin().getDescription().getName().equalsIgnoreCase("BOSEconomy")){
 					JobsConfiguration.getInstance().setEconomyLink(null);
-                    System.out.println("[Jobs] Economy system successfully unlinked.");
+                    System.err.println("[Jobs] Economy system successfully unlinked.");
 				}
 				
 				// stats
 				if(event.getPlugin().getDescription().getName().equalsIgnoreCase("Stats")){
 					JobsConfiguration.getInstance().setStats(null);
-                    System.out.println("[Jobs] Successfully unlinked with Stats.");
+                    System.err.println("[Jobs] Successfully unlinked with Stats.");
 				}
 				
 				// permissions
 				if(event.getPlugin().getDescription().getName().equalsIgnoreCase("Permissions")){
 					JobsConfiguration.getInstance().setPermissions(null);
-                    System.out.println("[Jobs] Successfully unlinked with Permissions.");
+                    System.err.println("[Jobs] Successfully unlinked with Permissions.");
 				}
 			}
 		}, Event.Priority.Monitor, this);

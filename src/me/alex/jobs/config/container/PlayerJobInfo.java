@@ -122,7 +122,7 @@ public class PlayerJobInfo {
 	 * 
 	 * @param mob - the mob killed
 	 */
-	public void killed(LivingEntity mob){
+	public void killed(String victim){
 		HashMap<String, Double> param = new HashMap<String, Double>();
 		// add the number of jobs to the parameter list
 		param.put("numjobs", (double)progression.size());
@@ -130,13 +130,14 @@ public class PlayerJobInfo {
 			// add the current level to the parameter list
 			param.put("joblevel", (double)temp.getValue().getLevel());
 			// get the income and give it
-			Double income = temp.getKey().getKillIncome(mob, param);
+			Double income = temp.getKey().getKillIncome(victim, param);
 			if(income != null){
 				// give income
 				JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
-				temp.getValue().addExp(temp.getKey().getKillExp(mob, param));
+				temp.getValue().addExp(temp.getKey().getKillExp(victim, param));
 				checkLevels();	
 			}
+			param.remove("joblevel");
 		}
 	}	
 	
