@@ -11,11 +11,10 @@ import me.alex.jobs.event.JobsJoinEvent;
 import me.alex.jobs.event.JobsLeaveEvent;
 import me.alex.jobs.event.JobsLevelUpEvent;
 import me.alex.jobs.event.JobsSkillUpEvent;
-import me.alex.jobs.util.DisplayMethod;
 
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.mbertoli.jfep.Parser;
+
+import com.nidefawl.Stats.Stats;
 
 /**
  * Job listener for doing the default job listening things.
@@ -49,6 +48,16 @@ public class JobsJobListener extends JobsEventListener{
 				
 				// TODO customizable message
 				event.getPlayer().sendMessage(ChatColor.YELLOW + "-- Job Level Up --");
+				
+				// stats plugin integration
+				if(JobsConfiguration.getInstance().getStats() != null &&
+						JobsConfiguration.getInstance().getStats().isEnabled()){
+					Stats stats = JobsConfiguration.getInstance().getStats();
+					if(progression.getLevel() > stats.get(event.getPlayer().getName(), "job", progression.getJob().getJobName())){
+						stats.setStat(event.getPlayer().getName(), "job", progression.getJob().getJobName(), progression.getLevel());
+						stats.saveAll();
+					}
+				}
 			}
 			else{
 				event.getJobProgression().setExperience(0.0);
@@ -92,6 +101,16 @@ public class JobsJobListener extends JobsEventListener{
 				event.getPlayer().sendMessage("You have joined the job " + event.getNewJob().getJobChatColour() + event.getNewJob().getJobName());
 				plugin.getJob(event.getPlayer()).reloadHonorific();
 				plugin.getJob(event.getPlayer()).reloadMaxExperience();
+				
+				// stats plugin integration
+				if(JobsConfiguration.getInstance().getStats() != null &&
+						JobsConfiguration.getInstance().getStats().isEnabled()){
+					Stats stats = JobsConfiguration.getInstance().getStats();
+					if(1 > stats.get(event.getPlayer().getName(), "job", event.getNewJob().getJobName())){
+						stats.setStat(event.getPlayer().getName(), "job", event.getNewJob().getJobName(), 1);
+						stats.saveAll();
+					}
+				}
 			}
 		}
 	}

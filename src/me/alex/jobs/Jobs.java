@@ -239,7 +239,12 @@ public class Jobs extends JavaPlugin{
 								JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.join."+temp.getJobName()))
 								||
 								((JobsConfiguration.getInstance().getPermissions()!= null) || (JobsConfiguration.getInstance().getPermissions().isEnabled()))){
-							jobs.add(temp.getJobChatColour() + temp.getJobName());
+							if(temp.getMaxLevel() == null){
+								jobs.add(temp.getJobChatColour() + temp.getJobName());
+							}
+							else{
+								jobs.add(temp.getJobChatColour() + temp.getJobName() + ChatColor.WHITE + " - max level: " + temp.getMaxLevel());
+							}
 						}
 					}
 					if(jobs.size() == 0){
@@ -316,7 +321,7 @@ public class Jobs extends JavaPlugin{
 								}
 								players.get(target).getJobsProgression(job).setLevel(players.get(target).getJobsProgression(job).getLevel() + levelsGained);
 								players.get(target).checkLevels();
-								target.sendMessage("You have been promoted " + args[3] + " levels in " + job.getJobName());
+								target.sendMessage("You have been promoted " + levelsGained + " levels in " + job.getJobName());
 								sender.sendMessage("Your command has been performed.");
 							}
 							catch (Exception e){
@@ -340,8 +345,9 @@ public class Jobs extends JavaPlugin{
 									levelsLost = players.get(target).getJobsProgression(job).getLevel() - 1;
 								}
 								players.get(target).getJobsProgression(job).setLevel(players.get(target).getJobsProgression(job).getLevel() - levelsLost);
+								players.get(target).reloadMaxExperience();
 								players.get(target).checkLevels();
-								target.sendMessage("You have been demoted " + args[3] + " levels in " + job.getJobName());
+								target.sendMessage("You have been demoted " + levelsLost + " levels in " + job.getJobName());
 								sender.sendMessage("Your command has been performed.");
 							}
 							catch (Exception e){
@@ -361,12 +367,14 @@ public class Jobs extends JavaPlugin{
 						if(target != null && job != null){
 							try{
 								players.get(target).getJobsProgression(job).setExperience(players.get(target).getJobsProgression(job).getExperience() + Double.parseDouble(args[3]));
+								players.get(target).reloadMaxExperience();
 								players.get(target).checkLevels();
 								target.sendMessage("You have been granted " + args[3] + " experience in " + job.getJobName());
 								sender.sendMessage("Your command has been performed.");
 							}
 							catch (ClassCastException ex){
 								players.get(target).getJobsProgression(job).setExperience(players.get(target).getJobsProgression(job).getExperience() + (double)Integer.parseInt(args[3]));
+								players.get(target).reloadMaxExperience();
 								players.get(target).checkLevels();
 								target.sendMessage("You have been granted " + args[3] + " experience in " + job.getJobName());
 								sender.sendMessage("Your command has been performed.");
@@ -421,8 +429,20 @@ public class Jobs extends JavaPlugin{
 									if(newjob.getMaxLevel() != null && info.getJobsProgression(newjob).getLevel() > newjob.getMaxLevel()){
 										info.getJobsProgression(newjob).setLevel(newjob.getMaxLevel());
 									}
+									players.get(target).reloadMaxExperience();
+									players.get(target).reloadHonorific();
+									players.get(target).checkLevels();
 									target.sendMessage("You have been transferred from " + oldjob.getJobName() + " to " + newjob.getJobName());
 									sender.sendMessage("Your command has been performed.");
+									// stats plugin integration
+									if(JobsConfiguration.getInstance().getStats() != null &&
+											JobsConfiguration.getInstance().getStats().isEnabled()){
+										Stats stats = JobsConfiguration.getInstance().getStats();
+										if(info.getJobsProgression(newjob).getLevel() > stats.get(target.getName(), "job", newjob.getJobName())){
+											stats.setStat(target.getName(), "job", newjob.getJobName(), info.getJobsProgression(newjob).getLevel());
+											stats.saveAll();
+										}
+									}
 								}
 							}
 							catch (Exception e){

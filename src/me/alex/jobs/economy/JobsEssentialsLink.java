@@ -16,4 +16,10 @@ public class JobsEssentialsLink implements JobsEconomyLink{
 		// TODO
 	}
 
+	@Override
+	public void updateStats(Player player) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

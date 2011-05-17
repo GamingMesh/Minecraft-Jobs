@@ -167,12 +167,12 @@ public class JobsConfiguration {
 					broadcast = (Boolean)map.get("broadcast-on-skill-up");
 				}
 				catch (Exception e) {
-					System.err.println("[Jobs] - broadcast-on-skill-up property does is invalid. Defaulting to false");
+					System.out.println("[Jobs] - broadcast-on-skill-up property does is invalid. Defaulting to false");
 					broadcast = false;
 				}
 			}
 			else{
-				System.err.println("[Jobs] - broadcast-on-skill-up property does not exist. Defaulting to false");
+				System.out.println("[Jobs] - broadcast-on-skill-up property does not exist. Defaulting to false");
 				broadcast = false;
 			}
 
@@ -246,7 +246,7 @@ public class JobsConfiguration {
 							}
 						}
 						else{
-							System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing the max-level property. defaulting to no limits !");
+							System.out.println("[Jobs] - Job " + jobMap.getKey() + " is missing the max-level property. defaulting to no limits !");
 						}
 						
 						// shortname

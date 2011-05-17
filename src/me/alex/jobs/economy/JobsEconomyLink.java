@@ -15,4 +15,10 @@ public interface JobsEconomyLink {
 	 * @param amount - amount to be paid
 	 */
 	public void pay(Player player, double amount);
+	
+	/**
+	 * Update Stats plugin money stats
+	 * @param player - the player
+	 */
+	public void updateStats(Player player);
 }

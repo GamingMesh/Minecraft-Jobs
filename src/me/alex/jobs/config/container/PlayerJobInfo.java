@@ -83,6 +83,7 @@ public class PlayerJobInfo {
 			Double income = temp.getKey().getBreakIncome(block, param);
 			if(income != null){
 				JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+				JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
 				temp.getValue().addExp(temp.getKey().getBreakExp(block, param));
 				checkLevels();
 			}
@@ -109,6 +110,7 @@ public class PlayerJobInfo {
 			if(income != null){
 				// give income
 				JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+				JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
 				temp.getValue().addExp(temp.getKey().getPlaceExp(block, param));
 				checkLevels();
 			}
@@ -134,6 +136,7 @@ public class PlayerJobInfo {
 			if(income != null){
 				// give income
 				JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+				JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
 				temp.getValue().addExp(temp.getKey().getKillExp(victim, param));
 				checkLevels();	
 			}
