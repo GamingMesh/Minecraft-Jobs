@@ -32,20 +32,28 @@ public class JobsJobListener extends JobsEventListener{
 	@Override
 	public void onJobLevelUp(JobsLevelUpEvent event) {
 		if(!event.isCancelled()){
-			JobProgression progression = event.getJobProgression();
-			// increase the level
-			progression.setLevel(progression.getLevel()+1);
-			// decrease the current exp
-			progression.setExperience(progression.getExperience()-progression.getMaxExperience());
-			// recalculate the maxexp 
-			HashMap<String, Double> param = new HashMap<String, Double>();
-			param.put("numjobs", (double)event.getNumJobs());
-			param.put("joblevel", (double)progression.getLevel());
 			
-			progression.setMaxExperience(progression.getJob().getMaxExp(param));
-			
-			// TODO customizable message
-			event.getPlayer().sendMessage(ChatColor.YELLOW + "-- Job Level Up --");
+			if(event.getJobProgression().getJob().getMaxLevel() == null ||
+					event.getJobProgression().getLevel() < event.getJobProgression().getJob().getMaxLevel()){
+				JobProgression progression = event.getJobProgression();
+				// increase the level
+				progression.setLevel(progression.getLevel()+1);
+				// decrease the current exp
+				progression.setExperience(progression.getExperience()-progression.getMaxExperience());
+				// recalculate the maxexp 
+				HashMap<String, Double> param = new HashMap<String, Double>();
+				param.put("numjobs", (double)event.getNumJobs());
+				param.put("joblevel", (double)progression.getLevel());
+				
+				progression.setMaxExperience(progression.getJob().getMaxExp(param));
+				
+				// TODO customizable message
+				event.getPlayer().sendMessage(ChatColor.YELLOW + "-- Job Level Up --");
+			}
+			else{
+				event.getJobProgression().setExperience(0.0);
+				event.getPlayer().sendMessage(ChatColor.YELLOW + "-- You have reached the maximum level --");
+			}
 		}
 	}
 	

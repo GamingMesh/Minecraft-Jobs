@@ -227,6 +227,28 @@ public class JobsConfiguration {
 							Jobs.disablePlugin();
 							return;
 						}
+						// max-level
+						Integer maxLevel = null;
+						if(jobInfoMap.containsKey("max-level")){
+							try{
+								maxLevel = (Integer) jobInfoMap.get("max-level");
+							}
+							catch(ClassCastException e){
+								try{
+									double temp = (Double) jobInfoMap.get("max-level");
+									maxLevel = (int) temp;
+								}
+								catch (Exception ex){
+									System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid max-level property. Disabling jobs!");
+									Jobs.disablePlugin();
+									return;
+								}
+							}
+						}
+						else{
+							System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing the max-level property. defaulting to no limits !");
+						}
+						
 						// shortname
 						String jobShortName;
 						if(jobInfoMap.containsKey("shortname")){
@@ -703,7 +725,7 @@ public class JobsConfiguration {
 								}
 							}
 						}
-						jobs.put(jobName, new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod));
+						jobs.put(jobName, new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel));
 					}
 				}
 			}

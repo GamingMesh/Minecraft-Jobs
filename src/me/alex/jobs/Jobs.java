@@ -309,7 +309,12 @@ public class Jobs extends JavaPlugin{
 						Job job = JobsConfiguration.getInstance().getJob(args[2]);
 						if(target != null && job != null){
 							try{
-								players.get(target).getJobsProgression(job).setLevel(players.get(target).getJobsProgression(job).getLevel() + Integer.parseInt(args[3]));
+								Integer levelsGained = Integer.parseInt(args[3]);
+								if (players.get(target).getJobsProgression(job).getJob().getMaxLevel() != null &&
+										levelsGained + players.get(target).getJobsProgression(job).getLevel() > players.get(target).getJobsProgression(job).getJob().getMaxLevel()){
+									levelsGained = players.get(target).getJobsProgression(job).getJob().getMaxLevel() - players.get(target).getJobsProgression(job).getLevel();
+								}
+								players.get(target).getJobsProgression(job).setLevel(players.get(target).getJobsProgression(job).getLevel() + levelsGained);
 								players.get(target).checkLevels();
 								target.sendMessage("You have been promoted " + args[3] + " levels in " + job.getJobName());
 								sender.sendMessage("Your command has been performed.");
@@ -330,7 +335,11 @@ public class Jobs extends JavaPlugin{
 						Job job = JobsConfiguration.getInstance().getJob(args[2]);
 						if(target != null && job != null){
 							try{
-								players.get(target).getJobsProgression(job).setLevel(players.get(target).getJobsProgression(job).getLevel() - Integer.parseInt(args[3]));
+								Integer levelsLost = Integer.parseInt(args[3]);
+								if (players.get(target).getJobsProgression(job).getLevel() - levelsLost < 1){
+									levelsLost = players.get(target).getJobsProgression(job).getLevel() - 1;
+								}
+								players.get(target).getJobsProgression(job).setLevel(players.get(target).getJobsProgression(job).getLevel() - levelsLost);
 								players.get(target).checkLevels();
 								target.sendMessage("You have been demoted " + args[3] + " levels in " + job.getJobName());
 								sender.sendMessage("Your command has been performed.");
@@ -409,6 +418,9 @@ public class Jobs extends JavaPlugin{
 								PlayerJobInfo info = players.get(target);
 								if(info.isInJob(oldjob) && !info.isInJob(newjob)){
 									info.transferJob(oldjob, newjob);
+									if(newjob.getMaxLevel() != null && info.getJobsProgression(newjob).getLevel() > newjob.getMaxLevel()){
+										info.getJobsProgression(newjob).setLevel(newjob.getMaxLevel());
+									}
 									target.sendMessage("You have been transferred from " + oldjob.getJobName() + " to " + newjob.getJobName());
 									sender.sendMessage("Your command has been performed.");
 								}

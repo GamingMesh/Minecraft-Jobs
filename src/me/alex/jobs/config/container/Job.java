@@ -43,6 +43,8 @@ public class Job {
 	private Parser expEquation;
 	// display method
 	private DisplayMethod displayMethod;
+	// max level
+	private Integer maxLevel;
 	
 	@SuppressWarnings("unused")
 	private Job(){}
@@ -60,6 +62,7 @@ public class Job {
 	 * @param incomeEquation - the equation by which the income given for a level is calculated
 	 * @param expEquation - the equation by which the exp given for a level is calculated
 	 * @param displayMethod - the display method for this job.
+	 * @param maxLevel - the maximum level allowed (null for no max level)
 	 */
 	public Job(HashMap<String, JobsBlockInfo> jobBreakInfo, 
 			HashMap<String, JobsBlockInfo> jobPlaceInfo, 
@@ -70,7 +73,8 @@ public class Job {
 			Parser maxExpEquation,
 			Parser incomeEquation,
 			Parser expEquation,
-			DisplayMethod displayMethod){
+			DisplayMethod displayMethod,
+			Integer maxLevel){
 		this.jobBreakInfo = jobBreakInfo;
 		this.jobPlaceInfo = jobPlaceInfo;
 		this.jobKillInfo = jobKillInfo;
@@ -81,6 +85,7 @@ public class Job {
 		this.incomeEquation = incomeEquation;
 		this.expEquation = expEquation;
 		this.displayMethod = displayMethod;
+		this.maxLevel = maxLevel;
 	}
 	
 	/**
@@ -271,5 +276,14 @@ public class Job {
 	 */
 	public DisplayMethod getDisplayMethod() {
 		return displayMethod;
+	}
+	
+	/**
+	 * Function to return the maximum level
+	 * @return the max level
+	 * @return null - no max level
+	 */
+	public Integer getMaxLevel(){
+		return maxLevel;
 	}
 }
