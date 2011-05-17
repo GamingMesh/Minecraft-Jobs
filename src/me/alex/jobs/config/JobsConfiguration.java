@@ -371,6 +371,12 @@ public class JobsConfiguration {
 								// has some break blocks
 								for(Entry<String, Object> jobBreakBlock: jobBreakMap.entrySet()){
 									String blockType = jobBreakBlock.getKey();
+									String subtype = "";
+									if(blockType.contains("-")){
+										// uses subtype
+										subtype = ":"+blockType.split("-")[1];
+										blockType = blockType.split("-")[0];
+									}
 									Double income;
 									Double experience;
 									if (jobBreakInfo == null){
@@ -434,7 +440,7 @@ public class JobsConfiguration {
 										Jobs.disablePlugin();
 										return;
 									}
-									jobBreakInfo.put(mater.toString(), new JobsBlockInfo(materData, experience, income));
+									jobBreakInfo.put(mater.toString()+subtype, new JobsBlockInfo(materData, experience, income));
 								}
 							}
 						}
@@ -458,6 +464,12 @@ public class JobsConfiguration {
 									String blockType = jobPlaceBlock.getKey();
 									Double income;
 									Double experience;
+									String subtype = "";
+									if(blockType.contains("-")){
+										// uses subtype
+										subtype = ":"+blockType.split("-")[1];
+										blockType = blockType.split("-")[0];
+									}
 									if (jobPlaceInfo == null){
 										jobPlaceInfo = new HashMap<String, JobsBlockInfo>();
 									}
@@ -519,7 +531,7 @@ public class JobsConfiguration {
 										Jobs.disablePlugin();
 										return;
 									}
-									jobPlaceInfo.put(mater.toString(), new JobsBlockInfo(materData, experience, income));
+									jobPlaceInfo.put(mater.toString()+subtype, new JobsBlockInfo(materData, experience, income));
 								}
 							}
 						}
@@ -685,7 +697,7 @@ public class JobsConfiguration {
 									try {
 										jobKillInfo.put(("org.bukkit.craftbukkit.entity.CraftPlayer:"+entityType).trim(), new JobsLivingEntityInfo(Class.forName("org.bukkit.craftbukkit.entity.CraftPlayer"), experience, income, entityType));
 									} catch (ClassNotFoundException e) {
-										// TODO Auto-generated catch block
+										// won't enter
 										e.printStackTrace();
 									}
 								}

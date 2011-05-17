@@ -158,6 +158,14 @@ public class PlayerJobInfo {
 	}
 	
 	/**
+	 * Get the job progression with the certain job
+	 * @return the job progression
+	 */
+	public JobProgression getJobsProgression(Job job){
+		return progression.get(job);
+	}
+	
+	/**
 	 * get the player
 	 * @return the player
 	 */

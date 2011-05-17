@@ -173,8 +173,14 @@ public class Jobs extends JavaPlugin{
 					}
 					jobName = jobName.trim();
 					if(JobsConfiguration.getInstance().getJob(jobName) != null){
-						getServer().getPluginManager().callEvent(new JobsJoinEvent(
-								(Player)sender, JobsConfiguration.getInstance().getJob(jobName)));
+						if((JobsConfiguration.getInstance().getPermissions()!= null &&
+								JobsConfiguration.getInstance().getPermissions().isEnabled() &&
+								JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.join."+jobName))
+								||
+								((JobsConfiguration.getInstance().getPermissions()!= null) || (JobsConfiguration.getInstance().getPermissions().isEnabled()))){
+							getServer().getPluginManager().callEvent(new JobsJoinEvent(
+									(Player)sender, JobsConfiguration.getInstance().getJob(jobName)));
+						}
 					}
 				}
 				// leave
@@ -215,9 +221,6 @@ public class Jobs extends JavaPlugin{
 					else if(args[1].equalsIgnoreCase("kill")){
 						
 					}
-					else if(args[1].equalsIgnoreCase("custom-kill")){
-						
-					}
 					
 					for(JobProgression temp: getJob((Player)sender).getJobsProgression()){
 						DecimalFormat format = new DecimalFormat("#.##");
@@ -231,7 +234,13 @@ public class Jobs extends JavaPlugin{
 				else if(args.length == 1 && args[0].equalsIgnoreCase("browse")){
 					ArrayList<String> jobs = new ArrayList<String>();
 					for(Job temp: JobsConfiguration.getInstance().getJobs()){
-						jobs.add(temp.getJobChatColour() + temp.getJobName());
+						if((JobsConfiguration.getInstance().getPermissions()!= null &&
+								JobsConfiguration.getInstance().getPermissions().isEnabled() &&
+								JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.join."+temp.getJobName()))
+								||
+								((JobsConfiguration.getInstance().getPermissions()!= null) || (JobsConfiguration.getInstance().getPermissions().isEnabled()))){
+							jobs.add(temp.getJobChatColour() + temp.getJobName());
+						}
 					}
 					if(jobs.size() == 0){
 						sender.sendMessage("There are no jobs you can join");
@@ -242,6 +251,175 @@ public class Jobs extends JavaPlugin{
 							sender.sendMessage("    " + temp);
 						}
 						sender.sendMessage("For more information type in /jobs info [JobName]");
+					}
+				}
+			}
+			
+			// admin commands
+			// jobs promote player job X
+			// jobs demote player job X
+			// jobs grantxp player job X
+			// jobs removexp player job X
+			// jobs fire player job
+			// jobs transfer player job
+			// jobs employ player job
+			if(args.length == 3){
+				if(args[0].equalsIgnoreCase("fire")){
+					if((JobsConfiguration.getInstance().getPermissions()!= null &&
+							JobsConfiguration.getInstance().getPermissions().isEnabled() &&
+							JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.fire"))
+							||
+							(((JobsConfiguration.getInstance().getPermissions()!= null) || (JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+						Player target = getServer().getPlayer(args[1]);
+						Job job = JobsConfiguration.getInstance().getJob(args[2]);
+						if(target != null && job != null){
+							try{
+								getServer().getPluginManager().callEvent(new JobsLeaveEvent(target, job));
+								target.sendMessage("You have been fired from" + job.getJobName());
+								sender.sendMessage("Your command has been performed.");
+							}
+							catch (Exception e){
+								sender.sendMessage(ChatColor.RED + "There was an error in the command");
+							}
+						}
+					}
+				}
+				else if(args[0].equalsIgnoreCase("transfer")){
+					if((JobsConfiguration.getInstance().getPermissions()!= null &&
+							JobsConfiguration.getInstance().getPermissions().isEnabled() &&
+							JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.transfer"))
+							||
+							(((JobsConfiguration.getInstance().getPermissions()!= null) || (JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+						Player target = getServer().getPlayer(args[1]);
+						Job job = JobsConfiguration.getInstance().getJob(args[2]);
+						if(target != null && job != null){
+							try{
+								getServer().getPluginManager().callEvent(new JobsLeaveEvent(target, job));
+								target.sendMessage("You have been fired from" + job.getJobName());
+								sender.sendMessage("Your command has been performed.");
+							}
+							catch (Exception e){
+								sender.sendMessage(ChatColor.RED + "There was an error in the command");
+							}
+						}
+					}
+				}
+				else if(args[0].equalsIgnoreCase("employ")){
+					if((JobsConfiguration.getInstance().getPermissions()!= null &&
+							JobsConfiguration.getInstance().getPermissions().isEnabled() &&
+							JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.employ."+args[2]))
+							||
+							(((JobsConfiguration.getInstance().getPermissions()!= null) || (JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+						Player target = getServer().getPlayer(args[1]);
+						Job job = JobsConfiguration.getInstance().getJob(args[2]);
+						if(target != null && job != null){
+							try{
+								getServer().getPluginManager().callEvent(new JobsJoinEvent(target, job));
+								target.sendMessage("You have been employed in " + job.getJobName());
+								sender.sendMessage("Your command has been performed.");
+							}
+							catch (Exception e){
+								sender.sendMessage(ChatColor.RED + "There was an error in the command");
+							}
+						}
+					}
+				}
+			}
+			else if(args.length == 4){
+				if(args[0].equalsIgnoreCase("promote")){
+					if((JobsConfiguration.getInstance().getPermissions()!= null &&
+							JobsConfiguration.getInstance().getPermissions().isEnabled() &&
+							JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.promote"))
+							||
+							(((JobsConfiguration.getInstance().getPermissions()!= null) || (JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+						Player target = getServer().getPlayer(args[1]);
+						Job job = JobsConfiguration.getInstance().getJob(args[2]);
+						if(target != null && job != null){
+							try{
+								players.get(target).getJobsProgression(job).setLevel(players.get(target).getJobsProgression(job).getLevel() + Integer.parseInt(args[3]));
+								players.get(target).checkLevels();
+								target.sendMessage("You have been promoted " + args[3] + " levels in " + job.getJobName());
+								sender.sendMessage("Your command has been performed.");
+							}
+							catch (Exception e){
+								sender.sendMessage(ChatColor.RED + "There was an error in the command");
+							}
+						}
+					}
+				}
+				else if(args[0].equalsIgnoreCase("demote")){
+					if((JobsConfiguration.getInstance().getPermissions()!= null &&
+							JobsConfiguration.getInstance().getPermissions().isEnabled() &&
+							JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.demote"))
+							||
+							(((JobsConfiguration.getInstance().getPermissions()!= null) || (JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+						Player target = getServer().getPlayer(args[1]);	
+						Job job = JobsConfiguration.getInstance().getJob(args[2]);
+						if(target != null && job != null){
+							try{
+								players.get(target).getJobsProgression(job).setLevel(players.get(target).getJobsProgression(job).getLevel() - Integer.parseInt(args[3]));
+								players.get(target).checkLevels();
+								target.sendMessage("You have been demoted " + args[3] + " levels in " + job.getJobName());
+								sender.sendMessage("Your command has been performed.");
+							}
+							catch (Exception e){
+								sender.sendMessage(ChatColor.RED + "There was an error in the command");
+							}
+						}
+					}
+				}
+				else if(args[0].equalsIgnoreCase("grantxp")){
+					if((JobsConfiguration.getInstance().getPermissions()!= null &&
+							JobsConfiguration.getInstance().getPermissions().isEnabled() &&
+							JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.grantxp"))
+							||
+							(((JobsConfiguration.getInstance().getPermissions()!= null) || (JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+						Player target = getServer().getPlayer(args[1]);
+						Job job = JobsConfiguration.getInstance().getJob(args[2]);
+						if(target != null && job != null){
+							try{
+								players.get(target).getJobsProgression(job).setExperience(players.get(target).getJobsProgression(job).getExperience() + Double.parseDouble(args[3]));
+								players.get(target).checkLevels();
+								target.sendMessage("You have been granted " + args[3] + " experience in " + job.getJobName());
+								sender.sendMessage("Your command has been performed.");
+							}
+							catch (ClassCastException ex){
+								players.get(target).getJobsProgression(job).setExperience(players.get(target).getJobsProgression(job).getExperience() + (double)Integer.parseInt(args[3]));
+								players.get(target).checkLevels();
+								target.sendMessage("You have been granted " + args[3] + " experience in " + job.getJobName());
+								sender.sendMessage("Your command has been performed.");
+							}
+							catch (Exception e){
+								sender.sendMessage(ChatColor.RED + "There was an error in the command");
+							}
+						}
+					}
+				}
+				else if(args[0].equalsIgnoreCase("removexp")){
+					if((JobsConfiguration.getInstance().getPermissions()!= null &&
+							JobsConfiguration.getInstance().getPermissions().isEnabled() &&
+							JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.removexp"))
+							||
+							(((JobsConfiguration.getInstance().getPermissions()!= null) || (JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+						Player target = getServer().getPlayer(args[1]);
+						Job job = JobsConfiguration.getInstance().getJob(args[2]);
+						if(target != null && job != null){
+							try{
+								players.get(target).getJobsProgression(job).setExperience(players.get(target).getJobsProgression(job).getExperience() - Double.parseDouble(args[3]));
+								players.get(target).checkLevels();
+								target.sendMessage("You have been removec " + args[3] + " experience in " + job.getJobName());
+								sender.sendMessage("Your command has been performed.");
+							}
+							catch (ClassCastException ex){
+								players.get(target).getJobsProgression(job).setExperience(players.get(target).getJobsProgression(job).getExperience() - (double)Integer.parseInt(args[3]));
+								players.get(target).checkLevels();
+								target.sendMessage("You have been removed " + args[3] + " experience in " + job.getJobName());
+								sender.sendMessage("Your command has been performed.");
+							}
+							catch (Exception e){
+								sender.sendMessage(ChatColor.RED + "There was an error in the command");
+							}
+						}
 					}
 				}
 			}
