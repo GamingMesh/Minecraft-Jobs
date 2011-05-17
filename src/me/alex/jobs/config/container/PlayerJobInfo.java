@@ -258,6 +258,20 @@ public class PlayerJobInfo {
 	}
 	
 	/**
+	 * Player leaves a job
+	 * @param job - the job left
+	 */
+	public void transferJob(Job oldjob, Job newjob){
+		JobProgression prog = progression.get(oldjob);
+		jobs.remove(oldjob);
+		jobs.add(newjob);
+		progression.remove(oldjob);
+		prog.setJob(newjob);
+		progression.put(newjob, prog);
+		
+	}
+	
+	/**
 	 * Checks if the player is in this job.
 	 * @param job - the job
 	 * @return true - they are in the job
