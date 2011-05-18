@@ -2,6 +2,7 @@ package me.alex.jobs.event;
 
 import org.bukkit.event.Event;
 
+@SuppressWarnings("serial")
 public abstract class JobsEvent extends Event{
 	private JobsEventType type;
 	private boolean cancelled;

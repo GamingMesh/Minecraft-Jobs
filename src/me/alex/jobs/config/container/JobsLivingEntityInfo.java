@@ -3,7 +3,6 @@ package me.alex.jobs.config.container;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import org.bukkit.entity.LivingEntity;
 import org.mbertoli.jfep.Parser;
 
 
@@ -15,7 +14,6 @@ import org.mbertoli.jfep.Parser;
 @SuppressWarnings("rawtypes")
 public class JobsLivingEntityInfo {
 	private Class livingEntityClass;
-	private String job;
 	private double xpGiven;
 	private double moneyGiven;
 	
@@ -29,21 +27,6 @@ public class JobsLivingEntityInfo {
 		this.livingEntityClass = livingEntityClass;
 		this.xpGiven = xpGiven;
 		this.moneyGiven = moneyGiven;
-		this.job = null;
-	}
-	
-	/**
-	 * Constructor for kill info
-	 * @param livingEntityClass - LivingEntity that the class represents
-	 * @param xpGiven - base xp given for the LivingEntity
-	 * @param moneyGiven - base money given for the LivingEntity
-	 * @param job - the job
-	 */
-	public JobsLivingEntityInfo(Class livingEntityClass, double xpGiven, double moneyGiven, String job){
-		this.livingEntityClass = livingEntityClass;
-		this.xpGiven = xpGiven;
-		this.moneyGiven = moneyGiven;
-		this.job = job;
 	}
 	
 

@@ -4,6 +4,7 @@ import me.alex.jobs.config.container.Job;
 
 import org.bukkit.entity.Player;
 
+@SuppressWarnings("serial")
 public class JobsLeaveEvent extends JobsEvent{
 	private Player player;
 	private Job job;

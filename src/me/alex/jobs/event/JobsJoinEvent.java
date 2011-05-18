@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
  * @author Alex
  *
  */
+@SuppressWarnings("serial")
 public class JobsJoinEvent extends JobsEvent{
 	private Player player;
 	private Job job;

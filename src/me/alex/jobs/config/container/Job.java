@@ -1,16 +1,12 @@
 package me.alex.jobs.config.container;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
 
 import me.alex.jobs.util.DisplayMethod;
 
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.material.MaterialData;
 import org.mbertoli.jfep.Parser;
 
 /**
@@ -20,7 +16,6 @@ import org.mbertoli.jfep.Parser;
  * @author Alex
  *
  */
-@SuppressWarnings("rawtypes")
 public class Job {
 	
 	// payment for breaking a block

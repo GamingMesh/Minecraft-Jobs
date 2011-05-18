@@ -5,6 +5,7 @@ import me.alex.jobs.config.container.Title;
 
 import org.bukkit.entity.Player;
 
+@SuppressWarnings("serial")
 public class JobsSkillUpEvent extends JobsEvent{
 	private Player player;
 	private JobProgression jobProgression;

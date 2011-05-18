@@ -27,13 +27,12 @@ public class JobsiConomy4Link implements JobsEconomyLink{
 	@SuppressWarnings("static-access")
 	@Override
 	public void pay(Player player, double amount) {
-		// TODO Auto-generated method stub
 		economy.getBank().getAccount(player.getName()).add(amount);
 	}
 
+	@SuppressWarnings("static-access")
 	@Override
 	public void updateStats(Player player) {
-		// TODO Auto-generated method stub
 		// stats plugin integration
 		if(JobsConfiguration.getInstance().getStats() != null &&
 				JobsConfiguration.getInstance().getStats().isEnabled()){

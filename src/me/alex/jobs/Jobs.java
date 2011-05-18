@@ -68,95 +68,97 @@ public class Jobs extends JavaPlugin{
 		players = new HashMap<Player, PlayerJobInfo>();
 		JobsConfiguration.getInstance();
 		
-		JobsBlockPaymentListener blockListener = new JobsBlockPaymentListener(this);
-		JobsJobListener jobListener = new JobsJobListener(this);
-		JobsKillPaymentListener killListener = new JobsKillPaymentListener(this);
-		JobsPlayerListener playerListener = new JobsPlayerListener(this);
-		
-		// set the system to auto save
-		getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable(){
-			public void run(){
-				saveAll();
-			}
-		}, 20*60*JobsConfiguration.getInstance().getSavePeriod(), 20*60*JobsConfiguration.getInstance().getSavePeriod());
-		
-		// enable the link for economy plugins
-		getServer().getPluginManager().registerEvent(Event.Type.PLUGIN_ENABLE, new ServerListener() {
+		if(isEnabled()){
+			JobsBlockPaymentListener blockListener = new JobsBlockPaymentListener(this);
+			JobsJobListener jobListener = new JobsJobListener(this);
+			JobsKillPaymentListener killListener = new JobsKillPaymentListener(this);
+			JobsPlayerListener playerListener = new JobsPlayerListener(this);
 			
-			@Override
-			public void onPluginEnable(PluginEnableEvent event) {
-								
-				// economy plugins
-				if(JobsConfiguration.getInstance().getEconomyLink() == null){
-					if(getServer().getPluginManager().getPlugin("iConomy") != null || 
-							getServer().getPluginManager().getPlugin("BOSEconomy") != null){
-						if(getServer().getPluginManager().getPlugin("iConomy") != null){
-							if(getServer().getPluginManager().getPlugin("iConomy").getDescription().getVersion().startsWith("4")){
-								JobsConfiguration.getInstance().setEconomyLink(
-										new JobsiConomy4Link((com.nijiko.coelho.iConomy.iConomy)getServer().getPluginManager().getPlugin("iConomy")));
-			                    System.err.println("[Jobs] Successfully linked with iConomy 4.");
+			// set the system to auto save
+			getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable(){
+				public void run(){
+					saveAll();
+				}
+			}, 20*60*JobsConfiguration.getInstance().getSavePeriod(), 20*60*JobsConfiguration.getInstance().getSavePeriod());
+			
+			// enable the link for economy plugins
+			getServer().getPluginManager().registerEvent(Event.Type.PLUGIN_ENABLE, new ServerListener() {
+				
+				@Override
+				public void onPluginEnable(PluginEnableEvent event) {
+									
+					// economy plugins
+					if(JobsConfiguration.getInstance().getEconomyLink() == null){
+						if(getServer().getPluginManager().getPlugin("iConomy") != null || 
+								getServer().getPluginManager().getPlugin("BOSEconomy") != null){
+							if(getServer().getPluginManager().getPlugin("iConomy") != null){
+								if(getServer().getPluginManager().getPlugin("iConomy").getDescription().getVersion().startsWith("4")){
+									JobsConfiguration.getInstance().setEconomyLink(
+											new JobsiConomy4Link((com.nijiko.coelho.iConomy.iConomy)getServer().getPluginManager().getPlugin("iConomy")));
+				                    System.err.println("[Jobs] Successfully linked with iConomy 4.");
+								}
+								else{
+									JobsConfiguration.getInstance().setEconomyLink(new JobsiConomyLink((iConomy)getServer().getPluginManager().getPlugin("iConomy")));
+				                    System.err.println("[Jobs] Successfully linked with iConomy 5+.");
+								}
 							}
-							else{
-								JobsConfiguration.getInstance().setEconomyLink(new JobsiConomyLink((iConomy)getServer().getPluginManager().getPlugin("iConomy")));
-			                    System.err.println("[Jobs] Successfully linked with iConomy 5+.");
+							else {
+								JobsConfiguration.getInstance().setEconomyLink(new JobsBOSEconomyLink((BOSEconomy)getServer().getPluginManager().getPlugin("BOSEconomy")));
+			                    System.err.println("[Jobs] Successfully linked with BOSEconomy.");
 							}
 						}
-						else {
-							JobsConfiguration.getInstance().setEconomyLink(new JobsBOSEconomyLink((BOSEconomy)getServer().getPluginManager().getPlugin("BOSEconomy")));
-		                    System.err.println("[Jobs] Successfully linked with BOSEconomy.");
+					}
+					
+					// stats
+					if(JobsConfiguration.getInstance().getStats() == null){
+						if(getServer().getPluginManager().getPlugin("Stats") != null){
+							JobsConfiguration.getInstance().setStats((Stats)getServer().getPluginManager().getPlugin("Stats"));
+		                    System.err.println("[Jobs] Successfully linked with Stats.");
+						}
+					}
+					
+					// permissions
+					if(JobsConfiguration.getInstance().getPermissions() == null){
+						if(getServer().getPluginManager().getPlugin("Permissions") != null){
+							JobsConfiguration.getInstance().setPermissions((Permissions)getServer().getPluginManager().getPlugin("Permissions"));
+		                    System.err.println("[Jobs] Successfully linked with Permissions.");
 						}
 					}
 				}
 				
-				// stats
-				if(JobsConfiguration.getInstance().getStats() == null){
-					if(getServer().getPluginManager().getPlugin("Stats") != null){
-						JobsConfiguration.getInstance().setStats((Stats)getServer().getPluginManager().getPlugin("Stats"));
-	                    System.err.println("[Jobs] Successfully linked with Stats.");
+				@Override
+				public void onPluginDisable(PluginDisableEvent event) {
+					if(event.getPlugin().getDescription().getName().equalsIgnoreCase("iConomy") || 
+							event.getPlugin().getDescription().getName().equalsIgnoreCase("BOSEconomy")){
+						JobsConfiguration.getInstance().setEconomyLink(null);
+	                    System.err.println("[Jobs] Economy system successfully unlinked.");
+					}
+					
+					// stats
+					if(event.getPlugin().getDescription().getName().equalsIgnoreCase("Stats")){
+						JobsConfiguration.getInstance().setStats(null);
+	                    System.err.println("[Jobs] Successfully unlinked with Stats.");
+					}
+					
+					// permissions
+					if(event.getPlugin().getDescription().getName().equalsIgnoreCase("Permissions")){
+						JobsConfiguration.getInstance().setPermissions(null);
+	                    System.err.println("[Jobs] Successfully unlinked with Permissions.");
 					}
 				}
-				
-				// permissions
-				if(JobsConfiguration.getInstance().getPermissions() == null){
-					if(getServer().getPluginManager().getPlugin("Permissions") != null){
-						JobsConfiguration.getInstance().setPermissions((Permissions)getServer().getPluginManager().getPlugin("Permissions"));
-	                    System.err.println("[Jobs] Successfully linked with Permissions.");
-					}
-				}
-			}
+			}, Event.Priority.Monitor, this);
 			
-			@Override
-			public void onPluginDisable(PluginDisableEvent event) {
-				if(event.getPlugin().getDescription().getName().equalsIgnoreCase("iConomy") || 
-						event.getPlugin().getDescription().getName().equalsIgnoreCase("BOSEconomy")){
-					JobsConfiguration.getInstance().setEconomyLink(null);
-                    System.err.println("[Jobs] Economy system successfully unlinked.");
-				}
-				
-				// stats
-				if(event.getPlugin().getDescription().getName().equalsIgnoreCase("Stats")){
-					JobsConfiguration.getInstance().setStats(null);
-                    System.err.println("[Jobs] Successfully unlinked with Stats.");
-				}
-				
-				// permissions
-				if(event.getPlugin().getDescription().getName().equalsIgnoreCase("Permissions")){
-					JobsConfiguration.getInstance().setPermissions(null);
-                    System.err.println("[Jobs] Successfully unlinked with Permissions.");
-				}
-			}
-		}, Event.Priority.Monitor, this);
-		
-		// register the listeners
-		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Monitor, this);
-		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Monitor, this);
-		getServer().getPluginManager().registerEvent(Event.Type.CUSTOM_EVENT, jobListener, Event.Priority.Monitor, this);
-		getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, killListener, Event.Priority.Monitor, this);
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Monitor, this);
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
-		
-		// all loaded properly.
-		getServer().getLogger().info("[Jobs v" + getDescription().getVersion() + "] has been enabled succesfully.");
+			// register the listeners
+			getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Monitor, this);
+			getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Monitor, this);
+			getServer().getPluginManager().registerEvent(Event.Type.CUSTOM_EVENT, jobListener, Event.Priority.Monitor, this);
+			getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, killListener, Event.Priority.Monitor, this);
+			getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Monitor, this);
+			getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
+			
+			// all loaded properly.
+			getServer().getLogger().info("[Jobs v" + getDescription().getVersion() + "] has been enabled succesfully.");
+		}
 	}
 	
 	@Override

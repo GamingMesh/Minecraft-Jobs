@@ -160,6 +160,7 @@ public class JobsConfiguration {
 				}
 			}
 			else{
+				System.out.println("[Jobs] - save-period property not found. Defaulting to 10!");
 				savePeriod = 10;
 			}
 			
@@ -191,9 +192,8 @@ public class JobsConfiguration {
 	 * 
 	 * loads from Jobs/jobConfig.yml
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void loadJobSettings(){
-		// TODO
 		try {
 			Yaml yaml = new Yaml();
 			Object obj = yaml.load(new FileInputStream("plugins/Jobs/jobConfig.yml"));
@@ -454,7 +454,13 @@ public class JobsConfiguration {
 										return;
 									}
 									MaterialData materData;
-									Material mater = Material.valueOf(blockType.toUpperCase());
+									Material mater;
+									try{
+										mater = Material.valueOf(blockType.toUpperCase());
+									}
+									catch (IllegalArgumentException ex){
+										mater = null;
+									}
 									if(mater != null){
 										materData = new MaterialData(mater);
 									}
@@ -653,7 +659,7 @@ public class JobsConfiguration {
 							jobKillInfo = null;
 						}
 						
-						// custom-kill TODO 
+						// custom-kill  
 						if(jobInfoMap.containsKey("custom-kill")){
 							// kill tag exists
 							Map<String, Object> jobKillMap = (Map<String, Object>) jobInfoMap.get("custom-kill");
@@ -719,7 +725,7 @@ public class JobsConfiguration {
 										return;
 									}
 									try {
-										jobKillInfo.put(("org.bukkit.craftbukkit.entity.CraftPlayer:"+entityType).trim(), new JobsLivingEntityInfo(Class.forName("org.bukkit.craftbukkit.entity.CraftPlayer"), experience, income, entityType));
+										jobKillInfo.put(("org.bukkit.craftbukkit.entity.CraftPlayer:"+entityType).trim(), new JobsLivingEntityInfo(Class.forName("org.bukkit.craftbukkit.entity.CraftPlayer"), experience, income));
 									} catch (ClassNotFoundException e) {
 										// won't enter
 										e.printStackTrace();
@@ -751,7 +757,7 @@ public class JobsConfiguration {
 	 * 
 	 * loads from Jobs/titleConfig.yml
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings({"unchecked" })
 	private void loadTitleSettings(){
 		try {
 			Yaml yaml = new Yaml();

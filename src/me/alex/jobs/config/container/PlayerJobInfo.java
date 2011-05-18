@@ -16,7 +16,6 @@ import me.alex.jobs.util.DisplayMethod;
 
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 
 public class PlayerJobInfo {
