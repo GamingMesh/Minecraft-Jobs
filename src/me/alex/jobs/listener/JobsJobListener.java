@@ -113,6 +113,14 @@ public class JobsJobListener extends JobsEventListener{
 					}
 				}
 			}
+			else {
+				if(info.isInJob(event.getNewJob())){
+					// already in job message
+				}
+				else{
+					// you are already in too many jobs
+				}
+			}
 		}
 	}
 	

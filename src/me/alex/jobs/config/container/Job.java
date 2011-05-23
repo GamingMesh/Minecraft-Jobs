@@ -281,4 +281,28 @@ public class Job {
 	public Integer getMaxLevel(){
 		return maxLevel;
 	}
+	
+	/**
+	 * Get the payout information about breaking blocks
+	 * @return the map of breaking blocks and its payment
+	 */
+	public HashMap<String, JobsBlockInfo> getBreakInfo(){
+		return jobBreakInfo;
+	}
+	
+	/**
+	 * Get the payout information about placing blocks
+	 * @return the map of placing blocks and its payment
+	 */
+	public HashMap<String, JobsBlockInfo> getPlaceInfo(){
+		return jobPlaceInfo;
+	}
+	
+	/**
+	 * Get the payout information about killing entities
+	 * @return the map of killing entities and its payment
+	 */
+	public HashMap<String, JobsLivingEntityInfo> getKillInfo(){
+		return jobKillInfo;
+	}
 }

@@ -58,6 +58,8 @@ public class JobsConfiguration {
 	private HashMap<String, String> messages = null;
 	// do i broadcast skillups?
 	private boolean broadcast;
+	// maximum number of jobs a player can join
+	private Integer maxJobs;
 	
 	/**
 	 * Private constructor.
@@ -73,7 +75,7 @@ public class JobsConfiguration {
 		// title settings
 		loadTitleSettings();
 		// messages settings
-		// TODO loadMessageSettings();
+		loadMessageSettings();
 	}
 	
 	/**
@@ -154,7 +156,6 @@ public class JobsConfiguration {
 					catch (Exception ex){
 						// something went really wrong
 						System.err.println("[Jobs] - error with save-period property");
-						ex.printStackTrace();
 						Jobs.disablePlugin();
 					}
 				}
@@ -178,10 +179,32 @@ public class JobsConfiguration {
 				System.out.println("[Jobs] - broadcast-on-skill-up property does not exist. Defaulting to false");
 				broadcast = false;
 			}
+			
+			// save-period
+			if(map.containsKey("max-jobs")){
+				try{
+					maxJobs = (Integer)map.get("max-jobs");
+				}
+				catch (ClassCastException e){
+					// someone wrote it as a double
+					try{
+						double maxJob = (Double)map.get("max-jobs");
+						maxJobs = (int)maxJob;
+					}
+					catch (Exception ex){
+						// something went really wrong
+						System.err.println("[Jobs] - error with max-jobs property. ");
+						Jobs.disablePlugin();
+					}
+				}
+			}
+			else{
+				System.out.println("[Jobs] - max-jobs property not found. Defaulting to unlimited!");
+				maxJobs = null;
+			}
 
 		} catch (FileNotFoundException e) {
 			System.err.println("[Jobs] - configuration file generalConfig.yml does not exist");
-			e.printStackTrace();
 			// disable plugin
 			Jobs.disablePlugin();
 		}
@@ -873,11 +896,32 @@ public class JobsConfiguration {
 	 * 
 	 * loads from Jobs/messageConfig.yml
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings("unchecked")
 	private void loadMessageSettings(){
 		try {
 			Yaml yaml = new Yaml();
 			Object obj = yaml.load(new FileInputStream("plugins/Jobs/messageConfig.yml"));
+			messages = new HashMap<String, String>();
+			for(Entry<String, String> temp: ((Map<String, String>) obj).entrySet()){
+				String tempMessage = temp.getValue();
+				tempMessage = tempMessage.replace("ChatColor.AQUA", ChatColor.AQUA.toString());
+				tempMessage = tempMessage.replace("ChatColor.BLACK", ChatColor.BLACK.toString());
+				tempMessage = tempMessage.replace("ChatColor.BLUE", ChatColor.BLUE.toString());
+				tempMessage = tempMessage.replace("ChatColor.DARK_AQUA", ChatColor.DARK_AQUA.toString());
+				tempMessage = tempMessage.replace("ChatColor.DARK_BLUE", ChatColor.DARK_BLUE.toString());
+				tempMessage = tempMessage.replace("ChatColor.DARK_GRAY", ChatColor.DARK_GRAY.toString());
+				tempMessage = tempMessage.replace("ChatColor.DARK_GREEN", ChatColor.DARK_GREEN.toString());
+				tempMessage = tempMessage.replace("ChatColor.DARK_PURPLE", ChatColor.DARK_PURPLE.toString());
+				tempMessage = tempMessage.replace("ChatColor.DARK_RED", ChatColor.DARK_RED.toString());
+				tempMessage = tempMessage.replace("ChatColor.GOLD", ChatColor.GOLD.toString());
+				tempMessage = tempMessage.replace("ChatColor.GRAY", ChatColor.GRAY.toString());
+				tempMessage = tempMessage.replace("ChatColor.GREEN", ChatColor.GREEN.toString());
+				tempMessage = tempMessage.replace("ChatColor.LIGHT_PURPLE", ChatColor.LIGHT_PURPLE.toString());
+				tempMessage = tempMessage.replace("ChatColor.RED", ChatColor.RED.toString());
+				tempMessage = tempMessage.replace("ChatColor.WHITE", ChatColor.WHITE.toString());
+				tempMessage = tempMessage.replace("ChatColor.YELLOW", ChatColor.YELLOW.toString());
+				messages.put(temp.getKey(), tempMessage);
+			}
 		} catch (FileNotFoundException e) {
 			System.err.println("[Jobs] - configuration file messageConfig.yml does not exist");
 			e.printStackTrace();
@@ -994,7 +1038,7 @@ public class JobsConfiguration {
 	 * @return the message
 	 */
 	public String getMessage(String key){
-		return null;
+		return messages.get(key);
 	}
 	
 	/**
@@ -1013,23 +1057,37 @@ public class JobsConfiguration {
 	 */
 	public Title getTitleForLevel(int level){
 		Title title = null;
-		for(Title temp: titles.values()){
-			if(title == null){
-				if(temp.getLevelReq() <= level){
-					title = temp;
+		if(titles != null){
+			for(Title temp: titles.values()){
+				if(title == null){
+					if(temp.getLevelReq() <= level){
+						title = temp;
+					}
 				}
-			}
-			else {
-				if(temp.getLevelReq() <= level && temp.getLevelReq() > title.getLevelReq()){
-					title = temp;
+				else {
+					if(temp.getLevelReq() <= level && temp.getLevelReq() > title.getLevelReq()){
+						title = temp;
+					}
 				}
 			}
 		}
 		return title;
 	}
 	
+	/**
+	 * Get all the jobs loaded in the plugin
+	 * @return a collection of the jobs
+	 */
 	public Collection<Job> getJobs(){
 		return jobs.values();
+	}
+	
+	/**
+	 * Function to return the maximum number of jobs a player can join
+	 * @return
+	 */
+	public Integer getMaxJobs(){
+		return maxJobs;
 	}
 	
 }
