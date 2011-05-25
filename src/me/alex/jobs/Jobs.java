@@ -287,7 +287,15 @@ public class Jobs extends JavaPlugin{
 							HashMap<String, JobsBlockInfo> jobBreakInfo = job.getBreakInfo();
 							
 							if(jobBreakInfo != null){
-								sender.sendMessage("Break:");
+								String tempMessage = JobsConfiguration.getInstance().getMessage("break-header");
+								if(tempMessage == null){
+									sender.sendMessage("Break:");
+								}
+								else{
+									for(String temp: tempMessage.split("\n")){
+										sender.sendMessage(temp);
+									}
+								}
 								DecimalFormat format = new DecimalFormat("#.##");
 								JobProgression prog = players.get((Player)sender).getJobsProgression(job);
 								Parser expEquation = job.getExpEquation();
@@ -305,15 +313,37 @@ public class Jobs extends JavaPlugin{
 								for(Entry<String, JobsBlockInfo> temp: jobBreakInfo.entrySet()){
 									expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
 									incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
-									sender.sendMessage("    " + temp.getKey().replace("_", " ").toLowerCase() + " : " + 
-											format.format(incomeEquation.getValue()) + ChatColor.GREEN + " income" + ChatColor.WHITE + ", " + 
-											format.format(expEquation.getValue()) + ChatColor.YELLOW + " exp");
+									if(temp.getKey().contains(":")){
+										tempMessage = JobsConfiguration.getInstance().getMessage("break-info-sub");
+									}
+									else {
+										tempMessage = JobsConfiguration.getInstance().getMessage("break-info-no-sub");
+									}
+									if(tempMessage == null){
+										sender.sendMessage("    " + temp.getKey().replace("_", " ").toLowerCase() + " : " + 
+												format.format(incomeEquation.getValue()) + ChatColor.GREEN + " income" + ChatColor.WHITE + ", " + 
+												format.format(expEquation.getValue()) + ChatColor.YELLOW + " exp");
+									}
+									else{
+										if(temp.getKey().contains(":")){
+											tempMessage = tempMessage.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
+											tempMessage = tempMessage.replace("%subitem$", temp.getKey().split(":")[1]);
+										}
+										else{
+											tempMessage = tempMessage.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
+										}
+										tempMessage = tempMessage.replace("%income%", format.format(incomeEquation.getValue()));
+										tempMessage = tempMessage.replace("%experience%", format.format(expEquation.getValue()));
+										for(String tempMsg: tempMessage.split("\n")){
+											sender.sendMessage(tempMsg);
+										}
+									}
 								}
 							}
 							else {
-								String tempMessage = JobsConfiguration.getInstance().getMessage("info-no-break");
+								String tempMessage = JobsConfiguration.getInstance().getMessage("break-none");
 								if(tempMessage == null){
-									sender.sendMessage(job.getChatColour()+job.getName()+ChatColor.WHITE+ " does not get money from breaking blocks.");
+									sender.sendMessage(job.getChatColour()+job.getName()+ChatColor.WHITE+ " does not get money from breaking anything.");
 								}
 								else{
 									for(String temp: tempMessage.split("\n")){
@@ -328,7 +358,15 @@ public class Jobs extends JavaPlugin{
 							HashMap<String, JobsBlockInfo> jobPlaceInfo = job.getPlaceInfo();
 							
 							if(jobPlaceInfo != null){
-								sender.sendMessage("Place:");
+								String tempMessage = JobsConfiguration.getInstance().getMessage("place-header");
+								if(tempMessage == null){
+									sender.sendMessage("Place:");
+								}
+								else{
+									for(String temp: tempMessage.split("\n")){
+										sender.sendMessage(temp);
+									}
+								}
 								DecimalFormat format = new DecimalFormat("#.##");
 								JobProgression prog = players.get((Player)sender).getJobsProgression(job);
 								Parser expEquation = job.getExpEquation();
@@ -346,13 +384,43 @@ public class Jobs extends JavaPlugin{
 								for(Entry<String, JobsBlockInfo> temp: jobPlaceInfo.entrySet()){
 									expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
 									incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
-									sender.sendMessage("    " + temp.getKey().replace("_", " ").toLowerCase() + " : " + 
-											format.format(incomeEquation.getValue()) + ChatColor.GREEN + " income" + ChatColor.WHITE + ", " + 
-											format.format(expEquation.getValue()) + ChatColor.YELLOW + " exp");
+									if(temp.getKey().contains(":")){
+										tempMessage = JobsConfiguration.getInstance().getMessage("place-info-sub");
+									}
+									else {
+										tempMessage = JobsConfiguration.getInstance().getMessage("place-info-no-sub");
+									}
+									if(tempMessage == null){
+										sender.sendMessage("    " + temp.getKey().replace("_", " ").toLowerCase() + " - " + 
+												format.format(incomeEquation.getValue()) + ChatColor.GREEN + " income" + ChatColor.WHITE + ", " + 
+												format.format(expEquation.getValue()) + ChatColor.YELLOW + " exp");
+									}
+									else{
+										if(temp.getKey().contains(":")){
+											tempMessage = tempMessage.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
+											tempMessage = tempMessage.replace("%subitem$", temp.getKey().split(":")[1]);
+										}
+										else{
+											tempMessage = tempMessage.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
+										}
+										tempMessage = tempMessage.replace("%income%", format.format(incomeEquation.getValue()));
+										tempMessage = tempMessage.replace("%experience%", format.format(expEquation.getValue()));
+										for(String tempMsg: tempMessage.split("\n")){
+											sender.sendMessage(tempMsg);
+										}
+									}
 								}
 							}
 							else {
-								sender.sendMessage(job.getChatColour()+job.getName()+ChatColor.WHITE+ " does not get money from breaking blocks.");
+								String tempMessage = JobsConfiguration.getInstance().getMessage("break-none");
+								if(tempMessage == null){
+									sender.sendMessage(job.getChatColour()+job.getName()+ChatColor.WHITE+ " does not get money from placing anything.");
+								}
+								else{
+									for(String temp: tempMessage.split("\n")){
+										sender.sendMessage(temp);
+									}
+								}
 							}
 							return true;
 						}
@@ -361,7 +429,15 @@ public class Jobs extends JavaPlugin{
 							HashMap<String, JobsLivingEntityInfo> jobKillInfo = job.getKillInfo();
 							
 							if(jobKillInfo != null){
-								sender.sendMessage("Kill:");
+								String tempMessage = JobsConfiguration.getInstance().getMessage("kill-header");
+								if(tempMessage == null){
+									sender.sendMessage("Kill:");
+								}
+								else{
+									for(String temp: tempMessage.split("\n")){
+										sender.sendMessage(temp);
+									}
+								}
 								DecimalFormat format = new DecimalFormat("#.##");
 								JobProgression prog = players.get((Player)sender).getJobsProgression(job);
 								Parser expEquation = job.getExpEquation();
@@ -379,13 +455,43 @@ public class Jobs extends JavaPlugin{
 								for(Entry<String, JobsLivingEntityInfo> temp: jobKillInfo.entrySet()){
 									expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
 									incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
-									sender.sendMessage("    " + temp.getKey().replace("org.bukkit.craftbukkit.entity.Craft", " ") + " : " + 
-											format.format(incomeEquation.getValue()) + ChatColor.GREEN + " income" + ChatColor.WHITE + ", " + 
-											format.format(expEquation.getValue()) + ChatColor.YELLOW + " exp");
+									if(temp.getKey().contains(":")){
+										tempMessage = JobsConfiguration.getInstance().getMessage("kill-info-sub");
+									}
+									else {
+										tempMessage = JobsConfiguration.getInstance().getMessage("kill-info-no-sub");
+									}
+									if(tempMessage == null){
+										sender.sendMessage("    " + temp.getKey().replace("org.bukkit.craftbukkit.entity.Craft", "") + " - " + 
+												format.format(incomeEquation.getValue()) + ChatColor.GREEN + " income" + ChatColor.WHITE + ", " + 
+												format.format(expEquation.getValue()) + ChatColor.YELLOW + " exp");
+									}
+									else{
+										if(temp.getKey().contains(":")){
+											tempMessage = tempMessage.replace("%item%", temp.getKey().split(":")[0].replace("org.bukkit.craftbukkit.entity.Craft", ""));
+											tempMessage = tempMessage.replace("%subitem$", temp.getKey().split(":")[1]);
+										}
+										else{
+											tempMessage = tempMessage.replace("%item%", temp.getKey().replace("org.bukkit.craftbukkit.entity.Craft", ""));
+										}
+										tempMessage = tempMessage.replace("%income%", format.format(incomeEquation.getValue()));
+										tempMessage = tempMessage.replace("%experience%", format.format(expEquation.getValue()));
+										for(String tempMsg: tempMessage.split("\n")){
+											sender.sendMessage(tempMsg);
+										}
+									}
 								}
 							}
 							else {
-								sender.sendMessage(job.getChatColour()+job.getName()+ChatColor.WHITE+ " does not get money from breaking blocks.");
+								String tempMessage = JobsConfiguration.getInstance().getMessage("kill-none");
+								if(tempMessage == null){
+									sender.sendMessage(job.getChatColour()+job.getName()+ChatColor.WHITE+ " does not get money from killing anything.");
+								}
+								else{
+									for(String temp: tempMessage.split("\n")){
+										sender.sendMessage(temp);
+									}
+								}
 							}
 							return true;
 						}

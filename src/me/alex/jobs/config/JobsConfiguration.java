@@ -418,12 +418,12 @@ public class JobsConfiguration {
 							else{
 								// has some break blocks
 								for(Entry<String, Object> jobBreakBlock: jobBreakMap.entrySet()){
-									String blockType = jobBreakBlock.getKey();
+									String blockType = String.valueOf(jobBreakBlock.getKey()).toUpperCase();
 									String subtype = "";
-									if(blockType.contains("-")){
+									if(((String)blockType).contains("-")){
 										// uses subtype
-										subtype = ":"+blockType.split("-")[1];
-										blockType = blockType.split("-")[0];
+										subtype = ":"+((String)blockType).split("-")[1];
+										blockType = ((String)blockType).split("-")[0];
 									}
 									Double income;
 									Double experience;
@@ -480,7 +480,7 @@ public class JobsConfiguration {
 									MaterialData materData;
 									Material mater;
 									try{
-										mater = Material.valueOf(blockType.toUpperCase());
+										mater = Material.matchMaterial(blockType);
 									}
 									catch (IllegalArgumentException ex){
 										mater = null;
@@ -515,15 +515,15 @@ public class JobsConfiguration {
 							else{
 								// has some break blocks
 								for(Entry<String, Object> jobPlaceBlock: jobPlaceMap.entrySet()){
-									String blockType = jobPlaceBlock.getKey();
-									Double income;
-									Double experience;
+									String blockType = String.valueOf(jobPlaceBlock.getKey()).toUpperCase();
 									String subtype = "";
 									if(blockType.contains("-")){
 										// uses subtype
 										subtype = ":"+blockType.split("-")[1];
 										blockType = blockType.split("-")[0];
 									}
+									Double income;
+									Double experience;
 									if (jobPlaceInfo == null){
 										jobPlaceInfo = new HashMap<String, JobsBlockInfo>();
 									}
@@ -575,7 +575,13 @@ public class JobsConfiguration {
 										return;
 									}
 									MaterialData materData;
-									Material mater = Material.valueOf(blockType.toUpperCase());
+									Material mater;
+									try{
+										mater = Material.matchMaterial(blockType);
+									}
+									catch (IllegalArgumentException ex){
+										mater = null;
+									}
 									if(mater != null){
 										materData = new MaterialData(mater);
 									}
