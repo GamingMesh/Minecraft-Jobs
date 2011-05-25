@@ -93,7 +93,8 @@ public class JobsJobListener extends JobsEventListener{
 	
 	@Override
 	public void onJobJoin(JobsJoinEvent event) {
-		if(!event.isCancelled()){
+		if(!event.isCancelled() && 
+				(event.getNewJob().getMaxSlots() == null ||  (JobsConfiguration.getInstance().getUsedSlots(event.getNewJob()) > event.getNewJob().getMaxSlots()))){
 			// check if the user has already joined the job
 			PlayerJobInfo info = plugin.getPlayerJobInfo(event.getPlayer());
 			// offline

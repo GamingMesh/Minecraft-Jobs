@@ -3,6 +3,7 @@ package me.alex.jobs.listener;
 import java.util.List;
 
 import me.alex.jobs.Jobs;
+import me.alex.jobs.config.JobsConfiguration;
 import me.alex.jobs.config.container.Job;
 
 import org.bukkit.Material;
@@ -49,52 +50,59 @@ public class JobsKillPaymentListener extends EntityListener{
 							return;
 						}
 					}
-					LivingEntity victim = (LivingEntity)damageEvent.getEntity();
-					// check if the victim is dead already
-					if(!victim.isDead() && victim.getHealth() > 0){
-						if(victim.getNoDamageTicks() < (victim.getMaximumNoDamageTicks()/2.0) ||
-								((victim.getNoDamageTicks() > (victim.getMaximumNoDamageTicks() / 2.0)) && victim.getLastDamage() < event.getDamage())){
-							int damage = event.getDamage();
-							if((victim.getNoDamageTicks() < (victim.getMaximumNoDamageTicks() / 2.0)) && victim.getLastDamage() < event.getDamage()){
-								damage -= victim.getLastDamage();
-							}
-							// has it been dealt lethal damage?
-							if(victim.getHealth() - damage <= 0){
-								// yes
-								// is anyone close to a mob spawner?
-								List<Entity> damagerSurround = damageEvent.getDamager().getNearbyEntities(5, 5, 5);
-								List<Entity> victimSurround = victim.getNearbyEntities(5, 5, 5);
-								for(Entity temp: damagerSurround){
-									if (temp instanceof Block){
-										if(((Block)temp).getType() == Material.MOB_SPAWNER){
-											return;
+					// figure out who to pay (if a wolf is killing or a player is)
+					Player payee;
+					if(damageEvent.getDamager() instanceof Wolf){
+						payee = (Player)((Wolf)damageEvent.getDamager()).getOwner();
+					}
+					else{
+						payee = (Player)damageEvent.getDamager();
+					}
+					if(payee == null){
+						return;
+					}
+					if((JobsConfiguration.getInstance().getPermissions() == null || !JobsConfiguration.getInstance().getPermissions().isEnabled())
+							|| JobsConfiguration.getInstance().getPermissions().getHandler().has(payee, "jobs.world." + payee.getWorld().getName())){
+						// does the user have permision?
+						LivingEntity victim = (LivingEntity)damageEvent.getEntity();
+						// check if the victim is dead already
+						if(!victim.isDead() && victim.getHealth() > 0){
+							if(victim.getNoDamageTicks() < (victim.getMaximumNoDamageTicks()/2.0) ||
+									((victim.getNoDamageTicks() > (victim.getMaximumNoDamageTicks() / 2.0)) && victim.getLastDamage() < event.getDamage())){
+								int damage = event.getDamage();
+								if((victim.getNoDamageTicks() < (victim.getMaximumNoDamageTicks() / 2.0)) && victim.getLastDamage() < event.getDamage()){
+									damage -= victim.getLastDamage();
+								}
+								// has it been dealt lethal damage?
+								if(victim.getHealth() - damage <= 0){
+									// yes
+									// is anyone close to a mob spawner?
+									List<Entity> damagerSurround = damageEvent.getDamager().getNearbyEntities(5, 5, 5);
+									List<Entity> victimSurround = victim.getNearbyEntities(5, 5, 5);
+									for(Entity temp: damagerSurround){
+										if (temp instanceof Block){
+											if(((Block)temp).getType() == Material.MOB_SPAWNER){
+												return;
+											}
 										}
 									}
-								}
-								for(Entity temp: victimSurround){
-									if (temp instanceof Block){
-										if(((Block)temp).getType() == Material.MOB_SPAWNER){
-											return;
+									for(Entity temp: victimSurround){
+										if (temp instanceof Block){
+											if(((Block)temp).getType() == Material.MOB_SPAWNER){
+												return;
+											}
 										}
 									}
-								}
-								
-								// not close to a mob spawner
-
-								// figure out who to pay (if a wolf is killing or a player is)
-								Player payee;
-								if(damageEvent.getDamager() instanceof Wolf){
-									payee = (Player)((Wolf)damageEvent.getDamager()).getOwner();
-								}
-								else{
-									payee = (Player)damageEvent.getDamager();
-								}
-								// pay
-								plugin.getPlayerJobInfo(payee).killed(victim.getClass().toString().replace("class ", "").trim());
-								// pay for jobs
-								if(victim instanceof Player){
-									for(Job temp: plugin.getPlayerJobInfo((Player)victim).getJobs()){
-										plugin.getPlayerJobInfo(payee).killed((victim.getClass().toString().replace("class ", "")+":"+temp.getName()).trim());
+									
+									// not close to a mob spawner
+	
+									// pay
+									plugin.getPlayerJobInfo(payee).killed(victim.getClass().toString().replace("class ", "").trim());
+									// pay for jobs
+									if(victim instanceof Player){
+										for(Job temp: plugin.getPlayerJobInfo((Player)victim).getJobs()){
+											plugin.getPlayerJobInfo(payee).killed((victim.getClass().toString().replace("class ", "")+":"+temp.getName()).trim());
+										}
 									}
 								}
 							}

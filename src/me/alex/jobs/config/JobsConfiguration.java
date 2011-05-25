@@ -60,6 +60,8 @@ public class JobsConfiguration {
 	private boolean broadcast;
 	// maximum number of jobs a player can join
 	private Integer maxJobs;
+	// used slots for each job
+	private HashMap<Job, Integer> usedSlots;
 	
 	/**
 	 * Private constructor.
@@ -77,8 +79,19 @@ public class JobsConfiguration {
 		// messages settings
 		loadMessageSettings();
 		// get slots
+		loadSlots();
 	}
 	
+	/**
+	 * Load the slots available
+	 */
+	private void loadSlots() {
+		usedSlots = new HashMap<Job, Integer>();
+		for(Job temp: jobs.values()){
+			usedSlots.put(temp, dao.getSlotsTaken(temp));
+		}
+	}
+
 	/**
 	 * Method to load the general configuration
 	 * 
@@ -273,6 +286,28 @@ public class JobsConfiguration {
 						}
 						else{
 							System.out.println("[Jobs] - Job " + jobMap.getKey() + " is missing the max-level property. defaulting to no limits !");
+						}
+						
+						// max-slots
+						Integer maxSlots = null;
+						if(jobInfoMap.containsKey("slots")){
+							try{
+								maxSlots = (Integer) jobInfoMap.get("slots");
+							}
+							catch(ClassCastException e){
+								try{
+									double temp = (Double) jobInfoMap.get("slots");
+									maxSlots = (int) temp;
+								}
+								catch (Exception ex){
+									System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid slots property. Disabling jobs!");
+									Jobs.disablePlugin();
+									return;
+								}
+							}
+						}
+						else{
+							System.out.println("[Jobs] - Job " + jobMap.getKey() + " is missing the slots property. defaulting to no limits !");
 						}
 						
 						// shortname
@@ -763,7 +798,7 @@ public class JobsConfiguration {
 								}
 							}
 						}
-						jobs.put(jobName, new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel));
+						jobs.put(jobName, new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots));
 					}
 				}
 			}
@@ -1095,5 +1130,14 @@ public class JobsConfiguration {
 	 */
 	public Integer getMaxJobs(){
 		return maxJobs;
+	}
+	
+	/**
+	 * Function to get the number of slots used on the server for this job
+	 * @param job - the job
+	 * @return the number of slots
+	 */
+	public Integer getUsedSlots(Job job){
+		return usedSlots.get(job);
 	}
 }

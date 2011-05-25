@@ -44,10 +44,12 @@ public class JobsDAOMySQL implements JobsDAO {
 			}
 			else{
 				System.err.println("[Jobs] - MySQL connection problem");
+				Jobs.disablePlugin();
 			}
 		}
 		catch (SQLException s){
 			s.printStackTrace();
+			Jobs.disablePlugin();
 		}
 	}
 
@@ -139,6 +141,24 @@ public class JobsDAOMySQL implements JobsDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public Integer getSlotsTaken(Job job) {
+		Integer slot = 0;
+		Connection conn = getConnection();
+		try{
+			String sql = "SELECT COUNT(*) FROM `jobs` WHERE `job` = ?;";
+			PreparedStatement prest = conn.prepareStatement(sql);
+			prest.setString(1, job.getName());
+			ResultSet res = prest.executeQuery();
+			slot = res.getInt(1);
+			conn.close();
+		}
+		catch(SQLException e){
+			e.printStackTrace();
+		}
+		return slot;
 	}
 
 }

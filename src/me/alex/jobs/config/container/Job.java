@@ -40,6 +40,8 @@ public class Job {
 	private DisplayMethod displayMethod;
 	// max level
 	private Integer maxLevel;
+	// max number of people allowed with this job on the server.
+	private Integer maxSlots;
 	
 	@SuppressWarnings("unused")
 	private Job(){}
@@ -58,6 +60,7 @@ public class Job {
 	 * @param expEquation - the equation by which the exp given for a level is calculated
 	 * @param displayMethod - the display method for this job.
 	 * @param maxLevel - the maximum level allowed (null for no max level)
+	 * @param maxSlots - the maximum number of people allowed to have this job at one time (null for no limits)
 	 */
 	public Job(HashMap<String, JobsBlockInfo> jobBreakInfo, 
 			HashMap<String, JobsBlockInfo> jobPlaceInfo, 
@@ -69,7 +72,8 @@ public class Job {
 			Parser incomeEquation,
 			Parser expEquation,
 			DisplayMethod displayMethod,
-			Integer maxLevel){
+			Integer maxLevel,
+			Integer maxSlots){
 		this.jobBreakInfo = jobBreakInfo;
 		this.jobPlaceInfo = jobPlaceInfo;
 		this.jobKillInfo = jobKillInfo;
@@ -81,6 +85,7 @@ public class Job {
 		this.expEquation = expEquation;
 		this.displayMethod = displayMethod;
 		this.maxLevel = maxLevel;
+		this.maxSlots = maxSlots;
 	}
 	
 	/**
@@ -280,6 +285,15 @@ public class Job {
 	 */
 	public Integer getMaxLevel(){
 		return maxLevel;
+	}
+	
+	/**
+	 * Function to return the maximum slots
+	 * @return the max slots
+	 * @return null - no max slots
+	 */
+	public Integer getMaxSlots(){
+		return maxSlots;
 	}
 	
 	/**

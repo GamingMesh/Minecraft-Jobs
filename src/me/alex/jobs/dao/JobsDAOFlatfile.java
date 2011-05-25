@@ -144,4 +144,30 @@ public class JobsDAOFlatfile implements JobsDAO {
 		}
 	}
 
+	@Override
+	public Integer getSlotsTaken(Job job) {
+		Integer slots = 0;
+		try{
+			File inFile = new File(saveLocation);
+			if(inFile.exists()){
+				Scanner in = new Scanner(inFile);
+				String strLine;
+				while(in.hasNextLine()){
+					strLine = in.nextLine();
+					String[] jobInfo = strLine.split(":");
+					if(jobInfo.length == 4 && jobInfo[3].equalsIgnoreCase(job.getName())){
+						++slots;
+					}
+				}
+				in.close();
+			}
+		}
+		catch (Exception e){
+			System.err.println("[Jobs] - Error loading jobs.data. Disabling plugin!");
+			e.printStackTrace();
+			Jobs.disablePlugin();
+		}
+		return slots;
+	}
+
 }

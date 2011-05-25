@@ -44,4 +44,11 @@ public interface JobsDAO {
 	 */
 	public void save(PlayerJobInfo jobInfo);
 	
+	/**
+	 * Get the number of players that have a particular job
+	 * @param job - the job
+	 * @return  the number of players that have a particular job
+	 */
+	public Integer getSlotsTaken(Job job);
+	
 }
