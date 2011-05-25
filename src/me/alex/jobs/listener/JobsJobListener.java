@@ -11,6 +11,7 @@ import me.alex.jobs.event.JobsJoinEvent;
 import me.alex.jobs.event.JobsLeaveEvent;
 import me.alex.jobs.event.JobsLevelUpEvent;
 import me.alex.jobs.event.JobsSkillUpEvent;
+import me.alex.jobs.fake.JobsPlayer;
 
 import org.bukkit.ChatColor;
 
@@ -95,13 +96,20 @@ public class JobsJobListener extends JobsEventListener{
 		if(!event.isCancelled()){
 			// check if the user has already joined the job
 			PlayerJobInfo info = plugin.getPlayerJobInfo(event.getPlayer());
+			// offline
+			if(info == null){
+				info = new PlayerJobInfo(event.getPlayer(), JobsConfiguration.getInstance().getJobsDAO());
+			}
 			if(!info.isInJob(event.getNewJob())){
 				// let the user join the job
 				info.joinJob(event.getNewJob());
 				JobsConfiguration.getInstance().getJobsDAO().joinJob(event.getPlayer(), event.getNewJob());
 				event.getPlayer().sendMessage("You have joined the job " + event.getNewJob().getChatColour() + event.getNewJob().getName());
-				plugin.getJob(event.getPlayer()).reloadHonorific();
-				plugin.getJob(event.getPlayer()).reloadMaxExperience();
+				if(!(event.getPlayer() instanceof JobsPlayer)){
+					// if it's a real player
+					plugin.getJob(event.getPlayer()).reloadHonorific();
+					plugin.getJob(event.getPlayer()).reloadMaxExperience();
+				}
 				
 				// stats plugin integration
 				if(JobsConfiguration.getInstance().getStats() != null &&
@@ -129,14 +137,20 @@ public class JobsJobListener extends JobsEventListener{
 		if(!event.isCancelled()){
 			// check if the user has already joined the job
 			PlayerJobInfo info = plugin.getPlayerJobInfo(event.getPlayer());
+			// offline
+			if(info == null){
+				info = new PlayerJobInfo(event.getPlayer(), JobsConfiguration.getInstance().getJobsDAO());
+			}
 			if(info.isInJob(event.getOldJob())){
 				// let the user join the job
 				info.leaveJob(event.getOldJob());
 				JobsConfiguration.getInstance().getJobsDAO().quitJob(event.getPlayer(), event.getOldJob());
 				event.getPlayer().sendMessage("You have left the job " + event.getOldJob().getChatColour() + event.getOldJob().getName());
-				plugin.getJob(event.getPlayer()).reloadHonorific();
-				plugin.getJob(event.getPlayer()).reloadMaxExperience();
-				plugin.getJob(event.getPlayer()).checkLevels();
+				if(!(event.getPlayer() instanceof JobsPlayer)){
+					plugin.getJob(event.getPlayer()).reloadHonorific();
+					plugin.getJob(event.getPlayer()).reloadMaxExperience();
+					plugin.getJob(event.getPlayer()).checkLevels();
+				}
 			}
 		}
 	}

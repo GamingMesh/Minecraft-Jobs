@@ -104,6 +104,7 @@ public class JobsDAOMySQL implements JobsDAO {
 		}		
 	}
 
+	// TODO transfers not working
 	@Override
 	public void save(PlayerJobInfo jobInfo) {
 		String sql = "UPDATE `jobs` SET `experience` = ?, `level` = ? WHERE `username` = ? AND `job` = ?;";

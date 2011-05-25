@@ -76,6 +76,7 @@ public class JobsConfiguration {
 		loadTitleSettings();
 		// messages settings
 		loadMessageSettings();
+		// get slots
 	}
 	
 	/**
@@ -1089,5 +1090,4 @@ public class JobsConfiguration {
 	public Integer getMaxJobs(){
 		return maxJobs;
 	}
-	
 }
