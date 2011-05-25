@@ -152,7 +152,9 @@ public class JobsDAOMySQL implements JobsDAO {
 			PreparedStatement prest = conn.prepareStatement(sql);
 			prest.setString(1, job.getName());
 			ResultSet res = prest.executeQuery();
-			slot = res.getInt(1);
+			if(res.next()){
+				slot = res.getInt(1);
+			}
 			conn.close();
 		}
 		catch(SQLException e){
