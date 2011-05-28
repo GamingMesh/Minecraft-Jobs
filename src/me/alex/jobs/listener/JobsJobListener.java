@@ -48,7 +48,15 @@ public class JobsJobListener extends JobsEventListener{
 				progression.setMaxExperience(progression.getJob().getMaxExp(param));
 				
 				// TODO customizable message
-				event.getPlayer().sendMessage(ChatColor.YELLOW + "-- Job Level Up --");
+				String tempMessage = JobsConfiguration.getInstance().getMessage("level-up");
+				if(tempMessage == null){
+					event.getPlayer().sendMessage(ChatColor.YELLOW + "-- Job Level Up --");
+				}
+				else {
+					for(String temp: tempMessage.split("\n")){
+						event.getPlayer().sendMessage(temp);
+					}
+				}
 				
 				// stats plugin integration
 				if(JobsConfiguration.getInstance().getStats() != null &&
@@ -63,7 +71,15 @@ public class JobsJobListener extends JobsEventListener{
 			}
 			else{
 				event.getJobProgression().setExperience(0.0);
-				event.getPlayer().sendMessage(ChatColor.YELLOW + "-- You have reached the maximum level --");
+				String tempMessage = JobsConfiguration.getInstance().getMessage("at-max-level");
+				if(tempMessage == null){
+					event.getPlayer().sendMessage(ChatColor.YELLOW + "-- You have reached the maximum level --");
+				}
+				else {
+					for(String temp: tempMessage.split("\n")){
+						event.getPlayer().sendMessage(temp);
+					}
+				}
 			}
 		}
 	}
@@ -72,19 +88,42 @@ public class JobsJobListener extends JobsEventListener{
 	public void onJobSkillUp(JobsSkillUpEvent event) {
 		if(!event.isCancelled()){
 			// set new title
-			
 			event.getJobProgression().setTitle(event.getNewTitle());
 			
 			//broadcast
 			if(JobsConfiguration.getInstance().isBroadcasting()){
-				Jobs.getJobsServer().broadcastMessage(event.getPlayer().getName() + " has been promoted to a " +
-						event.getNewTitle().getChatColor() + event.getNewTitle().getName() + ChatColor.WHITE + " " + 
-						event.getJobProgression().getJob().getChatColour() + event.getJobProgression().getJob().getName() + ChatColor.WHITE);
+				String tempMessage = JobsConfiguration.getInstance().getMessage("skill-up-broadcast");
+				if(tempMessage == null){
+					Jobs.getJobsServer().broadcastMessage(event.getPlayer().getName() + " has been promoted to a " +
+							event.getNewTitle().getChatColor() + event.getNewTitle().getName() + ChatColor.WHITE + " " + 
+							event.getJobProgression().getJob().getChatColour() + event.getJobProgression().getJob().getName() + ChatColor.WHITE);				}
+				else {
+					tempMessage = tempMessage.replace("%playername%", event.getPlayer().getName());
+					tempMessage = tempMessage.replace("%titlecolour%", event.getNewTitle().getChatColor().toString());
+					tempMessage = tempMessage.replace("%titlename%", event.getNewTitle().getName());
+					tempMessage = tempMessage.replace("%jobcolour%", event.getJobProgression().getJob().getChatColour().toString());
+					tempMessage = tempMessage.replace("%jobname%", event.getJobProgression().getJob().getName());
+					for(String temp: tempMessage.split("\n")){
+						event.getPlayer().sendMessage(temp);
+					}
+				}
 			}
 			else{
-				event.getPlayer().sendMessage("Congratulations, you have been promoted to a " + 
-						event.getNewTitle().getChatColor() + event.getNewTitle().getName() + ChatColor.WHITE + " " + 
-						event.getJobProgression().getJob().getChatColour() + event.getJobProgression().getJob().getName() + ChatColor.WHITE);
+				String tempMessage = JobsConfiguration.getInstance().getMessage("skill-up-no-broadcast");
+				if(tempMessage == null){
+					event.getPlayer().sendMessage("Congratulations, you have been promoted to a " + 
+							event.getNewTitle().getChatColor() + event.getNewTitle().getName() + ChatColor.WHITE + " " + 
+							event.getJobProgression().getJob().getChatColour() + event.getJobProgression().getJob().getName() + ChatColor.WHITE);
+				}
+				else {
+					tempMessage = tempMessage.replace("%titlecolour%", event.getNewTitle().getChatColor().toString());
+					tempMessage = tempMessage.replace("%titlename%", event.getNewTitle().getName());
+					tempMessage = tempMessage.replace("%jobcolour%", event.getJobProgression().getJob().getChatColour().toString());
+					tempMessage = tempMessage.replace("%jobname%", event.getJobProgression().getJob().getName());
+					for(String temp: tempMessage.split("\n")){
+						event.getPlayer().sendMessage(temp);
+					}
+				}
 			}
 			event.getJobProgression().setTitle(event.getNewTitle());
 			plugin.getJob(event.getPlayer()).reloadHonorific();
@@ -94,7 +133,7 @@ public class JobsJobListener extends JobsEventListener{
 	@Override
 	public void onJobJoin(JobsJoinEvent event) {
 		if(!event.isCancelled() && 
-				(event.getNewJob().getMaxSlots() == null ||  (JobsConfiguration.getInstance().getUsedSlots(event.getNewJob()) > event.getNewJob().getMaxSlots()))){
+				(event.getNewJob().getMaxSlots() == null ||  (JobsConfiguration.getInstance().getUsedSlots(event.getNewJob()) < event.getNewJob().getMaxSlots()))){
 			// check if the user has already joined the job
 			PlayerJobInfo info = plugin.getPlayerJobInfo(event.getPlayer());
 			// offline
@@ -105,7 +144,18 @@ public class JobsJobListener extends JobsEventListener{
 				// let the user join the job
 				info.joinJob(event.getNewJob());
 				JobsConfiguration.getInstance().getJobsDAO().joinJob(event.getPlayer(), event.getNewJob());
-				event.getPlayer().sendMessage("You have joined the job " + event.getNewJob().getChatColour() + event.getNewJob().getName());
+				JobsConfiguration.getInstance().takeSlot(event.getNewJob());
+				String tempMessage = JobsConfiguration.getInstance().getMessage("join-job-success");
+				if(tempMessage == null){
+					event.getPlayer().sendMessage("You have joined the job " + event.getNewJob().getChatColour() + event.getNewJob().getName());
+				}
+				else {
+					tempMessage = tempMessage.replace("%jobcolour%", event.getNewJob().getChatColour().toString());
+					tempMessage = tempMessage.replace("%jobname%", event.getNewJob().getName());
+					for(String temp: tempMessage.split("\n")){
+						event.getPlayer().sendMessage(temp);
+					}
+				}
 				if(!(event.getPlayer() instanceof JobsPlayer)){
 					// if it's a real player
 					plugin.getJob(event.getPlayer()).reloadHonorific();
@@ -125,9 +175,46 @@ public class JobsJobListener extends JobsEventListener{
 			else {
 				if(info.isInJob(event.getNewJob())){
 					// already in job message
+					String tempMessage = JobsConfiguration.getInstance().getMessage("join-job-failed-already-in");
+					if(tempMessage == null){
+						event.getPlayer().sendMessage("You are already in the job " + event.getNewJob().getChatColour() + event.getNewJob().getName());
+
+					}
+					else {
+						tempMessage = tempMessage.replace("%jobcolour%", event.getNewJob().getChatColour().toString());
+						tempMessage = tempMessage.replace("%jobname%", event.getNewJob().getName());
+						for(String temp: tempMessage.split("\n")){
+							event.getPlayer().sendMessage(temp);
+						}
+					}
 				}
 				else{
 					// you are already in too many jobs
+					String tempMessage = JobsConfiguration.getInstance().getMessage("leave-job-failed-too-many");
+					if(tempMessage == null){
+						event.getPlayer().sendMessage("You have already joined too many jobs.");
+
+					}
+					else {
+						for(String temp: tempMessage.split("\n")){
+							event.getPlayer().sendMessage(temp);
+						}
+					}
+				}
+			}
+		}
+		else if (JobsConfiguration.getInstance().getUsedSlots(event.getNewJob()) >= event.getNewJob().getMaxSlots()){
+			// already in job message
+			String tempMessage = JobsConfiguration.getInstance().getMessage("join-job-failed-no-slots");
+			if(tempMessage == null){
+				event.getPlayer().sendMessage("You cannot join the job " + event.getNewJob().getChatColour() + event.getNewJob().getName() + ChatColor.WHITE + ", there are no slots available.");
+
+			}
+			else {
+				tempMessage = tempMessage.replace("%jobcolour%", event.getNewJob().getChatColour().toString());
+				tempMessage = tempMessage.replace("%jobname%", event.getNewJob().getName());
+				for(String temp: tempMessage.split("\n")){
+					event.getPlayer().sendMessage(temp);
 				}
 			}
 		}
@@ -146,7 +233,19 @@ public class JobsJobListener extends JobsEventListener{
 				// let the user join the job
 				info.leaveJob(event.getOldJob());
 				JobsConfiguration.getInstance().getJobsDAO().quitJob(event.getPlayer(), event.getOldJob());
-				event.getPlayer().sendMessage("You have left the job " + event.getOldJob().getChatColour() + event.getOldJob().getName());
+				JobsConfiguration.getInstance().leaveSlot(event.getOldJob());
+				String tempMessage = JobsConfiguration.getInstance().getMessage("leave-job-success");
+				if(tempMessage == null){
+					event.getPlayer().sendMessage("You have left the job " + event.getOldJob().getChatColour() + event.getOldJob().getName());
+
+				}
+				else {
+					tempMessage = tempMessage.replace("%jobcolour%", event.getOldJob().getChatColour().toString());
+					tempMessage = tempMessage.replace("%jobname%", event.getOldJob().getName());
+					for(String temp: tempMessage.split("\n")){
+						event.getPlayer().sendMessage(temp);
+					}
+				}
 				if(!(event.getPlayer() instanceof JobsPlayer)){
 					plugin.getJob(event.getPlayer()).reloadHonorific();
 					plugin.getJob(event.getPlayer()).reloadMaxExperience();

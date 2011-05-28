@@ -110,6 +110,7 @@ public class JobsConfiguration {
 				String url = null;
 				String dbName = null;
 				String password = null;
+				String prefix = "";
 				if(map.containsKey("mysql-username") && !((String)map.get("mysql-username")).equals("")){
 					username = (String)map.get("mysql-username");
 				}
@@ -142,7 +143,14 @@ public class JobsConfiguration {
 					Jobs.disablePlugin();
 					return;
 				}
-				dao = new JobsDAOMySQL(url, dbName, username, password);
+				if(map.containsKey("mysql-table-prefix") && map.get("mysql-table-prefix") != null){
+					prefix = (String)map.get("mysql-table-prefix");
+				}
+				else{
+					System.err.println("[Jobs] - mysql-table-prefix property invalid or missing. Defaulting to no prefix.");
+					prefix = "";
+				}
+				dao = new JobsDAOMySQL(url, dbName, username, password, prefix);
 				// set up database
 				((JobsDAOMySQL)dao).setUp();
 			}
@@ -1139,5 +1147,21 @@ public class JobsConfiguration {
 	 */
 	public Integer getUsedSlots(Job job){
 		return usedSlots.get(job);
+	}
+	
+	/**
+	 * Function to increase the number of used slots for a job
+	 * @param job - the job someone is taking
+	 */
+	public void takeSlot(Job job){
+		usedSlots.put(job, usedSlots.get(job)+1);
+	}
+	
+	/**
+	 * Function to decrease the number of used slots for a job
+	 * @param job - the job someone is leaving
+	 */
+	public void leaveSlot(Job job){
+		usedSlots.put(job, usedSlots.get(job)-1);
 	}
 }

@@ -24,12 +24,14 @@ public class JobsDAOMySQL implements JobsDAO {
 	private String driver = "com.mysql.jdbc.Driver";
 	private String username = null;
 	private String password = null;
+	private String prefix = "";
 	
-	public JobsDAOMySQL(String url, String dbName, String username, String password) {
+	public JobsDAOMySQL(String url, String dbName, String username, String password, String prefix) {
 		this.url = url;
 		this.dbName = dbName;
 		this.username = username;
 		this.password = password;
+		this.prefix = prefix;
 		setUp();
 	}
 	
@@ -38,7 +40,7 @@ public class JobsDAOMySQL implements JobsDAO {
 			Connection conn = getConnection();
 			if(conn != null){
 				Statement st = conn.createStatement();
-				String table = "CREATE TABLE IF NOT EXISTS jobs (username varchar(20), experience integer, level integer, job varchar(20));";
+				String table = "CREATE TABLE IF NOT EXISTS " + prefix + "jobs (username varchar(20), experience integer, level integer, job varchar(20));";
 				st.executeUpdate(table);
 				conn.close();
 			}
@@ -71,7 +73,7 @@ public class JobsDAOMySQL implements JobsDAO {
 		ArrayList<JobsDAOData> jobs = null;
 		Connection conn = getConnection();
 		try{
-			String sql = "SELECT `experience`, `level`, `job` FROM `jobs` WHERE `username` = ?;";
+			String sql = "SELECT `experience`, `level`, `job` FROM `" + prefix + "jobs` WHERE `username` = ?;";
 			PreparedStatement prest = conn.prepareStatement(sql);
 			prest.setString(1, player.getName());
 			ResultSet res = prest.executeQuery();
@@ -93,7 +95,7 @@ public class JobsDAOMySQL implements JobsDAO {
 	public void quitJob(Player player, Job job) {
 		try{
 			Connection conn = getConnection();
-			String sql1 = "DELETE FROM `jobs` WHERE `username` = ? AND `job` = ?;";
+			String sql1 = "DELETE FROM `" + prefix + "jobs` WHERE `username` = ? AND `job` = ?;";
 			PreparedStatement prest = conn.prepareStatement(sql1);
 			prest.setString(1, player.getName());
 			prest.setString(2, job.getName());
@@ -106,10 +108,9 @@ public class JobsDAOMySQL implements JobsDAO {
 		}		
 	}
 
-	// TODO transfers not working
 	@Override
 	public void save(PlayerJobInfo jobInfo) {
-		String sql = "UPDATE `jobs` SET `experience` = ?, `level` = ? WHERE `username` = ? AND `job` = ?;";
+		String sql = "UPDATE `" + prefix + "jobs` SET `experience` = ?, `level` = ? WHERE `username` = ? AND `job` = ?;";
 		try {
 			Connection conn = getConnection();
 			PreparedStatement prest = conn.prepareStatement(sql);
@@ -128,7 +129,7 @@ public class JobsDAOMySQL implements JobsDAO {
 
 	@Override
 	public void joinJob(Player player, Job job) {
-		String sql = "INSERT INTO `jobs` (`username`, `experience`, `level`, `job`) VALUES (?, ?, ?, ?);";
+		String sql = "INSERT INTO `" + prefix + "jobs` (`username`, `experience`, `level`, `job`) VALUES (?, ?, ?, ?);";
 		try {
 			Connection conn = getConnection();
 			PreparedStatement prest = conn.prepareStatement(sql);
@@ -148,7 +149,7 @@ public class JobsDAOMySQL implements JobsDAO {
 		Integer slot = 0;
 		Connection conn = getConnection();
 		try{
-			String sql = "SELECT COUNT(*) FROM `jobs` WHERE `job` = ?;";
+			String sql = "SELECT COUNT(*) FROM `" + prefix + "jobs` WHERE `job` = ?;";
 			PreparedStatement prest = conn.prepareStatement(sql);
 			prest.setString(1, job.getName());
 			ResultSet res = prest.executeQuery();
