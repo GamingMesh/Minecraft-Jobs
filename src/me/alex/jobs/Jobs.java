@@ -327,7 +327,7 @@ public class Jobs extends JavaPlugin{
 									else{
 										if(temp.getKey().contains(":")){
 											tempMessage = tempMessage.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
-											tempMessage = tempMessage.replace("%subitem$", temp.getKey().split(":")[1]);
+											tempMessage = tempMessage.replace("%subitem%", temp.getKey().split(":")[1]);
 										}
 										else{
 											tempMessage = tempMessage.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
@@ -398,7 +398,7 @@ public class Jobs extends JavaPlugin{
 									else{
 										if(temp.getKey().contains(":")){
 											tempMessage = tempMessage.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
-											tempMessage = tempMessage.replace("%subitem$", temp.getKey().split(":")[1]);
+											tempMessage = tempMessage.replace("%subitem%", temp.getKey().split(":")[1]);
 										}
 										else{
 											tempMessage = tempMessage.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
@@ -469,7 +469,7 @@ public class Jobs extends JavaPlugin{
 									else{
 										if(temp.getKey().contains(":")){
 											tempMessage = tempMessage.replace("%item%", temp.getKey().split(":")[0].replace("org.bukkit.craftbukkit.entity.Craft", ""));
-											tempMessage = tempMessage.replace("%subitem$", temp.getKey().split(":")[1]);
+											tempMessage = tempMessage.replace("%subitem%", temp.getKey().split(":")[1]);
 										}
 										else{
 											tempMessage = tempMessage.replace("%item%", temp.getKey().replace("org.bukkit.craftbukkit.entity.Craft", ""));
