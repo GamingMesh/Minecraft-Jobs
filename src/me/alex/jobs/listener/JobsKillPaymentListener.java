@@ -108,7 +108,6 @@ public class JobsKillPaymentListener extends EntityListener{
 						plugin.getPlayerJobInfo(damager).killed((victim.getClass().toString().replace("class ", "")+":"+temp.getName()).trim());
 					}
 				}
-				damager.sendMessage("killed");
 			}
 		}
 	}
