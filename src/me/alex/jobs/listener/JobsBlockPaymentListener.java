@@ -7,8 +7,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-import de.diddiz.LogBlock.Consumer;
-
 public class JobsBlockPaymentListener extends BlockListener{
 	private Jobs plugin;
 	
