@@ -39,8 +39,11 @@ public class JobsiConomyLink implements JobsEconomyLink{
 				JobsConfiguration.getInstance().getStats().isEnabled()){
 			Stats stats = JobsConfiguration.getInstance().getStats();
 			double balance = economy.getAccount(player.getName()).getHoldings().balance();
-			for(BankAccount temp: economy.getAccount(player.getName()).getBankAccounts()){
-				balance += temp.getHoldings().balance();
+			if(economy.getAccount(player.getName()) != null &&
+					economy.getAccount(player.getName()).getBankAccounts() != null){
+				for(BankAccount temp: economy.getAccount(player.getName()).getBankAccounts()){
+					balance += temp.getHoldings().balance();
+				}
 			}
 			if(balance > stats.get(player.getName(), "job", "money")){
 				stats.setStat(player.getName(), "job", "money", (int) balance);

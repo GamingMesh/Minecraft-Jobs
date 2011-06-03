@@ -123,7 +123,7 @@ public class Jobs extends JavaPlugin{
 					}
 					
 					// stats
-					if(JobsConfiguration.getInstance().getStats() == null){
+					if(JobsConfiguration.getInstance().getStats() == null && JobsConfiguration.getInstance().isStatsEnabled()){
 						if(getServer().getPluginManager().getPlugin("Stats") != null){
 							JobsConfiguration.getInstance().setStats((Stats)getServer().getPluginManager().getPlugin("Stats"));
 		                    System.out.println("[Jobs] Successfully linked with Stats.");

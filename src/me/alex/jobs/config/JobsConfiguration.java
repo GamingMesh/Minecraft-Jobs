@@ -62,6 +62,8 @@ public class JobsConfiguration {
 	private Integer maxJobs;
 	// used slots for each job
 	private HashMap<Job, Integer> usedSlots;
+	// is stats enabled
+	private boolean statsEnabled;
 	
 	/**
 	 * Private constructor.
@@ -200,6 +202,21 @@ public class JobsConfiguration {
 			else{
 				System.out.println("[Jobs] - broadcast-on-skill-up property does not exist. Defaulting to false");
 				broadcast = false;
+			}
+			
+			// broadcasting
+			if(map.containsKey("enable-stats")){
+				try{
+					statsEnabled = (Boolean)map.get("enable-stats");
+				}
+				catch (Exception e) {
+					System.out.println("[Jobs] - enable-stats property does is invalid. Defaulting to false");
+					statsEnabled = false;
+				}
+			}
+			else{
+				System.out.println("[Jobs] - enable-stats property does not exist. Defaulting to false");
+				statsEnabled = false;
 			}
 			
 			// save-period
@@ -1163,5 +1180,14 @@ public class JobsConfiguration {
 	 */
 	public void leaveSlot(Job job){
 		usedSlots.put(job, usedSlots.get(job)-1);
+	}
+	
+	/**
+	 * Function to check if stats is enabled
+	 * @return true - stats is enabled
+	 * @return false - stats is disabled
+	 */
+	public boolean isStatsEnabled(){
+		return statsEnabled;
 	}
 }
