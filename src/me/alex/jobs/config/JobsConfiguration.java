@@ -357,7 +357,7 @@ public class JobsConfiguration {
 						ChatColor jobColour;
 						if(jobInfoMap.containsKey("ChatColour")){
 							try{
-								jobColour = ChatColor.valueOf((String) jobInfoMap.get("ChatColour"));
+								jobColour = ChatColor.valueOf(((String) jobInfoMap.get("ChatColour")).toUpperCase());
 							}
 							catch(IllegalArgumentException e){
 								System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid ChatColour property. Disabling jobs !");
@@ -904,7 +904,7 @@ public class JobsConfiguration {
 						// chat colour
 						if(individualTitleMap.containsKey("ChatColour")){
 							try{
-								colour = ChatColor.valueOf((String) individualTitleMap.get("ChatColour"));
+								colour = ChatColor.valueOf(((String) individualTitleMap.get("ChatColour")).toUpperCase());
 							}
 							catch(IllegalArgumentException e){
 								System.err.println("[Jobs] - Title " + individualTitle.getKey() + " has an invalid ChatColour property. Disabling jobs !");
