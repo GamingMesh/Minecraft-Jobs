@@ -199,14 +199,19 @@ public class PlayerJobInfo {
 	}
 	
 	public String getDisplayHonorific(){	
-		String honorific = "";		
+		if(jobs.size() == 0){
+			return "";
+		}
 		
+		String honorific = "";		
 		
 		if(jobs.size() > 1){
 			// has more than 1 job - using shortname mode
 			for(JobProgression temp: progression.values()){
 				if(temp.getJob().getDisplayMethod().equals(DisplayMethod.FULL) || 
-						temp.getJob().getDisplayMethod().equals(DisplayMethod.TITLE)){
+						temp.getJob().getDisplayMethod().equals(DisplayMethod.TITLE) ||
+						temp.getJob().getDisplayMethod().equals(DisplayMethod.SHORT_FULL) || 
+						temp.getJob().getDisplayMethod().equals(DisplayMethod.SHORT_TITLE)){
 					// add title to honorific
 					if(temp.getTitle() != null){
 						honorific += temp.getTitle().getChatColor() + temp.getTitle().getShortName() + ChatColor.WHITE;
@@ -214,16 +219,18 @@ public class PlayerJobInfo {
 				}
 				
 				if(temp.getJob().getDisplayMethod().equals(DisplayMethod.FULL) || 
-						temp.getJob().getDisplayMethod().equals(DisplayMethod.JOB)){
+						temp.getJob().getDisplayMethod().equals(DisplayMethod.JOB) ||
+						temp.getJob().getDisplayMethod().equals(DisplayMethod.SHORT_FULL) || 
+						temp.getJob().getDisplayMethod().equals(DisplayMethod.SHORT_JOB)){
 					honorific += temp.getJob().getChatColour() + temp.getJob().getShortName() + ChatColor.WHITE;
 				}
 				
-				if(!temp.getJob().getDisplayMethod().equals(DisplayMethod.NONE)){
+				if(temp.getJob().getDisplayMethod().equals(DisplayMethod.NONE)){
 					honorific+=" ";
 				}
 			}
 		}
-		else if (jobs.size() > 0){
+		else{
 			// has only 1 job, using longname mode
 			if(jobs.get(0).getDisplayMethod().equals(DisplayMethod.FULL) || jobs.get(0).getDisplayMethod().equals(DisplayMethod.TITLE)){
 				// add title to honorific
@@ -234,9 +241,18 @@ public class PlayerJobInfo {
 					honorific += " ";
 				}
 			}
+			if(jobs.get(0).getDisplayMethod().equals(DisplayMethod.SHORT_FULL) || jobs.get(0).getDisplayMethod().equals(DisplayMethod.SHORT_TITLE)){
+				// add title to honorific
+				if(progression.get(jobs.get(0)).getTitle() != null){
+					honorific += progression.get(jobs.get(0)).getTitle().getChatColor() + progression.get(jobs.get(0)).getTitle().getShortName() + ChatColor.WHITE;
+				}
+			}
 			
 			if(jobs.get(0).getDisplayMethod().equals(DisplayMethod.FULL) || jobs.get(0).getDisplayMethod().equals(DisplayMethod.JOB)){
 				honorific += jobs.get(0).getChatColour() + jobs.get(0).getName() + ChatColor.WHITE;
+			}
+			if(jobs.get(0).getDisplayMethod().equals(DisplayMethod.SHORT_FULL) || jobs.get(0).getDisplayMethod().equals(DisplayMethod.SHORT_JOB)){
+				honorific += jobs.get(0).getChatColour() + jobs.get(0).getShortName() + ChatColor.WHITE;
 			}
 		}
 		return honorific.trim() + " ";

@@ -64,6 +64,8 @@ public class JobsConfiguration {
 	private HashMap<Job, Integer> usedSlots;
 	// is stats enabled
 	private boolean statsEnabled;
+	// to combat needing correct case
+	private HashMap<String, String> jobIgnoreCase;
 	
 	/**
 	 * Private constructor.
@@ -271,6 +273,7 @@ public class JobsConfiguration {
 				else{
 					// some jobs
 					jobs = new HashMap<String, Job>();
+					jobIgnoreCase = new HashMap<String, String>();
 					for(Entry<String, Object> jobMap: jobsMap.entrySet()){
 						Map<String, Object> jobInfoMap = (Map<String, Object>) jobMap.getValue();
 						// fullname
@@ -390,6 +393,18 @@ public class JobsConfiguration {
 								else if(disp.equalsIgnoreCase("none")){
 									// none
 									displayMethod = DisplayMethod.NONE;
+								}
+								else if(disp.equalsIgnoreCase("shortfull")){
+									// none
+									displayMethod = DisplayMethod.SHORT_FULL;
+								}
+								else if(disp.equalsIgnoreCase("shortjob")){
+									// none
+									displayMethod = DisplayMethod.SHORT_JOB;
+								}
+								else if(disp.equalsIgnoreCase("shorttitle")){
+									// none
+									displayMethod = DisplayMethod.SHORT_TITLE;
 								}
 								else {
 									// error
@@ -823,6 +838,7 @@ public class JobsConfiguration {
 								}
 							}
 						}
+						jobIgnoreCase.put(jobName.toLowerCase(), jobName);
 						jobs.put(jobName, new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots));
 					}
 				}
@@ -853,7 +869,7 @@ public class JobsConfiguration {
 			Yaml yaml = new Yaml();
 			Object obj = yaml.load(new FileInputStream("plugins/Jobs/titleConfig.yml"));
 			Map<String, Object> map = (Map<String, Object>)obj;
-			if(map.containsKey("Titles")){
+			if(map.containsKey("Titles") && map.get("Titles") != null && map.get("Titles") instanceof HashMap){
 				Map<String, Object> titlesMap = (Map<String, Object>)map.get("Titles");
 				if(titlesMap.size() == 0){
 					// no titles found
@@ -965,10 +981,10 @@ public class JobsConfiguration {
 	 */
 	@SuppressWarnings("unchecked")
 	private void loadMessageSettings(){
+		messages = new HashMap<String, String>();
 		try {
 			Yaml yaml = new Yaml();
 			Object obj = yaml.load(new FileInputStream("plugins/Jobs/messageConfig.yml"));
-			messages = new HashMap<String, String>();
 			for(Entry<String, String> temp: ((Map<String, String>) obj).entrySet()){
 				String tempMessage = temp.getValue();
 				tempMessage = tempMessage.replace("ChatColor.AQUA", ChatColor.AQUA.toString());
@@ -990,10 +1006,7 @@ public class JobsConfiguration {
 				messages.put(temp.getKey(), tempMessage);
 			}
 		} catch (FileNotFoundException e) {
-			System.err.println("[Jobs] - configuration file messageConfig.yml does not exist");
-			e.printStackTrace();
-			// disable plugin
-			Jobs.disablePlugin();
+			System.err.println("[Jobs] - configuration file messageConfig.yml does not exist, using default messages.");
 		}
 	}
 	
@@ -1015,7 +1028,7 @@ public class JobsConfiguration {
 	 * @return the job that matches the name
 	 */
 	public Job getJob(String jobName){
-		return jobs.get(jobName);
+		return jobs.get(jobIgnoreCase.get(jobName.toLowerCase()));
 	}
 	
 	/**

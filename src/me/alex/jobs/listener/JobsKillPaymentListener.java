@@ -38,6 +38,9 @@ public class JobsKillPaymentListener extends EntityListener{
 		if(!event.isCancelled() && !event.getEntity().isDead()){
 			Player damager;
 			LivingEntity victim;
+			if(event instanceof EntityDamageByEntityEvent){
+				System.out.println(((EntityDamageByEntityEvent)event).getDamager().getClass());
+			}
 			if(event instanceof EntityDamageByProjectileEvent){
 				EntityDamageByProjectileEvent damageEvent = (EntityDamageByProjectileEvent)event;
 				if(damageEvent.getDamager() instanceof Player){
@@ -49,18 +52,25 @@ public class JobsKillPaymentListener extends EntityListener{
 				}
 			}
 			else if (event instanceof EntityDamageByEntityEvent){
+				System.out.println("enity by entity event");
 				EntityDamageByEntityEvent damageEvent = (EntityDamageByEntityEvent) event;
+				System.out.println(damageEvent.getDamager().getClass());
+
 				if(damageEvent.getDamager() instanceof Player){
 					damager = (Player) damageEvent.getDamager();
 				}
 				else if (damageEvent.getDamager() instanceof Wolf){
+					System.out.println(damageEvent.getDamager().getClass());
 					// wolf has an owner
 					if(((Wolf)damageEvent.getDamager()).getOwner() != null && 
 							((Wolf)damageEvent.getDamager()).getOwner() instanceof Player){
+						System.out.println("is wolf and owned by player");
 						damager = (Player)((Wolf)damageEvent.getDamager()).getOwner();
+						System.out.println(damager.getName());
 					}
 					else {
 						// wild wolf, don't care
+						System.out.println("wild");
 						return;
 					}
 				}
@@ -73,7 +83,7 @@ public class JobsKillPaymentListener extends EntityListener{
 				// don't care
 				return;
 			}
-			
+						
 			if(event.getEntity() instanceof LivingEntity){
 				victim = (LivingEntity)event.getEntity();
 			}
