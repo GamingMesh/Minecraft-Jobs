@@ -10,6 +10,7 @@ import org.bukkit.entity.Wolf;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageByProjectileEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityListener;
 
 /**
@@ -24,102 +25,46 @@ public class JobsKillPaymentListener extends EntityListener{
 	public JobsKillPaymentListener(Jobs plugin) {
 		this.plugin = plugin;
 	}
-
+	
 	/**
-	 * Function that gets called whenever an entity gets damaged
+	 * Function that gets called whenever an entity gets killed
 	 * 
 	 * Must make sure that the entity is getting damaged by another entity first
 	 * and that this damager is either a player or a player's wolf.
 	 * 
-	 * Then it checks to see if the entity is actually dead and if it is to pay the killer
+	 * Then it pays the killer
 	 */
-	public void onEntityDamage(EntityDamageEvent event){
-		// if event is not cancelled and entity isn't already dead.
-		if(!event.isCancelled() && !event.getEntity().isDead()){
-			Player damager;
-			LivingEntity victim;
-			if(event instanceof EntityDamageByEntityEvent){
-				System.out.println(((EntityDamageByEntityEvent)event).getDamager().getClass());
-			}
-			if(event instanceof EntityDamageByProjectileEvent){
-				EntityDamageByProjectileEvent damageEvent = (EntityDamageByProjectileEvent)event;
-				if(damageEvent.getDamager() instanceof Player){
-					damager = (Player) damageEvent.getDamager();
-				}
-				else{
-					// hasn't been killed by a player shooting an arrow/snowball
-					return;
-				}
-			}
-			else if (event instanceof EntityDamageByEntityEvent){
-				System.out.println("enity by entity event");
-				EntityDamageByEntityEvent damageEvent = (EntityDamageByEntityEvent) event;
-				System.out.println(damageEvent.getDamager().getClass());
-
-				if(damageEvent.getDamager() instanceof Player){
-					damager = (Player) damageEvent.getDamager();
-				}
-				else if (damageEvent.getDamager() instanceof Wolf){
-					System.out.println(damageEvent.getDamager().getClass());
-					// wolf has an owner
-					if(((Wolf)damageEvent.getDamager()).getOwner() != null && 
-							((Wolf)damageEvent.getDamager()).getOwner() instanceof Player){
-						System.out.println("is wolf and owned by player");
-						damager = (Player)((Wolf)damageEvent.getDamager()).getOwner();
-						System.out.println(damager.getName());
-					}
-					else {
-						// wild wolf, don't care
-						System.out.println("wild");
-						return;
-					}
-				}
-				else {
-					// don't care
-					return;
-				}
-			}
-			else {
-				// don't care
-				return;
-			}
-						
-			if(event.getEntity() instanceof LivingEntity){
-				victim = (LivingEntity)event.getEntity();
-			}
-			else{
-				// not interested
-				return;
-			}
-			
-			if(victim.getHealth() <= 0){
-				// for all intensive purposes dead.
-				return;
-			}
-			
-			// if they have permissions
-			if((JobsConfiguration.getInstance().getPermissions() == null || !JobsConfiguration.getInstance().getPermissions().isEnabled())
-					|| JobsConfiguration.getInstance().getPermissions().getHandler().has(damager, "jobs.world." + damager.getWorld().getName())){
-				// if victim would die
-				if(victim.getHealth() - event.getDamage() > 0){
-					// not dealth lethal damage
-					return;
-				}
-				// if near mob spawners.
-				if (nearMobSpawner(damager) ||	nearMobSpawner(victim)){
+	public void onEntityDeath(EntityDeathEvent event)
+	{
+	    if (event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent 
+	    		|| event.getEntity().getLastDamageCause() instanceof EntityDamageByProjectileEvent){
+	        EntityDamageByEntityEvent e = (EntityDamageByEntityEvent)event.getEntity().getLastDamageCause();
+	        if((e.getDamager() instanceof Wolf && ((Wolf)e.getDamager()).isTamed() == true ) || e.getDamager() instanceof Player)
+	        {
+	        	Player damager;
+	        	LivingEntity victim = (LivingEntity)e.getEntity();
+	        	if(e.getDamager() instanceof Wolf && ((Wolf)e.getDamager()).isTamed() == true ){
+	        		damager = (Player)((Wolf)e.getDamager()).getOwner();
+	        	}
+	        	else {
+	        		damager = (Player)e.getDamager();
+	        	}
+	        	if (nearMobSpawner(damager) ||	nearMobSpawner(victim)){
 					// near mob spawner, no payment or experience
 					return;
 				}
-				// pay
+	        	// pay
 				plugin.getPlayerJobInfo(damager).killed(victim.getClass().toString().replace("class ", "").trim());
 				// pay for jobs
 				if(victim instanceof Player){
-					for(Job temp: plugin.getPlayerJobInfo((Player)victim).getJobs()){
-						plugin.getPlayerJobInfo(damager).killed((victim.getClass().toString().replace("class ", "")+":"+temp.getName()).trim());
+					if(plugin.getPlayerJobInfo((Player)victim)!=null && plugin.getPlayerJobInfo((Player)victim).getJobs()!= null){
+						for(Job temp: plugin.getPlayerJobInfo((Player)victim).getJobs()){
+							plugin.getPlayerJobInfo(damager).killed((victim.getClass().toString().replace("class ", "")+":"+temp.getName()).trim());
+						}
 					}
 				}
-			}
-		}
+	        }
+	    }
 	}
 	
 	/**
@@ -129,6 +74,9 @@ public class JobsKillPaymentListener extends EntityListener{
 	 * @return false - not near a mob spawner
 	 */
 	private boolean nearMobSpawner(LivingEntity entity){
+		if(JobsConfiguration.getInstance().payNearSpawner()){
+			return false;
+		}
 		int x = entity.getLocation().getBlockX();
 		int y = entity.getLocation().getBlockY();
 		int z = entity.getLocation().getBlockZ();

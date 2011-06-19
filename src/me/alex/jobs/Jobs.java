@@ -88,11 +88,13 @@ public class Jobs extends JavaPlugin{
 			JobsPlayerListener playerListener = new JobsPlayerListener(this);
 			
 			// set the system to auto save
-			getServer().getScheduler().scheduleAsyncRepeatingTask(this, new Runnable(){
-				public void run(){
-					saveAll();
-				}
-			}, 20*60*JobsConfiguration.getInstance().getSavePeriod(), 20*60*JobsConfiguration.getInstance().getSavePeriod());
+			if(JobsConfiguration.getInstance().getSavePeriod() > 0){
+				getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
+					public void run(){
+						saveAll();
+					}
+				}, 20*60*JobsConfiguration.getInstance().getSavePeriod(), 20*60*JobsConfiguration.getInstance().getSavePeriod());
+			}
 			
 			// enable the link for economy plugins
 			getServer().getPluginManager().registerEvent(Event.Type.PLUGIN_ENABLE, new ServerListener() {
@@ -165,7 +167,7 @@ public class Jobs extends JavaPlugin{
 			getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Monitor, this);
 			getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Monitor, this);
 			getServer().getPluginManager().registerEvent(Event.Type.CUSTOM_EVENT, jobListener, Event.Priority.Monitor, this);
-			getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DAMAGE, killListener, Event.Priority.Monitor, this);
+			getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, killListener, Event.Priority.Monitor, this);
 			getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Monitor, this);
 			getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
 			

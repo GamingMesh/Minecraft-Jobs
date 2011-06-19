@@ -1,6 +1,6 @@
 name: Jobs
 main: me.alex.jobs.Jobs
-version: 2.0.1
+version: 2.0.2 WIP 2
 commands:
     Jobs:
         description: Jobs

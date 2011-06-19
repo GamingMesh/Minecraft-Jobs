@@ -188,7 +188,8 @@ public class PlayerJobInfo {
 					Jobs.getJobsServer().getPluginManager().callEvent(event);
 				}
 			}
-			if(!JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()).equals(temp.getTitle())){
+			
+			if(JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()) != null && !JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()).equals(temp.getTitle())){
 				// user would skill up
 				if(Jobs.getJobsServer() != null){
 					JobsSkillUpEvent event = new JobsSkillUpEvent(player, temp, JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()));
@@ -326,9 +327,9 @@ public class PlayerJobInfo {
 		HashMap<String, Double> param = new HashMap<String, Double>();
 		param.put("numjobs", (double) progression.size());
 		for(JobProgression temp: progression.values()){
-			param.put("level", (double) temp.getLevel());
+			param.put("joblevel", (double) temp.getLevel());
 			temp.setMaxExperience(temp.getJob().getMaxExp(param));
-			param.remove("level");
+			param.remove("joblevel");
 		}
 	}
 }

@@ -53,6 +53,15 @@ public class JobsJobListener extends JobsEventListener{
 					event.getPlayer().sendMessage(ChatColor.YELLOW + "-- Job Level Up --");
 				}
 				else {
+					tempMessage = tempMessage.replace("%jobname%", ""+progression.getJob().getName());
+					tempMessage = tempMessage.replace("%jobcolour%", ""+progression.getJob().getChatColour());
+					if(progression.getTitle() != null){
+						tempMessage = tempMessage.replace("%titlename%", ""+progression.getTitle().getName());
+						tempMessage = tempMessage.replace("%titlecolour%", ""+progression.getTitle().getChatColor());
+					}
+					tempMessage = tempMessage.replace("%playername%", ""+event.getPlayer().getName());
+					tempMessage = tempMessage.replace("%playerdisplayname%", ""+event.getPlayer().getDisplayName());
+					tempMessage = tempMessage.replace("%joblevel%", ""+progression.getLevel());
 					for(String temp: tempMessage.split("\n")){
 						event.getPlayer().sendMessage(temp);
 					}
@@ -99,8 +108,10 @@ public class JobsJobListener extends JobsEventListener{
 							event.getJobProgression().getJob().getChatColour() + event.getJobProgression().getJob().getName() + ChatColor.WHITE);				}
 				else {
 					tempMessage = tempMessage.replace("%playername%", event.getPlayer().getName());
-					tempMessage = tempMessage.replace("%titlecolour%", event.getNewTitle().getChatColor().toString());
-					tempMessage = tempMessage.replace("%titlename%", event.getNewTitle().getName());
+					if(event.getNewTitle() != null){
+						tempMessage = tempMessage.replace("%titlecolour%", event.getNewTitle().getChatColor().toString());
+						tempMessage = tempMessage.replace("%titlename%", event.getNewTitle().getName());
+					}
 					tempMessage = tempMessage.replace("%jobcolour%", event.getJobProgression().getJob().getChatColour().toString());
 					tempMessage = tempMessage.replace("%jobname%", event.getJobProgression().getJob().getName());
 					for(String temp: tempMessage.split("\n")){
@@ -116,8 +127,10 @@ public class JobsJobListener extends JobsEventListener{
 							event.getJobProgression().getJob().getChatColour() + event.getJobProgression().getJob().getName() + ChatColor.WHITE);
 				}
 				else {
-					tempMessage = tempMessage.replace("%titlecolour%", event.getNewTitle().getChatColor().toString());
-					tempMessage = tempMessage.replace("%titlename%", event.getNewTitle().getName());
+					if(event.getNewTitle() != null){
+						tempMessage = tempMessage.replace("%titlecolour%", event.getNewTitle().getChatColor().toString());
+						tempMessage = tempMessage.replace("%titlename%", event.getNewTitle().getName());
+					}
 					tempMessage = tempMessage.replace("%jobcolour%", event.getJobProgression().getJob().getChatColour().toString());
 					tempMessage = tempMessage.replace("%jobname%", event.getJobProgression().getJob().getName());
 					for(String temp: tempMessage.split("\n")){

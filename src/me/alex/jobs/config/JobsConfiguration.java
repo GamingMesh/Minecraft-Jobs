@@ -66,6 +66,8 @@ public class JobsConfiguration {
 	private boolean statsEnabled;
 	// to combat needing correct case
 	private HashMap<String, String> jobIgnoreCase;
+	// can get money near spawner.
+	private boolean payNearSpawner;
 	
 	/**
 	 * Private constructor.
@@ -206,7 +208,7 @@ public class JobsConfiguration {
 				broadcast = false;
 			}
 			
-			// broadcasting
+			// enable stats
 			if(map.containsKey("enable-stats")){
 				try{
 					statsEnabled = (Boolean)map.get("enable-stats");
@@ -219,6 +221,21 @@ public class JobsConfiguration {
 			else{
 				System.out.println("[Jobs] - enable-stats property does not exist. Defaulting to false");
 				statsEnabled = false;
+			}
+			
+			// enable pay near spawner
+			if(map.containsKey("enable-pay-near-spawner")){
+				try{
+					payNearSpawner = (Boolean)map.get("enable-pay-near-spawner");
+				}
+				catch (Exception e) {
+					System.out.println("[Jobs] - enable-pay-near-spawner property does is invalid. Defaulting to false");
+					payNearSpawner = false;
+				}
+			}
+			else{
+				System.out.println("[Jobs] - enable-pay-near-spawner property does not exist. Defaulting to false");
+				payNearSpawner = false;
 			}
 			
 			// save-period
@@ -1202,5 +1219,14 @@ public class JobsConfiguration {
 	 */
 	public boolean isStatsEnabled(){
 		return statsEnabled;
+	}
+	
+	/**
+	 * Function to check if you get paid near a spawner is enabled
+	 * @return true - you get paid
+	 * @return false - you don't get paid
+	 */
+	public boolean payNearSpawner(){
+		return payNearSpawner;
 	}
 }

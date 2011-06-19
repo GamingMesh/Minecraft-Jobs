@@ -3,8 +3,10 @@ package me.alex.jobs.fake;
 import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 import org.bukkit.Achievement;
+import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -17,6 +19,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Vehicle;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Vector;
@@ -517,6 +520,37 @@ public class JobsPlayer implements Player{
 	public void updateInventory() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public EntityDamageEvent getLastDamageCause() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public UUID getUniqueId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void setLastDamageCause(EntityDamageEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void playEffect(Location arg0, Effect arg1, int arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean sendChunkChange(Location arg0, int arg1, int arg2, int arg3,
+			byte[] arg4) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }
