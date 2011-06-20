@@ -126,7 +126,12 @@ public class JobsConfiguration {
 					return;
 				}
 				if(map.containsKey("mysql-password")){
-					password = (String)map.get("mysql-password");
+					try{
+						password = (String)map.get("mysql-password");
+					}
+					catch (ClassCastException ex){
+						password = ((Long)map.get("mysql-password")).toString();
+					}
 				}
 				else{
 					System.err.println("[Jobs] - mysql-password property missing");
@@ -500,7 +505,7 @@ public class JobsConfiguration {
 						
 						// break
 						HashMap<String, JobsBlockInfo> jobBreakInfo = null;
-						if(jobInfoMap.containsKey("Break")){
+						if(jobInfoMap.containsKey("Break") && jobInfoMap.get("Break") != null){
 							// break tag exists
 							Map<String, Object> jobBreakMap = (Map<String, Object>) jobInfoMap.get("Break");
 							if(jobBreakMap.size() == 0){
@@ -597,7 +602,7 @@ public class JobsConfiguration {
 						
 						// place
 						HashMap<String, JobsBlockInfo> jobPlaceInfo = null;
-						if(jobInfoMap.containsKey("Place")){
+						if(jobInfoMap.containsKey("Place") && jobInfoMap.get("Place") != null){
 							// place tag exists
 							Map<String, Object> jobPlaceMap = (Map<String, Object>) jobInfoMap.get("Place");
 							if(jobPlaceMap.size() == 0){
@@ -694,7 +699,7 @@ public class JobsConfiguration {
 						
 						// kill
 						HashMap<String, JobsLivingEntityInfo> jobKillInfo = null;
-						if(jobInfoMap.containsKey("Kill")){
+						if(jobInfoMap.containsKey("Kill") && jobInfoMap.get("Kill") != null){
 							// kill tag exists
 							Map<String, Object> jobKillMap = (Map<String, Object>) jobInfoMap.get("Kill");
 							if(jobKillMap.size() == 0){
@@ -782,7 +787,7 @@ public class JobsConfiguration {
 						}
 						
 						// custom-kill  
-						if(jobInfoMap.containsKey("custom-kill")){
+						if(jobInfoMap.containsKey("custom-kill") && jobInfoMap.get("custom-kill") != null){
 							// kill tag exists
 							Map<String, Object> jobKillMap = (Map<String, Object>) jobInfoMap.get("custom-kill");
 							if(jobKillMap.size() == 0){
