@@ -62,14 +62,15 @@ public class Jobs extends JavaPlugin{
 		if(JobsConfiguration.getInstance().getJobsDAO() != null){
 			saveAll();
 		}
-		getServer().getLogger().info("[Jobs v" + getDescription().getVersion() + "] has been disabled succesfully.");
 		
 		for(Entry<Player, PlayerJobInfo> online: players.entrySet()){
 			// wipe the honorific
 			online.getKey().setDisplayName(online.getKey().getDisplayName().replace(online.getValue().getDisplayHonorific(), ""));
 		}
+		
+		getServer().getLogger().info("[Jobs v" + getDescription().getVersion() + "] has been disabled succesfully.");
 		// wipe the hashMap
-		players = null;
+		players.clear();
 	}
 
 	/**

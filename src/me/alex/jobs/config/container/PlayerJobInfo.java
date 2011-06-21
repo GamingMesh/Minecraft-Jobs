@@ -26,7 +26,7 @@ public class PlayerJobInfo {
 	// progression of the player in each job
 	private HashMap<Job, JobProgression> progression;
 	// display honorific
-	private String honorific;
+	private String honorific = null;
 		
 	/**
 	 * Constructor.
@@ -58,10 +58,7 @@ public class PlayerJobInfo {
 			}
 		}
 		reloadMaxExperience();
-		honorific = getDisplayHonorific();
-		if(!honorific.equals(" ")){
-			player.setDisplayName(honorific + player.getDisplayName());
-		}
+		reloadHonorific();
 	}
 	
 	/**
@@ -201,7 +198,7 @@ public class PlayerJobInfo {
 	
 	public String getDisplayHonorific(){	
 		if(jobs.size() == 0){
-			return "";
+			return null;
 		}
 		
 		String honorific = "";		
@@ -226,7 +223,7 @@ public class PlayerJobInfo {
 					honorific += temp.getJob().getChatColour() + temp.getJob().getShortName() + ChatColor.WHITE;
 				}
 				
-				if(temp.getJob().getDisplayMethod().equals(DisplayMethod.NONE)){
+				if(!temp.getJob().getDisplayMethod().equals(DisplayMethod.NONE)){
 					honorific+=" ";
 				}
 			}
@@ -256,7 +253,12 @@ public class PlayerJobInfo {
 				honorific += jobs.get(0).getChatColour() + jobs.get(0).getShortName() + ChatColor.WHITE;
 			}
 		}
-		return honorific.trim() + " ";
+		
+		if(honorific.equals("")){
+			return null;
+		}else{
+			return honorific.trim();
+		}
 	}
 	
 	/**
@@ -306,17 +308,19 @@ public class PlayerJobInfo {
 	 */
 	public void reloadHonorific(){
 		String newHonorific = getDisplayHonorific();
-		if(honorific.equals(" ")){
-			player.setDisplayName(newHonorific + player.getDisplayName());
+		if(newHonorific == null && honorific != null){
+			// strip the current honorific.
+			player.setDisplayName(player.getDisplayName().replaceFirst(honorific, "").trim());
 		}
-		else{
-			if(newHonorific.equals(" ")){
-				player.setDisplayName(player.getDisplayName().replace(honorific, ""));
-			}
-			else{
-				player.setDisplayName(player.getDisplayName().replace(honorific, newHonorific));
-			}
+		else if (newHonorific != null && honorific != null){
+			// replace the honorific
+			player.setDisplayName(player.getDisplayName().replaceFirst(honorific, newHonorific).trim());
 		}
+		else if(newHonorific != null && honorific == null){
+			// new honorific
+			player.setDisplayName((newHonorific + " " + player.getDisplayName()).trim());
+		}
+		// set the new honorific
 		honorific = newHonorific;
 	}
 	
