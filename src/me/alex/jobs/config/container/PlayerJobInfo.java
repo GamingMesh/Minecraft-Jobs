@@ -310,7 +310,7 @@ public class PlayerJobInfo {
 		String newHonorific = getDisplayHonorific();
 		if(newHonorific == null && honorific != null){
 			// strip the current honorific.
-			player.setDisplayName(player.getDisplayName().replaceFirst(honorific, "").trim());
+			player.setDisplayName(player.getDisplayName().replaceFirst(honorific + " ", "").trim());
 		}
 		else if (newHonorific != null && honorific != null){
 			// replace the honorific
