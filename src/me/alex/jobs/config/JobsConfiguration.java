@@ -1,27 +1,35 @@
 package me.alex.jobs.config;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
+import java.util.ArrayList;
 
 import me.alex.jobs.Jobs;
 import me.alex.jobs.config.container.Job;
 import me.alex.jobs.config.container.JobsBlockInfo;
 import me.alex.jobs.config.container.JobsLivingEntityInfo;
 import me.alex.jobs.config.container.Title;
+import me.alex.jobs.config.container.RestrictedArea;
 import me.alex.jobs.dao.JobsDAO;
 import me.alex.jobs.dao.JobsDAOFlatfile;
 import me.alex.jobs.dao.JobsDAOMySQL;
 import me.alex.jobs.economy.JobsEconomyLink;
 import me.alex.jobs.util.DisplayMethod;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.material.MaterialData;
+import org.bukkit.util.config.Configuration;
 import org.mbertoli.jfep.Parser;
 import org.yaml.snakeyaml.Yaml;
 
@@ -69,6 +77,8 @@ public class JobsConfiguration {
 	// can get money near spawner.
 	private boolean payNearSpawner;
 	
+	private ArrayList<RestrictedArea> restrictedAreas;
+	
 	/**
 	 * Private constructor.
 	 * 
@@ -86,6 +96,8 @@ public class JobsConfiguration {
 		loadMessageSettings();
 		// get slots
 		loadSlots();
+		// restricted areas
+		loadRestrictedAreaSettings();
 	}
 	
 	/**
@@ -1032,6 +1044,49 @@ public class JobsConfiguration {
 		}
 	}
 	
+
+    /**
+     * Method to load the general configuration
+     * 
+     * loads from Jobs/restrictedAreas.yml
+     */
+    private void loadRestrictedAreaSettings(){
+        File f = new File("plugins/Jobs/restrictedAreas.yml");
+        Configuration conf;
+        if(f.exists()) {
+            conf = new Configuration(f);
+            conf.load();
+            this.restrictedAreas = new ArrayList<RestrictedArea>();
+            List<String> areaKeys = conf.getKeys("restrictedareas");
+            List<World> worlds = Bukkit.getServer().getWorlds();
+            if ( areaKeys == null ) {
+                return;
+            }
+            for (String areaKey : areaKeys) {
+                String worldName = conf.getString("restrictedareas."+areaKey+".world");
+                World pointWorld = null;
+                for (World world : worlds) {
+                    if (world.getName().equals(worldName)) {
+                        pointWorld = world;
+                        break;
+                    }
+                }
+                Location point1 = new Location(pointWorld,
+                        conf.getDouble("restrictedareas."+areaKey+".point1.x", 0.0),
+                        conf.getDouble("restrictedareas."+areaKey+".point1.y", 0.0),
+                        conf.getDouble("restrictedareas."+areaKey+".point1.z", 0.0));
+
+                Location point2 = new Location(pointWorld,
+                        conf.getDouble("restrictedareas."+areaKey+".point2.x", 0.0),
+                        conf.getDouble("restrictedareas."+areaKey+".point2.y", 0.0),
+                        conf.getDouble("restrictedareas."+areaKey+".point2.z", 0.0));
+                this.restrictedAreas.add(new RestrictedArea(point1, point2));
+            }
+        } else {
+            System.err.println("[Jobs] - configuration file restrictedAreas.yml does not exist");
+        }
+    }
+	
 	/**
 	 * Method to get the configuration.
 	 * Never store this. Always call the function and then do something.
@@ -1233,5 +1288,13 @@ public class JobsConfiguration {
 	 */
 	public boolean payNearSpawner(){
 		return payNearSpawner;
+	}
+	
+   /**
+     * Function to get the restricted areas on the server
+     * @return restricted areas on the server
+     */
+	public List<RestrictedArea> getRestrictedAreas() {
+	    return this.restrictedAreas;
 	}
 }

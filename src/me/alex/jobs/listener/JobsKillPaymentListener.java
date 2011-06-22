@@ -3,6 +3,7 @@ package me.alex.jobs.listener;
 import me.alex.jobs.Jobs;
 import me.alex.jobs.config.JobsConfiguration;
 import me.alex.jobs.config.container.Job;
+import me.alex.jobs.config.container.RestrictedArea;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -53,6 +54,10 @@ public class JobsKillPaymentListener extends EntityListener{
 					// near mob spawner, no payment or experience
 					return;
 				}
+	        	if (RestrictedArea.isRestricted(damager) || RestrictedArea.isRestricted(victim)) {
+	        	    // inside restricted area, no payment or experience
+	        	    return;
+	        	}
 	        	// pay
 				plugin.getPlayerJobInfo(damager).killed(victim.getClass().toString().replace("class ", "").trim());
 				// pay for jobs

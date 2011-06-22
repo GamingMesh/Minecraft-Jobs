@@ -2,6 +2,7 @@ package me.alex.jobs.listener;
 
 import me.alex.jobs.Jobs;
 import me.alex.jobs.config.JobsConfiguration;
+import me.alex.jobs.config.container.RestrictedArea;
 
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockListener;
@@ -15,6 +16,10 @@ public class JobsBlockPaymentListener extends BlockListener{
 	}
 	
 	public void onBlockBreak(BlockBreakEvent event){
+        if (RestrictedArea.isRestricted(event.getPlayer())) {
+            // inside restricted area, no payment or experience
+            return;
+        }
 		// make sure event is not cancelled
 		if(!event.isCancelled() && 
 				((JobsConfiguration.getInstance().getPermissions() == null || !JobsConfiguration.getInstance().getPermissions().isEnabled())
@@ -24,6 +29,10 @@ public class JobsBlockPaymentListener extends BlockListener{
 	}
 	
 	public void onBlockPlace(BlockPlaceEvent event){
+        if (RestrictedArea.isRestricted(event.getPlayer())) {
+            // inside restricted area, no payment or experience
+            return;
+        }
 		// make sure event is not cancelled
 		if(event.canBuild() && !event.isCancelled() && 
 				((JobsConfiguration.getInstance().getPermissions() == null || !JobsConfiguration.getInstance().getPermissions().isEnabled())
