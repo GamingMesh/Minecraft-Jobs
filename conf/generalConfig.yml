@@ -1,0 +1,33 @@
+# General configuration.
+#
+#   The general configuration for the jobs plugin mostly includes how often the plugin
+# saves user data (when the user is in the game), the storage method, whether
+# to broadcast a message to the server when a user goes up a skill level.
+#   It also allows admins to set the maximum number of jobs a player can have at
+# any one time.
+
+# storage method, can be MySQL, flatfile
+storage-method: flatfile
+
+# Requires Mysql.
+mysql-username: root
+mysql-password:
+mysql-database: minecraft
+mysql-url: jdbc:mysql://localhost:3306/
+#mysql-table-prefix: 
+
+# How often in minutes you want it to save, 0 disables periodic saving and
+# the system will only save on logout
+save-period: 10
+
+# Do all players get a message when somone goes up a skill level?
+broadcast-on-skill-up: true
+
+# maximum number of jobs a player can join
+#max-jobs: 3
+
+# option to enable the stats and achievements plugin.
+#enable-stats: true
+
+# option to allow payment to be made when near a spawner
+#enable-pay-near-spawner: true

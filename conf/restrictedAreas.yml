@@ -1,0 +1,29 @@
+# Restricted area configuration
+
+# Configures restricted areas where you cannot get experience or money
+# when performing a job.
+
+# Uncomment below to enable restricted names.  There is no limit to the number
+# of restricted areas.
+
+#restrictedareas:
+#    area1:
+#        world: 'world'
+#        point1:
+#            x: 125
+#            y: 0
+#            z: 125
+#        point2:
+#            x: 150
+#            y: 100
+#            z: 150
+#    area2:
+#        world: 'world_nether'
+#        point1:
+#            x: -100
+#            y: 0
+#            z: -100
+#        point2:
+#            x: -150
+#            y: 100
+#            z: -150

@@ -1,4 +1,8 @@
 .classpath
 .project
+.externalToolBuilders/
 .settings/
 bin/
+build/
+lib/
+dist/

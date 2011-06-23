@@ -1,0 +1,129 @@
+# Configuration file for the messages
+#
+# Replace the messages if you want.
+#
+# ChatColor.<Color> will make any words following (including spaces that colour).
+#
+# Supported colors:
+#    AQUA
+#    BLACK
+#    BLUE
+#    DARK_AQUA
+#    DARK_BLUE
+#    DARK_GRAY
+#    DARK_GREEN
+#    DARK_PURPLE
+#    DARK_RED
+#    GOLD
+#    GRAY
+#    GREEN
+#    LIGHT_PURPLE
+#    RED
+#    WHITE
+#    YELLOW
+#
+# Each message has slightly different parameters. The parameters available
+# are the ones that are already in the message (and none others)
+#
+# NOTE:
+#   Any character other than normal characters will not get read and will crash the 
+# configuration.
+#
+stats-no-job: |
+    ChatColor.REDPlease join a job first.
+stats-job: |
+    lvl%joblevel% %jobcolour%%jobname%ChatColor.WHITE : %jobexp%/%jobmaxexp% exp
+browse-no-jobs: |
+    There are no jobs you can join.
+browse-jobs-header: |
+    You are allowed to join the following jobs :
+browse-jobs-footer: |
+    For more information type in /jobs info [JobName]
+admin-command-success: |
+    Your command has been performed.
+admin-command-failed: |
+    ChatColor.REDThere was an error in the command.
+fire-target: |
+    You have been fired from %jobcolour%%jobname%.
+fire-target-no-job: |
+    Plyer does not have the job %jobcolour%%jobname%.
+employ-target: |
+    You have been employed in %jobcolour%%jobname%.
+promote-target: |
+    You have been promoted %levelsgained% levels in %jobcolour%%jobname%.
+demote-target: |
+    You have been demoted %levelslost% levels in %jobcolour%%jobname%.
+grantxp-target: |
+    You have been granted %expgained% experience in %jobcolour%%jobname%.
+removexp-target: |
+    You have lost %explost% experience in %jobcolour%%jobname%.
+transfer-target: |
+    You have been transferred from %oldjobcolour%%oldjobname% to %newjobcolour%%newjobname%.
+join-too-many-jobs: |
+    ChatColor.REDYou have already joined too many jobs.
+jobs-browse: |
+    ChatColor.YELLOW/jobs browseChatColor.WHITE - list the jobs available to you.
+jobs-join: |
+    ChatColor.YELLOW/jobs join <jobname>ChatColor.WHITE - join the selected job.
+jobs-leave: |
+    ChatColor.YELLOW/jobs leave <jobname>ChatColor.WHITE - leave the selected job.
+jobs-stats: |
+    ChatColor.YELLOW/jobs statsChatColor.WHITE - show the level you are in each job you are part of.
+jobs-info: |
+    ChatColor.YELLOW/jobs info <jobname> <break, place, kill>ChatColor.WHITE - show how much each job is getting paid and for what.
+jobs-admin-fire: |
+    ChatColor.YELLOW/jobs fire <playername> <job>ChatColor.WHITE - fire the player from the job.
+jobs-admin-employ: |
+    ChatColor.YELLOW/jobs employ <playername> <job>ChatColor.WHITE - employ the player to the job.
+jobs-admin-promote: |
+    ChatColor.YELLOW/jobs promote <playername> <job> <levels>ChatColor.WHITE - promote the player X levels in a job.
+jobs-admin-demote: |
+    ChatColor.YELLOW/jobs demote <playername> <job> <levels>ChatColor.WHITE - demote the player X levels in a job.
+jobs-admin-grantxp: |
+    ChatColor.YELLOW/jobs grantxp <playername> <job> <experience>ChatColor.WHITE - grant the player X experience in a job.
+jobs-admin-removexp: |
+    ChatColor.YELLOW/jobs removexp <playername> <job> <experience>ChatColor.WHITE - remove X experience from the player in a job.
+jobs-admin-transfer: |
+    ChatColor.YELLOW/jobs transfer <playername> <oldjob> <newjob>ChatColor.WHITE - transfer a player's job from an old job to a new job.
+break-header: |
+    Break:
+place-header: |
+    Place:
+kill-header: |
+    Kill:
+break-info-no-sub: |
+    ChatColor.WHITE    %item% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp
+break-info-sub: |
+    ChatColor.WHITE    %item%:%subitem% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp
+place-info-no-sub: |
+    ChatColor.WHITE    %item% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp
+place-info-sub: |
+    ChatColor.WHITE    %item%:%subitem% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp
+kill-info-no-sub: |
+    ChatColor.WHITE    %item% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp
+kill-info-sub: |
+    ChatColor.WHITE    %item%:%subitem% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp
+break-none: |
+    %jobcolour%%jobname%ChatColor.WHITE does not get money for breaking anything.
+place-none: |
+    %jobcolour%%jobname%ChatColor.WHITE does not get money for placing anything.
+kill-none: |
+    %jobcolour%%jobname%ChatColor.WHITE does not get money for killing anything.
+level-up: |
+    ChatColor.YELLOW-- Job Level Up --
+at-max-level: |
+    ChatColor.YELLOW-- You have reached the maximum level --
+skill-up-broadcast: |
+    %playername% has been promoted to a %titlecolour%%titlename% %jobcolour%%jobname%ChatColor.WHITE.
+skill-up-no-broadcast: |
+    Congratulations, you have been promoted to a %titlecolour%%titlename% %jobcolour%%jobname%ChatColor.WHITE.
+join-job-success: |
+    You have joined the job %jobcolour%%jobname%ChatColor.WHITE.
+join-job-failed-already-in: |
+    You are already in the job %jobcolour%%jobname%ChatColor.WHITE.
+join-job-failed-too-many: |
+    You have already joined too many jobs.
+join-job-failed-no-slots: |
+    You cannot join the job %jobcolour%%jobname%ChatColor.WHITE, there are no slots available.
+leave-job-sucess: |
+    You have left the job %jobcolour%%jobname%ChatColor.WHITE.

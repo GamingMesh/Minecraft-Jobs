@@ -1,0 +1,31 @@
+# Title configuration
+#
+# Stores the titles people gain at certain levels.
+# Each title requres to have a name, short name (used when the player has more than
+# 1 job) the colour of the title and the level requrirement to attain the title.
+#
+# It is recommended but not required to have a title at level 0.
+#
+# Titles are completely optional.
+
+Titles:
+    Apprentice:
+        Name: Apprentice
+        ShortName: A
+        ChatColour: WHITE
+        levelReq: 0
+    Novice:
+        Name: Novice
+        ShortName: N
+        ChatColour: GRAY
+        levelReq: 30
+    Journeyman:
+        Name: Journeyman
+        ShortName: J
+        ChatColour: GOLD
+        levelReq: 60
+    Master:
+        Name: Master
+        ShortName: M
+        ChatColour: BLACK
+        levelReq: 90
