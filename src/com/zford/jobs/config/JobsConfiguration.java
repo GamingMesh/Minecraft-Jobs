@@ -1,13 +1,9 @@
 package com.zford.jobs.config;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.ArrayList;
 
@@ -20,7 +16,6 @@ import org.bukkit.World;
 import org.bukkit.material.MaterialData;
 import org.bukkit.util.config.Configuration;
 import org.mbertoli.jfep.Parser;
-import org.yaml.snakeyaml.Yaml;
 
 import com.nidefawl.Stats.Stats;
 import com.nijikokun.bukkit.Permissions.Permissions;
@@ -41,6 +36,7 @@ import com.zford.jobs.util.DisplayMethod;
  * 
  * Holds all the configuration information for the jobs plugin
  * @author Alex
+ * @author Zak Ford <zak.j.ford@gmail.com>
  *
  */
 public class JobsConfiguration {
@@ -115,174 +111,72 @@ public class JobsConfiguration {
 	 * 
 	 * loads from Jobs/generalConfig.yml
 	 */
-	@SuppressWarnings("unchecked")
 	private void loadGeneralSettings(){
-		try {
-			Yaml yaml = new Yaml();
-			Object obj = yaml.load(new FileInputStream("plugins/Jobs/generalConfig.yml"));
-			Map<String, Object> map = (Map<String, Object>)obj;
-			
-			// create dao.
-			if(map.containsKey("storage-method")&& ((String)map.get("storage-method")).equals("MySQL")){
-				String username = null;
-				String url = null;
-				String dbName = null;
-				String password = null;
-				String prefix = "";
-				if(map.containsKey("mysql-username") && !((String)map.get("mysql-username")).equals("")){
-					username = (String)map.get("mysql-username");
-				}
-				else{
-					System.err.println("[Jobs] - mysql-username property invalid or missing");
-					Jobs.disablePlugin();
-					return;
-				}
-				if(map.containsKey("mysql-password")){
-					try{
-						password = (String)map.get("mysql-password");
-					}
-					catch (ClassCastException ex){
-						password = ((Long)map.get("mysql-password")).toString();
-					}
-				}
-				else{
-					System.err.println("[Jobs] - mysql-password property missing");
-					Jobs.disablePlugin();
-					return;
-				}
-				if(map.containsKey("mysql-database") && !((String)map.get("mysql-database")).equals("")){
-					dbName = (String)map.get("mysql-database");
-				}
-				else{
-					System.err.println("[Jobs] - mysql-database property invalid or missing");
-					Jobs.disablePlugin();
-					return;
-				}
-				if(map.containsKey("mysql-url") && !((String)map.get("mysql-url")).equals("")){
-					url = (String)map.get("mysql-url");
-				}
-				else{
-					System.err.println("[Jobs] - mysql-url property invalid or missing");
-					Jobs.disablePlugin();
-					return;
-				}
-				if(map.containsKey("mysql-table-prefix") && map.get("mysql-table-prefix") != null){
-					prefix = (String)map.get("mysql-table-prefix");
-				}
-				else{
-					System.err.println("[Jobs] - mysql-table-prefix property invalid or missing. Defaulting to no prefix.");
-					prefix = "";
-				}
-				dao = new JobsDAOMySQL(url, dbName, username, password, prefix);
-				// set up database
-				((JobsDAOMySQL)dao).setUp();
-			}
-			else if(map.containsKey("storage-method") && ((String)map.get("storage-method")).equals("flatfile")){
-				// create flatfile dao
-				dao = new JobsDAOFlatfile();
-			}
-			else{
-				// invalid selection
-				System.err.println("[Jobs] - Storage method invalid or missing");
-				Jobs.disablePlugin();
-			}
-			
-			// save-period
-			if(map.containsKey("save-period")){
-				try{
-					savePeriod = (Integer)map.get("save-period");
-				}
-				catch (ClassCastException e){
-					// someone wrote it as a double
-					try{
-						double savePer = (Double)map.get("save-period");
-						savePeriod = (int)savePer;
-					}
-					catch (Exception ex){
-						// something went really wrong
-						System.err.println("[Jobs] - error with save-period property");
-						Jobs.disablePlugin();
-					}
-				}
-			}
-			else{
-				System.out.println("[Jobs] - save-period property not found. Defaulting to 10!");
-				savePeriod = 10;
-			}
-			
-			// broadcasting
-			if(map.containsKey("broadcast-on-skill-up")){
-				try{
-					broadcast = (Boolean)map.get("broadcast-on-skill-up");
-				}
-				catch (Exception e) {
-					System.out.println("[Jobs] - broadcast-on-skill-up property does is invalid. Defaulting to false");
-					broadcast = false;
-				}
-			}
-			else{
-				System.out.println("[Jobs] - broadcast-on-skill-up property does not exist. Defaulting to false");
-				broadcast = false;
-			}
-			
-			// enable stats
-			if(map.containsKey("enable-stats")){
-				try{
-					statsEnabled = (Boolean)map.get("enable-stats");
-				}
-				catch (Exception e) {
-					System.out.println("[Jobs] - enable-stats property does is invalid. Defaulting to false");
-					statsEnabled = false;
-				}
-			}
-			else{
-				System.out.println("[Jobs] - enable-stats property does not exist. Defaulting to false");
-				statsEnabled = false;
-			}
-			
-			// enable pay near spawner
-			if(map.containsKey("enable-pay-near-spawner")){
-				try{
-					payNearSpawner = (Boolean)map.get("enable-pay-near-spawner");
-				}
-				catch (Exception e) {
-					System.out.println("[Jobs] - enable-pay-near-spawner property does is invalid. Defaulting to false");
-					payNearSpawner = false;
-				}
-			}
-			else{
-				System.out.println("[Jobs] - enable-pay-near-spawner property does not exist. Defaulting to false");
-				payNearSpawner = false;
-			}
-			
-			// save-period
-			if(map.containsKey("max-jobs")){
-				try{
-					maxJobs = (Integer)map.get("max-jobs");
-				}
-				catch (ClassCastException e){
-					// someone wrote it as a double
-					try{
-						double maxJob = (Double)map.get("max-jobs");
-						maxJobs = (int)maxJob;
-					}
-					catch (Exception ex){
-						// something went really wrong
-						System.err.println("[Jobs] - error with max-jobs property. ");
-						Jobs.disablePlugin();
-					}
-				}
-			}
-			else{
-				System.out.println("[Jobs] - max-jobs property not found. Defaulting to unlimited!");
-				maxJobs = null;
-			}
-
-		} catch (FileNotFoundException e) {
-			System.err.println("[Jobs] - configuration file generalConfig.yml does not exist");
-			// disable plugin
+        File f = new File("plugins/Jobs/generalConfig.yml");
+        Configuration conf;
+        if(!f.exists()) {
+            // disable plugin
+            System.err.println("[Jobs] - configuration file generalConfig.yml does not exist");
+            Jobs.disablePlugin();
+            return;
+        }
+        conf = new Configuration(f);
+        conf.load();
+        String storageMethod = conf.getString("storage-method", "");
+        if(storageMethod.equalsIgnoreCase("mysql")) {
+            String username = conf.getString("mysql-username");
+            if(username == null) {
+                System.err.println("[Jobs] - mysql-username property invalid or missing");
+                Jobs.disablePlugin();
+                return;
+            }
+            String password = conf.getString("mysql-password", "");
+            String dbName = conf.getString("mysql-database");
+            if(dbName == null) {
+                System.err.println("[Jobs] - mysql-database property invalid or missing");
+                Jobs.disablePlugin();
+                return;
+            }
+            String url = conf.getString("mysql-url");
+            if(url == null) {
+                System.err.println("[Jobs] - mysql-url property invalid or missing");
+                Jobs.disablePlugin();
+                return;
+            }
+            String prefix = conf.getString("mysql-table-prefix", "");
+            this.dao = new JobsDAOMySQL(url, dbName, username, password, prefix);
+        }
+        else if(storageMethod.equalsIgnoreCase("flatfile")) {
+            this.dao = new JobsDAOFlatfile();
+        }
+        else {
+			// invalid selection
+			System.err.println("[Jobs] - Storage method invalid or missing");
 			Jobs.disablePlugin();
 		}
+        
+        // save-period
+        this.savePeriod = conf.getInt("save-period", -1);
+        if(this.savePeriod <= 0) {
+            System.out.println("[Jobs] - save-period property not found. Defaulting to 10!");
+            savePeriod = 10;
+        }
+			
+		// broadcasting
+        this.broadcast = conf.getBoolean("broadcast-on-skill-up", false);
+        
+        // enable stats
+        this.statsEnabled = conf.getBoolean("enable-stats", false);
+			
+		// enable pay near spawner
+        this.payNearSpawner = conf.getBoolean("enable-pay-near-spawner", false);
+        
+        // max-jobs
+        this.maxJobs = conf.getInt("max-jobs", -1);
+        if(this.maxJobs == -1) {
+            System.out.println("[Jobs] - max-jobs property not found. Defaulting to unlimited!");
+            maxJobs = null;
+        }
 	}
 	
 	/**
@@ -290,606 +184,252 @@ public class JobsConfiguration {
 	 * 
 	 * loads from Jobs/jobConfig.yml
 	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void loadJobSettings(){
-		try {
-			Yaml yaml = new Yaml();
-			Object obj = yaml.load(new FileInputStream("plugins/Jobs/jobConfig.yml"));
-			Map<String, Object> map = (Map<String, Object>)obj;
-			if(map.containsKey("Jobs")){
-				Map<String, Object> jobsMap = (Map<String, Object>)map.get("Jobs");
-				if(jobsMap.size() == 0){
-					// no jobs
-					System.err.println("[Jobs] - No jobs detected. Disabling Jobs!");
-					Jobs.disablePlugin();
-					return;
-				}
-				else{
-					// some jobs
-					jobs = new HashMap<String, Job>();
-					jobIgnoreCase = new HashMap<String, String>();
-					for(Entry<String, Object> jobMap: jobsMap.entrySet()){
-						Map<String, Object> jobInfoMap = (Map<String, Object>) jobMap.getValue();
-						// fullname
-						String jobName;
-						if(jobInfoMap.containsKey("fullname")){
-							try{
-								jobName = (String) jobInfoMap.get("fullname");
-								jobName = jobName.trim();
-							}
-							catch(Exception e){
-								System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid fullname property. Disabling jobs !");
-								Jobs.disablePlugin();
-								return;
-							}
-						}
-						else{
-							System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing the fullname property. Disabling jobs !");
-							Jobs.disablePlugin();
-							return;
-						}
-						// max-level
-						Integer maxLevel = null;
-						if(jobInfoMap.containsKey("max-level")){
-							try{
-								maxLevel = (Integer) jobInfoMap.get("max-level");
-							}
-							catch(ClassCastException e){
-								try{
-									double temp = (Double) jobInfoMap.get("max-level");
-									maxLevel = (int) temp;
-								}
-								catch (Exception ex){
-									System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid max-level property. Disabling jobs!");
-									Jobs.disablePlugin();
-									return;
-								}
-							}
-						}
-						else{
-							System.out.println("[Jobs] - Job " + jobMap.getKey() + " is missing the max-level property. defaulting to no limits !");
-						}
-						
-						// max-slots
-						Integer maxSlots = null;
-						if(jobInfoMap.containsKey("slots")){
-							try{
-								maxSlots = (Integer) jobInfoMap.get("slots");
-							}
-							catch(ClassCastException e){
-								try{
-									double temp = (Double) jobInfoMap.get("slots");
-									maxSlots = (int) temp;
-								}
-								catch (Exception ex){
-									System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid slots property. Disabling jobs!");
-									Jobs.disablePlugin();
-									return;
-								}
-							}
-						}
-						else{
-							System.out.println("[Jobs] - Job " + jobMap.getKey() + " is missing the slots property. defaulting to no limits !");
-						}
-						
-						// shortname
-						String jobShortName;
-						if(jobInfoMap.containsKey("shortname")){
-							try{
-								jobShortName = (String) jobInfoMap.get("shortname");
-								jobShortName = jobShortName.trim();
-							}
-							catch(Exception e){
-								System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid shortname property. Disabling jobs !");
-								Jobs.disablePlugin();
-								return;
-							}
-						}
-						else{
-							System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing the shortname property. Disabling jobs !");
-							Jobs.disablePlugin();
-							return;
-						}
-						// Chatcolour
-						ChatColor jobColour;
-						if(jobInfoMap.containsKey("ChatColour")){
-							try{
-								jobColour = ChatColor.valueOf(((String) jobInfoMap.get("ChatColour")).toUpperCase());
-							}
-							catch(IllegalArgumentException e){
-								System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid ChatColour property. Disabling jobs !");
-								Jobs.disablePlugin();
-								return;
-							}
-						}
-						else{
-							System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing the ChatColour property. Disabling jobs !");
-							Jobs.disablePlugin();
-							return;
-						}
-						// chat-display
-						DisplayMethod displayMethod;
-						if(jobInfoMap.containsKey("chat-display")){
-							try{
-								String disp = (String) jobInfoMap.get("chat-display");
-								if(disp.equalsIgnoreCase("full")){
-									// full
-									displayMethod = DisplayMethod.FULL;
-								}
-								else if(disp.equalsIgnoreCase("job")){
-									// job only
-									displayMethod = DisplayMethod.JOB;
-								}
-								else if(disp.equalsIgnoreCase("title")){
-									// title only
-									displayMethod = DisplayMethod.TITLE;
-								}
-								else if(disp.equalsIgnoreCase("none")){
-									// none
-									displayMethod = DisplayMethod.NONE;
-								}
-								else if(disp.equalsIgnoreCase("shortfull")){
-									// none
-									displayMethod = DisplayMethod.SHORT_FULL;
-								}
-								else if(disp.equalsIgnoreCase("shortjob")){
-									// none
-									displayMethod = DisplayMethod.SHORT_JOB;
-								}
-								else if(disp.equalsIgnoreCase("shorttitle")){
-									// none
-									displayMethod = DisplayMethod.SHORT_TITLE;
-								}
-								else {
-									// error
-									System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid broadcast-skill-up property. Disabling jobs !");
-									Jobs.disablePlugin();
-									return;
-								}
-							}
-							catch(Exception e){
-								System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid broadcast-skill-up property. Disabling jobs !");
-								Jobs.disablePlugin();
-								return;
-							}
-						}
-						else{
-							System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing the broadcast-skill-up property. Disabling jobs !");
-							Jobs.disablePlugin();
-							return;
-						}
-						// leveling progression equation
-						Parser maxExpEquation;
-						if(jobInfoMap.containsKey("leveling-progression-equation")){
-							try{
-								String parserInput = (String) jobInfoMap.get("leveling-progression-equation");
-								maxExpEquation = new Parser(parserInput);
-							}
-							catch(Exception e){
-								System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid leveling-progression-equation property. Disabling jobs !");
-								Jobs.disablePlugin();
-								return;
-							}
-						}
-						else{
-							System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing the leveling-progression-equation property. Disabling jobs !");
-							Jobs.disablePlugin();
-							return;
-						}
-						// income progression equation
-						Parser incomeEquation;
-						if(jobInfoMap.containsKey("income-progression-equation")){
-							try{
-								String parserInput = (String) jobInfoMap.get("income-progression-equation");
-								incomeEquation = new Parser(parserInput);
-							}
-							catch(Exception e){
-								System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid income-progression-equation property. Disabling jobs !");
-								Jobs.disablePlugin();
-								return;
-							}
-						}
-						else{
-							System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing the income-progression-equation property. Disabling jobs !");
-							Jobs.disablePlugin();
-							return;
-						}
-						// experience progression equation
-						Parser expEquation;
-						if(jobInfoMap.containsKey("experience-progression-equation")){
-							try{
-								String parserInput = (String) jobInfoMap.get("experience-progression-equation");
-								expEquation = new Parser(parserInput);
-							}
-							catch(Exception e){
-								System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid experience-progression-equation property. Disabling jobs !");
-								Jobs.disablePlugin();
-								return;
-							}
-						}
-						else{
-							System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing the experience-progression-equation property. Disabling jobs !");
-							Jobs.disablePlugin();
-							return;
-						}
-						
-						// items
-						
-						// break
-						HashMap<String, JobsBlockInfo> jobBreakInfo = null;
-						if(jobInfoMap.containsKey("Break") && jobInfoMap.get("Break") != null){
-							// break tag exists
-							Map<String, Object> jobBreakMap = (Map<String, Object>) jobInfoMap.get("Break");
-							if(jobBreakMap.size() == 0){
-								// no break blocks detected
-								jobBreakInfo = null;
-							}
-							else{
-								// has some break blocks
-								for(Entry<String, Object> jobBreakBlock: jobBreakMap.entrySet()){
-									String blockType = String.valueOf(jobBreakBlock.getKey()).toUpperCase();
-									String subtype = "";
-									if(((String)blockType).contains("-")){
-										// uses subtype
-										subtype = ":"+((String)blockType).split("-")[1];
-										blockType = ((String)blockType).split("-")[0];
-									}
-									Double income;
-									Double experience;
-									if (jobBreakInfo == null){
-										jobBreakInfo = new HashMap<String, JobsBlockInfo>();
-									}
-									Map<String, Object> blockData = (Map<String, Object>) jobBreakBlock.getValue();
-									// income
-									if(blockData.containsKey("income")){
-										try{
-											income = (Double) blockData.get("income");
-										}
-										catch(ClassCastException e){
-											try{
-												int temp = (Integer) blockData.get("income");
-												income = (double) temp;
-											}
-											catch (Exception ex){
-												System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid " + jobBreakBlock.getKey() + " Break income property. Disabling jobs!");
-												Jobs.disablePlugin();
-												return;
-											}
-										}
-									}
-									else{
-										// error
-										System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing " + jobBreakBlock.getKey() + " Break income property. Disabling jobs!");
-										Jobs.disablePlugin();
-										return;
-									}
-									// experience
-									if(blockData.containsKey("experience")){
-										try{
-											experience = (Double) blockData.get("experience");
-										}
-										catch(ClassCastException e){
-											try{
-												int temp = (Integer) blockData.get("experience");
-												experience = (double) temp;
-											}
-											catch (Exception ex){
-												System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid " + jobBreakBlock.getKey() + " Break experience property. Disabling jobs!");
-												Jobs.disablePlugin();
-												return;
-											}
-										}
-									}
-									else{
-										// error
-										System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing " + jobBreakBlock.getKey() + " Break experience property. Disabling jobs!");
-										Jobs.disablePlugin();
-										return;
-									}
-									MaterialData materData;
-									Material mater;
-									try{
-										mater = Material.matchMaterial(blockType);
-									}
-									catch (IllegalArgumentException ex){
-										mater = null;
-									}
-									if(mater != null){
-										materData = new MaterialData(mater);
-									}
-									else{
-										// error
-										System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid " + jobBreakBlock.getKey() + " Break block type property. Disabling jobs!");
-										Jobs.disablePlugin();
-										return;
-									}
-									jobBreakInfo.put(mater.toString()+subtype, new JobsBlockInfo(materData, experience, income));
-								}
-							}
-						}
-						else{
-							// no break tag
-							jobBreakInfo = null;
-						}
-						
-						// place
-						HashMap<String, JobsBlockInfo> jobPlaceInfo = null;
-						if(jobInfoMap.containsKey("Place") && jobInfoMap.get("Place") != null){
-							// place tag exists
-							Map<String, Object> jobPlaceMap = (Map<String, Object>) jobInfoMap.get("Place");
-							if(jobPlaceMap.size() == 0){
-								// no place blocks detected
-								jobPlaceInfo = null;
-							}
-							else{
-								// has some break blocks
-								for(Entry<String, Object> jobPlaceBlock: jobPlaceMap.entrySet()){
-									String blockType = String.valueOf(jobPlaceBlock.getKey()).toUpperCase();
-									String subtype = "";
-									if(blockType.contains("-")){
-										// uses subtype
-										subtype = ":"+blockType.split("-")[1];
-										blockType = blockType.split("-")[0];
-									}
-									Double income;
-									Double experience;
-									if (jobPlaceInfo == null){
-										jobPlaceInfo = new HashMap<String, JobsBlockInfo>();
-									}
-									Map<String, Object> blockData = (Map<String, Object>) jobPlaceBlock.getValue();
-									// income
-									if(blockData.containsKey("income")){
-										try{
-											income = (Double) blockData.get("income");
-										}
-										catch(ClassCastException e){
-											try{
-												int temp = (Integer) blockData.get("income");
-												income = (double) temp;
-											}
-											catch (Exception ex){
-												System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid " + jobPlaceBlock.getKey() + " Place income property. Disabling jobs!");
-												Jobs.disablePlugin();
-												return;
-											}
-										}
-									}
-									else{
-										// error
-										System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing " + jobPlaceBlock.getKey() + " Place income property. Disabling jobs!");
-										Jobs.disablePlugin();
-										return;
-									}
-									// experience
-									if(blockData.containsKey("experience")){
-										try{
-											experience = (Double) blockData.get("experience");
-										}
-										catch(ClassCastException e){
-											try{
-												int temp = (Integer) blockData.get("experience");
-												experience = (double) temp;
-											}
-											catch (Exception ex){
-												System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid " + jobPlaceBlock.getKey() + " Place experience property. Disabling jobs!");
-												Jobs.disablePlugin();
-												return;
-											}
-										}
-									}
-									else{
-										// error
-										System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing " + jobPlaceBlock.getKey() + " Place experience property. Disabling jobs!");
-										Jobs.disablePlugin();
-										return;
-									}
-									MaterialData materData;
-									Material mater;
-									try{
-										mater = Material.matchMaterial(blockType);
-									}
-									catch (IllegalArgumentException ex){
-										mater = null;
-									}
-									if(mater != null){
-										materData = new MaterialData(mater);
-									}
-									else{
-										// error
-										System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid " + jobPlaceBlock.getKey() + " Place block type property. Disabling jobs!");
-										Jobs.disablePlugin();
-										return;
-									}
-									jobPlaceInfo.put(mater.toString()+subtype, new JobsBlockInfo(materData, experience, income));
-								}
-							}
-						}
-						else{
-							// no place tag
-							jobPlaceInfo = null;
-						}
-						
-						// kill
-						HashMap<String, JobsLivingEntityInfo> jobKillInfo = null;
-						if(jobInfoMap.containsKey("Kill") && jobInfoMap.get("Kill") != null){
-							// kill tag exists
-							Map<String, Object> jobKillMap = (Map<String, Object>) jobInfoMap.get("Kill");
-							if(jobKillMap.size() == 0){
-								// no kill entities detected
-								jobKillInfo = null;
-							}
-							else{
-								// has some kill entities
-								for(Entry<String, Object> jobKillEntity: jobKillMap.entrySet()){
-									String entityType = jobKillEntity.getKey();
-									// puts it in the correct case
-									if(entityType.equalsIgnoreCase("pigzombie")){
-										entityType = "PigZombie";
-									}
-									else{
-										entityType = entityType.substring(0,1).toUpperCase() + entityType.substring(1).toLowerCase();
-									}
-									Double income;
-									Double experience;
-									if (jobKillInfo == null){
-										jobKillInfo = new HashMap<String, JobsLivingEntityInfo>();
-									}
-									Map<String, Object> blockData = (Map<String, Object>) jobKillEntity.getValue();
-									// income
-									if(blockData.containsKey("income")){
-										try{
-											income = (Double) blockData.get("income");
-										}
-										catch(ClassCastException e){
-											try{
-												int temp = (Integer) blockData.get("income");
-												income = (double) temp;
-											}
-											catch (Exception ex){
-												System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid " + jobKillEntity.getKey() + " Kill income property. Disabling jobs!");
-												Jobs.disablePlugin();
-												return;
-											}
-										}
-									}
-									else{
-										// error
-										System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing " + jobKillEntity.getKey() + " Kill income property. Disabling jobs!");
-										Jobs.disablePlugin();
-										return;
-									}
-									// experience
-									if(blockData.containsKey("experience")){
-										try{
-											experience = (Double) blockData.get("experience");
-										}
-										catch(ClassCastException e){
-											try{
-												int temp = (Integer) blockData.get("experience");
-												experience = (double) temp;
-											}
-											catch (Exception ex){
-												System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid " + jobKillEntity.getKey() + " Kill experience property. Disabling jobs!");
-												Jobs.disablePlugin();
-												return;
-											}
-										}
-									}
-									else{
-										// error
-										System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing " + jobKillEntity.getKey() + " Kill experience property. Disabling jobs!");
-										Jobs.disablePlugin();
-										return;
-									}
-									Class victim;
-									try {
-										victim = Class.forName("org.bukkit.craftbukkit.entity.Craft"+entityType);
-									} catch (ClassNotFoundException e) {
-										System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid " + jobKillEntity.getKey() + " Kill entity type property. Disabling jobs!");
-										Jobs.disablePlugin();
-										return;
-									}
-									jobKillInfo.put(("org.bukkit.craftbukkit.entity.Craft"+entityType).trim(), new JobsLivingEntityInfo(victim, experience, income));
-								}
-							}
-						}
-						else{
-							// no break tag
-							jobKillInfo = null;
-						}
-						
-						// custom-kill  
-						if(jobInfoMap.containsKey("custom-kill") && jobInfoMap.get("custom-kill") != null){
-							// kill tag exists
-							Map<String, Object> jobKillMap = (Map<String, Object>) jobInfoMap.get("custom-kill");
-							if(jobKillMap.size() == 0){
-								// no kill entities detected
-								jobKillInfo = null;
-							}
-							else{
-								// has some kill entities
-								for(Entry<String, Object> jobKillEntity: jobKillMap.entrySet()){
-									String entityType = jobKillEntity.getKey();
-									// puts it in the correct case
-									Double income;
-									Double experience;
-									if (jobKillInfo == null){
-										jobKillInfo = new HashMap<String, JobsLivingEntityInfo>();
-									}
-									Map<String, Object> blockData = (Map<String, Object>) jobKillEntity.getValue();
-									// income
-									if(blockData.containsKey("income")){
-										try{
-											income = (Double) blockData.get("income");
-										}
-										catch(ClassCastException e){
-											try{
-												int temp = (Integer) blockData.get("income");
-												income = (double) temp;
-											}
-											catch (Exception ex){
-												System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid " + jobKillEntity.getKey() + " custom-kill income property. Disabling jobs!");
-												Jobs.disablePlugin();
-												return;
-											}
-										}
-									}
-									else{
-										// error
-										System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing " + jobKillEntity.getKey() + " custom-kill income property. Disabling jobs!");
-										Jobs.disablePlugin();
-										return;
-									}
-									// experience
-									if(blockData.containsKey("experience")){
-										try{
-											experience = (Double) blockData.get("experience");
-										}
-										catch(ClassCastException e){
-											try{
-												int temp = (Integer) blockData.get("experience");
-												experience = (double) temp;
-											}
-											catch (Exception ex){
-												System.err.println("[Jobs] - Job " + jobMap.getKey() + " has an invalid " + jobKillEntity.getKey() + " custom-kill experience property. Disabling jobs!");
-												Jobs.disablePlugin();
-												return;
-											}
-										}
-									}
-									else{
-										// error
-										System.err.println("[Jobs] - Job " + jobMap.getKey() + " is missing " + jobKillEntity.getKey() + " custom-kill experience property. Disabling jobs!");
-										Jobs.disablePlugin();
-										return;
-									}
-									try {
-										jobKillInfo.put(("org.bukkit.craftbukkit.entity.CraftPlayer:"+entityType).trim(), new JobsLivingEntityInfo(Class.forName("org.bukkit.craftbukkit.entity.CraftPlayer"), experience, income));
-									} catch (ClassNotFoundException e) {
-										// won't enter
-										e.printStackTrace();
-									}
-								}
-							}
-						}
-						jobIgnoreCase.put(jobName.toLowerCase(), jobName);
-						jobs.put(jobName, new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots));
-					}
-				}
-			}
-			else{
-				// property doesn't exist
-				System.err.println("[Jobs] - Jobs property missing or invalid. Disabling Jobs!");
-				Jobs.disablePlugin();
-				return;
-			}
-			
-		} catch (FileNotFoundException e) {
-			System.err.println("[Jobs] - configuration file jobConfig.yml does not exist");
-			e.printStackTrace();
-			// disable plugin
-			Jobs.disablePlugin();
-		}
+	    File f = new File("plugins/Jobs/jobConfig.yml");
+        Configuration conf;
+        if(!f.exists()) {
+            // disable plugin
+            System.err.println("[Jobs] - configuration file jobConfig.yml does not exist");
+            Jobs.disablePlugin();
+            return;
+        }
+        conf = new Configuration(f);
+        conf.load();
+        List<String> jobKeys = conf.getKeys("Jobs");
+        if(jobKeys == null) {
+            // no jobs
+            System.err.println("[Jobs] - No jobs detected. Disabling Jobs!");
+            Jobs.disablePlugin();
+            return;
+        }
+        this.jobs = new HashMap<String, Job>();
+        this.jobIgnoreCase = new HashMap<String, String>();
+        for(String jobKey : jobKeys) {
+            String jobName = conf.getString("Jobs."+jobKey+".fullname");
+            if(jobName == null) {
+                System.err.println("[Jobs] - Job " + jobKey + " has an invalid fullname property. Disabling jobs !");
+                Jobs.disablePlugin();
+                return;
+            }
+            
+            Integer maxLevel = conf.getInt("Jobs."+jobKey+".max-level", -1);
+            if(maxLevel.intValue() == -1) {
+                maxLevel = null;
+                System.out.println("[Jobs] - Job " + jobKey + " is missing the max-level property. defaulting to no limits !");
+            }
+
+            Integer maxSlots = conf.getInt("Jobs."+jobKey+".slots", -1);
+            if(maxSlots.intValue() == -1) {
+                maxSlots = null;
+                System.out.println("[Jobs] - Job " + jobKey + " is missing the slots property. defaulting to no limits !");
+            }
+
+            String jobShortName = conf.getString("Jobs."+jobKey+".shortname");
+            if(jobShortName == null) {
+                System.err.println("[Jobs] - Job " + jobKey + " is missing the shortname property. Disabling jobs !");
+                Jobs.disablePlugin();
+                return;
+            }
+
+            ChatColor jobColour = ChatColor.valueOf(conf.getString("Jobs."+jobKey+".ChatColour", "").toUpperCase());
+            if(jobColour == null) {
+                System.err.println("[Jobs] - Job " + jobKey + " is missing the ChatColour property. Disabling jobs !");
+                Jobs.disablePlugin();
+                return;
+            }
+            String disp = conf.getString("Jobs."+jobKey+".chat-display", "").toLowerCase();
+            DisplayMethod displayMethod;
+            if(disp.equals("full")){
+                // full
+                displayMethod = DisplayMethod.FULL;
+            }
+            else if(disp.equals("job")){
+                // job only
+                displayMethod = DisplayMethod.JOB;
+            }
+            else if(disp.equals("title")){
+                // title only
+                displayMethod = DisplayMethod.TITLE;
+            }
+            else if(disp.equals("none")){
+                // none
+                displayMethod = DisplayMethod.NONE;
+            }
+            else if(disp.equals("shortfull")){
+                // none
+                displayMethod = DisplayMethod.SHORT_FULL;
+            }
+            else if(disp.equals("shortjob")){
+                // none
+                displayMethod = DisplayMethod.SHORT_JOB;
+            }
+            else if(disp.equals("shorttitle")){
+                // none
+                displayMethod = DisplayMethod.SHORT_TITLE;
+            }
+            else {
+                // error
+                System.err.println("[Jobs] - Job " + jobKey + " has an invalid chat-display property. Disabling jobs !");
+                Jobs.disablePlugin();
+                return;
+            }
+            
+            Parser maxExpEquation;
+            String maxExpEquationInput = conf.getString("Jobs."+jobKey+".leveling-progression-equation");
+            try {
+                maxExpEquation = new Parser(maxExpEquationInput);
+            }
+            catch(Exception e){
+                System.err.println("[Jobs] - Job " + jobKey + " has an invalid leveling-progression-equation property. Disabling jobs !");
+                Jobs.disablePlugin();
+                return;
+            }
+            
+            Parser incomeEquation;
+            String incomeEquationInput = conf.getString("Jobs."+jobKey+".income-progression-equation");
+            try {
+                incomeEquation = new Parser(incomeEquationInput);
+            }
+            catch(Exception e){
+                System.err.println("[Jobs] - Job " + jobKey + " has an invalid income-progression-equation property. Disabling jobs !");
+                Jobs.disablePlugin();
+                return;
+            }
+            
+            Parser expEquation;
+            String expEquationInput = conf.getString("Jobs."+jobKey+".experience-progression-equation");
+            try{
+                expEquation = new Parser(expEquationInput);
+            }
+            catch(Exception e){
+                System.err.println("[Jobs] - Job " + jobKey + " has an invalid experience-progression-equation property. Disabling jobs !");
+                Jobs.disablePlugin();
+                return;
+            }
+            
+            // items
+            
+            // break
+            List<String> breakKeys = conf.getKeys("Jobs."+jobKey+".Break");
+            HashMap<String, JobsBlockInfo> jobBreakInfo = new HashMap<String, JobsBlockInfo>();
+            if(breakKeys != null) {
+                for(String breakKey : breakKeys) {
+                    String blockType = breakKey.toUpperCase();
+                    String subType = "";
+                    Material material;
+                    if(blockType.contains("-")) {
+                        // uses subType
+                        subType = ":"+blockType.split("-")[1];
+                        blockType = blockType.split("-")[0];
+                    }
+                    try {
+                        material = Material.matchMaterial(blockType);
+                    }
+                    catch(IllegalArgumentException e) {
+                        material = null;
+                    }
+                    if(material == null) {
+                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + breakKey + " Break block type property. Disabling jobs!");
+                        Jobs.disablePlugin();
+                        return;
+                    }
+                    MaterialData materialData = new MaterialData(material);
+                    
+                    Double income = conf.getDouble("Jobs."+jobKey+".Break."+breakKey+".income", 0.0);
+                    Double experience = conf.getDouble("Jobs."+jobKey+".Break."+breakKey+".experience", 0.0);
+                    
+                    jobBreakInfo.put(material.toString()+subType, new JobsBlockInfo(materialData, experience, income));
+                }
+            } else {
+                jobBreakInfo = null;
+            }
+            
+            // place
+            List<String> placeKeys = conf.getKeys("Jobs."+jobKey+".Place");
+            HashMap<String, JobsBlockInfo> jobPlaceInfo = new HashMap<String, JobsBlockInfo>();
+            if(placeKeys != null) {
+                for(String placeKey : placeKeys) {
+                    String blockType = placeKey.toUpperCase();
+                    String subType = "";
+                    Material material;
+                    if(blockType.contains("-")) {
+                        // uses subType
+                        subType = ":"+blockType.split("-")[1];
+                        blockType = blockType.split("-")[0];
+                    }
+                    try {
+                        material = Material.matchMaterial(blockType);
+                    }
+                    catch(IllegalArgumentException e) {
+                        material = null;
+                    }
+                    if(material == null) {
+                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + placeKey + " Place block type property. Disabling jobs!");
+                        Jobs.disablePlugin();
+                        return;
+                    }
+                    MaterialData materialData = new MaterialData(material);
+                    
+                    Double income = conf.getDouble("Jobs."+jobKey+".Place."+placeKey+".income", 0.0);
+                    Double experience = conf.getDouble("Jobs."+jobKey+".Place."+placeKey+".experience", 0.0);
+                    
+                    jobPlaceInfo.put(material.toString()+subType, new JobsBlockInfo(materialData, experience, income));
+                }
+            } else {
+                jobPlaceInfo = null;
+            }
+            
+            // kill
+            List<String> killKeys = conf.getKeys("Jobs."+jobKey+".Kill");
+            HashMap<String, JobsLivingEntityInfo> jobKillInfo = new HashMap<String, JobsLivingEntityInfo>();
+            if(killKeys != null) {
+                for(String killKey : killKeys) {
+                    String entityType;
+                    // puts it in the correct case
+                    if(killKey.equalsIgnoreCase("pigzombie")){
+                        entityType = "PigZombie";
+                    }
+                    else{
+                        entityType = killKey.substring(0,1).toUpperCase() + killKey.substring(1).toLowerCase();
+                    }
+                    @SuppressWarnings("rawtypes")
+                    Class victim;
+                    try {
+                        victim = Class.forName("org.bukkit.craftbukkit.entity.Craft"+entityType);
+                    } catch (ClassNotFoundException e) {
+                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + killKey + " Kill entity type property. Disabling jobs!");
+                        Jobs.disablePlugin();
+                        return;
+                    }
+                    
+                    Double income = conf.getDouble("Jobs."+jobKey+".Kill."+killKey+".income", 0.0);
+                    Double experience = conf.getDouble("Jobs."+jobKey+".Kill."+killKey+".experience", 0.0);
+                    
+                    jobKillInfo.put(("org.bukkit.craftbukkit.entity.Craft"+entityType).trim(), new JobsLivingEntityInfo(victim, experience, income));
+                }
+            }
+            
+            // custom-kill
+            List<String> customKillKeys = conf.getKeys("Jobs."+jobKey+".custom-kill");
+            if(customKillKeys != null) {
+                for(String customKillKey : customKillKeys) {
+                    String entityType = customKillKey.toString();
+                    
+                    Double income = conf.getDouble("Jobs."+jobKey+".custom-kill."+customKillKey+".income", 0.0);
+                    Double experience = conf.getDouble("Jobs."+jobKey+".custom-kill."+customKillKey+".experience", 0.0);
+                    
+                    try {
+                        jobKillInfo.put(("org.bukkit.craftbukkit.entity.CraftPlayer:"+entityType).trim(), new JobsLivingEntityInfo(Class.forName("org.bukkit.craftbukkit.entity.CraftPlayer"), experience, income));
+                    } catch (ClassNotFoundException e) {
+                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + customKillKey + " custom-kill entity type property. Disabling jobs!");
+                        Jobs.disablePlugin();
+                        return;
+                    }
+                }
+            }
+            this.jobIgnoreCase.put(jobName.toLowerCase(), jobName);
+            this.jobs.put(jobName, new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots));
+        }
 	}
 	
 	/**
@@ -897,115 +437,54 @@ public class JobsConfiguration {
 	 * 
 	 * loads from Jobs/titleConfig.yml
 	 */
-	@SuppressWarnings({"unchecked" })
 	private void loadTitleSettings(){
-		try {
-			Yaml yaml = new Yaml();
-			Object obj = yaml.load(new FileInputStream("plugins/Jobs/titleConfig.yml"));
-			Map<String, Object> map = (Map<String, Object>)obj;
-			if(map.containsKey("Titles") && map.get("Titles") != null && map.get("Titles") instanceof HashMap){
-				Map<String, Object> titlesMap = (Map<String, Object>)map.get("Titles");
-				if(titlesMap.size() == 0){
-					// no titles found
-					System.err.println("[Jobs] - No titles found. Disabling titles");
-					titles = null;
-				}
-				else {
-					titles = new TreeMap<Integer, Title>();
-					// titles are found :)
-					for(Entry<String, Object> individualTitle: titlesMap.entrySet()){
-						String titleName;
-						String titleShortName;
-						ChatColor colour;
-						Integer levelReq;
-						Map<String, Object> individualTitleMap = (Map<String, Object>)individualTitle.getValue();
-						// long name
-						if(individualTitleMap.containsKey("Name")){
-							try{
-								titleName = (String) individualTitleMap.get("Name");
-							}
-							catch(Exception e){
-								System.err.println("[Jobs] - Title " + individualTitle.getKey() + " has an invalid Name property. Disabling jobs !");
-								Jobs.disablePlugin();
-								return;
-							}
-						}
-						else{
-							System.err.println("[Jobs] - Title " + individualTitle.getKey() + " is missing the Name property. Disabling jobs !");
-							Jobs.disablePlugin();
-							return;
-						}
-						// short name
-						if(individualTitleMap.containsKey("ShortName")){
-							try{
-								titleShortName = (String) individualTitleMap.get("ShortName");
-							}
-							catch(Exception e){
-								System.err.println("[Jobs] - Title " + individualTitle.getKey() + " has an invalid ShortName property. Disabling jobs !");
-								Jobs.disablePlugin();
-								return;
-							}
-						}
-						else{
-							System.err.println("[Jobs] - Title " + individualTitle.getKey() + " is missing the ShortName property. Disabling jobs !");
-							Jobs.disablePlugin();
-							return;
-						}
-						// chat colour
-						if(individualTitleMap.containsKey("ChatColour")){
-							try{
-								colour = ChatColor.valueOf(((String) individualTitleMap.get("ChatColour")).toUpperCase());
-							}
-							catch(IllegalArgumentException e){
-								System.err.println("[Jobs] - Title " + individualTitle.getKey() + " has an invalid ChatColour property. Disabling jobs !");
-								Jobs.disablePlugin();
-								return;
-							}
-						}
-						else{
-							System.err.println("[Jobs] - Title " + individualTitle.getKey() + " is missing the ChatColour property. Disabling jobs !");
-							Jobs.disablePlugin();
-							return;
-						}
-						
-						// level requirement
-						if(individualTitleMap.containsKey("levelReq")){
-							try{
-								levelReq = (Integer) individualTitleMap.get("levelReq");
-							}
-							catch(ClassCastException e){
-								try{
-									double temp = (Double) individualTitleMap.get("levelReq");
-									levelReq = (int) temp;
-								}
-								catch (Exception ex){
-									System.err.println("[Jobs] - Title " + individualTitle.getKey() + " has an invalid levelReq property. Disabling jobs !");
-									Jobs.disablePlugin();
-									return;
-								}
-							}
-						}
-						else{
-							System.err.println("[Jobs] - Title " + individualTitle.getKey() + " is missing the levelReq property. Disabling jobs !");
-							Jobs.disablePlugin();
-							return;
-						}
-						
-						// all loaded nicely
-						titles.put(levelReq, new Title(titleName, titleShortName, colour, levelReq));
-					}
-				}
-			}
-			else{
-				// missing
-				System.err.println("[Jobs] - Titles property missing or invalid. Disabling titles");
-				titles = null;
-			}
-		} catch (FileNotFoundException e) {
-			// no titles detected
-			titles = null;
-			System.err.println("[Jobs] - configuration file titleConfig.yml does not exist, disabling titles");
-		}
+	    File f = new File("plugins/Jobs/titleConfig.yml");
+        Configuration conf;
+        if(!f.exists()) {
+            // no titles detected
+            this.titles = null;
+            System.err.println("[Jobs] - configuration file titleConfig.yml does not exist, disabling titles");
+            return;
+        }
+        conf = new Configuration(f);
+        conf.load();
+        List<String> titleKeys = conf.getKeys("Titles");
+        if(titleKeys == null) {
+            // no titles found
+            System.err.println("[Jobs] - No titles found. Disabling titles");
+            titles = null;
+            return;
+        }
+        this.titles = new TreeMap<Integer, Title>();
+        for(String titleKey : titleKeys) {
+            String titleName = conf.getString("Titles."+titleKey+".Name");
+            String titleShortName = conf.getString("Titles."+titleKey+".ShortName");
+            ChatColor colour = ChatColor.valueOf(conf.getString("Titles."+titleKey+".ChatColour", "").toUpperCase());
+            int levelReq = conf.getInt("Titles."+titleKey+".levelReq", -1);
+            
+            if(titleName == null) {
+                System.err.println("[Jobs] - Title " + titleKey + " has an invalid Name property. Disabling jobs !");
+                Jobs.disablePlugin();
+                return;
+            }
+            if(titleShortName == null) {
+                System.err.println("[Jobs] - Title " + titleKey + " has an invalid ShortName property. Disabling jobs !");
+                Jobs.disablePlugin();
+                return;
+            }
+            if(colour == null) {
+                System.err.println("[Jobs] - Title " + titleKey + " has an invalid ChatColour property. Disabling jobs !");
+                Jobs.disablePlugin();
+                return;
+            }
+            if(levelReq == -1) {
+                System.err.println("[Jobs] - Title " + titleKey + " has an invalid levelReq property. Disabling jobs !");
+                Jobs.disablePlugin();
+                return;
+            }
+            
+            this.titles.put(levelReq, new Title(titleName, titleShortName, colour, levelReq));
+        }
 	}
 	
 	/**
@@ -1013,50 +492,64 @@ public class JobsConfiguration {
 	 * 
 	 * loads from Jobs/messageConfig.yml
 	 */
-	@SuppressWarnings("unchecked")
 	private void loadMessageSettings(){
-		messages = new HashMap<String, String>();
-		try {
-			Yaml yaml = new Yaml();
-			Object obj = yaml.load(new FileInputStream("plugins/Jobs/messageConfig.yml"));
-			for(Entry<String, String> temp: ((Map<String, String>) obj).entrySet()){
-				String tempMessage = temp.getValue();
-				tempMessage = tempMessage.replace("ChatColor.AQUA", ChatColor.AQUA.toString());
-				tempMessage = tempMessage.replace("ChatColor.BLACK", ChatColor.BLACK.toString());
-				tempMessage = tempMessage.replace("ChatColor.BLUE", ChatColor.BLUE.toString());
-				tempMessage = tempMessage.replace("ChatColor.DARK_AQUA", ChatColor.DARK_AQUA.toString());
-				tempMessage = tempMessage.replace("ChatColor.DARK_BLUE", ChatColor.DARK_BLUE.toString());
-				tempMessage = tempMessage.replace("ChatColor.DARK_GRAY", ChatColor.DARK_GRAY.toString());
-				tempMessage = tempMessage.replace("ChatColor.DARK_GREEN", ChatColor.DARK_GREEN.toString());
-				tempMessage = tempMessage.replace("ChatColor.DARK_PURPLE", ChatColor.DARK_PURPLE.toString());
-				tempMessage = tempMessage.replace("ChatColor.DARK_RED", ChatColor.DARK_RED.toString());
-				tempMessage = tempMessage.replace("ChatColor.GOLD", ChatColor.GOLD.toString());
-				tempMessage = tempMessage.replace("ChatColor.GRAY", ChatColor.GRAY.toString());
-				tempMessage = tempMessage.replace("ChatColor.GREEN", ChatColor.GREEN.toString());
-				tempMessage = tempMessage.replace("ChatColor.LIGHT_PURPLE", ChatColor.LIGHT_PURPLE.toString());
-				tempMessage = tempMessage.replace("ChatColor.RED", ChatColor.RED.toString());
-				tempMessage = tempMessage.replace("ChatColor.WHITE", ChatColor.WHITE.toString());
-				tempMessage = tempMessage.replace("ChatColor.YELLOW", ChatColor.YELLOW.toString());
-				messages.put(temp.getKey(), tempMessage);
-			}
-		} catch (FileNotFoundException e) {
-			System.err.println("[Jobs] - configuration file messageConfig.yml does not exist, using default messages.");
-		}
+		this.messages = new HashMap<String, String>();
+        File f = new File("plugins/Jobs/messageConfig.yml");
+        Configuration conf;
+        if(!f.exists()) {
+            System.err.println("[Jobs] - configuration file messageConfig.yml does not exist, using default messages.");
+            return;
+        }
+        conf = new Configuration(f);
+        conf.load();
+        List<String> configKeys = conf.getKeys("");
+        if (configKeys == null) {
+            return;
+        }
+        for(String key : configKeys) {
+            String value = JobsConfiguration.parseColors(conf.getString(key));
+            this.messages.put(key, value);
+        }    
+	}
+	
+	/**
+	 * Parse ChatColors from YML configuration file
+	 * @param value - configuration string
+	 * @return string with replaced colors
+	 */
+	private static String parseColors(String value) {
+        value = value.replace("ChatColor.AQUA", ChatColor.AQUA.toString());
+        value = value.replace("ChatColor.BLACK", ChatColor.BLACK.toString());
+        value = value.replace("ChatColor.BLUE", ChatColor.BLUE.toString());
+        value = value.replace("ChatColor.DARK_AQUA", ChatColor.DARK_AQUA.toString());
+        value = value.replace("ChatColor.DARK_BLUE", ChatColor.DARK_BLUE.toString());
+        value = value.replace("ChatColor.DARK_GRAY", ChatColor.DARK_GRAY.toString());
+        value = value.replace("ChatColor.DARK_GREEN", ChatColor.DARK_GREEN.toString());
+        value = value.replace("ChatColor.DARK_PURPLE", ChatColor.DARK_PURPLE.toString());
+        value = value.replace("ChatColor.DARK_RED", ChatColor.DARK_RED.toString());
+        value = value.replace("ChatColor.GOLD", ChatColor.GOLD.toString());
+        value = value.replace("ChatColor.GRAY", ChatColor.GRAY.toString());
+        value = value.replace("ChatColor.GREEN", ChatColor.GREEN.toString());
+        value = value.replace("ChatColor.LIGHT_PURPLE", ChatColor.LIGHT_PURPLE.toString());
+        value = value.replace("ChatColor.RED", ChatColor.RED.toString());
+        value = value.replace("ChatColor.WHITE", ChatColor.WHITE.toString());
+        value = value.replace("ChatColor.YELLOW", ChatColor.YELLOW.toString());
+	    return value;
 	}
 	
 
     /**
-     * Method to load the general configuration
+     * Method to load the restricted areas configuration
      * 
      * loads from Jobs/restrictedAreas.yml
      */
     private void loadRestrictedAreaSettings(){
+        this.restrictedAreas = new ArrayList<RestrictedArea>();
         File f = new File("plugins/Jobs/restrictedAreas.yml");
         Configuration conf;
         if(f.exists()) {
             conf = new Configuration(f);
             conf.load();
-            this.restrictedAreas = new ArrayList<RestrictedArea>();
             List<String> areaKeys = conf.getKeys("restrictedareas");
             List<World> worlds = Bukkit.getServer().getWorlds();
             if ( areaKeys == null ) {
