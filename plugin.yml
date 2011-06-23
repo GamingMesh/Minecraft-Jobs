@@ -1,6 +1,6 @@
 name: Jobs
-main: me.alex.jobs.Jobs
-version: 2.0.2 WIP 4
+main: com.zford.jobs.Jobs
+version: 2.0.2-dev
 commands:
     Jobs:
         description: Jobs
