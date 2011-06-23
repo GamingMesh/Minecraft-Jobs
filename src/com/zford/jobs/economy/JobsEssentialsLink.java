@@ -7,17 +7,15 @@ import com.earth2me.essentials.api.NoLoanPermittedException;
 import com.earth2me.essentials.api.UserDoesNotExistException;
 
 public class JobsEssentialsLink implements JobsEconomyLink{
-	private Economy economy;
 	
-	public JobsEssentialsLink(Economy economy){
-		this.economy = economy;
+	public JobsEssentialsLink(){
 	}
 	
 	@Override
-	public void pay(Player player, double ammount) {
+	public void pay(Player player, double amount) {
 		// TODO
 		try {
-			economy.add(player.getName(), ammount);
+			Economy.add(player.getName(), amount);
 		} catch (UserDoesNotExistException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
