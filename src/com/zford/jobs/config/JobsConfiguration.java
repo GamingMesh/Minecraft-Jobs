@@ -502,7 +502,7 @@ public class JobsConfiguration {
         }
         conf = new Configuration(f);
         conf.load();
-        List<String> configKeys = conf.getKeys("");
+        List<String> configKeys = conf.getKeys(null);
         if (configKeys == null) {
             return;
         }
