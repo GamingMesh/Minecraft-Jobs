@@ -310,15 +310,15 @@ public class PlayerJobInfo {
 		String newHonorific = getDisplayHonorific();
 		if(newHonorific == null && honorific != null){
 			// strip the current honorific.
-			player.setDisplayName(player.getDisplayName().replaceFirst(honorific + " ", "").trim());
+			player.setDisplayName(player.getDisplayName().trim().replaceFirst(honorific + " ", "").trim());
 		}
 		else if (newHonorific != null && honorific != null){
 			// replace the honorific
-			player.setDisplayName(player.getDisplayName().replaceFirst(honorific, newHonorific).trim());
+			player.setDisplayName(player.getDisplayName().trim().replaceFirst(honorific, newHonorific).trim());
 		}
 		else if(newHonorific != null && honorific == null){
 			// new honorific
-			player.setDisplayName((newHonorific + " " + player.getDisplayName()).trim());
+			player.setDisplayName((newHonorific + " " + player.getDisplayName().trim()).trim());
 		}
 		// set the new honorific
 		honorific = newHonorific;
