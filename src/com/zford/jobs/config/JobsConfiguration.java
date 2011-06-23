@@ -68,8 +68,6 @@ public class JobsConfiguration {
 	private HashMap<Job, Integer> usedSlots;
 	// is stats enabled
 	private boolean statsEnabled;
-	// to combat needing correct case
-	private HashMap<String, String> jobIgnoreCase;
 	// can get money near spawner.
 	private boolean payNearSpawner;
 	
@@ -203,7 +201,6 @@ public class JobsConfiguration {
             return;
         }
         this.jobs = new HashMap<String, Job>();
-        this.jobIgnoreCase = new HashMap<String, String>();
         for(String jobKey : jobKeys) {
             String jobName = conf.getString("Jobs."+jobKey+".fullname");
             if(jobName == null) {
@@ -427,8 +424,7 @@ public class JobsConfiguration {
                     }
                 }
             }
-            this.jobIgnoreCase.put(jobName.toLowerCase(), jobName);
-            this.jobs.put(jobName, new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots));
+            this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots));
         }
 	}
 	
@@ -598,7 +594,7 @@ public class JobsConfiguration {
 	 * @return the job that matches the name
 	 */
 	public Job getJob(String jobName){
-		return jobs.get(jobIgnoreCase.get(jobName.toLowerCase()));
+		return jobs.get(jobName.toLowerCase());
 	}
 	
 	/**
