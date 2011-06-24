@@ -48,7 +48,6 @@ import com.zford.jobs.config.container.JobsBlockInfo;
 import com.zford.jobs.config.container.JobsLivingEntityInfo;
 import com.zford.jobs.config.container.PlayerJobInfo;
 import com.zford.jobs.economy.JobsBOSEconomyLink;
-import com.zford.jobs.economy.JobsiConomy4Link;
 import com.zford.jobs.economy.JobsiConomyLink;
 import com.zford.jobs.event.JobsJoinEvent;
 import com.zford.jobs.event.JobsLeaveEvent;
@@ -88,7 +87,7 @@ public class Jobs extends JavaPlugin{
 		
 		for(Entry<Player, PlayerJobInfo> online: players.entrySet()){
 			// wipe the honorific
-			online.getKey().setDisplayName(online.getKey().getDisplayName().replace(online.getValue().getDisplayHonorific(), ""));
+			online.getKey().setDisplayName(online.getKey().getDisplayName().replace(" "+online.getValue().getDisplayHonorific(), "").trim());
 		}
 		
 		getServer().getLogger().info("[Jobs v" + getDescription().getVersion() + "] has been disabled succesfully.");
@@ -131,19 +130,16 @@ public class Jobs extends JavaPlugin{
 						if(getServer().getPluginManager().getPlugin("iConomy") != null || 
 								getServer().getPluginManager().getPlugin("BOSEconomy") != null){
 							if(getServer().getPluginManager().getPlugin("iConomy") != null){
-								if(getServer().getPluginManager().getPlugin("iConomy").getDescription().getVersion().startsWith("4")){
-									JobsConfiguration.getInstance().setEconomyLink(
-											new JobsiConomy4Link((com.nijiko.coelho.iConomy.iConomy)getServer().getPluginManager().getPlugin("iConomy")));
-				                    System.out.println("[Jobs] Successfully linked with iConomy 4.");
-								}
-								else{
-									JobsConfiguration.getInstance().setEconomyLink(new JobsiConomyLink((iConomy)getServer().getPluginManager().getPlugin("iConomy")));
-				                    System.out.println("[Jobs] Successfully linked with iConomy 5+.");
-								}
+								JobsConfiguration.getInstance().setEconomyLink(new JobsiConomyLink((iConomy)getServer().getPluginManager().getPlugin("iConomy")));
+			                    System.out.println("[Jobs] Successfully linked with iConomy 5+.");
 							}
-							else {
+							else if(getServer().getPluginManager().getPlugin("BOSEconomy") != null){
 								JobsConfiguration.getInstance().setEconomyLink(new JobsBOSEconomyLink((BOSEconomy)getServer().getPluginManager().getPlugin("BOSEconomy")));
 			                    System.out.println("[Jobs] Successfully linked with BOSEconomy.");
+							} else {
+							    System.err.println("[Jobs] Cannot find valid economy plugin");
+							    Jobs.disablePlugin();
+							    return;
 							}
 						}
 					}
