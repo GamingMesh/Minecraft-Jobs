@@ -26,8 +26,10 @@ import java.util.UUID;
 
 import org.bukkit.Achievement;
 import org.bukkit.Effect;
+import org.bukkit.Instrument;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Note;
 import org.bukkit.Server;
 import org.bukkit.Statistic;
 import org.bukkit.World;
@@ -571,5 +573,41 @@ public class JobsPlayer implements Player{
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+    @Override
+    public long getPlayerTime() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public long getPlayerTimeOffset() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+    @Override
+    public boolean isPlayerTimeRelative() {
+        // TODO Auto-generated method stub
+        return false;
+    }
+
+    @Override
+    public void playNote(Location arg0, Instrument arg1, Note arg2) {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void resetPlayerTime() {
+        // TODO Auto-generated method stub
+        
+    }
+
+    @Override
+    public void setPlayerTime(long arg0, boolean arg1) {
+        // TODO Auto-generated method stub
+        
+    }
 
 }
