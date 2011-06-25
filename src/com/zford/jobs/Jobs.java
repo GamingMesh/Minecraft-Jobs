@@ -42,6 +42,7 @@ import com.iConomy.iConomy;
 import com.nidefawl.Stats.Stats;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import com.zford.jobs.config.JobsConfiguration;
+import com.zford.jobs.config.JobsMessages;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobProgression;
 import com.zford.jobs.config.container.JobsBlockInfo;
@@ -225,23 +226,19 @@ public class Jobs extends JavaPlugin{
 							return true;
 						}
 						else{
-							String message = JobsConfiguration.getInstance().getMessage("join-too-many-job");
-							if(message == null){
-							    message = ChatColor.RED + "You have already joined too many jobs.";
-							}
-                            Jobs.sendMessageByLine(sender, message);
+                            Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("join-too-many-job"));
                             return true;
 						}
 					}
 					else {
 						// you do not have permission to join the job
-						noPermission(sender);
+					    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("error-no-permission"));
 						return true;
 					}
 				}
 				else{
 					// job does not exist
-					jobDoesNotExist(sender);
+					Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("error-no-job"));
 					return true;
 				}
 			}
@@ -253,32 +250,21 @@ public class Jobs extends JavaPlugin{
 							(Player)sender, JobsConfiguration.getInstance().getJob(jobName)));
 				}
 				else{
-					jobDoesNotExist(sender);
+					Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("error-no-job"));
 				}
 				return true;
 			}
 			// stats
 			else if(args.length == 1 && args[0].equalsIgnoreCase("stats")){
 				if(getJob((Player)sender).getJobsProgression().size() == 0){
-				    {
-						String message = JobsConfiguration.getInstance().getMessage("stats-no-job");
-						if(message == null){
-						    message = ChatColor.RED + "Please join a job first";
-						}
-                        Jobs.sendMessageByLine(sender, message);
-					}
+                    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("stats-no-job"));
 					return true;
 				}
 				else{
 					for(JobProgression tempJobProg: getJob((Player)sender).getJobsProgression()){
 						DecimalFormat format = new DecimalFormat("#.##");
 						{
-							String message = JobsConfiguration.getInstance().getMessage("stats-job");
-							if(message == null){
-							    message = "";
-							    message += "lvl%joblevel% %jobcolour%%jobname%:\n";
-							    message += "    Experience: %jobexp% / %jobmaxexp%";
-							}
+							String message = JobsMessages.getInstance().getMessage("stats-job");
 							message = message.replace("%joblevel%", Integer.valueOf(tempJobProg.getLevel()).toString());
 							message = message.replace("%jobcolour%", tempJobProg.getJob().getChatColour().toString());
 							message = message.replace("%jobname%", tempJobProg.getJob().getName());
@@ -321,33 +307,17 @@ public class Jobs extends JavaPlugin{
 					}
 				}
 				if(jobs.size() == 0){
-					String message = JobsConfiguration.getInstance().getMessage("browse-no-jobs");
-					if(message == null){
-						message = "There are no jobs you can join";
-					}
-                    Jobs.sendMessageByLine(sender, message);
+                    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("browse-no-jobs"));
 					
 				}
 				else{
-				    {
-						String message = JobsConfiguration.getInstance().getMessage("browse-jobs-header");
-						if(message == null){
-						    message = "You are allowed to join the following jobs:";
-						}
-                        Jobs.sendMessageByLine(sender, message);
-					}
+                    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("browse-jobs-header"));
 				    
 				    for(String job : jobs) {
 				        sender.sendMessage("    "+job);
 				    }
 				    
-					{
-						String message = JobsConfiguration.getInstance().getMessage("browse-jobs-footer");
-						if(message == null){
-						    message = "For more information type in /jobs info [JobName]";
-						}
-					    Jobs.sendMessageByLine(sender, message);
-					}
+				    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("browse-jobs-footer"));
 				}
 				return true;
 			}
@@ -376,28 +346,22 @@ public class Jobs extends JavaPlugin{
 								}
 								if(info.isInJob(job)){
 									getServer().getPluginManager().callEvent(new JobsLeaveEvent(target, job));
-									String message = JobsConfiguration.getInstance().getMessage("fire-target");
-									if(message == null){
-									    message = "You have been fired from " + job.getChatColour() + job.getName();
-									}
+									String message = JobsMessages.getInstance().getMessage("fire-target");
 								    message = message.replace("%jobcolour%", job.getChatColour().toString());
 								    message = message.replace("%jobname%", job.getName());
                                     Jobs.sendMessageByLine(target, message);
                                     
-                                    Jobs.sendAdminCommandSuccess(sender);
+                                    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-success"));
 								}
 								else{
-									String message = JobsConfiguration.getInstance().getMessage("fire-target-no-job");
-									if(message == null){
-									    message = "Player does not have the job %jobcolour%%jobname%";
-									}
+									String message = JobsMessages.getInstance().getMessage("fire-target-no-job");
 									message = message.replace("%jobcolour%", job.getChatColour().toString());
 									message = message.replace("%jobname%", job.getName());
                                     Jobs.sendMessageByLine(sender, message);
 								}
 							}
 							catch (Exception e){
-                                Jobs.sendAdminCommandFailed(sender);
+                                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-failed"));
 							}
 						}
 					}
@@ -425,19 +389,16 @@ public class Jobs extends JavaPlugin{
 								}
 								if(!info.isInJob(job)){
 									getServer().getPluginManager().callEvent(new JobsJoinEvent(target, job));
-									String message = JobsConfiguration.getInstance().getMessage("employ-target");
-									if(message == null){
-									    message = "You have been employed in %jobcolour%%jobname%";
-									}
+									String message = JobsMessages.getInstance().getMessage("employ-target");
 								    message = message.replace("%jobcolour%", job.getChatColour().toString());
 								    message = message.replace("%jobname%", job.getName());
                                     Jobs.sendMessageByLine(target, message);
                                     
-                                    Jobs.sendAdminCommandSuccess(sender);
+                                    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-success"));
 								}
 							}
 							catch (Exception e){
-                                Jobs.sendAdminCommandFailed(sender);
+                                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-failed"));
 							}
 						}
 					}
@@ -478,23 +439,20 @@ public class Jobs extends JavaPlugin{
 									}
 									
 									{
-										String message = JobsConfiguration.getInstance().getMessage("promote-target");
-										if(message == null){
-										    message = "You have been promoted %levelsgained% levels in %jobcolour%%jobname%";
-										}
+										String message = JobsMessages.getInstance().getMessage("promote-target");
 									    message = message.replace("%jobcolour%", job.getChatColour().toString());
 									    message = message.replace("%jobname%", job.getName());
 									    message = message.replace("%levelsgained%", levelsGained.toString());
                                         Jobs.sendMessageByLine(target, message);
 									}
-                                    Jobs.sendAdminCommandSuccess(sender);
+                                    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-success"));
 								}
 								if(target instanceof JobsPlayer){
 									JobsConfiguration.getInstance().getJobsDAO().save(info);
 								}
 							}
 							catch (Exception e){
-                                Jobs.sendAdminCommandFailed(sender);
+                                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-failed"));
 							}
 						}
 					}
@@ -532,23 +490,20 @@ public class Jobs extends JavaPlugin{
 									}
 									
 									{
-										String message = JobsConfiguration.getInstance().getMessage("demote-target");
-										if(message == null){
-										    message = "You have been demoted %levelslost% levels in %jobcolour%%jobname%";
-										}
+										String message = JobsMessages.getInstance().getMessage("demote-target");
 										message = message.replace("%jobcolour%", job.getChatColour().toString());
 										message = message.replace("%jobname%", job.getName());
 										message = message.replace("%levelslost%", levelsLost.toString());
                                         Jobs.sendMessageByLine(target, message);
 									}
-                                    Jobs.sendAdminCommandSuccess(sender);
+                                    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-success"));
 								}
 								if(target instanceof JobsPlayer){
 									JobsConfiguration.getInstance().getJobsDAO().save(info);
 								}
 							}
 							catch (Exception e){
-                                Jobs.sendAdminCommandFailed(sender);
+                                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-failed"));
 							}
 						}
 					}
@@ -575,7 +530,7 @@ public class Jobs extends JavaPlugin{
 								expGained = (double) Integer.parseInt(args[3]);
 							}
 							catch(Exception e){
-                                Jobs.sendAdminCommandFailed(sender);
+                                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-failed"));
 								return true;
 							}
 							// check if player already has the job
@@ -591,16 +546,13 @@ public class Jobs extends JavaPlugin{
 									info.checkLevels();
 								}
 								{
-									String message = JobsConfiguration.getInstance().getMessage("grantxp-target");
-									if(message == null){
-									    message = "You have been granted %expgained% experience in %jobcolour%%jobname%";
-									}
+									String message = JobsMessages.getInstance().getMessage("grantxp-target");
 									message = message.replace("%jobcolour%", job.getChatColour().toString());
 									message = message.replace("%jobname%", job.getName());
 									message = message.replace("%expgained%", args[3]);
                                     Jobs.sendMessageByLine(target, message);
 								}
-                                Jobs.sendAdminCommandSuccess(sender);
+                                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-success"));
 							}
 							if(target instanceof JobsPlayer){
 								JobsConfiguration.getInstance().getJobsDAO().save(info);
@@ -630,7 +582,7 @@ public class Jobs extends JavaPlugin{
 								expLost = (double) Integer.parseInt(args[3]);
 							}
 							catch(Exception e){
-                                Jobs.sendAdminCommandFailed(sender);
+                                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-failed"));
 								return true;
 							}
 							// check if player already has the job
@@ -643,16 +595,13 @@ public class Jobs extends JavaPlugin{
 								info.getJobsProgression(job).setExperience(info.getJobsProgression(job).getExperience() - expLost);
 								
 								{
-									String message = JobsConfiguration.getInstance().getMessage("removexp-target");
-									if(message == null){
-									    message = "You have lost %explost% experience in jobcolour%%jobname%";
-									}
+									String message = JobsMessages.getInstance().getMessage("removexp-target");
 								    message = message.replace("%jobcolour%", job.getChatColour().toString());
 								    message = message.replace("%jobname%", job.getName());
 								    message = message.replace("%explost%", args[3]);
                                     Jobs.sendMessageByLine(target, message);
 								}
-                                Jobs.sendAdminCommandSuccess(sender);
+                                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-success"));
 							}
 							if(target instanceof JobsPlayer){
 								JobsConfiguration.getInstance().getJobsDAO().save(info);
@@ -697,17 +646,14 @@ public class Jobs extends JavaPlugin{
 									// save data
 									JobsConfiguration.getInstance().getJobsDAO().save(info);
 									{
-										String message = JobsConfiguration.getInstance().getMessage("removexp-target");
-										if(message == null){
-										    message = "You have been transferred from %oldjobcolour%%oldjobname% to %newjobcolour%%newjobname%";
-										}
+										String message = JobsMessages.getInstance().getMessage("transfer-target");
 									    message = message.replace("%oldjobcolour%", oldjob.getChatColour().toString());
 									    message = message.replace("%oldjobname%", oldjob.getName());
 									    message = message.replace("%newjobcolour%", newjob.getChatColour().toString());
 										message = message.replace("%newjobname%", newjob.getName());
 	                                    Jobs.sendMessageByLine(target, message);
 									}
-                                    Jobs.sendAdminCommandSuccess(sender);
+                                    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-success"));
 									// stats plugin integration
 									if(JobsConfiguration.getInstance().getStats() != null &&
 											JobsConfiguration.getInstance().getStats().isEnabled()){
@@ -720,7 +666,7 @@ public class Jobs extends JavaPlugin{
 								}
 							}
 							catch (Exception e){
-							    Jobs.sendAdminCommandFailed(sender);
+							    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-failed"));
 							}
 						}
 					}
@@ -731,51 +677,21 @@ public class Jobs extends JavaPlugin{
 				sender.sendMessage(ChatColor.RED + "There was an error in your command");
 			}
 			
-			{
-				// jobs-browse
-				String message = JobsConfiguration.getInstance().getMessage("jobs-browse");
-				if(message == null){
-					sender.sendMessage("/jobs browse - list the jobs available to you");
-				}
-                Jobs.sendMessageByLine(sender, message);
-			}
+			// jobs-browse
+            Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-browse"));
 			
 			if(sender instanceof Player){
-                {
-                    // jobs-join
-                    String message = JobsConfiguration.getInstance().getMessage("jobs-join");
-                    if(message == null){
-                    	sender.sendMessage("/jobs join <jobname> - join the selected job");
-                    }
-                    Jobs.sendMessageByLine(sender, message);
-                }
+                // jobs-join
+                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-join"));
                 
-                {
-                    //jobs-leave
-                    String message = JobsConfiguration.getInstance().getMessage("jobs-leave");
-                    if(message == null){
-                    	sender.sendMessage("/jobs leave <jobname> - leave the selected job");
-                    }
-                    Jobs.sendMessageByLine(sender, message);
-                }
+                //jobs-leave
+                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-leave"));
                 
-                {
-                	//jobs-stats
-                    String message = JobsConfiguration.getInstance().getMessage("jobs-stats");
-                	if(message == null){
-                		sender.sendMessage("/jobs stats - show the level you are in each job you are part of");
-                	}
-                    Jobs.sendMessageByLine(sender, message);
-                }
+            	//jobs-stats
+                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-stats"));
                 
-                {
-                	//jobs-info
-                    String message = JobsConfiguration.getInstance().getMessage("jobs-info");
-                	if(message == null){
-                		message = "/jobs info <jobname> <break, place, kill> - show how much each job is getting paid and for what";
-                	}
-                    Jobs.sendMessageByLine(sender, message);
-                }
+            	//jobs-info
+                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-info"));
 			}
 			//jobs-admin-fire
 			if(sender instanceof ConsoleCommandSender || 
@@ -784,11 +700,7 @@ public class Jobs extends JavaPlugin{
 					JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.fire"))
 					||
 					(((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
-				String message = JobsConfiguration.getInstance().getMessage("jobs-admin-fire");
-				if(message == null){
-				    message = "/jobs fire <playername> <job> - fire the player from the job";
-				}
-                Jobs.sendMessageByLine(sender, message);
+				Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-admin-fire"));
 			}
 			//jobs-admin-employ
 			if(sender instanceof ConsoleCommandSender || 
@@ -797,11 +709,7 @@ public class Jobs extends JavaPlugin{
 					JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.employ"))
 					||
 					(((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
-				String message = JobsConfiguration.getInstance().getMessage("jobs-admin-employ");
-				if(message == null){
-					message = "/jobs employ <playername> <job> - employ the player to the job";
-				}
-                Jobs.sendMessageByLine(sender, message);
+				Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-admin-employ"));
 			}
 			//jobs-admin-promote
 			if(sender instanceof ConsoleCommandSender || 
@@ -810,11 +718,7 @@ public class Jobs extends JavaPlugin{
 					JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.promote"))
 					||
 					(((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
-				String message = JobsConfiguration.getInstance().getMessage("jobs-admin-promote");
-				if(message == null){
-					message = "/jobs promote <playername> <job> <levels> - promote the player X levels in a job";
-				}
-				Jobs.sendMessageByLine(sender, message);
+				Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-admin-promote"));
 			}
 			//jobs-admin-demote
 			if(sender instanceof ConsoleCommandSender || 
@@ -823,11 +727,7 @@ public class Jobs extends JavaPlugin{
 					JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.demote"))
 					||
 					(((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
-			    String message = JobsConfiguration.getInstance().getMessage("jobs-admin-demote");
-				if(message == null){
-				    message = "/jobs demote <playername> <job> <levels> - demote the player X levels in a job";
-				}
-				Jobs.sendMessageByLine(sender, message);
+			    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-admin-demote"));
 			}
 			//jobs-admin-grantxp
 			if(sender instanceof ConsoleCommandSender || 
@@ -836,11 +736,7 @@ public class Jobs extends JavaPlugin{
 					JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.grantxp"))
 					||
 					(((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
-			    String message = JobsConfiguration.getInstance().getMessage("jobs-admin-grantxp");
-				if(message == null){
-				    message = "/jobs grantxp <playername> <job> <experience> - grant the player X experience in a job";
-				}
-                Jobs.sendMessageByLine(sender, message);
+			    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-admin-grantxp"));
 			}
 			//jobs-admin-removexp
 			if(sender instanceof ConsoleCommandSender || 
@@ -849,11 +745,7 @@ public class Jobs extends JavaPlugin{
 					JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.removexp"))
 					||
 					(((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
-				String message = JobsConfiguration.getInstance().getMessage("jobs-admin-removexp");
-				if(message == null){
-				    message = "/jobs removexp <playername> <job> <experience> - remove X experience from the player in a job";
-				}
-                Jobs.sendMessageByLine(sender, message);
+				Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-admin-removexp"));
 			}
 			//jobs-admin-transfer
 			if(sender instanceof ConsoleCommandSender || 
@@ -862,11 +754,7 @@ public class Jobs extends JavaPlugin{
 					JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.transfer"))
 					||
 					(((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
-				String message = JobsConfiguration.getInstance().getMessage("jobs-admin-transfer");
-				if(message == null){
-					message = "/jobs transfer <playername> <oldjob> <newjob> - transfer a player's job from an old job to a new job";
-				}
-                Jobs.sendMessageByLine(sender, message);
+				Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-admin-transfer"));
 			}
 		}
 		return true;
@@ -881,7 +769,7 @@ public class Jobs extends JavaPlugin{
 	private void displayJobInfo(CommandSender sender, Job job, String type) {
         if(job == null){
             // job doesn't exist
-            jobDoesNotExist(sender);
+            Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("error-no-job"));
             return;
         }
         
@@ -898,10 +786,7 @@ public class Jobs extends JavaPlugin{
                 this.displayJobInfoBreak(sender, job, jobBreakInfo);
             }
             else if(showAllTypes == 0) {
-                String message = JobsConfiguration.getInstance().getMessage("break-none");
-                if(message == null){
-                    message = "%jobcolour%%jobname%" +ChatColor.WHITE+ " does not get money from breaking anything.";
-                }
+                String message = JobsMessages.getInstance().getMessage("break-none");
                 message = message.replace("%jobcolour%", job.getChatColour().toString());
                 message = message.replace("%jobname%", job.getName());
                 Jobs.sendMessageByLine(sender, message);
@@ -915,10 +800,7 @@ public class Jobs extends JavaPlugin{
                 this.displayJobInfoPlace(sender, job, jobPlaceInfo);
             }
             else if(showAllTypes == 0) {
-                String message = JobsConfiguration.getInstance().getMessage("place-none");
-                if(message == null){
-                    message = "%jobcolour%%jobname%" +ChatColor.WHITE+ " does not get money from placing anything.";
-                }
+                String message = JobsMessages.getInstance().getMessage("place-none");
                 message = message.replace("%jobcolour%", job.getChatColour().toString());
                 message = message.replace("%jobname%", job.getName());
                 Jobs.sendMessageByLine(sender, message);
@@ -932,10 +814,7 @@ public class Jobs extends JavaPlugin{
                 this.displayJobInfoKill(sender, job, jobKillInfo);
             }
             else if(showAllTypes == 0) {
-                String message = JobsConfiguration.getInstance().getMessage("kill-none");
-                if(message == null){
-                    message = "%jobcolour%%jobname%" +ChatColor.WHITE+ " does not get money from killing anything.";
-                }
+                String message = JobsMessages.getInstance().getMessage("kill-none");
                 message = message.replace("%jobcolour%", job.getChatColour().toString());
                 message = message.replace("%jobname%", job.getName());
                 Jobs.sendMessageByLine(sender, message);
@@ -951,13 +830,7 @@ public class Jobs extends JavaPlugin{
      */
 	private void displayJobInfoBreak(CommandSender sender, Job job, HashMap<String, JobsBlockInfo> jobBreakInfo) {
 	    
-	    {
-            String message = JobsConfiguration.getInstance().getMessage("break-header");
-            if(message == null){
-                message = "Break:";
-            }
-            Jobs.sendMessageByLine(sender, message);
-	    }
+	    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("break-header"));
         
         DecimalFormat format = new DecimalFormat("#.##");
         JobProgression prog = players.get((Player)sender).getJobsProgression(job);
@@ -978,14 +851,10 @@ public class Jobs extends JavaPlugin{
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
             String message;
             if(temp.getKey().contains(":")){
-                message = JobsConfiguration.getInstance().getMessage("break-info-sub");
+                message = JobsMessages.getInstance().getMessage("break-info-sub");
             }
             else {
-                message = JobsConfiguration.getInstance().getMessage("break-info-no-sub");
-            }
-            if(message == null){
-                message = "    %item%:%subitem% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
-                    ChatColor.YELLOW + " exp";
+                message = JobsMessages.getInstance().getMessage("break-info-no-sub");
             }
             if(temp.getKey().contains(":")){
                 message = message.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
@@ -993,7 +862,6 @@ public class Jobs extends JavaPlugin{
             }
             else{
                 message = message.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
-                message = message.replace(":%subitem%", "");
             }
             message = message.replace("%income%", format.format(incomeEquation.getValue()));
             message = message.replace("%experience%", format.format(expEquation.getValue()));
@@ -1009,14 +877,9 @@ public class Jobs extends JavaPlugin{
      */	
 	private void displayJobInfoPlace(CommandSender sender, Job job, HashMap<String, JobsBlockInfo> jobPlaceInfo) {
 	    
-	    {
-            String message = JobsConfiguration.getInstance().getMessage("place-header");
-            if(message == null){
-                message = "Place:";
-            }
-            Jobs.sendMessageByLine(sender, message);
-	    }
-        DecimalFormat format = new DecimalFormat("#.##");
+	    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("place-header"));
+
+	    DecimalFormat format = new DecimalFormat("#.##");
         JobProgression prog = players.get((Player)sender).getJobsProgression(job);
         Parser expEquation = job.getExpEquation();
         Parser incomeEquation = job.getIncomeEquation();
@@ -1035,14 +898,10 @@ public class Jobs extends JavaPlugin{
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
             String message;
             if(temp.getKey().contains(":")){
-                message = JobsConfiguration.getInstance().getMessage("place-info-sub");
+                message = JobsMessages.getInstance().getMessage("place-info-sub");
             }
             else {
-                message = JobsConfiguration.getInstance().getMessage("place-info-no-sub");
-            }
-            if(message == null){
-                message = "    %item%:%subitem% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
-                    ChatColor.YELLOW + " exp";
+                message = JobsMessages.getInstance().getMessage("place-info-no-sub");
             }
             if(temp.getKey().contains(":")){
                 message = message.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
@@ -1050,7 +909,6 @@ public class Jobs extends JavaPlugin{
             }
             else{
                 message = message.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
-                message = message.replace(":%subitem%", "");
             }
             message = message.replace("%income%", format.format(incomeEquation.getValue()));
             message = message.replace("%experience%", format.format(expEquation.getValue()));
@@ -1065,13 +923,8 @@ public class Jobs extends JavaPlugin{
      * @param jobKillInfo - the information to display
      */
     private void displayJobInfoKill(CommandSender sender, Job job, HashMap<String, JobsLivingEntityInfo> jobKillInfo) {
-        {
-            String message = JobsConfiguration.getInstance().getMessage("kill-header");
-            if(message == null){
-                message = "Kill:";
-            }
-            Jobs.sendMessageByLine(sender, message);
-        }
+        Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("kill-header"));
+
         DecimalFormat format = new DecimalFormat("#.##");
         JobProgression prog = players.get((Player)sender).getJobsProgression(job);
         Parser expEquation = job.getExpEquation();
@@ -1091,14 +944,10 @@ public class Jobs extends JavaPlugin{
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
             String message;
             if(temp.getKey().contains(":")){
-                message = JobsConfiguration.getInstance().getMessage("kill-info-sub");
+                message = JobsMessages.getInstance().getMessage("kill-info-sub");
             }
             else {
-                message = JobsConfiguration.getInstance().getMessage("kill-info-no-sub");
-            }
-            if(message == null){
-                message = "    %item%:%subitem% - %income%" + ChatColor.WHITE + ", %experience%" 
-                    + ChatColor.YELLOW + " exp";
+                message = JobsMessages.getInstance().getMessage("kill-info-no-sub");
             }
             if(temp.getKey().contains(":")){
                 message = message.replace("%item%", temp.getKey().split(":")[0].replace("org.bukkit.craftbukkit.entity.Craft", ""));
@@ -1106,7 +955,6 @@ public class Jobs extends JavaPlugin{
             }
             else{
                 message = message.replace("%item%", temp.getKey().replace("org.bukkit.craftbukkit.entity.Craft", ""));
-                message = message.replace(":%subitem%", "");
             }
             message = message.replace("%income%", format.format(incomeEquation.getValue()));
             message = message.replace("%experience%", format.format(expEquation.getValue()));
@@ -1124,30 +972,6 @@ public class Jobs extends JavaPlugin{
         for(String line : message.split("\n")) {
             sender.sendMessage(line);
         }
-    }
-    
-    /**
-     * Sends the admin command success message
-     * @param sender - who receives info
-     */
-    private static void sendAdminCommandSuccess(CommandSender sender) {
-        String message = JobsConfiguration.getInstance().getMessage("admin-command-success");
-        if(message == null){
-            message = "Your command has been performed.";
-        }
-        Jobs.sendMessageByLine(sender, message);
-    }
-
-    /**
-     * Sends the admin command failed message
-     * @param sender - who receives info
-     */
-    private static void sendAdminCommandFailed(CommandSender sender) {
-        String message = JobsConfiguration.getInstance().getMessage("admin-command-failed");
-        if(message == null){
-            message = ChatColor.RED + "There was an error in the command";
-        }
-        Jobs.sendMessageByLine(sender, message);
     }
 	
 	/**
@@ -1202,38 +1026,6 @@ public class Jobs extends JavaPlugin{
 	 */
 	public PlayerJobInfo getPlayerJobInfo(Player player){
 		return players.get(player);
-	}
-	
-	/**
-	 * Function to tell the player they do not have permission to do something
-	 * @param sender
-	 */
-	private void noPermission(CommandSender sender){
-		String tempMessage = JobsConfiguration.getInstance().getMessage("error-no-permission");
-		if(tempMessage == null){
-			sender.sendMessage(ChatColor.RED + "You do not have permission to do that");
-		}
-		else {
-			for(String temp: tempMessage.split("\n")){
-				sender.sendMessage(temp);
-			}
-		}
-	}
-	
-	/**
-	 * Function to tell the player that the job does not exist
-	 * @param sender
-	 */
-	private void jobDoesNotExist(CommandSender sender){
-		String tempMessage = JobsConfiguration.getInstance().getMessage("error-no-job");
-		if(tempMessage == null){
-			sender.sendMessage(ChatColor.RED + "The job you have selected does not exist");
-		}
-		else {
-			for(String temp: tempMessage.split("\n")){
-				sender.sendMessage(temp);
-			}
-		}
 	}
 	
 	/**

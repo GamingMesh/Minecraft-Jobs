@@ -77,8 +77,6 @@ public class JobsConfiguration {
 	private Stats stats = null;
 	// permissions integration
 	private Permissions permissions = null;
-	// messages
-	private HashMap<String, String> messages = null;
 	// do i broadcast skillups?
 	private boolean broadcast;
 	// maximum number of jobs a player can join
@@ -105,8 +103,8 @@ public class JobsConfiguration {
 		loadJobSettings();
 		// title settings
 		loadTitleSettings();
-		// messages settings
-		loadMessageSettings();
+        // messages settings
+        JobsMessages.getInstance().reloadConfig();
 		// get slots
 		loadSlots();
 		// restricted areas
@@ -502,56 +500,6 @@ public class JobsConfiguration {
         }
 	}
 	
-	/**
-	 * Method to load the message configuration
-	 * 
-	 * loads from Jobs/messageConfig.yml
-	 */
-	private void loadMessageSettings(){
-		this.messages = new HashMap<String, String>();
-        File f = new File("plugins/Jobs/messageConfig.yml");
-        Configuration conf;
-        if(!f.exists()) {
-            System.err.println("[Jobs] - configuration file messageConfig.yml does not exist, using default messages.");
-            return;
-        }
-        conf = new Configuration(f);
-        conf.load();
-        List<String> configKeys = conf.getKeys(null);
-        if (configKeys == null) {
-            return;
-        }
-        for(String key : configKeys) {
-            String value = JobsConfiguration.parseColors(conf.getString(key));
-            this.messages.put(key, value);
-        }    
-	}
-	
-	/**
-	 * Parse ChatColors from YML configuration file
-	 * @param value - configuration string
-	 * @return string with replaced colors
-	 */
-	private static String parseColors(String value) {
-        value = value.replace("ChatColor.AQUA", ChatColor.AQUA.toString());
-        value = value.replace("ChatColor.BLACK", ChatColor.BLACK.toString());
-        value = value.replace("ChatColor.BLUE", ChatColor.BLUE.toString());
-        value = value.replace("ChatColor.DARK_AQUA", ChatColor.DARK_AQUA.toString());
-        value = value.replace("ChatColor.DARK_BLUE", ChatColor.DARK_BLUE.toString());
-        value = value.replace("ChatColor.DARK_GRAY", ChatColor.DARK_GRAY.toString());
-        value = value.replace("ChatColor.DARK_GREEN", ChatColor.DARK_GREEN.toString());
-        value = value.replace("ChatColor.DARK_PURPLE", ChatColor.DARK_PURPLE.toString());
-        value = value.replace("ChatColor.DARK_RED", ChatColor.DARK_RED.toString());
-        value = value.replace("ChatColor.GOLD", ChatColor.GOLD.toString());
-        value = value.replace("ChatColor.GRAY", ChatColor.GRAY.toString());
-        value = value.replace("ChatColor.GREEN", ChatColor.GREEN.toString());
-        value = value.replace("ChatColor.LIGHT_PURPLE", ChatColor.LIGHT_PURPLE.toString());
-        value = value.replace("ChatColor.RED", ChatColor.RED.toString());
-        value = value.replace("ChatColor.WHITE", ChatColor.WHITE.toString());
-        value = value.replace("ChatColor.YELLOW", ChatColor.YELLOW.toString());
-	    return value;
-	}
-	
 
     /**
      * Method to load the restricted areas configuration
@@ -702,9 +650,12 @@ public class JobsConfiguration {
 	 * @param key - the key of the message
 	 * @return the message
 	 */
+	/*
+	@Deprecated
 	public String getMessage(String key){
-		return messages.get(key);
+	    return JobsMessages.getInstance().getMessage(key);
 	}
+	*/
 	
 	/**
 	 * Function that tells if the system is set to broadcast on skill up
