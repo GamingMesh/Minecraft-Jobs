@@ -146,19 +146,7 @@ public class Job {
 	 * @return null if job has no payment for this type of block
 	 */
 	public Double getPlaceIncome(Block block, HashMap<String, Double> param){
-		if(jobPlaceInfo != null){
-			// try simple
-			if(jobPlaceInfo.containsKey(block.getType().toString())){
-				return jobPlaceInfo.get(block.getType().toString()).getMoneyFromBlock(incomeEquation, block, param);
-			}
-			else{
-				// try with sub-class
-				if(jobPlaceInfo.containsKey(block.getType().toString()+":"+block.getData())){
-					return jobPlaceInfo.get(block.getType().toString()+":"+block.getData()).getMoneyFromBlock(incomeEquation, block, param);
-				}
-			}
-		}
-		return null;
+        return this.getBlockActionIncome(block, param, this.jobPlaceInfo);
 	}
 	
 	/**
@@ -169,19 +157,7 @@ public class Job {
 	 * @return null if job has no payment for this type of block
 	 */
 	public Double getPlaceExp(Block block, HashMap<String, Double> param){
-		if(jobPlaceInfo != null){
-			// try simple
-			if(jobPlaceInfo.containsKey(block.getType().toString())){
-				return jobPlaceInfo.get(block.getType().toString()).getXPFromBlock(expEquation, block, param);
-			}
-			else{
-				// try with sub-class
-				if(jobPlaceInfo.containsKey(block.getType().toString()+":"+block.getData())){
-					return jobPlaceInfo.get(block.getType().toString()+":"+block.getData()).getXPFromBlock(expEquation, block, param);
-				}
-			}
-		}
-		return null;
+        return this.getBlockActionExp(block, param, this.jobPlaceInfo);
 	}
 	
 	/**
@@ -192,19 +168,7 @@ public class Job {
 	 * @return null if job has no payment for this type of block
 	 */
 	public Double getBreakIncome(Block block, HashMap<String, Double> param){
-		if(jobBreakInfo != null){
-			// try simple
-			if(jobBreakInfo.containsKey(block.getType().toString())){
-				return jobBreakInfo.get(block.getType().toString()).getMoneyFromBlock(incomeEquation, block, param);
-			}
-			else{
-				// try with sub-class
-				if(jobBreakInfo.containsKey(block.getType().toString()+":"+block.getData())){
-					return jobBreakInfo.get(block.getType().toString()+":"+block.getData()).getMoneyFromBlock(incomeEquation, block, param);
-				}
-			}
-		}
-		return null;
+        return this.getBlockActionIncome(block, param, this.jobBreakInfo);
 	}
 	
 	/**
@@ -215,20 +179,56 @@ public class Job {
 	 * @return null if job has no payment for this type of block
 	 */
 	public Double getBreakExp(Block block, HashMap<String, Double> param){
-		if(jobBreakInfo != null){
-			// try simple
-			if(jobBreakInfo.containsKey(block.getType().toString())){
-				return jobBreakInfo.get(block.getType().toString()).getXPFromBlock(expEquation, block, param);
-			}
-			else{
-				// try with sub-class
-				if(jobBreakInfo.containsKey(block.getType().toString()+":"+block.getData())){
-					return jobBreakInfo.get(block.getType().toString()+":"+block.getData()).getXPFromBlock(expEquation, block, param);
-				}
-			}
-		}
-		return null;
+        return this.getBlockActionExp(block, param, this.jobBreakInfo);
 	}
+    
+    /**
+     * Function to get the income for performing the action
+     * @param block - the block
+     * @param param - parameters for the customisable equation
+     * @param info - info for performing the action
+     * @return the income received for performing the action
+     * @return null if job has no payment for this type of action
+     */
+    private Double getBlockActionIncome(Block block, HashMap<String, Double> param, HashMap<String, JobsBlockInfo> info) {
+        if(info != null){
+            // try simple
+            if(info.containsKey(block.getType().toString())){
+                return info.get(block.getType().toString()).getMoneyFromBlock(incomeEquation, block, param);
+            }
+            else{
+                // try with sub-class
+                if(info.containsKey(block.getType().toString()+":"+block.getData())){
+                    return info.get(block.getType().toString()+":"+block.getData()).getMoneyFromBlock(incomeEquation, block, param);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Function to get the exp for performing the action
+     * @param block - the block
+     * @param param - parameters for the customisable equation
+     * @param info - info for performing the action
+     * @return the exp received for performing the action
+     * @return null if job has no payment for this type of action
+     */
+    private Double getBlockActionExp(Block block, HashMap<String, Double> param, HashMap<String, JobsBlockInfo> info) {
+        if(info != null){
+            // try simple
+            if(info.containsKey(block.getType().toString())){
+                return info.get(block.getType().toString()).getXPFromBlock(expEquation, block, param);
+            }
+            else{
+                // try with sub-class
+                if(info.containsKey(block.getType().toString()+":"+block.getData())){
+                    return info.get(block.getType().toString()+":"+block.getData()).getXPFromBlock(expEquation, block, param);
+                }
+            }
+        }
+        return null;
+    }
 	
 	/**
 	 * Get the job name
