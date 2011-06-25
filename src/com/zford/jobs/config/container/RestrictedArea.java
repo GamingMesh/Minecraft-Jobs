@@ -26,7 +26,13 @@ import org.bukkit.entity.Entity;
 
 import com.zford.jobs.config.JobsConfiguration;
 
-
+/**
+ * Restricted Area Class
+ * 
+ * Holds data pertaining to restricted areas on the server
+ * @author Zak Ford <zak.j.ford@gmail.com>
+ *
+ */
 public class RestrictedArea {
 
     private Location location1;

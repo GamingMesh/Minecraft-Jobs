@@ -63,11 +63,7 @@ import cosine.boseconomy.BOSEconomy;
 /**
  * Jobs main class
  * @author Alex
- *
- */
-/**
  * @author Zak
- *
  */
 public class Jobs extends JavaPlugin{
 	
