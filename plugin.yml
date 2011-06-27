@@ -1,6 +1,6 @@
 name: Jobs
 main: com.zford.jobs.Jobs
-version: 2.0.2-dev
+version: @VERSION@
 commands:
     Jobs:
         description: Jobs

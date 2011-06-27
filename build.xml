@@ -7,6 +7,7 @@
   <property name="build" location="build"/>
   <property name="dist" location="dist"/>
   <property name="conf" location="conf"/>
+  <property name="version" value="2.0.2-dev"/>
 
   <target name="init">
     <!-- Create the time stamp -->
@@ -26,6 +27,12 @@
         </fileset>
       </classpath>
     </javac>
+    <!-- create plugin.yml file -->
+    <copy file="plugin.yml" tofile="${build}/plugin.yml">
+      <filterset>
+        <filter token="VERSION" value="${version}"/>
+      </filterset>
+    </copy>
   </target>
 
   <target name="dist" depends="compile"
@@ -36,12 +43,11 @@
     <!-- Put everything in ${build} into the Jobs.jar file -->
     <jar jarfile="${dist}/lib/Jobs.jar">
       <fileset dir="${build}"/>
-      <fileset file="plugin.yml"/>
     </jar>    
     <!-- Create zipfile -->
-    <zip destfile="${dist}/Jobs.zip">
-      <zipfileset dir="${dist}/lib"/>
-      <zipfileset dir="${conf}" prefix="Jobs"/>
+    <zip destfile="${dist}/Jobs_${version}.zip">
+      <zipfileset dir="${dist}/lib" prefix="plugins"/>
+      <zipfileset dir="${conf}" prefix="plugins/Jobs"/>
       <zipfileset file="LICENSE-GPL.md"/>
       <zipfileset file="LICENSE-Apache.txt"/>
     </zip>
