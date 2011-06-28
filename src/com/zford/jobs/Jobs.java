@@ -84,7 +84,7 @@ public class Jobs extends JavaPlugin{
 		
 		for(Entry<Player, PlayerJobInfo> online: players.entrySet()){
 			// wipe the honorific
-			online.getKey().setDisplayName(online.getKey().getDisplayName().replace(" "+online.getValue().getDisplayHonorific(), "").trim());
+			online.getKey().setDisplayName(online.getKey().getDisplayName().replace(online.getValue().getDisplayHonorific()+" ", "").trim());
 		}
 		
 		getServer().getLogger().info("[Jobs v" + getDescription().getVersion() + "] has been disabled succesfully.");
