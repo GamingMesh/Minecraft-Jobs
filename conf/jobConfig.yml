@@ -61,7 +61,10 @@ Jobs:
         #
         # If no sub-type is give, the payout will be for all sub-types.
         #
-        #
+        # To get a list of all available block types, check the
+        # bukkit JavaDocs for a complete list of block types
+        # http://jd.bukkit.org/apidocs/org/bukkit/Material.html
+        # 
         # For kill tags (Kill and custom-kill), the name is the name of the
         # mob.
         # Available mobs:
