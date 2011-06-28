@@ -50,6 +50,7 @@
       <zipfileset dir="${conf}" prefix="plugins/Jobs"/>
       <zipfileset file="LICENSE-GPL.md"/>
       <zipfileset file="LICENSE-Apache.txt"/>
+      <zipfileset file="CHANGELOG.md"/>
     </zip>
   </target>
 
