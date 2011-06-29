@@ -22,7 +22,6 @@ package com.zford.jobs.config.container;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import org.bukkit.block.Block;
 import org.bukkit.material.MaterialData;
 import org.mbertoli.jfep.Parser;
 
@@ -76,13 +75,11 @@ public class JobsBlockInfo{
 	 * Function to get the money that should be paid out for this block
 	 * 
 	 * @param equation - equation to calculate the payout
-	 * @param block - block in question
 	 * @param parameters - equation parameters
 	 * @return the money given
 	 * @return null if it isn't the block
 	 */
-	public Double getMoneyFromBlock(Parser equation, Block block,
-			HashMap<String, Double> parameters) {
+	public Double getMoneyFromBlock(Parser equation, HashMap<String, Double> parameters) {
 		for(Entry<String, Double> temp: parameters.entrySet()){
 			equation.setVariable(temp.getKey(), temp.getValue());
 		}
@@ -94,13 +91,11 @@ public class JobsBlockInfo{
 	 * Function to get the experience that should be paid out for this block
 	 * 
 	 * @param equation - equation to calculate the experience
-	 * @param block - block in question
 	 * @param parameters - equation parameters
 	 * @return the experience given
 	 * @return null if it isn't the block
 	 */
-	public Double getXPFromBlock(Parser equation, Block block,
-			HashMap<String, Double> parameters) {
+	public Double getXPFromBlock(Parser equation, HashMap<String, Double> parameters) {
 		for(Entry<String, Double> temp: parameters.entrySet()){
 			equation.setVariable(temp.getKey(), temp.getValue());
 		}
