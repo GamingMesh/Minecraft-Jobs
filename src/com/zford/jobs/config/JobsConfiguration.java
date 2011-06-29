@@ -45,7 +45,7 @@ import com.zford.jobs.config.container.JobsLivingEntityInfo;
 import com.zford.jobs.config.container.RestrictedArea;
 import com.zford.jobs.config.container.Title;
 import com.zford.jobs.dao.JobsDAO;
-import com.zford.jobs.dao.JobsDAOFlatfile;
+import com.zford.jobs.dao.JobsDAOH2;
 import com.zford.jobs.dao.JobsDAOMySQL;
 import com.zford.jobs.economy.JobsEconomyLink;
 import com.zford.jobs.util.DisplayMethod;
@@ -161,8 +161,8 @@ public class JobsConfiguration {
             String prefix = conf.getString("mysql-table-prefix", "");
             this.dao = new JobsDAOMySQL(url, dbName, username, password, prefix);
         }
-        else if(storageMethod.equalsIgnoreCase("flatfile")) {
-            this.dao = new JobsDAOFlatfile();
+        else if(storageMethod.equalsIgnoreCase("h2")) {
+            this.dao = new JobsDAOH2();
         }
         else {
 			// invalid selection

@@ -6,8 +6,8 @@
 #   It also allows admins to set the maximum number of jobs a player can have at
 # any one time.
 
-# storage method, can be MySQL, flatfile
-storage-method: flatfile
+# storage method, can be MySQL, h2
+storage-method: h2
 
 # Requires Mysql.
 mysql-username: root
