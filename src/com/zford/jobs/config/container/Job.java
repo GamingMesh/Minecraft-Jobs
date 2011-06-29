@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 
 
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.mbertoli.jfep.Parser;
 
@@ -191,15 +192,21 @@ public class Job {
      * @return null if job has no payment for this type of action
      */
     private Double getBlockActionIncome(Block block, HashMap<String, Double> param, HashMap<String, JobsBlockInfo> info) {
+        String blockKey = block.getType().toString();
+        
+        // Normalize GLOWING_REDSTONE_ORE to REDSTONE_ORE
+        if(block.getType().equals(Material.GLOWING_REDSTONE_ORE)) {
+            blockKey = Material.REDSTONE_ORE.toString();
+        }
         if(info != null){
             // try simple
-            if(info.containsKey(block.getType().toString())){
-                return info.get(block.getType().toString()).getMoneyFromBlock(incomeEquation, block, param);
+            if(info.containsKey(blockKey)){
+                return info.get(blockKey).getMoneyFromBlock(incomeEquation, param);
             }
             else{
                 // try with sub-class
-                if(info.containsKey(block.getType().toString()+":"+block.getData())){
-                    return info.get(block.getType().toString()+":"+block.getData()).getMoneyFromBlock(incomeEquation, block, param);
+                if(info.containsKey(blockKey+":"+block.getData())){
+                    return info.get(blockKey+":"+block.getData()).getMoneyFromBlock(incomeEquation, param);
                 }
             }
         }
@@ -215,15 +222,21 @@ public class Job {
      * @return null if job has no payment for this type of action
      */
     private Double getBlockActionExp(Block block, HashMap<String, Double> param, HashMap<String, JobsBlockInfo> info) {
+        String blockKey = block.getType().toString();
+        
+        // Normalize GLOWING_REDSTONE_ORE to REDSTONE_ORE
+        if(block.getType().equals(Material.GLOWING_REDSTONE_ORE)) {
+            blockKey = Material.REDSTONE_ORE.toString();
+        }
         if(info != null){
             // try simple
-            if(info.containsKey(block.getType().toString())){
-                return info.get(block.getType().toString()).getXPFromBlock(expEquation, block, param);
+            if(info.containsKey(blockKey)){
+                return info.get(blockKey).getXPFromBlock(expEquation, param);
             }
             else{
                 // try with sub-class
-                if(info.containsKey(block.getType().toString()+":"+block.getData())){
-                    return info.get(block.getType().toString()+":"+block.getData()).getXPFromBlock(expEquation, block, param);
+                if(info.containsKey(blockKey+":"+block.getData())){
+                    return info.get(blockKey+":"+block.getData()).getXPFromBlock(expEquation, param);
                 }
             }
         }

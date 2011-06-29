@@ -7,7 +7,7 @@
   <property name="build" location="build"/>
   <property name="dist" location="dist"/>
   <property name="conf" location="conf"/>
-  <property name="version" value="2.2.0"/>
+  <property name="version" value="2.2.1"/>
 
   <target name="init">
     <!-- Create the time stamp -->
