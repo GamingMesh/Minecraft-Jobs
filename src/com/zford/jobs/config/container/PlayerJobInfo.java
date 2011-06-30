@@ -50,6 +50,8 @@ public class PlayerJobInfo {
 	private String honorific = null;
 	// determines if a player is fishing or not
 	private boolean isFishing;
+	// last time player dropped fishing item
+	private long fishingDropTime;
 		
 	/**
 	 * Constructor.
@@ -63,6 +65,7 @@ public class PlayerJobInfo {
 		this.jobs = new ArrayList<Job>();
 		this.progression = new HashMap<Job, JobProgression>();
 		this.isFishing = false;
+		this.fishingDropTime = 0;
 		// for all jobs players have
 		List<JobsDAOData> list = dao.getAllJobs(player);
 		if(list != null){
@@ -165,6 +168,13 @@ public class PlayerJobInfo {
 		JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
 	}
 	
+	/**
+	 * Fished an item
+	 * 
+	 * Give correct experience and income
+	 * 
+	 * @param item - the item fished
+	 */
 	public void fished(Item item) {
 	    HashMap<String, Double> param = new HashMap<String, Double>();
 	    param.put("numjobs", (double)progression.size());
@@ -178,6 +188,29 @@ public class PlayerJobInfo {
                 JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
                 temp.getValue().addExp(temp.getKey().getFishExp(item, param));
                 checkLevels();
+            }
+            param.remove("joblevel");
+        }
+	}
+	
+	/**
+	 * Dropped an item
+	 * 
+	 * Give correct experience and income
+	 * 
+	 * @param item - the item dropped
+	 */
+	public void dropped(Item item) {
+	    HashMap<String, Double> param = new HashMap<String, Double>();
+        param.put("numjobs", (double)progression.size());
+        for(Entry<Job, JobProgression> temp: progression.entrySet()){
+            // add the current level to the parameter list
+            param.put("joblevel", (double)temp.getValue().getLevel());
+            // get the income
+            Double income = temp.getKey().getFishIncome(item, param);
+            if(income != null){
+                // we dropped a fishing item, mark time
+                this.fishingDropTime = System.currentTimeMillis();
             }
             param.remove("joblevel");
         }
@@ -385,7 +418,7 @@ public class PlayerJobInfo {
 	 */
 	public boolean isFishing(boolean isFishing) {
 	    this.isFishing = isFishing;
-	    return this.isFishing;
+	    return this.isFishing();
 	}
 	
     /**
@@ -393,6 +426,10 @@ public class PlayerJobInfo {
      * @return true/false - returns true if user is fishing, otherwise false
      */
 	public boolean isFishing() {
+	    // Dropping fishing items prevents counting as fishing
+	    if((this.fishingDropTime + 30*1000) > System.currentTimeMillis()) {
+	        return false;
+	    }
 	    return this.isFishing;
 	}
 }

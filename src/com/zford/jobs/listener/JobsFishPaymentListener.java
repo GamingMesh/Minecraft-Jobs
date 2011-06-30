@@ -77,6 +77,7 @@ public class JobsFishPaymentListener extends PlayerListener {
         if(event.isCancelled()) return;
         
         // prevent drop item exploits
+        plugin.getPlayerJobInfo(event.getPlayer()).dropped(event.getItemDrop());
         plugin.getPlayerJobInfo(event.getPlayer()).isFishing(false);
     }
 }
