@@ -441,6 +441,12 @@ public class JobsConfiguration {
                     }
                 }
             }
+            
+            // set to null if there are no kills
+            if(jobKillInfo.size() == 0) {
+                jobKillInfo = null;
+            }
+            
             this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots));
         }
 	}
