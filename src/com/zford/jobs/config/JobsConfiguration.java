@@ -40,7 +40,7 @@ import com.nidefawl.Stats.Stats;
 import com.nijikokun.bukkit.Permissions.Permissions;
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.container.Job;
-import com.zford.jobs.config.container.JobsBlockInfo;
+import com.zford.jobs.config.container.JobsMaterialInfo;
 import com.zford.jobs.config.container.JobsLivingEntityInfo;
 import com.zford.jobs.config.container.RestrictedArea;
 import com.zford.jobs.config.container.Title;
@@ -325,25 +325,25 @@ public class JobsConfiguration {
             
             // break
             List<String> breakKeys = conf.getKeys("Jobs."+jobKey+".Break");
-            HashMap<String, JobsBlockInfo> jobBreakInfo = new HashMap<String, JobsBlockInfo>();
+            HashMap<String, JobsMaterialInfo> jobBreakInfo = new HashMap<String, JobsMaterialInfo>();
             if(breakKeys != null) {
                 for(String breakKey : breakKeys) {
-                    String blockType = breakKey.toUpperCase();
+                    String materialType = breakKey.toUpperCase();
                     String subType = "";
                     Material material;
-                    if(blockType.contains("-")) {
+                    if(materialType.contains("-")) {
                         // uses subType
-                        subType = ":"+blockType.split("-")[1];
-                        blockType = blockType.split("-")[0];
+                        subType = ":"+materialType.split("-")[1];
+                        materialType = materialType.split("-")[0];
                     }
                     try {
-                        material = Material.matchMaterial(blockType);
+                        material = Material.matchMaterial(materialType);
                     }
                     catch(IllegalArgumentException e) {
                         material = null;
                     }
                     if(material == null) {
-                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + breakKey + " Break block type property. Disabling jobs!");
+                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + breakKey + " Break material type property. Disabling jobs!");
                         Jobs.disablePlugin();
                         return;
                     }
@@ -352,7 +352,7 @@ public class JobsConfiguration {
                     Double income = conf.getDouble("Jobs."+jobKey+".Break."+breakKey+".income", 0.0);
                     Double experience = conf.getDouble("Jobs."+jobKey+".Break."+breakKey+".experience", 0.0);
                     
-                    jobBreakInfo.put(material.toString()+subType, new JobsBlockInfo(materialData, experience, income));
+                    jobBreakInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
                 }
             } else {
                 jobBreakInfo = null;
@@ -360,25 +360,25 @@ public class JobsConfiguration {
             
             // place
             List<String> placeKeys = conf.getKeys("Jobs."+jobKey+".Place");
-            HashMap<String, JobsBlockInfo> jobPlaceInfo = new HashMap<String, JobsBlockInfo>();
+            HashMap<String, JobsMaterialInfo> jobPlaceInfo = new HashMap<String, JobsMaterialInfo>();
             if(placeKeys != null) {
                 for(String placeKey : placeKeys) {
-                    String blockType = placeKey.toUpperCase();
+                    String materialType = placeKey.toUpperCase();
                     String subType = "";
                     Material material;
-                    if(blockType.contains("-")) {
+                    if(materialType.contains("-")) {
                         // uses subType
-                        subType = ":"+blockType.split("-")[1];
-                        blockType = blockType.split("-")[0];
+                        subType = ":"+materialType.split("-")[1];
+                        materialType = materialType.split("-")[0];
                     }
                     try {
-                        material = Material.matchMaterial(blockType);
+                        material = Material.matchMaterial(materialType);
                     }
                     catch(IllegalArgumentException e) {
                         material = null;
                     }
                     if(material == null) {
-                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + placeKey + " Place block type property. Disabling jobs!");
+                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + placeKey + " Place material type property. Disabling jobs!");
                         Jobs.disablePlugin();
                         return;
                     }
@@ -387,7 +387,7 @@ public class JobsConfiguration {
                     Double income = conf.getDouble("Jobs."+jobKey+".Place."+placeKey+".income", 0.0);
                     Double experience = conf.getDouble("Jobs."+jobKey+".Place."+placeKey+".experience", 0.0);
                     
-                    jobPlaceInfo.put(material.toString()+subType, new JobsBlockInfo(materialData, experience, income));
+                    jobPlaceInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
                 }
             } else {
                 jobPlaceInfo = null;
@@ -423,6 +423,39 @@ public class JobsConfiguration {
                 }
             }
             
+            // fish
+            List<String> fishKeys = conf.getKeys("Jobs."+jobKey+".Fish");
+            HashMap<String, JobsMaterialInfo> jobFishInfo = new HashMap<String, JobsMaterialInfo>();
+            if(fishKeys != null) {
+                for(String fishKey : fishKeys) {
+                    String materialType = fishKey.toUpperCase();
+                    String subType = "";
+                    Material material;
+                    if(materialType.contains("-")) {
+                        // uses subType
+                        subType = ":"+materialType.split("-")[1];
+                        materialType = materialType.split("-")[0];
+                    }
+                    try {
+                        material = Material.matchMaterial(materialType);
+                    }
+                    catch(IllegalArgumentException e) {
+                        material = null;
+                    }
+                    if(material == null) {
+                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + fishKey + " Fish material type property. Disabling jobs!");
+                        Jobs.disablePlugin();
+                        return;
+                    }
+                    MaterialData materialData = new MaterialData(material);
+                    
+                    Double income = conf.getDouble("Jobs."+jobKey+".Fish."+fishKey+".income", 0.0);
+                    Double experience = conf.getDouble("Jobs."+jobKey+".Fish."+fishKey+".experience", 0.0);
+                    
+                    jobFishInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
+                }
+            }
+            
             // custom-kill
             List<String> customKillKeys = conf.getKeys("Jobs."+jobKey+".custom-kill");
             if(customKillKeys != null) {
@@ -441,7 +474,7 @@ public class JobsConfiguration {
                     }
                 }
             }
-            this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots));
+            this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobFishInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots));
         }
 	}
 	

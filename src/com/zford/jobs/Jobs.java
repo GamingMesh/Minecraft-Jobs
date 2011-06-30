@@ -45,7 +45,7 @@ import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.JobsMessages;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobProgression;
-import com.zford.jobs.config.container.JobsBlockInfo;
+import com.zford.jobs.config.container.JobsMaterialInfo;
 import com.zford.jobs.config.container.JobsLivingEntityInfo;
 import com.zford.jobs.config.container.PlayerJobInfo;
 import com.zford.jobs.economy.JobsBOSEconomyLink;
@@ -54,6 +54,7 @@ import com.zford.jobs.event.JobsJoinEvent;
 import com.zford.jobs.event.JobsLeaveEvent;
 import com.zford.jobs.fake.JobsPlayer;
 import com.zford.jobs.listener.JobsBlockPaymentListener;
+import com.zford.jobs.listener.JobsFishPaymentListener;
 import com.zford.jobs.listener.JobsJobListener;
 import com.zford.jobs.listener.JobsKillPaymentListener;
 import com.zford.jobs.listener.JobsPlayerListener;
@@ -105,7 +106,8 @@ public class Jobs extends JavaPlugin{
 			JobsBlockPaymentListener blockListener = new JobsBlockPaymentListener(this);
 			JobsJobListener jobListener = new JobsJobListener(this);
 			JobsKillPaymentListener killListener = new JobsKillPaymentListener(this);
-			JobsPlayerListener playerListener = new JobsPlayerListener(this);
+            JobsPlayerListener playerListener = new JobsPlayerListener(this);
+            JobsFishPaymentListener fishListener = new JobsFishPaymentListener(this);
 			
 			// set the system to auto save
 			if(JobsConfiguration.getInstance().getSavePeriod() > 0){
@@ -185,6 +187,10 @@ public class Jobs extends JavaPlugin{
 			getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Monitor, this);
 			getServer().getPluginManager().registerEvent(Event.Type.CUSTOM_EVENT, jobListener, Event.Priority.Monitor, this);
 			getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, killListener, Event.Priority.Monitor, this);
+            getServer().getPluginManager().registerEvent(Event.Type.PLAYER_ANIMATION, fishListener, Event.Priority.Monitor, this);
+            getServer().getPluginManager().registerEvent(Event.Type.PLAYER_ITEM_HELD, fishListener, Event.Priority.Monitor, this);
+            getServer().getPluginManager().registerEvent(Event.Type.PLAYER_PICKUP_ITEM, fishListener, Event.Priority.Monitor, this);
+            getServer().getPluginManager().registerEvent(Event.Type.PLAYER_DROP_ITEM, fishListener, Event.Priority.Monitor, this);
 			getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Monitor, this);
 			getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
 			
@@ -776,7 +782,7 @@ public class Jobs extends JavaPlugin{
         
         if(type.equalsIgnoreCase("break") || showAllTypes == 1){
             // break
-            HashMap<String, JobsBlockInfo> jobBreakInfo = job.getBreakInfo();
+            HashMap<String, JobsMaterialInfo> jobBreakInfo = job.getBreakInfo();
             
             if(jobBreakInfo != null){
                 this.displayJobInfoBreak(sender, job, jobBreakInfo);
@@ -790,7 +796,7 @@ public class Jobs extends JavaPlugin{
         }
         if(type.equalsIgnoreCase("place") || showAllTypes == 1){
             // place
-            HashMap<String, JobsBlockInfo> jobPlaceInfo = job.getPlaceInfo();
+            HashMap<String, JobsMaterialInfo> jobPlaceInfo = job.getPlaceInfo();
             
             if(jobPlaceInfo != null){
                 this.displayJobInfoPlace(sender, job, jobPlaceInfo);
@@ -824,7 +830,7 @@ public class Jobs extends JavaPlugin{
      * @param job - the job we are displaying info about
      * @param jobBreakInfo - the information to display
      */
-	private void displayJobInfoBreak(CommandSender sender, Job job, HashMap<String, JobsBlockInfo> jobBreakInfo) {
+	private void displayJobInfoBreak(CommandSender sender, Job job, HashMap<String, JobsMaterialInfo> jobBreakInfo) {
 	    
 	    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("break-header"));
         
@@ -842,7 +848,7 @@ public class Jobs extends JavaPlugin{
         }
         expEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
         incomeEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
-        for(Entry<String, JobsBlockInfo> temp: jobBreakInfo.entrySet()){
+        for(Entry<String, JobsMaterialInfo> temp: jobBreakInfo.entrySet()){
             expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
             String message;
@@ -871,7 +877,7 @@ public class Jobs extends JavaPlugin{
      * @param job - the job we are displaying info about
      * @param jobPlaceInfo - the information to display
      */	
-	private void displayJobInfoPlace(CommandSender sender, Job job, HashMap<String, JobsBlockInfo> jobPlaceInfo) {
+	private void displayJobInfoPlace(CommandSender sender, Job job, HashMap<String, JobsMaterialInfo> jobPlaceInfo) {
 	    
 	    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("place-header"));
 
@@ -889,7 +895,7 @@ public class Jobs extends JavaPlugin{
         }
         expEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
         incomeEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
-        for(Entry<String, JobsBlockInfo> temp: jobPlaceInfo.entrySet()){
+        for(Entry<String, JobsMaterialInfo> temp: jobPlaceInfo.entrySet()){
             expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
             String message;

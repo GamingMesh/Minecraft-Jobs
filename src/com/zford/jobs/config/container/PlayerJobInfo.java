@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 
 import com.zford.jobs.Jobs;
@@ -47,6 +48,8 @@ public class PlayerJobInfo {
 	private HashMap<Job, JobProgression> progression;
 	// display honorific
 	private String honorific = null;
+	// determines if a player is fishing or not
+	private boolean isFishing;
 		
 	/**
 	 * Constructor.
@@ -59,6 +62,7 @@ public class PlayerJobInfo {
 		this.player = player;
 		this.jobs = new ArrayList<Job>();
 		this.progression = new HashMap<Job, JobProgression>();
+		this.isFishing = false;
 		// for all jobs players have
 		List<JobsDAOData> list = dao.getAllJobs(player);
 		if(list != null){
@@ -159,7 +163,25 @@ public class PlayerJobInfo {
 			param.remove("joblevel");
 		}
 		JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
-	}	
+	}
+	
+	public void fished(Item item) {
+	    HashMap<String, Double> param = new HashMap<String, Double>();
+	    param.put("numjobs", (double)progression.size());
+	    for(Entry<Job, JobProgression> temp: progression.entrySet()){
+            // add the current level to the parameter list
+            param.put("joblevel", (double)temp.getValue().getLevel());
+            // get the income and give it
+            Double income = temp.getKey().getFishIncome(item, param);
+            if(income != null){
+                // give income
+                JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+                temp.getValue().addExp(temp.getKey().getFishExp(item, param));
+                checkLevels();
+            }
+            param.remove("joblevel");
+        }
+	}
 	
 	/**
 	 * Get the list of jobs
@@ -355,5 +377,22 @@ public class PlayerJobInfo {
 			temp.setMaxExperience(temp.getJob().getMaxExp(param));
 			param.remove("joblevel");
 		}
+	}
+	/**
+	 * Function to set if player is fishing
+	 * @param isFishing - status if player is fishing
+	 * @return true/false - returns true if user is fishing, otherwise false
+	 */
+	public boolean isFishing(boolean isFishing) {
+	    this.isFishing = isFishing;
+	    return this.isFishing;
+	}
+	
+    /**
+     * Function to determine if player is fishing
+     * @return true/false - returns true if user is fishing, otherwise false
+     */
+	public boolean isFishing() {
+	    return this.isFishing;
 	}
 }

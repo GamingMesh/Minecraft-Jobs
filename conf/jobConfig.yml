@@ -288,7 +288,7 @@ Jobs:
                 experience: 10.0
     Farmer:
         fullname: Farmer
-        shortname: F
+        shortname: Fa
         ChatColour: BLUE
         chat-display: full
         #max-level: 10
@@ -377,4 +377,27 @@ Jobs:
                 experience: 10.0
             Hunter:
                 income: 20.0
-                experience: 20.0      
+                experience: 20.0
+                
+    Fisherman:
+        fullname: Fisherman
+        shortname: Fi
+        ChatColour: AQUA
+        chat-display: full
+        #max-level: 10
+        #slots: 10
+        leveling-progression-equation: 100*((1.13+(0.01*(numjobs-1)))^(joblevel-1))
+        income-progression-equation: baseincome*((1.05)^(joblevel-1))
+        experience-progression-equation: baseexperience*((1.05)^(joblevel-1))
+        Fish:
+            RAW_FISH:
+                income: 4.0
+                experience: 4.0
+        Kill:
+            Player:
+                income: 7.5
+                experience: 7.5
+        custom-kill:
+            Fisherman:
+                income: 10.0
+                experience: 10.0

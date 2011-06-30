@@ -30,7 +30,7 @@ import org.mbertoli.jfep.Parser;
  * @author Alex
  *
  */
-public class JobsBlockInfo{
+public class JobsMaterialInfo{
 	private MaterialData blockMaterial;
 	private double xpGiven;
 	private double moneyGiven;
@@ -41,7 +41,7 @@ public class JobsBlockInfo{
 	 * @param xpGiven - base xp given for the block
 	 * @param moneyGiven - base money given for the block
 	 */
-	public JobsBlockInfo(MaterialData blockMaterial, double xpGiven, double moneyGiven){
+	public JobsMaterialInfo(MaterialData blockMaterial, double xpGiven, double moneyGiven){
 		this.blockMaterial = blockMaterial;
 		this.xpGiven = xpGiven;
 		this.moneyGiven = moneyGiven;
@@ -79,7 +79,7 @@ public class JobsBlockInfo{
 	 * @return the money given
 	 * @return null if it isn't the block
 	 */
-	public Double getMoneyFromBlock(Parser equation, HashMap<String, Double> parameters) {
+	public Double getMoneyFromMaterial(Parser equation, HashMap<String, Double> parameters) {
 		for(Entry<String, Double> temp: parameters.entrySet()){
 			equation.setVariable(temp.getKey(), temp.getValue());
 		}
@@ -95,7 +95,7 @@ public class JobsBlockInfo{
 	 * @return the experience given
 	 * @return null if it isn't the block
 	 */
-	public Double getXPFromBlock(Parser equation, HashMap<String, Double> parameters) {
+	public Double getXPFromMaterial(Parser equation, HashMap<String, Double> parameters) {
 		for(Entry<String, Double> temp: parameters.entrySet()){
 			equation.setVariable(temp.getKey(), temp.getValue());
 		}

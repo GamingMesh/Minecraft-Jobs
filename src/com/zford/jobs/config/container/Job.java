@@ -26,6 +26,7 @@ import java.util.Map.Entry;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Item;
 import org.mbertoli.jfep.Parser;
 
 import com.zford.jobs.util.DisplayMethod;
@@ -40,11 +41,13 @@ import com.zford.jobs.util.DisplayMethod;
 public class Job {
 	
 	// payment for breaking a block
-	private HashMap<String, JobsBlockInfo> jobBreakInfo;
+	private HashMap<String, JobsMaterialInfo> jobBreakInfo;
 	// payment for placing a block
-	private HashMap<String, JobsBlockInfo> jobPlaceInfo;
+	private HashMap<String, JobsMaterialInfo> jobPlaceInfo;
 	// payment for killing a living entity
 	private HashMap<String, JobsLivingEntityInfo> jobKillInfo;
+    // payment for killing a living entity
+    private HashMap<String, JobsMaterialInfo> jobFishInfo;
 	// job name
 	private String jobName;
 	// job short name (for use in multiple jobs)
@@ -83,9 +86,10 @@ public class Job {
 	 * @param maxLevel - the maximum level allowed (null for no max level)
 	 * @param maxSlots - the maximum number of people allowed to have this job at one time (null for no limits)
 	 */
-	public Job(HashMap<String, JobsBlockInfo> jobBreakInfo, 
-			HashMap<String, JobsBlockInfo> jobPlaceInfo, 
+	public Job(HashMap<String, JobsMaterialInfo> jobBreakInfo, 
+			HashMap<String, JobsMaterialInfo> jobPlaceInfo, 
 			HashMap<String, JobsLivingEntityInfo> jobKillInfo,
+		    HashMap<String, JobsMaterialInfo> jobFishInfo,
 			String jobName,
 			String jobShortName,
 			ChatColor jobColour,
@@ -98,6 +102,7 @@ public class Job {
 		this.jobBreakInfo = jobBreakInfo;
 		this.jobPlaceInfo = jobPlaceInfo;
 		this.jobKillInfo = jobKillInfo;
+		this.jobFishInfo = jobFishInfo;
 		this.jobName = jobName;
 		this.jobShortName = jobShortName;
 		this.jobColour = jobColour;
@@ -182,6 +187,54 @@ public class Job {
 	public Double getBreakExp(Block block, HashMap<String, Double> param){
         return this.getBlockActionExp(block, param, this.jobBreakInfo);
 	}
+	
+    /**
+     * Function to get the income for fishing an item
+     * @param item - the item
+     * @param param - parameters for the customisable equation
+     * @return the income received for fishing the item
+     * @return null if job has no payment for this type of action
+     */
+	public Double getFishIncome(Item item, HashMap<String, Double> param) {
+	    String materialKey = item.getItemStack().getType().toString();
+        if(this.jobFishInfo != null){
+            // try simple
+            if(this.jobFishInfo.containsKey(materialKey)){
+                return this.jobFishInfo.get(materialKey).getMoneyFromMaterial(incomeEquation, param);
+            }
+            else{
+                // try with sub-class
+                if(this.jobFishInfo.containsKey(materialKey+":"+item.getItemStack().getData())){
+                    return this.jobFishInfo.get(materialKey+":"+item.getItemStack().getData()).getMoneyFromMaterial(incomeEquation, param);
+                }
+            }
+        }
+        return null;
+	}
+    
+    /**
+     * Function to get the income for fishing an item
+     * @param item - the item
+     * @param param - parameters for the customisable equation
+     * @return the income received for fishing the item
+     * @return null if job has no payment for this type of action
+     */
+    public Double getFishExp(Item item, HashMap<String, Double> param) {
+        String materialKey = item.getItemStack().getType().toString();
+        if(this.jobFishInfo != null){
+            // try simple
+            if(this.jobFishInfo.containsKey(materialKey)){
+                return this.jobFishInfo.get(materialKey).getXPFromMaterial(incomeEquation, param);
+            }
+            else{
+                // try with sub-class
+                if(this.jobFishInfo.containsKey(materialKey+":"+item.getItemStack().getData())){
+                    return this.jobFishInfo.get(materialKey+":"+item.getItemStack().getData()).getXPFromMaterial(incomeEquation, param);
+                }
+            }
+        }
+        return null;
+    }
     
     /**
      * Function to get the income for performing the action
@@ -191,7 +244,7 @@ public class Job {
      * @return the income received for performing the action
      * @return null if job has no payment for this type of action
      */
-    private Double getBlockActionIncome(Block block, HashMap<String, Double> param, HashMap<String, JobsBlockInfo> info) {
+    private Double getBlockActionIncome(Block block, HashMap<String, Double> param, HashMap<String, JobsMaterialInfo> info) {
         String blockKey = block.getType().toString();
         
         // Normalize GLOWING_REDSTONE_ORE to REDSTONE_ORE
@@ -201,12 +254,12 @@ public class Job {
         if(info != null){
             // try simple
             if(info.containsKey(blockKey)){
-                return info.get(blockKey).getMoneyFromBlock(incomeEquation, param);
+                return info.get(blockKey).getMoneyFromMaterial(incomeEquation, param);
             }
             else{
                 // try with sub-class
                 if(info.containsKey(blockKey+":"+block.getData())){
-                    return info.get(blockKey+":"+block.getData()).getMoneyFromBlock(incomeEquation, param);
+                    return info.get(blockKey+":"+block.getData()).getMoneyFromMaterial(incomeEquation, param);
                 }
             }
         }
@@ -221,7 +274,7 @@ public class Job {
      * @return the exp received for performing the action
      * @return null if job has no payment for this type of action
      */
-    private Double getBlockActionExp(Block block, HashMap<String, Double> param, HashMap<String, JobsBlockInfo> info) {
+    private Double getBlockActionExp(Block block, HashMap<String, Double> param, HashMap<String, JobsMaterialInfo> info) {
         String blockKey = block.getType().toString();
         
         // Normalize GLOWING_REDSTONE_ORE to REDSTONE_ORE
@@ -231,12 +284,12 @@ public class Job {
         if(info != null){
             // try simple
             if(info.containsKey(blockKey)){
-                return info.get(blockKey).getXPFromBlock(expEquation, param);
+                return info.get(blockKey).getXPFromMaterial(expEquation, param);
             }
             else{
                 // try with sub-class
                 if(info.containsKey(blockKey+":"+block.getData())){
-                    return info.get(blockKey+":"+block.getData()).getXPFromBlock(expEquation, param);
+                    return info.get(blockKey+":"+block.getData()).getXPFromMaterial(expEquation, param);
                 }
             }
         }
@@ -333,7 +386,7 @@ public class Job {
 	 * Get the payout information about breaking blocks
 	 * @return the map of breaking blocks and its payment
 	 */
-	public HashMap<String, JobsBlockInfo> getBreakInfo(){
+	public HashMap<String, JobsMaterialInfo> getBreakInfo(){
 		return jobBreakInfo;
 	}
 	
@@ -341,7 +394,7 @@ public class Job {
 	 * Get the payout information about placing blocks
 	 * @return the map of placing blocks and its payment
 	 */
-	public HashMap<String, JobsBlockInfo> getPlaceInfo(){
+	public HashMap<String, JobsMaterialInfo> getPlaceInfo(){
 		return jobPlaceInfo;
 	}
 	
