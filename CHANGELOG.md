@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.3.1
+* Added missing console commands for fishing
+
 ## 2.3.0
 * Added fishing job
 

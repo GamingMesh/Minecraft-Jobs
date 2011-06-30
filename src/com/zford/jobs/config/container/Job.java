@@ -405,4 +405,12 @@ public class Job {
 	public HashMap<String, JobsLivingEntityInfo> getKillInfo(){
 		return jobKillInfo;
 	}
+	
+	/**
+	 * Get the payout information for fishing
+	 * @return the map of fishing and its payment
+	 */
+	public HashMap<String, JobsMaterialInfo> getFishInfo(){
+	    return jobFishInfo;
+	}
 }

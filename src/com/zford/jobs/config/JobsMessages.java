@@ -53,6 +53,10 @@ public class JobsMessages {
         ERROR_NO_PERMISSION,
         FIRE_TARGET,
         FIRE_TARGET_NO_JOB,
+        FISH_HEADER,
+        FISH_INFO_NO_SUB,
+        FISH_INFO_SUB,
+        FISH_NONE,
         GRANTXP_TARGET,
         JOBS_ADMIN_DEMOTE,
         JOBS_ADMIN_EMPLOY,
@@ -216,6 +220,16 @@ public class JobsMessages {
             return "You have been fired from %jobcolour%%jobname%";
         case FIRE_TARGET_NO_JOB:
             return "Player does not have the job %jobcolour%%jobname%";
+        case FISH_HEADER:
+            return "Fish:";
+        case FISH_INFO_NO_SUB:
+            return "    %item% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
+            ChatColor.YELLOW + " exp";
+        case FISH_INFO_SUB:
+            return "    %item%:%subitem% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
+                ChatColor.YELLOW + " exp";
+        case FISH_NONE:
+            return "%jobcolour%%jobname%" +ChatColor.WHITE+ " does not get money for fish.";
         case GRANTXP_TARGET:
             return "You have been granted %expgained% experience in %jobcolour%%jobname%";
         case JOBS_ADMIN_DEMOTE:
@@ -235,7 +249,7 @@ public class JobsMessages {
         case JOBS_BROWSE:
             return "/jobs browse - list the jobs available to you";
         case JOBS_INFO:
-            return "/jobs info <jobname> <break, place, kill> - show how much each job is getting paid and for what";
+            return "/jobs info <jobname> <break, place, kill, fish> - show how much each job is getting paid and for what";
         case JOBS_JOIN:
             return "/jobs join <jobname> - join the selected job";
         case JOBS_LEAVE:

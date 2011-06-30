@@ -776,7 +776,7 @@ public class Jobs extends JavaPlugin{
         }
         
         int showAllTypes = 1;
-        if(type.equalsIgnoreCase("break") || type.equalsIgnoreCase("place") || type.equalsIgnoreCase("kill")) {
+        if(type.equalsIgnoreCase("break") || type.equalsIgnoreCase("place") || type.equalsIgnoreCase("kill") || type.equalsIgnoreCase("fish")) {
             showAllTypes = 0;
         }
         
@@ -817,6 +817,21 @@ public class Jobs extends JavaPlugin{
             }
             else if(showAllTypes == 0) {
                 String message = JobsMessages.getInstance().getMessage("kill-none");
+                message = message.replace("%jobcolour%", job.getChatColour().toString());
+                message = message.replace("%jobname%", job.getName());
+                Jobs.sendMessageByLine(sender, message);
+            }
+        }
+        
+        if(type.equalsIgnoreCase("fish") || showAllTypes == 1){
+            // fish
+            HashMap<String, JobsMaterialInfo> jobFishInfo = job.getFishInfo();
+            
+            if(jobFishInfo != null){
+                this.displayJobInfoFish(sender, job, jobFishInfo);
+            }
+            else if(showAllTypes == 0) {
+                String message = JobsMessages.getInstance().getMessage("fish-none");
                 message = message.replace("%jobcolour%", job.getChatColour().toString());
                 message = message.replace("%jobname%", job.getName());
                 Jobs.sendMessageByLine(sender, message);
@@ -957,6 +972,53 @@ public class Jobs extends JavaPlugin{
             }
             else{
                 message = message.replace("%item%", temp.getKey().replace("org.bukkit.craftbukkit.entity.Craft", ""));
+            }
+            message = message.replace("%income%", format.format(incomeEquation.getValue()));
+            message = message.replace("%experience%", format.format(expEquation.getValue()));
+            Jobs.sendMessageByLine(sender, message);
+        }
+    }
+    
+    /**
+     * Displays info about fishing
+     * @param sender - who receives info
+     * @param job - the job we are displaying info about
+     * @param jobFishInfo - the information to display
+     */ 
+    private void displayJobInfoFish(CommandSender sender, Job job, HashMap<String, JobsMaterialInfo> jobFishInfo) {
+        
+        Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("fish-header"));
+
+        DecimalFormat format = new DecimalFormat("#.##");
+        JobProgression prog = players.get((Player)sender).getJobsProgression(job);
+        Parser expEquation = job.getExpEquation();
+        Parser incomeEquation = job.getIncomeEquation();
+        if(prog != null){
+            expEquation.setVariable("joblevel", prog.getLevel());
+            incomeEquation.setVariable("joblevel", prog.getLevel());
+        }
+        else {
+            expEquation.setVariable("joblevel", 1);
+            incomeEquation.setVariable("joblevel", 1);
+        }
+        expEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
+        incomeEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
+        for(Entry<String, JobsMaterialInfo> temp: jobFishInfo.entrySet()){
+            expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
+            incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
+            String message;
+            if(temp.getKey().contains(":")){
+                message = JobsMessages.getInstance().getMessage("fish-info-sub");
+            }
+            else {
+                message = JobsMessages.getInstance().getMessage("fish-info-no-sub");
+            }
+            if(temp.getKey().contains(":")){
+                message = message.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
+                message = message.replace("%subitem%", temp.getKey().split(":")[1]);
+            }
+            else{
+                message = message.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
             }
             message = message.replace("%income%", format.format(incomeEquation.getValue()));
             message = message.replace("%experience%", format.format(expEquation.getValue()));

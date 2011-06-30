@@ -454,6 +454,8 @@ public class JobsConfiguration {
                     
                     jobFishInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
                 }
+            } else {
+                jobFishInfo = null;
             }
             
             // custom-kill
