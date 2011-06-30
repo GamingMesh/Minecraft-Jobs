@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.3.0
+* Added fishing job
+
 ## 2.2.1
 * Fixed issue where Redstone Ore wasn't giving money or experience (Normalized GLOWING_REDSTONE_ORE to REDSTONE_ORE)
 
