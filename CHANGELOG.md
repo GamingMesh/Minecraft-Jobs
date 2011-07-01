@@ -1,5 +1,9 @@
 # Jobs plugin change log summary
 
+## 2.3.2
+* Changed WHEAT to CROPS-7 for Farmers
+* Bundled h2.jar
+
 ## 2.3.1
 * Added missing console commands for fishing
 
