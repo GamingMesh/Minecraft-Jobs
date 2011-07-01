@@ -297,7 +297,7 @@ Jobs:
         income-progression-equation: baseincome*((1.05)^(joblevel-1))
         experience-progression-equation: baseexperience*((1.05)^(joblevel-1))
         Break:
-            WHEAT:
+            CROPS-7:
                 income: 4.0
                 experience: 4.0
             SUGAR_CANE_BLOCK:
