@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.1.3
+* Changed WHEAT to CROPS-7 for Farmers
+
 ## 2.1.2
 * Fixed issue where Redstone Ore wasn't giving money or experience (Normalized GLOWING_REDSTONE_ORE to REDSTONE_ORE)
 
