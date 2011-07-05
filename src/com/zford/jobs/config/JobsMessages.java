@@ -62,6 +62,7 @@ public class JobsMessages {
         JOBS_ADMIN_EMPLOY,
         JOBS_ADMIN_FIRE,
         JOBS_ADMIN_GRANTXP,
+        JOBS_ADMIN_INFO,
         JOBS_ADMIN_PROMOTE,
         JOBS_ADMIN_REMOVEXP,
         JOBS_ADMIN_TRANSFER,
@@ -240,6 +241,8 @@ public class JobsMessages {
             return "/jobs fire <playername> <job> - fire the player from the job";
         case JOBS_ADMIN_GRANTXP:
             return "/jobs grantxp <playername> <job> <experience> - grant the player X experience in a job";
+        case JOBS_ADMIN_INFO:
+            return ChatColor.YELLOW+"/jobs admininfo <playername>"+ChatColor.WHITE+" - shows the level of each job and experience gains for the player.";
         case JOBS_ADMIN_PROMOTE:
             return "/jobs promote <playername> <job> <levels> - promote the player X levels in a job";
         case JOBS_ADMIN_REMOVEXP:

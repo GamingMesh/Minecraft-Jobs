@@ -257,23 +257,26 @@ public class Jobs extends JavaPlugin{
 				return true;
 			}
 			// stats
-			else if(args.length == 1 && args[0].equalsIgnoreCase("stats")){
-				if(getJob((Player)sender).getJobsProgression().size() == 0){
+			else if(args.length >= 1 && args[0].equalsIgnoreCase("stats")){
+			    Player statsPlayer = (Player)sender;
+			    if(args.length == 2) {
+			        if(JobsConfiguration.getInstance().getPermissions()!= null &&
+			                JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.stats")) {
+			            statsPlayer = getServer().getPlayer(args[1]);
+			        }
+			        else {
+			            sender.sendMessage(ChatColor.RED + "There was an error in your command");
+			            return true;
+			        }
+			    }
+			        
+				if(getJob(statsPlayer).getJobsProgression().size() == 0){
                     Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("stats-no-job"));
 					return true;
 				}
 				else{
-					for(JobProgression tempJobProg: getJob((Player)sender).getJobsProgression()){
-						DecimalFormat format = new DecimalFormat("#.##");
-						{
-							String message = JobsMessages.getInstance().getMessage("stats-job");
-							message = message.replace("%joblevel%", Integer.valueOf(tempJobProg.getLevel()).toString());
-							message = message.replace("%jobcolour%", tempJobProg.getJob().getChatColour().toString());
-							message = message.replace("%jobname%", tempJobProg.getJob().getName());
-							message = message.replace("%jobexp%", format.format(tempJobProg.getExperience()));
-							message = message.replace("%jobmaxexp%", format.format(tempJobProg.getMaxExperience()));
-                            Jobs.sendMessageByLine(sender, message);
-						}
+					for(JobProgression jobProg: getJob(statsPlayer).getJobsProgression()){
+					    sendMessageByLine(sender, jobStatsMessage(jobProg));
 					}
 					return true;
 				}
@@ -285,7 +288,7 @@ public class Jobs extends JavaPlugin{
 		        if(args.length >= 3) {
 		            type = args[2];
 		        }
-		        this.displayJobInfo(sender, job, type);
+		        sendMessageByLine(sender, jobInfoMessage((Player)sender, job, type));
 		        return true;
 			}
 		}
@@ -323,8 +326,32 @@ public class Jobs extends JavaPlugin{
 				}
 				return true;
 			}
-			
-			// admin commands
+            
+            // admin commands
+			else if(args.length >= 2 && args[0].equalsIgnoreCase("admininfo")){
+                if(sender instanceof ConsoleCommandSender || 
+                        (JobsConfiguration.getInstance().getPermissions()!= null &&
+                        JobsConfiguration.getInstance().getPermissions().isEnabled() &&
+                        JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.info"))
+                        ||
+                        (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+                    Player target = getServer().getPlayer(args[1]);
+                    if(target == null){
+                        target = new JobsPlayer(args[1]);
+                    }
+                    
+                    String message = "";
+                    message += "----------------\n";
+                    for(JobProgression jobProg: getJob(target).getJobsProgression()){
+                        Job job = jobProg.getJob();
+                        message += jobStatsMessage(jobProg);
+                        message += jobInfoMessage(target, job, "");
+                        message += "----------------\n";
+                    }
+                    sendMessageByLine(sender, message);
+                }
+                return true;
+            }
 			if(args.length == 3){
 				if(args[0].equalsIgnoreCase("fire")){
 					if(sender instanceof ConsoleCommandSender || 
@@ -672,8 +699,8 @@ public class Jobs extends JavaPlugin{
 							}
 						}
 					}
+	                return true;
 				}
-				return true;
 			}
 			if(args.length > 0){
 				sender.sendMessage(ChatColor.RED + "There was an error in your command");
@@ -695,6 +722,15 @@ public class Jobs extends JavaPlugin{
             	//jobs-info
                 Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-info"));
 			}
+			//jobs-admin-info
+            if(sender instanceof ConsoleCommandSender || 
+                    (JobsConfiguration.getInstance().getPermissions()!= null &&
+                    JobsConfiguration.getInstance().getPermissions().isEnabled() &&
+                    JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.info"))
+                    ||
+                    (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-admin-info"));
+            }
 			//jobs-admin-fire
 			if(sender instanceof ConsoleCommandSender || 
 					(JobsConfiguration.getInstance().getPermissions()!= null &&
@@ -764,16 +800,18 @@ public class Jobs extends JavaPlugin{
 	
 	/**
 	 * Displays info about a job
-	 * @param sender - who receives info
+	 * @param player - the player of the job
 	 * @param job - the job we are displaying info about
 	 * @param type - type of info
+	 * @return the message
 	 */
-	private void displayJobInfo(CommandSender sender, Job job, String type) {
+	private String jobInfoMessage(Player player, Job job, String type) {
         if(job == null){
             // job doesn't exist
-            Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("error-no-job"));
-            return;
+            return JobsMessages.getInstance().getMessage("error-no-job");
         }
+        
+        String message = "";
         
         int showAllTypes = 1;
         if(type.equalsIgnoreCase("break") || type.equalsIgnoreCase("place") || type.equalsIgnoreCase("kill") || type.equalsIgnoreCase("fish")) {
@@ -783,15 +821,14 @@ public class Jobs extends JavaPlugin{
         if(type.equalsIgnoreCase("break") || showAllTypes == 1){
             // break
             HashMap<String, JobsMaterialInfo> jobBreakInfo = job.getBreakInfo();
-            
             if(jobBreakInfo != null){
-                this.displayJobInfoBreak(sender, job, jobBreakInfo);
+                message += jobInfoBreakMessage(player, job, jobBreakInfo);
             }
             else if(showAllTypes == 0) {
-                String message = JobsMessages.getInstance().getMessage("break-none");
-                message = message.replace("%jobcolour%", job.getChatColour().toString());
-                message = message.replace("%jobname%", job.getName());
-                Jobs.sendMessageByLine(sender, message);
+                String myMessage = JobsMessages.getInstance().getMessage("break-none");
+                myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
+                myMessage = myMessage.replace("%jobname%", job.getName());
+                message += myMessage;
             }
         }
         if(type.equalsIgnoreCase("place") || showAllTypes == 1){
@@ -799,13 +836,13 @@ public class Jobs extends JavaPlugin{
             HashMap<String, JobsMaterialInfo> jobPlaceInfo = job.getPlaceInfo();
             
             if(jobPlaceInfo != null){
-                this.displayJobInfoPlace(sender, job, jobPlaceInfo);
+                message += jobInfoPlaceMessage(player, job, jobPlaceInfo);
             }
             else if(showAllTypes == 0) {
-                String message = JobsMessages.getInstance().getMessage("place-none");
-                message = message.replace("%jobcolour%", job.getChatColour().toString());
-                message = message.replace("%jobname%", job.getName());
-                Jobs.sendMessageByLine(sender, message);
+                String myMessage = JobsMessages.getInstance().getMessage("place-none");
+                myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
+                myMessage = myMessage.replace("%jobname%", job.getName());
+                message += myMessage;
             }
         }
         if(type.equalsIgnoreCase("kill") || showAllTypes == 1){
@@ -813,13 +850,13 @@ public class Jobs extends JavaPlugin{
             HashMap<String, JobsLivingEntityInfo> jobKillInfo = job.getKillInfo();
             
             if(jobKillInfo != null){
-                this.displayJobInfoKill(sender, job, jobKillInfo);
+                message += jobInfoKillMessage(player, job, jobKillInfo);
             }
             else if(showAllTypes == 0) {
-                String message = JobsMessages.getInstance().getMessage("kill-none");
-                message = message.replace("%jobcolour%", job.getChatColour().toString());
-                message = message.replace("%jobname%", job.getName());
-                Jobs.sendMessageByLine(sender, message);
+                String myMessage = JobsMessages.getInstance().getMessage("kill-none");
+                myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
+                myMessage = myMessage.replace("%jobname%", job.getName());
+                message += myMessage;
             }
         }
         
@@ -828,29 +865,32 @@ public class Jobs extends JavaPlugin{
             HashMap<String, JobsMaterialInfo> jobFishInfo = job.getFishInfo();
             
             if(jobFishInfo != null){
-                this.displayJobInfoFish(sender, job, jobFishInfo);
+                message += jobInfoFishMessage(player, job, jobFishInfo);
             }
             else if(showAllTypes == 0) {
-                String message = JobsMessages.getInstance().getMessage("fish-none");
-                message = message.replace("%jobcolour%", job.getChatColour().toString());
-                message = message.replace("%jobname%", job.getName());
-                Jobs.sendMessageByLine(sender, message);
+                String myMessage = JobsMessages.getInstance().getMessage("fish-none");
+                myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
+                myMessage = myMessage.replace("%jobname%", job.getName());
+                message += myMessage;
             }
         }
+        return message;
 	}
 	
 	/**
      * Displays info about breaking blocks
-     * @param sender - who receives info
-     * @param job - the job we are displaying info about
-     * @param jobBreakInfo - the information to display
+     * @param player - the player of the job
+	 * @param job - the job we are displaying info about
+	 * @param jobBreakInfo - the information to display
+	 * @return the message
      */
-	private void displayJobInfoBreak(CommandSender sender, Job job, HashMap<String, JobsMaterialInfo> jobBreakInfo) {
+	private String jobInfoBreakMessage(Player player, Job job, HashMap<String, JobsMaterialInfo> jobBreakInfo) {
 	    
-	    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("break-header"));
+	    String message = "";
+	    message += JobsMessages.getInstance().getMessage("break-header");
         
         DecimalFormat format = new DecimalFormat("#.##");
-        JobProgression prog = players.get((Player)sender).getJobsProgression(job);
+        JobProgression prog = getJob(player).getJobsProgression(job);
         Parser expEquation = job.getExpEquation();
         Parser incomeEquation = job.getIncomeEquation();
         if(prog != null){
@@ -861,43 +901,46 @@ public class Jobs extends JavaPlugin{
             expEquation.setVariable("joblevel", 1);
             incomeEquation.setVariable("joblevel", 1);
         }
-        expEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
-        incomeEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
+        expEquation.setVariable("numjobs", getJob(player).getJobs().size());
+        incomeEquation.setVariable("numjobs", getJob(player).getJobs().size());
         for(Entry<String, JobsMaterialInfo> temp: jobBreakInfo.entrySet()){
             expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
-            String message;
+            String myMessage;
             if(temp.getKey().contains(":")){
-                message = JobsMessages.getInstance().getMessage("break-info-sub");
+                myMessage = JobsMessages.getInstance().getMessage("break-info-sub");
             }
             else {
-                message = JobsMessages.getInstance().getMessage("break-info-no-sub");
+                myMessage = JobsMessages.getInstance().getMessage("break-info-no-sub");
             }
             if(temp.getKey().contains(":")){
-                message = message.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
-                message = message.replace("%subitem%", temp.getKey().split(":")[1]);
+                myMessage = myMessage.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
+                myMessage = myMessage.replace("%subitem%", temp.getKey().split(":")[1]);
             }
             else{
-                message = message.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
+                myMessage = myMessage.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
             }
-            message = message.replace("%income%", format.format(incomeEquation.getValue()));
-            message = message.replace("%experience%", format.format(expEquation.getValue()));
-            Jobs.sendMessageByLine(sender, message);
+            myMessage = myMessage.replace("%income%", format.format(incomeEquation.getValue()));
+            myMessage = myMessage.replace("%experience%", format.format(expEquation.getValue()));
+            message += myMessage;
         }
+        return message;
 	}
 	
     /**
      * Displays info about placing blocks
-     * @param sender - who receives info
+     * @param player - the player of the job
      * @param job - the job we are displaying info about
      * @param jobPlaceInfo - the information to display
+     * @return the message
      */	
-	private void displayJobInfoPlace(CommandSender sender, Job job, HashMap<String, JobsMaterialInfo> jobPlaceInfo) {
+	private String jobInfoPlaceMessage(Player player, Job job, HashMap<String, JobsMaterialInfo> jobPlaceInfo) {
 	    
-	    Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("place-header"));
+	    String message = "";
+	    message += JobsMessages.getInstance().getMessage("place-header");
 
 	    DecimalFormat format = new DecimalFormat("#.##");
-        JobProgression prog = players.get((Player)sender).getJobsProgression(job);
+        JobProgression prog = getJob(player).getJobsProgression(job);
         Parser expEquation = job.getExpEquation();
         Parser incomeEquation = job.getIncomeEquation();
         if(prog != null){
@@ -908,42 +951,46 @@ public class Jobs extends JavaPlugin{
             expEquation.setVariable("joblevel", 1);
             incomeEquation.setVariable("joblevel", 1);
         }
-        expEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
-        incomeEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
+        expEquation.setVariable("numjobs", getJob(player).getJobs().size());
+        incomeEquation.setVariable("numjobs", getJob(player).getJobs().size());
         for(Entry<String, JobsMaterialInfo> temp: jobPlaceInfo.entrySet()){
             expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
-            String message;
+            String myMessage;
             if(temp.getKey().contains(":")){
-                message = JobsMessages.getInstance().getMessage("place-info-sub");
+                myMessage = JobsMessages.getInstance().getMessage("place-info-sub");
             }
             else {
-                message = JobsMessages.getInstance().getMessage("place-info-no-sub");
+                myMessage = JobsMessages.getInstance().getMessage("place-info-no-sub");
             }
             if(temp.getKey().contains(":")){
-                message = message.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
-                message = message.replace("%subitem%", temp.getKey().split(":")[1]);
+                myMessage = myMessage.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
+                myMessage = myMessage.replace("%subitem%", temp.getKey().split(":")[1]);
             }
             else{
-                message = message.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
+                myMessage = myMessage.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
             }
-            message = message.replace("%income%", format.format(incomeEquation.getValue()));
-            message = message.replace("%experience%", format.format(expEquation.getValue()));
-            Jobs.sendMessageByLine(sender, message);
+            myMessage = myMessage.replace("%income%", format.format(incomeEquation.getValue()));
+            myMessage = myMessage.replace("%experience%", format.format(expEquation.getValue()));
+            message += myMessage;
         }
+        return message;
 	}
 	
     /**
      * Displays info about killing entities
-     * @param sender - who receives info
+     * @param player - the player of the job
      * @param job - the job we are displaying info about
      * @param jobKillInfo - the information to display
+     * @return the message
      */
-    private void displayJobInfoKill(CommandSender sender, Job job, HashMap<String, JobsLivingEntityInfo> jobKillInfo) {
-        Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("kill-header"));
+    private String jobInfoKillMessage(Player player, Job job, HashMap<String, JobsLivingEntityInfo> jobKillInfo) {
+        
+        String message = "";
+        message += JobsMessages.getInstance().getMessage("kill-header");
 
         DecimalFormat format = new DecimalFormat("#.##");
-        JobProgression prog = players.get((Player)sender).getJobsProgression(job);
+        JobProgression prog = getJob(player).getJobsProgression(job);
         Parser expEquation = job.getExpEquation();
         Parser incomeEquation = job.getIncomeEquation();
         if(prog != null){
@@ -954,43 +1001,46 @@ public class Jobs extends JavaPlugin{
             expEquation.setVariable("joblevel", 1);
             incomeEquation.setVariable("joblevel", 1);
         }
-        expEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
-        incomeEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
+        expEquation.setVariable("numjobs", getJob(player).getJobs().size());
+        incomeEquation.setVariable("numjobs", getJob(player).getJobs().size());
         for(Entry<String, JobsLivingEntityInfo> temp: jobKillInfo.entrySet()){
             expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
-            String message;
+            String myMessage;
             if(temp.getKey().contains(":")){
-                message = JobsMessages.getInstance().getMessage("kill-info-sub");
+                myMessage = JobsMessages.getInstance().getMessage("kill-info-sub");
             }
             else {
-                message = JobsMessages.getInstance().getMessage("kill-info-no-sub");
+                myMessage = JobsMessages.getInstance().getMessage("kill-info-no-sub");
             }
             if(temp.getKey().contains(":")){
-                message = message.replace("%item%", temp.getKey().split(":")[0].replace("org.bukkit.craftbukkit.entity.Craft", ""));
-                message = message.replace("%subitem%", temp.getKey().split(":")[1]);
+                myMessage = myMessage.replace("%item%", temp.getKey().split(":")[0].replace("org.bukkit.craftbukkit.entity.Craft", ""));
+                myMessage = myMessage.replace("%subitem%", temp.getKey().split(":")[1]);
             }
             else{
-                message = message.replace("%item%", temp.getKey().replace("org.bukkit.craftbukkit.entity.Craft", ""));
+                myMessage = myMessage.replace("%item%", temp.getKey().replace("org.bukkit.craftbukkit.entity.Craft", ""));
             }
-            message = message.replace("%income%", format.format(incomeEquation.getValue()));
-            message = message.replace("%experience%", format.format(expEquation.getValue()));
-            Jobs.sendMessageByLine(sender, message);
+            myMessage = myMessage.replace("%income%", format.format(incomeEquation.getValue()));
+            myMessage = myMessage.replace("%experience%", format.format(expEquation.getValue()));
+            message += myMessage;
         }
+        return message;
     }
     
     /**
      * Displays info about fishing
-     * @param sender - who receives info
+     * @param player - the player of the job
      * @param job - the job we are displaying info about
      * @param jobFishInfo - the information to display
+     * @return the message
      */ 
-    private void displayJobInfoFish(CommandSender sender, Job job, HashMap<String, JobsMaterialInfo> jobFishInfo) {
+    private String jobInfoFishMessage(Player player, Job job, HashMap<String, JobsMaterialInfo> jobFishInfo) {
         
-        Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("fish-header"));
+        String message = "";
+        message += JobsMessages.getInstance().getMessage("fish-header");
 
         DecimalFormat format = new DecimalFormat("#.##");
-        JobProgression prog = players.get((Player)sender).getJobsProgression(job);
+        JobProgression prog = getJob(player).getJobsProgression(job);
         Parser expEquation = job.getExpEquation();
         Parser incomeEquation = job.getIncomeEquation();
         if(prog != null){
@@ -1001,29 +1051,46 @@ public class Jobs extends JavaPlugin{
             expEquation.setVariable("joblevel", 1);
             incomeEquation.setVariable("joblevel", 1);
         }
-        expEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
-        incomeEquation.setVariable("numjobs", players.get((Player)sender).getJobs().size());
+        expEquation.setVariable("numjobs", getJob(player).getJobs().size());
+        incomeEquation.setVariable("numjobs", getJob(player).getJobs().size());
         for(Entry<String, JobsMaterialInfo> temp: jobFishInfo.entrySet()){
             expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
-            String message;
+            String myMessage;
             if(temp.getKey().contains(":")){
-                message = JobsMessages.getInstance().getMessage("fish-info-sub");
+                myMessage = JobsMessages.getInstance().getMessage("fish-info-sub");
             }
             else {
-                message = JobsMessages.getInstance().getMessage("fish-info-no-sub");
+                myMessage = JobsMessages.getInstance().getMessage("fish-info-no-sub");
             }
             if(temp.getKey().contains(":")){
-                message = message.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
-                message = message.replace("%subitem%", temp.getKey().split(":")[1]);
+                myMessage = myMessage.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
+                myMessage = myMessage.replace("%subitem%", temp.getKey().split(":")[1]);
             }
             else{
-                message = message.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
+                myMessage = myMessage.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
             }
-            message = message.replace("%income%", format.format(incomeEquation.getValue()));
-            message = message.replace("%experience%", format.format(expEquation.getValue()));
-            Jobs.sendMessageByLine(sender, message);
+            myMessage = myMessage.replace("%income%", format.format(incomeEquation.getValue()));
+            myMessage = myMessage.replace("%experience%", format.format(expEquation.getValue()));
+            message += myMessage;
         }
+        return message;
+    }
+    
+    /**
+     * Displays job stats about a particular player's job
+     * @param jobProg - the job progress of the players job
+     * @return the message
+     */
+    private String jobStatsMessage(JobProgression jobProg) {
+        DecimalFormat format = new DecimalFormat("#.##");
+        String message = JobsMessages.getInstance().getMessage("stats-job");
+        message = message.replace("%joblevel%", Integer.valueOf(jobProg.getLevel()).toString());
+        message = message.replace("%jobcolour%", jobProg.getJob().getChatColour().toString());
+        message = message.replace("%jobname%", jobProg.getJob().getName());
+        message = message.replace("%jobexp%", format.format(jobProg.getExperience()));
+        message = message.replace("%jobmaxexp%", format.format(jobProg.getMaxExperience()));
+        return message;
     }
     
     
@@ -1061,7 +1128,14 @@ public class Jobs extends JavaPlugin{
 	 * @return the job info for the player
 	 */
 	public PlayerJobInfo getJob(Player player){
-		return players.get(player);
+	    if(player == null) {
+	        return null;
+	    }
+		PlayerJobInfo info = players.get(player);
+		if(info == null) {
+		    info = new PlayerJobInfo(player, JobsConfiguration.getInstance().getJobsDAO());
+		}
+		return info;
 	}
 	
 	/**

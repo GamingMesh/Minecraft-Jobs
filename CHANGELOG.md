@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.3.3
+* Added /jobs admininfo <playername>
+
 ## 2.3.2
 * Changed WHEAT to CROPS-7 for Farmers
 * Bundled h2.jar

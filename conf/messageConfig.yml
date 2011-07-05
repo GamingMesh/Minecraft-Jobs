@@ -71,6 +71,8 @@ jobs-stats: |
     ChatColor.YELLOW/jobs statsChatColor.WHITE - show the level you are in each job you are part of.
 jobs-info: |
     ChatColor.YELLOW/jobs info <jobname> <break, place, kill, fish>ChatColor.WHITE - show how much each job is getting paid and for what.
+jobs-admin-info: |
+    ChatColor.YELLOW/jobs admininfo <playername>ChatColor.WHITE - shows the level of each job and experience gains for the player.
 jobs-admin-fire: |
     ChatColor.YELLOW/jobs fire <playername> <job>ChatColor.WHITE - fire the player from the job.
 jobs-admin-employ: |
