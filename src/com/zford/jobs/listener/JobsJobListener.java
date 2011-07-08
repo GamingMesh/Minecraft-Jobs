@@ -62,7 +62,7 @@ public class JobsJobListener extends JobsEventListener{
 				param.put("numjobs", (double)event.getNumJobs());
 				param.put("joblevel", (double)progression.getLevel());
 				
-				progression.setMaxExperience(progression.getJob().getMaxExp(param));
+				progression.setMaxExperience((int)progression.getJob().getMaxExp(param));
 				
 				String message = JobsMessages.getInstance().getMessage("level-up");
 				message = message.replace("%jobname%", ""+progression.getJob().getName());

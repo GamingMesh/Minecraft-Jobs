@@ -407,7 +407,7 @@ public class PlayerJobInfo {
 		param.put("numjobs", (double) progression.size());
 		for(JobProgression temp: progression.values()){
 			param.put("joblevel", (double) temp.getLevel());
-			temp.setMaxExperience(temp.getJob().getMaxExp(param));
+			temp.setMaxExperience((int)temp.getJob().getMaxExp(param));
 			param.remove("joblevel");
 		}
 	}

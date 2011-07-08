@@ -1083,13 +1083,12 @@ public class Jobs extends JavaPlugin{
      * @return the message
      */
     private String jobStatsMessage(JobProgression jobProg) {
-        DecimalFormat format = new DecimalFormat("#.##");
         String message = JobsMessages.getInstance().getMessage("stats-job");
         message = message.replace("%joblevel%", Integer.valueOf(jobProg.getLevel()).toString());
         message = message.replace("%jobcolour%", jobProg.getJob().getChatColour().toString());
         message = message.replace("%jobname%", jobProg.getJob().getName());
-        message = message.replace("%jobexp%", format.format(jobProg.getExperience()));
-        message = message.replace("%jobmaxexp%", format.format(jobProg.getMaxExperience()));
+        message = message.replace("%jobexp%", Integer.toString((int)jobProg.getExperience()));
+        message = message.replace("%jobmaxexp%", Integer.toString(jobProg.getMaxExperience()));
         return message;
     }
     

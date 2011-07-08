@@ -35,7 +35,7 @@ public class JobProgression {
 	private Job job;
 	private Title title;
 	private double experience;
-	private double maxExperience;
+	private int maxExperience;
 	private int level;
 	
 	public JobProgression(Job job, double experience, int level, PlayerJobInfo info){
@@ -45,7 +45,7 @@ public class JobProgression {
 		HashMap<String, Double> param = new HashMap<String, Double>();
 		param.put("joblevel", (double) level);
 		param.put("numjobs", (double) info.getJobs().size());
-		maxExperience = job.getMaxExp(param);
+		maxExperience = (int)job.getMaxExp(param);
 		title = JobsConfiguration.getInstance().getTitleForLevel(level);
 	}
 	
@@ -105,7 +105,7 @@ public class JobProgression {
 	 * Get the maximum experience for this level
 	 * @return the experience needed to level up
 	 */
-	public double getMaxExperience() {
+	public int getMaxExperience() {
 		return maxExperience;
 	}
 
@@ -113,7 +113,7 @@ public class JobProgression {
 	 * Set the experience needed to level up (Does not trigger levelup events)
 	 * @param maxExperience - the new experience needed to level up
 	 */
-	public void setMaxExperience(double maxExperience) {
+	public void setMaxExperience(int maxExperience) {
 		this.maxExperience = maxExperience;
 	}
 
