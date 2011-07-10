@@ -69,14 +69,12 @@ public class JobsKillPaymentListener extends EntityListener{
 	        	else {
 	        		damager = (Player)e.getDamager();
 	        	}
-	        	if (nearMobSpawner(damager) ||	nearMobSpawner(victim)){
-					// near mob spawner, no payment or experience
-					return;
-				}
-	        	if (RestrictedArea.isRestricted(damager) || RestrictedArea.isRestricted(victim)) {
-	        	    // inside restricted area, no payment or experience
-	        	    return;
-	        	}
+                // near mob spawner, no payment or experience
+	        	if (nearMobSpawner(damager) ||	nearMobSpawner(victim)) return;
+
+                // inside restricted area, no payment or experience
+	        	if (RestrictedArea.isRestricted(damager) || RestrictedArea.isRestricted(victim)) return;
+	        	
 	        	// pay
 				plugin.getPlayerJobInfo(damager).killed(victim.getClass().toString().replace("class ", "").trim());
 				// pay for jobs
