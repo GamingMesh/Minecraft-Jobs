@@ -36,27 +36,32 @@ public class JobsBlockPaymentListener extends BlockListener{
 	}
 	
 	public void onBlockBreak(BlockBreakEvent event){
-        if (RestrictedArea.isRestricted(event.getPlayer())) {
-            // inside restricted area, no payment or experience
-            return;
-        }
-		// make sure event is not cancelled
-		if(!event.isCancelled() && 
-				((JobsConfiguration.getInstance().getPermissions() == null || !JobsConfiguration.getInstance().getPermissions().isEnabled())
-						|| JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName()))){
+        // make sure event is not canceled
+        if(event.isCancelled()) return;
+	    
+        // inside restricted area, no payment or experience
+        if (RestrictedArea.isRestricted(event.getPlayer())) return;
+        
+		if((JobsConfiguration.getInstance().getPermissions() == null || 
+		        !JobsConfiguration.getInstance().getPermissions().isEnabled()) ||
+		        JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName())){
 			plugin.getJob(event.getPlayer()).broke(event.getBlock());			
 		}
 	}
 	
 	public void onBlockPlace(BlockPlaceEvent event){
-        if (RestrictedArea.isRestricted(event.getPlayer())) {
-            // inside restricted area, no payment or experience
-            return;
-        }
-		// make sure event is not cancelled
-		if(event.canBuild() && !event.isCancelled() && 
-				((JobsConfiguration.getInstance().getPermissions() == null || !JobsConfiguration.getInstance().getPermissions().isEnabled())
-						|| JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName()))){
+        // make sure event is not canceled
+        if(event.isCancelled()) return;
+        
+        // check to make sure you can build
+        if(!event.canBuild());
+        
+        // inside restricted area, no payment or experience
+        if (RestrictedArea.isRestricted(event.getPlayer())) return;
+        
+		if((JobsConfiguration.getInstance().getPermissions() == null || 
+		        !JobsConfiguration.getInstance().getPermissions().isEnabled()) ||		
+		        JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName())){
 			plugin.getJob(event.getPlayer()).placed(event.getBlock());
 		}
 	}
