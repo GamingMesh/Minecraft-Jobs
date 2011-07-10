@@ -216,7 +216,7 @@ public class Jobs extends JavaPlugin{
 			// join
 			if(args.length == 2 && args[0].equalsIgnoreCase("join")){
 				String jobName = args[1].trim();
-				if(JobsConfiguration.getInstance().getJob(jobName) != null){
+				if(JobsConfiguration.getInstance().getJob(jobName) != null && !jobName.equalsIgnoreCase("None")){
 					if((JobsConfiguration.getInstance().getPermissions()!= null &&
 							JobsConfiguration.getInstance().getPermissions().isEnabled() &&
 							JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.join."+jobName))
@@ -303,12 +303,14 @@ public class Jobs extends JavaPlugin{
 							JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.join."+temp.getName()))
 							||
 							((JobsConfiguration.getInstance().getPermissions() == null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled()))){
-						if(temp.getMaxLevel() == null){
-							jobs.add(temp.getChatColour() + temp.getName());
-						}
-						else{
-							jobs.add(temp.getChatColour() + temp.getName() + ChatColor.WHITE + " - max lvl: " + temp.getMaxLevel());
-						}
+					    if(!temp.getName().equalsIgnoreCase("None")) {
+    						if(temp.getMaxLevel() == null){
+    							jobs.add(temp.getChatColour() + temp.getName());
+    						}
+    						else{
+    							jobs.add(temp.getChatColour() + temp.getName() + ChatColor.WHITE + " - max lvl: " + temp.getMaxLevel());
+    						}
+					    }
 					}
 				}
 				if(jobs.size() == 0){

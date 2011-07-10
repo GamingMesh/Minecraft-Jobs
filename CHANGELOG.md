@@ -1,5 +1,9 @@
 # Jobs plugin change log summary
 
+## 2.4.0
+* Changed experience handling to only display experience as whole numbers (partial experience still exists).
+* Added special job "None", which serves as a catch all for players without a job.
+
 ## 2.3.3
 * Added /jobs admininfo <playername>
 

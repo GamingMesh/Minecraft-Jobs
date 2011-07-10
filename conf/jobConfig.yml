@@ -255,7 +255,7 @@ Jobs:
     Digger:
         fullname: Digger
         shortname: D
-        ChatColour: YELLOW
+        ChatColour: GOLD
         chat-display: full
         #max-level: 10
         #slots: 10
@@ -401,3 +401,17 @@ Jobs:
             Fisherman:
                 income: 10.0
                 experience: 10.0
+                
+    None:
+        fullname: None
+        shortname: N
+        ChatColour: WHITE
+        chat-display: none
+        #max-level: 10
+        #slots: 10
+        leveling-progression-equation: 100*((1.13+(0.01*(numjobs-1)))^(joblevel-1))
+        income-progression-equation: baseincome*((1.05)^(joblevel-1))
+        experience-progression-equation: baseexperience*((1.05)^(joblevel-1))
+        Kill:
+            Player:
+                income: 7.5

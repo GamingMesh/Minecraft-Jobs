@@ -111,7 +111,20 @@ public class PlayerJobInfo {
 			}
 			param.remove("joblevel");
 		}
-		JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
+		// no job
+        if(this.progression.size() == 0) {
+            Job jobNone = JobsConfiguration.getInstance().getJob("None");
+            if(jobNone != null) {
+                param.put("joblevel", 1.0);
+                Double income = jobNone.getBreakIncome(block, param);
+                if(income != null) {
+                    // give income
+                    JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+                }
+                param.remove("joblevel");
+            }
+        }
+        JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
 	}
 	
 	/**
@@ -138,6 +151,19 @@ public class PlayerJobInfo {
 			}
 			param.remove("joblevel");
 		}
+		// no job
+        if(this.progression.size() == 0) {
+            Job jobNone = JobsConfiguration.getInstance().getJob("None");
+            if(jobNone != null) {
+                param.put("joblevel", 1.0);
+                Double income = jobNone.getPlaceIncome(block, param);
+                if(income != null) {
+                    // give income
+                    JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+                }
+                param.remove("joblevel");
+            }
+        }
 		JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
 	}
 	
@@ -165,6 +191,19 @@ public class PlayerJobInfo {
 			}
 			param.remove("joblevel");
 		}
+		// no job
+		if(this.progression.size() == 0) {
+		    Job jobNone = JobsConfiguration.getInstance().getJob("None");
+		    if(jobNone != null) {
+    		    param.put("joblevel", 1.0);
+    		    Double income = jobNone.getKillIncome(victim, param);
+    		    if(income != null) {
+    		        // give income
+    		        JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+    		    }
+    		    param.remove("joblevel");
+		    }
+		}
 		JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
 	}
 	
@@ -191,6 +230,20 @@ public class PlayerJobInfo {
             }
             param.remove("joblevel");
         }
+	    // no job
+        if(this.progression.size() == 0) {
+            Job jobNone = JobsConfiguration.getInstance().getJob("None");
+            if(jobNone != null) {
+                param.put("joblevel", 1.0);
+                Double income = jobNone.getFishIncome(item, param);
+                if(income != null) {
+                    // give income
+                    JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+                }
+                param.remove("joblevel");
+            }
+        }
+        JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
 	}
 	
 	/**
@@ -271,10 +324,7 @@ public class PlayerJobInfo {
 		}
 	}
 	
-	public String getDisplayHonorific(){	
-		if(jobs.size() == 0){
-			return null;
-		}
+	public String getDisplayHonorific(){
 		
 		String honorific = "";		
 		
@@ -304,28 +354,41 @@ public class PlayerJobInfo {
 			}
 		}
 		else{
-			// has only 1 job, using longname mode
-			if(jobs.get(0).getDisplayMethod().equals(DisplayMethod.FULL) || jobs.get(0).getDisplayMethod().equals(DisplayMethod.TITLE)){
+		    Job job;
+		    if(jobs.size() == 0) {
+		        job = JobsConfiguration.getInstance().getJob("None");
+		    } else {
+		        job = jobs.get(0);
+		    }
+		    
+            if(job == null) {
+                return null;
+            }
+            
+		    JobProgression jobProgression = progression.get(job);
+		    
+			// using longname mode
+			if(job.getDisplayMethod().equals(DisplayMethod.FULL) || job.getDisplayMethod().equals(DisplayMethod.TITLE)){
 				// add title to honorific
-				if(progression.get(jobs.get(0)).getTitle() != null){
-					honorific += progression.get(jobs.get(0)).getTitle().getChatColor() + progression.get(jobs.get(0)).getTitle().getName() + ChatColor.WHITE;
+				if(jobProgression != null && jobProgression.getTitle() != null){
+					honorific += jobProgression.getTitle().getChatColor() + jobProgression.getTitle().getName() + ChatColor.WHITE;
 				}
-				if(jobs.get(0).getDisplayMethod().equals(DisplayMethod.FULL)){
+				if(job.getDisplayMethod().equals(DisplayMethod.FULL)){
 					honorific += " ";
 				}
 			}
-			if(jobs.get(0).getDisplayMethod().equals(DisplayMethod.SHORT_FULL) || jobs.get(0).getDisplayMethod().equals(DisplayMethod.SHORT_TITLE)){
+			if(job.getDisplayMethod().equals(DisplayMethod.SHORT_FULL) || job.getDisplayMethod().equals(DisplayMethod.SHORT_TITLE)){
 				// add title to honorific
-				if(progression.get(jobs.get(0)).getTitle() != null){
-					honorific += progression.get(jobs.get(0)).getTitle().getChatColor() + progression.get(jobs.get(0)).getTitle().getShortName() + ChatColor.WHITE;
+				if(jobProgression != null && jobProgression.getTitle() != null){
+					honorific += jobProgression.getTitle().getChatColor() + jobProgression.getTitle().getShortName() + ChatColor.WHITE;
 				}
 			}
 			
-			if(jobs.get(0).getDisplayMethod().equals(DisplayMethod.FULL) || jobs.get(0).getDisplayMethod().equals(DisplayMethod.JOB)){
-				honorific += jobs.get(0).getChatColour() + jobs.get(0).getName() + ChatColor.WHITE;
+			if(job.getDisplayMethod().equals(DisplayMethod.FULL) || job.getDisplayMethod().equals(DisplayMethod.JOB)){
+				honorific += job.getChatColour() + job.getName() + ChatColor.WHITE;
 			}
-			if(jobs.get(0).getDisplayMethod().equals(DisplayMethod.SHORT_FULL) || jobs.get(0).getDisplayMethod().equals(DisplayMethod.SHORT_JOB)){
-				honorific += jobs.get(0).getChatColour() + jobs.get(0).getShortName() + ChatColor.WHITE;
+			if(job.getDisplayMethod().equals(DisplayMethod.SHORT_FULL) || job.getDisplayMethod().equals(DisplayMethod.SHORT_JOB)){
+				honorific += job.getChatColour() + job.getShortName() + ChatColor.WHITE;
 			}
 		}
 		
