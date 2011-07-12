@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.3.4
+* Fixed experience equation for fishing
+
 ## 2.3.3
 * Added /jobs admininfo <playername>
 
