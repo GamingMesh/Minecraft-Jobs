@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.4.1
+* Fixed experience equation for fishing
+
 ## 2.4.0
 * Changed experience handling to only display experience as whole numbers (partial experience still exists).
 * Added special job "None", which serves as a catch all for players without a job.

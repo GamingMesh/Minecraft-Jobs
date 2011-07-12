@@ -224,12 +224,12 @@ public class Job {
         if(this.jobFishInfo != null){
             // try simple
             if(this.jobFishInfo.containsKey(materialKey)){
-                return this.jobFishInfo.get(materialKey).getXPFromMaterial(incomeEquation, param);
+                return this.jobFishInfo.get(materialKey).getXPFromMaterial(expEquation, param);
             }
             else{
                 // try with sub-class
                 if(this.jobFishInfo.containsKey(materialKey+":"+item.getItemStack().getData())){
-                    return this.jobFishInfo.get(materialKey+":"+item.getItemStack().getData()).getXPFromMaterial(incomeEquation, param);
+                    return this.jobFishInfo.get(materialKey+":"+item.getItemStack().getData()).getXPFromMaterial(expEquation, param);
                 }
             }
         }
