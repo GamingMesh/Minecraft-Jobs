@@ -97,18 +97,22 @@ public class JobsConfiguration {
 	 * Made to observe the singleton pattern.
 	 */
 	private JobsConfiguration(){
-		// general settings
-		loadGeneralSettings();
-		// job settings
-		loadJobSettings();
-		// title settings
-		loadTitleSettings();
+	    reload();
+	}
+	
+	public void reload() {
+        // general settings
+        loadGeneralSettings();
+        // job settings
+        loadJobSettings();
+        // title settings
+        loadTitleSettings();
         // messages settings
         JobsMessages.getInstance().reloadConfig();
-		// get slots
-		loadSlots();
-		// restricted areas
-		loadRestrictedAreaSettings();
+        // get slots
+        loadSlots();
+        // restricted areas
+        loadRestrictedAreaSettings();
 	}
 	
 	/**

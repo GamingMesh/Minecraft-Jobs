@@ -354,6 +354,27 @@ public class Jobs extends JavaPlugin{
                 }
                 return true;
             }
+			
+			if(args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+			    if(sender instanceof ConsoleCommandSender || 
+                        (JobsConfiguration.getInstance().getPermissions()!= null &&
+                        JobsConfiguration.getInstance().getPermissions().isEnabled() &&
+                        JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.reload"))
+                        ||
+                        (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+			        try {
+    			        if(isEnabled()) {
+    			            JobsConfiguration.getInstance().reload();
+        			        if(sender instanceof Player) {
+        			            Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-success"));
+        			        }
+    			        }
+			        } catch (Exception e) {
+			            Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("admin-command-failed"));
+			        }
+                    return true;
+			    }
+			}
 			if(args.length == 3){
 				if(args[0].equalsIgnoreCase("fire")){
 					if(sender instanceof ConsoleCommandSender || 
@@ -796,6 +817,14 @@ public class Jobs extends JavaPlugin{
 					(((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
 				Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-admin-transfer"));
 			}
+			if(sender instanceof ConsoleCommandSender || 
+                    (JobsConfiguration.getInstance().getPermissions()!= null &&
+                    JobsConfiguration.getInstance().getPermissions().isEnabled() &&
+                    JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.reload"))
+                    ||
+                    (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+                Jobs.sendMessageByLine(sender, JobsMessages.getInstance().getMessage("jobs-admin-reload"));
+            }
 		}
 		return true;
 	}

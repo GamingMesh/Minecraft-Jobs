@@ -87,6 +87,8 @@ jobs-admin-removexp: |
     ChatColor.YELLOW/jobs removexp <playername> <job> <experience>ChatColor.WHITE - remove X experience from the player in a job.
 jobs-admin-transfer: |
     ChatColor.YELLOW/jobs transfer <playername> <oldjob> <newjob>ChatColor.WHITE - transfer a player's job from an old job to a new job.
+jobs-admin-reload: |
+    ChatColor.YELLOW/jobs reloadChatColor.WHITE - reload the Jobs plugin.
 break-header: |
     Break:
 place-header: |
