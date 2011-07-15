@@ -66,6 +66,7 @@ public class JobsMessages {
         JOBS_ADMIN_PROMOTE,
         JOBS_ADMIN_REMOVEXP,
         JOBS_ADMIN_TRANSFER,
+        JOBS_ADMIN_RELOAD,
         JOBS_BROWSE,
         JOBS_INFO,
         JOBS_JOIN,
@@ -249,6 +250,8 @@ public class JobsMessages {
             return "/jobs removexp <playername> <job> <experience> - remove X experience from the player in a job";
         case JOBS_ADMIN_TRANSFER:
             return "/jobs transfer <playername> <oldjob> <newjob> - transfer a player's job from an old job to a new job";
+        case JOBS_ADMIN_RELOAD:
+            return ChatColor.YELLOW+"/jobs reload"+ChatColor.WHITE+" - reload the Jobs plugin.";
         case JOBS_BROWSE:
             return "/jobs browse - list the jobs available to you";
         case JOBS_INFO:

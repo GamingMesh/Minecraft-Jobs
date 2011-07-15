@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.3.5
+* Added /jobs reload command
+
 ## 2.3.4
 * Fixed experience equation for fishing
 
