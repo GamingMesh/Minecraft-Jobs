@@ -45,6 +45,8 @@ public class JobsFishPaymentListener extends PlayerListener {
     
     @Override
     public void onPlayerAnimation(PlayerAnimationEvent event) {
+        // make sure plugin is enabled
+        if(!plugin.isEnabled()) return;
         if(!event.getAnimationType().equals(PlayerAnimationType.ARM_SWING)) return;
         
         // on player interact, if player is holding a fishing rod, set is fishing to true, otherwise set to false
@@ -57,12 +59,16 @@ public class JobsFishPaymentListener extends PlayerListener {
     
     @Override
     public void onItemHeldChange(PlayerItemHeldEvent event) {
+        // make sure plugin is enabled
+        if(!plugin.isEnabled()) return;
         // clear fishing if you change item in hand
         plugin.getPlayerJobInfo(event.getPlayer()).isFishing(false);
     }
     
     @Override
     public void onPlayerPickupItem(PlayerPickupItemEvent event) {
+        // make sure plugin is enabled
+        if(!plugin.isEnabled()) return;
         if(event.isCancelled()) return;
         
         if(plugin.getPlayerJobInfo(event.getPlayer()).isFishing()) {
@@ -74,6 +80,8 @@ public class JobsFishPaymentListener extends PlayerListener {
     
     @Override
     public void onPlayerDropItem(PlayerDropItemEvent event) {
+        // make sure plugin is enabled
+        if(!plugin.isEnabled()) return;
         if(event.isCancelled()) return;
         
         // prevent drop item exploits

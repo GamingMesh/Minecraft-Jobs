@@ -36,6 +36,8 @@ public class JobsBlockPaymentListener extends BlockListener{
 	}
 	
 	public void onBlockBreak(BlockBreakEvent event){
+	    // make sure plugin is enabled
+	    if(!plugin.isEnabled()) return;
         // make sure event is not canceled
         if(event.isCancelled()) return;
 	    
@@ -50,6 +52,8 @@ public class JobsBlockPaymentListener extends BlockListener{
 	}
 	
 	public void onBlockPlace(BlockPlaceEvent event){
+        // make sure plugin is enabled
+        if(!plugin.isEnabled()) return;
         // make sure event is not canceled
         if(event.isCancelled()) return;
         

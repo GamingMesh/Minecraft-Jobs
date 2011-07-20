@@ -135,7 +135,7 @@ public class JobsConfiguration {
         Configuration conf;
         if(!f.exists()) {
             // disable plugin
-            System.err.println("[Jobs] - configuration file generalConfig.yml does not exist");
+            System.err.println("[Jobs] - configuration file generalConfig.yml does not exist.  Disabling jobs !");
             Jobs.disablePlugin();
             return;
         }
@@ -206,9 +206,10 @@ public class JobsConfiguration {
 	private void loadJobSettings(){
 	    File f = new File("plugins/Jobs/jobConfig.yml");
         Configuration conf;
+        this.jobs = new HashMap<String, Job>();
         if(!f.exists()) {
             // disable plugin
-            System.err.println("[Jobs] - configuration file jobConfig.yml does not exist");
+            System.err.println("[Jobs] - configuration file jobConfig.yml does not exist.  Disabling jobs !");
             Jobs.disablePlugin();
             return;
         }
@@ -221,7 +222,6 @@ public class JobsConfiguration {
             Jobs.disablePlugin();
             return;
         }
-        this.jobs = new HashMap<String, Job>();
         for(String jobKey : jobKeys) {
             String jobName = conf.getString("Jobs."+jobKey+".fullname");
             if(jobName == null) {
