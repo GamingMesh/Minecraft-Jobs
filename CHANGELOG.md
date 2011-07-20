@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.3.6
+* Jobs does a better job disabling itself
+
 ## 2.3.5
 * Added /jobs reload command
 

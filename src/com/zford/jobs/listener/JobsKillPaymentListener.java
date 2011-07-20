@@ -56,14 +56,16 @@ public class JobsKillPaymentListener extends EntityListener{
 	 */
 	public void onEntityDeath(EntityDeathEvent event)
 	{
+        // make sure plugin is enabled
+        if(!plugin.isEnabled()) return;
 	    if (event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent 
 	    		|| event.getEntity().getLastDamageCause() instanceof EntityDamageByProjectileEvent){
 	        EntityDamageByEntityEvent e = (EntityDamageByEntityEvent)event.getEntity().getLastDamageCause();
-	        if((e.getDamager() instanceof Wolf && ((Wolf)e.getDamager()).isTamed() == true ) || e.getDamager() instanceof Player)
+	        if((e.getDamager() instanceof Wolf && ((Wolf)e.getDamager()).isTamed() == true && ((Wolf)e.getDamager()).getOwner() != null) || e.getDamager() instanceof Player)
 	        {
 	        	Player damager;
 	        	LivingEntity victim = (LivingEntity)e.getEntity();
-	        	if(e.getDamager() instanceof Wolf && ((Wolf)e.getDamager()).isTamed() == true ){
+	        	if(e.getDamager() instanceof Wolf && ((Wolf)e.getDamager()).isTamed() == true){
 	        		damager = (Player)((Wolf)e.getDamager()).getOwner();
 	        	}
 	        	else {

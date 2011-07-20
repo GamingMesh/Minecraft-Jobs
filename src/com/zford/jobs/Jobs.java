@@ -135,12 +135,12 @@ public class Jobs extends JavaPlugin{
 							else if(getServer().getPluginManager().getPlugin("BOSEconomy") != null){
 								JobsConfiguration.getInstance().setEconomyLink(new JobsBOSEconomyLink((BOSEconomy)getServer().getPluginManager().getPlugin("BOSEconomy")));
 			                    System.out.println("[Jobs] Successfully linked with BOSEconomy.");
-							} else {
-							    System.err.println("[Jobs] Cannot find valid economy plugin");
-							    Jobs.disablePlugin();
-							    return;
 							}
-						}
+						} else {
+                            System.err.println("[Jobs] Cannot find valid economy plugin");
+                            Jobs.disablePlugin();
+                            return;
+                        }
 					}
 					
 					// stats
@@ -1208,7 +1208,7 @@ public class Jobs extends JavaPlugin{
 	 */
 	public static void disablePlugin(){
 		if(Jobs.getPlugin() != null){
-			Jobs.getPlugin().getServer().getPluginManager().disablePlugin(Jobs.getPlugin());
+		    Jobs.getPlugin().setEnabled(false);
 		}
 	}
 	
