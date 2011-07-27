@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.4.4
+* Changed the method of fishing to use onPlayerFish instead of onPlayerPickupItem
+
 ## 2.4.3
 * Jobs does a better job disabling itself
 

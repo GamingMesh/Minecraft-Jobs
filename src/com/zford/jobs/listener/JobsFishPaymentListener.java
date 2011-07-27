@@ -19,13 +19,9 @@
 
 package com.zford.jobs.listener;
 
-import org.bukkit.Material;
-import org.bukkit.event.player.PlayerAnimationEvent;
-import org.bukkit.event.player.PlayerAnimationType;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerItemHeldEvent;
+import org.bukkit.entity.Item;
+import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerListener;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 
 import com.zford.jobs.Jobs;
 
@@ -44,48 +40,11 @@ public class JobsFishPaymentListener extends PlayerListener {
     }
     
     @Override
-    public void onPlayerAnimation(PlayerAnimationEvent event) {
+    public void onPlayerFish(PlayerFishEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-        if(!event.getAnimationType().equals(PlayerAnimationType.ARM_SWING)) return;
-        
-        // on player interact, if player is holding a fishing rod, set is fishing to true, otherwise set to false
-        if(event.getPlayer().getItemInHand() != null && event.getPlayer().getItemInHand().getType().equals(Material.FISHING_ROD)) {
-            plugin.getPlayerJobInfo(event.getPlayer()).isFishing(true);
-        } else {
-            plugin.getPlayerJobInfo(event.getPlayer()).isFishing(false);
+        if(event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
+            plugin.getJob(event.getPlayer()).fished((Item)event.getCaught());
         }
-    }
-    
-    @Override
-    public void onItemHeldChange(PlayerItemHeldEvent event) {
-        // make sure plugin is enabled
-        if(!plugin.isEnabled()) return;
-        // clear fishing if you change item in hand
-        plugin.getPlayerJobInfo(event.getPlayer()).isFishing(false);
-    }
-    
-    @Override
-    public void onPlayerPickupItem(PlayerPickupItemEvent event) {
-        // make sure plugin is enabled
-        if(!plugin.isEnabled()) return;
-        if(event.isCancelled()) return;
-        
-        if(plugin.getPlayerJobInfo(event.getPlayer()).isFishing()) {
-            plugin.getJob(event.getPlayer()).fished(event.getItem());
-            // We got the item, clear fishing status
-            plugin.getPlayerJobInfo(event.getPlayer()).isFishing(false);
-        }
-    }
-    
-    @Override
-    public void onPlayerDropItem(PlayerDropItemEvent event) {
-        // make sure plugin is enabled
-        if(!plugin.isEnabled()) return;
-        if(event.isCancelled()) return;
-        
-        // prevent drop item exploits
-        plugin.getPlayerJobInfo(event.getPlayer()).dropped(event.getItemDrop());
-        plugin.getPlayerJobInfo(event.getPlayer()).isFishing(false);
     }
 }

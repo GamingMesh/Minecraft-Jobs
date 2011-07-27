@@ -187,10 +187,7 @@ public class Jobs extends JavaPlugin{
 			getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Monitor, this);
 			getServer().getPluginManager().registerEvent(Event.Type.CUSTOM_EVENT, jobListener, Event.Priority.Monitor, this);
 			getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, killListener, Event.Priority.Monitor, this);
-            getServer().getPluginManager().registerEvent(Event.Type.PLAYER_ANIMATION, fishListener, Event.Priority.Monitor, this);
-            getServer().getPluginManager().registerEvent(Event.Type.PLAYER_ITEM_HELD, fishListener, Event.Priority.Monitor, this);
-            getServer().getPluginManager().registerEvent(Event.Type.PLAYER_PICKUP_ITEM, fishListener, Event.Priority.Monitor, this);
-            getServer().getPluginManager().registerEvent(Event.Type.PLAYER_DROP_ITEM, fishListener, Event.Priority.Monitor, this);
+            getServer().getPluginManager().registerEvent(Event.Type.PLAYER_FISH, fishListener, Event.Priority.Monitor, this);
 			getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Monitor, this);
 			getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
 			
