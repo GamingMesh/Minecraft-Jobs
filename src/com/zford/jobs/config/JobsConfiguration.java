@@ -201,7 +201,7 @@ public class JobsConfiguration {
 
 		// default economy plugin to use
         this.defaultEconomy = conf.getString("economy", "");
-		if(!this.defaultEconomy != null && !this.defaultEconomy.equalsIgnoreCase("iconomy") && !this.defaultEconomy.equalsIgnoreCase("boseconomy")) {
+		if(this.defaultEconomy != null && !this.defaultEconomy.equalsIgnoreCase("iconomy") && !this.defaultEconomy.equalsIgnoreCase("boseconomy")) {
 			defaultEconomy = null;
 		}
 
