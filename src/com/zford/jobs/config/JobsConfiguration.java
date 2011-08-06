@@ -201,6 +201,10 @@ public class JobsConfiguration {
 
 		// default economy plugin to use
         this.defaultEconomy = conf.getString("economy");
+		if(!this.defaultEconomy.equalsIgnoreCase("iconomy") && !this.defaultEconomy.equalsIgnoreCase("boseconomy")) {
+			System.out.println("[Jobs] - economy field has invalid value.");
+			this.defaultEconomy = null;
+		}
 	}
 	
 	/**
