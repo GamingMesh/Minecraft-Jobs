@@ -31,3 +31,8 @@ broadcast-on-skill-up: true
 
 # option to allow payment to be made when near a spawner
 #enable-pay-near-spawner: true
+
+# choose, which economy plugin should be used as default (optional)
+# if not set, will use iConomy first
+# available options: iConomy, BOSEconomy
+#economy: iConomy

@@ -128,14 +128,28 @@ public class Jobs extends JavaPlugin{
 					if(JobsConfiguration.getInstance().getEconomyLink() == null){
 						if(getServer().getPluginManager().getPlugin("iConomy") != null || 
 								getServer().getPluginManager().getPlugin("BOSEconomy") != null){
-							if(getServer().getPluginManager().getPlugin("iConomy") != null){
-								JobsConfiguration.getInstance().setEconomyLink(new JobsiConomyLink((iConomy)getServer().getPluginManager().getPlugin("iConomy")));
-			                    System.out.println("[Jobs] Successfully linked with iConomy 5+.");
+								
+							// use given economy plugin, if defined manually in config
+							if(JobsConfiguration.getInstance().getDefaultEconomy() != null) {
+								if(JobsConfiguration.getInstance().getDefaultEconomy().equalsIgnoreCase("iconomy")) {
+									JobsConfiguration.getInstance().setEconomyLink(new JobsiConomyLink((iConomy)getServer().getPluginManager().getPlugin("iConomy")));
+									System.out.println("[Jobs] Successfully linked with iConomy 5+.");
+								} else if(JobsConfiguration.getInstance().getDefaultEconomy().equalsIgnoreCase("boseconomy")) {
+									JobsConfiguration.getInstance().setEconomyLink(new JobsBOSEconomyLink((BOSEconomy)getServer().getPluginManager().getPlugin("BOSEconomy")));
+									System.out.println("[Jobs] Successfully linked with BOSEconomy.");
+								}
+							// else we can use installed plugin
+							} else {
+								if(getServer().getPluginManager().getPlugin("iConomy") != null){
+									JobsConfiguration.getInstance().setEconomyLink(new JobsiConomyLink((iConomy)getServer().getPluginManager().getPlugin("iConomy")));
+									System.out.println("[Jobs] Successfully linked with iConomy 5+.");
+								}
+								else if(getServer().getPluginManager().getPlugin("BOSEconomy") != null){
+									JobsConfiguration.getInstance().setEconomyLink(new JobsBOSEconomyLink((BOSEconomy)getServer().getPluginManager().getPlugin("BOSEconomy")));
+									System.out.println("[Jobs] Successfully linked with BOSEconomy.");
+								}
 							}
-							else if(getServer().getPluginManager().getPlugin("BOSEconomy") != null){
-								JobsConfiguration.getInstance().setEconomyLink(new JobsBOSEconomyLink((BOSEconomy)getServer().getPluginManager().getPlugin("BOSEconomy")));
-			                    System.out.println("[Jobs] Successfully linked with BOSEconomy.");
-							}
+							
 						} else {
                             System.err.println("[Jobs] Cannot find valid economy plugin");
                             Jobs.disablePlugin();
