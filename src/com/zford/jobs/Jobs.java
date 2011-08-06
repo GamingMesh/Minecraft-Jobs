@@ -128,11 +128,13 @@ public class Jobs extends JavaPlugin{
 					if(JobsConfiguration.getInstance().getEconomyLink() == null){
 						if(getServer().getPluginManager().getPlugin("iConomy") != null || 
 								getServer().getPluginManager().getPlugin("BOSEconomy") != null){
-							if(getServer().getPluginManager().getPlugin("iConomy") != null){
+							if(JobsConfiguration.getInstance().getDefaultEconomy().equalsIgnoreCase("iconomy") ||
+									(getServer().getPluginManager().getPlugin("iConomy") != null && JobsConfiguration.getInstance().getDefaultEconomy() == null)){
 								JobsConfiguration.getInstance().setEconomyLink(new JobsiConomyLink((iConomy)getServer().getPluginManager().getPlugin("iConomy")));
 			                    System.out.println("[Jobs] Successfully linked with iConomy 5+.");
 							}
-							else if(getServer().getPluginManager().getPlugin("BOSEconomy") != null){
+							else if(JobsConfiguration.getInstance().getDefaultEconomy().equalsIgnoreCase("boseconomy") ||
+							(getServer().getPluginManager().getPlugin("BOSEconomy") != null && JobsConfiguration.getInstance().getDefaultEconomy() == null)){
 								JobsConfiguration.getInstance().setEconomyLink(new JobsBOSEconomyLink((BOSEconomy)getServer().getPluginManager().getPlugin("BOSEconomy")));
 			                    System.out.println("[Jobs] Successfully linked with BOSEconomy.");
 							}
