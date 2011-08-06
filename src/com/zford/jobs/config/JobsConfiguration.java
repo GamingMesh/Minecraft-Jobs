@@ -88,7 +88,7 @@ public class JobsConfiguration {
 	// can get money near spawner.
 	private boolean payNearSpawner;
 	// default economy plugin
-	private String defaultEconomy;
+	private String defaultEconomy = null;
 	
 	private ArrayList<RestrictedArea> restrictedAreas;
 	
