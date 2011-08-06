@@ -634,7 +634,7 @@ public class JobsConfiguration {
 	 * Get which economy plugin should we use
 	 * @return which economy plugin should we use
 	 */
-	public int getDefaultEconomy(){
+	public String getDefaultEconomy(){
 		return defaultEconomy;
 	}
 	
