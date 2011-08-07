@@ -35,6 +35,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerListener;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.mbertoli.jfep.Parser;
 
@@ -49,6 +50,7 @@ import com.zford.jobs.config.container.JobsMaterialInfo;
 import com.zford.jobs.config.container.JobsLivingEntityInfo;
 import com.zford.jobs.config.container.PlayerJobInfo;
 import com.zford.jobs.economy.JobsBOSEconomyLink;
+import com.zford.jobs.economy.JobsEssentialsLink;
 import com.zford.jobs.economy.JobsiConomyLink;
 import com.zford.jobs.event.JobsJoinEvent;
 import com.zford.jobs.event.JobsLeaveEvent;
@@ -60,6 +62,8 @@ import com.zford.jobs.listener.JobsKillPaymentListener;
 import com.zford.jobs.listener.JobsPlayerListener;
 
 import cosine.boseconomy.BOSEconomy;
+
+import com.earth2me.essentials.Essentials;
 
 /**
  * Jobs main class
@@ -123,52 +127,42 @@ public class Jobs extends JavaPlugin{
 				
 				@Override
 				public void onPluginEnable(PluginEnableEvent event) {
-									
+                    JobsConfiguration jc = JobsConfiguration.getInstance();
+                    PluginManager pm = getServer().getPluginManager();
+                    
 					// economy plugins
-					if(JobsConfiguration.getInstance().getEconomyLink() == null){
-						if(getServer().getPluginManager().getPlugin("iConomy") != null || 
-								getServer().getPluginManager().getPlugin("BOSEconomy") != null){
-								
-							// use given economy plugin, if defined manually in config
-							if(JobsConfiguration.getInstance().getDefaultEconomy() != null) {
-								if(JobsConfiguration.getInstance().getDefaultEconomy().equalsIgnoreCase("iconomy")) {
-									JobsConfiguration.getInstance().setEconomyLink(new JobsiConomyLink((iConomy)getServer().getPluginManager().getPlugin("iConomy")));
-									System.out.println("[Jobs] Successfully linked with iConomy 5+.");
-								} else if(JobsConfiguration.getInstance().getDefaultEconomy().equalsIgnoreCase("boseconomy")) {
-									JobsConfiguration.getInstance().setEconomyLink(new JobsBOSEconomyLink((BOSEconomy)getServer().getPluginManager().getPlugin("BOSEconomy")));
-									System.out.println("[Jobs] Successfully linked with BOSEconomy.");
-								}
-							// else we can use installed plugin
-							} else {
-								if(getServer().getPluginManager().getPlugin("iConomy") != null){
-									JobsConfiguration.getInstance().setEconomyLink(new JobsiConomyLink((iConomy)getServer().getPluginManager().getPlugin("iConomy")));
-									System.out.println("[Jobs] Successfully linked with iConomy 5+.");
-								}
-								else if(getServer().getPluginManager().getPlugin("BOSEconomy") != null){
-									JobsConfiguration.getInstance().setEconomyLink(new JobsBOSEconomyLink((BOSEconomy)getServer().getPluginManager().getPlugin("BOSEconomy")));
-									System.out.println("[Jobs] Successfully linked with BOSEconomy.");
-								}
-							}
-							
-						} else {
-                            System.err.println("[Jobs] Cannot find valid economy plugin");
-                            Jobs.disablePlugin();
-                            return;
-                        }
+					if(jc.getEconomyLink() == null){
+						if(pm.getPlugin("iConomy") != null || 
+								pm.getPlugin("BOSEconomy") != null ||
+								pm.getPlugin("Essentials") != null) {
+							if(pm.getPlugin("iConomy") != null && 
+							        (jc.getDefaultEconomy() == null || jc.getDefaultEconomy().equalsIgnoreCase("iconomy"))) {
+								jc.setEconomyLink(new JobsiConomyLink((iConomy)pm.getPlugin("iConomy")));
+                                System.out.println("[Jobs] Successfully linked with iConomy 5+.");
+							} else if(pm.getPlugin("BOSEconomy") != null &&
+							        (jc.getDefaultEconomy() == null || jc.getDefaultEconomy().equalsIgnoreCase("boseconomy"))) {
+								jc.setEconomyLink(new JobsBOSEconomyLink((BOSEconomy)pm.getPlugin("BOSEconomy")));
+								System.out.println("[Jobs] Successfully linked with BOSEconomy.");
+							} else if(pm.getPlugin("Essentials") != null &&
+                                    (jc.getDefaultEconomy() == null || jc.getDefaultEconomy().equalsIgnoreCase("essentials"))) {
+                                jc.setEconomyLink(new JobsEssentialsLink((Essentials)pm.getPlugin("Essentials")));
+                                System.out.println("[Jobs] Successfully linked with Essentials.");
+                            }
+						}
 					}
 					
 					// stats
-					if(JobsConfiguration.getInstance().getStats() == null && JobsConfiguration.getInstance().isStatsEnabled()){
-						if(getServer().getPluginManager().getPlugin("Stats") != null){
-							JobsConfiguration.getInstance().setStats((Stats)getServer().getPluginManager().getPlugin("Stats"));
+					if(jc.getStats() == null && jc.isStatsEnabled()){
+						if(pm.getPlugin("Stats") != null){
+							jc.setStats((Stats)pm.getPlugin("Stats"));
 		                    System.out.println("[Jobs] Successfully linked with Stats.");
 						}
 					}
 					
 					// permissions
-					if(JobsConfiguration.getInstance().getPermissions() == null){
-						if(getServer().getPluginManager().getPlugin("Permissions") != null){
-							JobsConfiguration.getInstance().setPermissions((Permissions)getServer().getPluginManager().getPlugin("Permissions"));
+					if(jc.getPermissions() == null){
+						if(pm.getPlugin("Permissions") != null){
+							jc.setPermissions((Permissions)pm.getPlugin("Permissions"));
 		                    System.out.println("[Jobs] Successfully linked with Permissions.");
 						}
 					}
@@ -176,21 +170,24 @@ public class Jobs extends JavaPlugin{
 				
 				@Override
 				public void onPluginDisable(PluginDisableEvent event) {
-					if(event.getPlugin().getDescription().getName().equalsIgnoreCase("iConomy") || 
-							event.getPlugin().getDescription().getName().equalsIgnoreCase("BOSEconomy")){
-						JobsConfiguration.getInstance().setEconomyLink(null);
+                    JobsConfiguration jc = JobsConfiguration.getInstance();
+				    if(jc.getEconomyLink() instanceof JobsiConomyLink && event.getPlugin().getDescription().getName().equalsIgnoreCase("iConomy") ||
+                            jc.getEconomyLink() instanceof JobsBOSEconomyLink && event.getPlugin().getDescription().getName().equalsIgnoreCase("BOSEconomy") ||
+                            jc.getEconomyLink() instanceof JobsEssentialsLink && event.getPlugin().getDescription().getName().equalsIgnoreCase("Essentials")
+				            ) {
+						jc.setEconomyLink(null);
 	                    System.out.println("[Jobs] Economy system successfully unlinked.");
 					}
 					
 					// stats
 					if(event.getPlugin().getDescription().getName().equalsIgnoreCase("Stats")){
-						JobsConfiguration.getInstance().setStats(null);
+						jc.setStats(null);
 	                    System.out.println("[Jobs] Successfully unlinked with Stats.");
 					}
 					
 					// permissions
 					if(event.getPlugin().getDescription().getName().equalsIgnoreCase("Permissions")){
-						JobsConfiguration.getInstance().setPermissions(null);
+						jc.setPermissions(null);
 	                    System.out.println("[Jobs] Successfully unlinked with Permissions.");
 					}
 				}

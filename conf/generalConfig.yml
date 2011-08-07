@@ -34,5 +34,5 @@ broadcast-on-skill-up: true
 
 # choose, which economy plugin should be used as default (optional)
 # if not set, will use iConomy first
-# available options: iConomy, BOSEconomy
+# available options: iConomy, BOSEconomy, Essentials
 #economy: iConomy

@@ -1,5 +1,9 @@
 # Jobs plugin change log summary
 
+## 2.4.5
+* Added Essentials Economy support
+* Added configuration option "economy" for servers with with multiple economy plugins 
+
 ## 2.4.4
 * Changed the method of fishing to use onPlayerFish instead of onPlayerPickupItem
 

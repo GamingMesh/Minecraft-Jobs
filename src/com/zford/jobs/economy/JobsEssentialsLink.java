@@ -21,33 +21,47 @@ package com.zford.jobs.economy;
 
 import org.bukkit.entity.Player;
 
+import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.api.Economy;
 import com.earth2me.essentials.api.NoLoanPermittedException;
 import com.earth2me.essentials.api.UserDoesNotExistException;
+import com.nidefawl.Stats.Stats;
+import com.zford.jobs.config.JobsConfiguration;
 
 public class JobsEssentialsLink implements JobsEconomyLink{
 	
-	public JobsEssentialsLink(){
+	public JobsEssentialsLink(Essentials essentials){
 	}
 	
 	@Override
 	public void pay(Player player, double amount) {
-		// TODO
 		try {
 			Economy.add(player.getName(), amount);
 		} catch (UserDoesNotExistException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoLoanPermittedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	@Override
+    @Override
 	public void updateStats(Player player) {
-		// TODO Auto-generated method stub
-		
-	}
+        // stats plugin integration
+        if(JobsConfiguration.getInstance().getStats() != null &&
+                JobsConfiguration.getInstance().getStats().isEnabled()){
+            Stats stats = JobsConfiguration.getInstance().getStats();
+            double balance;
+            try {
+                balance = Economy.getMoney(player.getName());
+            } catch(UserDoesNotExistException e) {
+                e.printStackTrace();
+                return;
+            }
+            if(balance > stats.get(player.getName(), "job", "money")){
+                stats.setStat(player.getName(), "job", "money", (int) balance);
+                stats.saveAll();
+            }
+        }
+    }
 
 }
