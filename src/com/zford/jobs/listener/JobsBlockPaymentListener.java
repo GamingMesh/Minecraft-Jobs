@@ -47,8 +47,10 @@ public class JobsBlockPaymentListener extends BlockListener{
 		if((JobsConfiguration.getInstance().getPermissions() == null || 
 		        !JobsConfiguration.getInstance().getPermissions().isEnabled()) ||
 		        JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName())){
-			plugin.getJob(event.getPlayer()).broke(event.getBlock());			
+			plugin.getJob(event.getPlayer()).broke(event.getBlock(), plugin);			
 		}
+		//Cleanup the array
+		plugin.placedBlocks.remove(event.getBlock());
 	}
 	
 	public void onBlockPlace(BlockPlaceEvent event){
@@ -68,5 +70,7 @@ public class JobsBlockPaymentListener extends BlockListener{
 		        JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName())){
 			plugin.getJob(event.getPlayer()).placed(event.getBlock());
 		}
+		//Keep track of user placed blocks
+		plugin.placedBlocks.add(event.getBlock());
 	}
 }

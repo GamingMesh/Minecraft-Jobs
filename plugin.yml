@@ -1,7 +1,7 @@
 name: Jobs
 description: Job plugin for bukkit
 main: com.zford.jobs.Jobs
-version: @VERSION@
+version: 2.4.6
 author: phrstbrn
 softdepend: [Permissions, iConomy, BOSEconomy, Essentials, Stats]
 commands:
