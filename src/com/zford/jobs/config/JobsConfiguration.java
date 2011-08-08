@@ -88,6 +88,7 @@ public class JobsConfiguration {
 	// can get money near spawner.
 	private boolean payNearSpawner;
 	// default economy plugin
+	private boolean payForPlayerBlocks;
 	private String defaultEconomy = null;
 	
 	private ArrayList<RestrictedArea> restrictedAreas;
@@ -191,6 +192,9 @@ public class JobsConfiguration {
 			
 		// enable pay near spawner
         this.payNearSpawner = conf.getBoolean("enable-pay-near-spawner", false);
+        
+        //enable pay for player blocks
+        this.payForPlayerBlocks = conf.getBoolean("enable-pay-near-player-blocks", false);
         
         // max-jobs
         this.maxJobs = conf.getInt("max-jobs", -1);
@@ -805,6 +809,15 @@ public class JobsConfiguration {
 	 */
 	public boolean payNearSpawner(){
 		return payNearSpawner;
+	}
+	
+	/**
+	 * Function to check if you get paid for breaking player placed blocks
+	 * @return true - you get paid
+	 * @return false - you don't get paid
+	 */
+	public boolean payForPlayerPlacedBlocks(){
+		return payForPlayerBlocks;
 	}
 	
    /**
