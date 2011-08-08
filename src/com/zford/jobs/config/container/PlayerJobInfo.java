@@ -30,7 +30,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.dao.JobsDAO;
@@ -39,7 +38,8 @@ import com.zford.jobs.event.JobsLevelUpEvent;
 import com.zford.jobs.event.JobsSkillUpEvent;
 import com.zford.jobs.util.DisplayMethod;
 
-public class PlayerJobInfo {
+public class PlayerJobInfo 
+{
 	// the player the object belongs to
 	private Player player;
 	// list of all jobs that the player does
@@ -89,7 +89,14 @@ public class PlayerJobInfo {
 	 * 
 	 * @param block - the block broken
 	 */
-	public void broke(Block block){
+	public void broke(Block block, Jobs plugin)
+	{
+		//Check to see if it was placed by a player, thus making it worthless
+		if(plugin.placedBlocks.contains(block))
+			return;
+		
+		//
+		
 		HashMap<String, Double> param = new HashMap<String, Double>();
 		// add the number of jobs to the parameter list
 		param.put("numjobs", (double)progression.size());

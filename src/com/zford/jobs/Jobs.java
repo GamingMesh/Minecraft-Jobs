@@ -27,9 +27,11 @@ import java.util.Map.Entry;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.server.PluginDisableEvent;
@@ -70,7 +72,10 @@ import com.earth2me.essentials.Essentials;
  * @author Alex
  * @author Zak Ford <zak.j.ford@gmail.com>
  */
-public class Jobs extends JavaPlugin{
+public class Jobs extends JavaPlugin
+{
+	public ArrayList<Block> placedBlocks = new ArrayList<Block>();
+	public ArrayList<Entity> mobSpawned = new ArrayList<Entity>();
 	
 	private HashMap<Player, PlayerJobInfo> players = null;
 	
