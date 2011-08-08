@@ -89,14 +89,12 @@ public class PlayerJobInfo
 	 * 
 	 * @param block - the block broken
 	 */
-	public void broke(Block block, Jobs plugin)
+	public void broke(Block block)
 	{
 		//Check to see if it was placed by a player, thus making it worthless
-		if(plugin.placedBlocks.contains(block))
+		if(!JobsConfiguration.getInstance().payForPlayerPlacedBlocks() && Jobs.getPlugin().placedBlocks.contains(block))
 			return;
-		
-		//
-		
+
 		HashMap<String, Double> param = new HashMap<String, Double>();
 		// add the number of jobs to the parameter list
 		param.put("numjobs", (double)progression.size());

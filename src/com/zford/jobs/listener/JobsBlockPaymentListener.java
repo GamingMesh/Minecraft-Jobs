@@ -47,7 +47,7 @@ public class JobsBlockPaymentListener extends BlockListener{
 		if((JobsConfiguration.getInstance().getPermissions() == null || 
 		        !JobsConfiguration.getInstance().getPermissions().isEnabled()) ||
 		        JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName())){
-			plugin.getJob(event.getPlayer()).broke(event.getBlock(), plugin);			
+			plugin.getJob(event.getPlayer()).broke(event.getBlock());			
 		}
 		//Cleanup the array
 		plugin.placedBlocks.remove(event.getBlock());
