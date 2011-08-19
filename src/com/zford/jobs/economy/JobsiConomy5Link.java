@@ -32,7 +32,7 @@ import com.zford.jobs.config.JobsConfiguration;
  * @author Alex
  *
  */
-public class JobsiConomyLink implements JobsEconomyLink{
+public class JobsiConomy5Link implements JobsEconomyLink{
 	// iConomy link
 	private iConomy economy = null;
 	
@@ -40,7 +40,7 @@ public class JobsiConomyLink implements JobsEconomyLink{
 	 * Constructor for creating the link
 	 * @param economy - the iConomy object
 	 */
-	public JobsiConomyLink(iConomy economy){
+	public JobsiConomy5Link(iConomy economy){
 		this.economy = economy;
 	}
 	

@@ -1,5 +1,9 @@
 # Jobs plugin change log summary
 
+## 2.4.6
+* Added iConomy 6 support
+* Update for Bukkit build 1060
+
 ## 2.4.5
 * Added Essentials Economy support
 * Added configuration option "economy" for servers with with multiple economy plugins 
