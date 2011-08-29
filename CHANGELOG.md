@@ -1,5 +1,10 @@
 # Jobs plugin change log summary
 
+## 2.5.0
+* Added support for Crafting (via Spout)
+* Added ability to broadcast on level up
+* Fixed garbage collection error with MySQL and H2 when joining a job.
+
 ## 2.4.6
 * Added iConomy 6 support
 * Update for Bukkit build 1060

@@ -78,7 +78,9 @@ public class JobsConfiguration {
 	// permissions integration
 	private Permissions permissions = null;
 	// do i broadcast skillups?
-	private boolean broadcast;
+    private boolean broadcastSkillups;
+    // do i broadcast level ups?
+    private boolean broadcastLevelups;
 	// maximum number of jobs a player can join
 	private Integer maxJobs;
 	// used slots for each job
@@ -184,7 +186,8 @@ public class JobsConfiguration {
         }
 			
 		// broadcasting
-        this.broadcast = conf.getBoolean("broadcast-on-skill-up", false);
+        this.broadcastSkillups = conf.getBoolean("broadcast-on-skill-up", false);
+        this.broadcastLevelups = conf.getBoolean("broadcast-on-level-up", false);
         
         // enable stats
         this.statsEnabled = conf.getBoolean("enable-stats", false);
@@ -739,25 +742,22 @@ public class JobsConfiguration {
 	}
 	
 	/**
-	 * Get the message with the correct key
-	 * @param key - the key of the message
-	 * @return the message
-	 */
-	/*
-	@Deprecated
-	public String getMessage(String key){
-	    return JobsMessages.getInstance().getMessage(key);
-	}
-	*/
-	
-	/**
 	 * Function that tells if the system is set to broadcast on skill up
 	 * @return true - broadcast on skill up
 	 * @return false - do not broadcast on skill up
 	 */
-	public boolean isBroadcasting(){
-		return broadcast;
+	public boolean isBroadcastingSkillups(){
+		return broadcastSkillups;
 	}
+	
+	/**
+     * Function that tells if the system is set to broadcast on level up
+     * @return true - broadcast on level up
+     * @return false - do not broadcast on level up
+     */
+    public boolean isBroadcastingLevelups(){
+        return broadcastLevelups;
+    }
 	
 	/**
 	 * Function to return the title for a given level

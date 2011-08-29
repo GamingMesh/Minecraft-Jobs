@@ -129,14 +129,16 @@ fish-none: |
     %jobcolour%%jobname%ChatColor.WHITE does not get money for fishing.
 craft-none: |
     %jobcolour%%jobname%ChatColor.WHITE does not get money from crafting.
-level-up: |
-    ChatColor.YELLOW-- Job Level Up --
 at-max-level: |
     ChatColor.YELLOW-- You have reached the maximum level --
 skill-up-broadcast: |
     %playername% has been promoted to a %titlecolour%%titlename% %jobcolour%%jobname%ChatColor.WHITE.
 skill-up-no-broadcast: |
     Congratulations, you have been promoted to a %titlecolour%%titlename% %jobcolour%%jobname%ChatColor.WHITE.
+level-up-broadcast: |
+    %playername% is now a level %joblevel% %jobcolour%%jobname%ChatColor.WHITE.
+level-up-no-broadcast: |
+    You are now a level %joblevel% %jobcolour%%jobname%ChatColor.WHITE.
 join-job-success: |
     You have joined the job %jobcolour%%jobname%ChatColor.WHITE.
 join-job-failed-already-in: |

@@ -23,6 +23,9 @@ save-period: 10
 # Do all players get a message when somone goes up a skill level?
 broadcast-on-skill-up: true
 
+# Do all players get a message when somone goes up a job level?
+broadcast-on-level-up: false
+
 # maximum number of jobs a player can join
 #max-jobs: 3
 

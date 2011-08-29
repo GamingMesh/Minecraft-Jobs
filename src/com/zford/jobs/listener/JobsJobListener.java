@@ -64,7 +64,12 @@ public class JobsJobListener extends JobsEventListener{
 				
 				progression.setMaxExperience((int)progression.getJob().getMaxExp(param));
 				
-				String message = JobsMessages.getInstance().getMessage("level-up");
+				String message;
+				if(JobsConfiguration.getInstance().isBroadcastingLevelups()) {
+				    message = JobsMessages.getInstance().getMessage("level-up-broadcast");
+				} else {
+				    message = JobsMessages.getInstance().getMessage("level-up-no-broadcast");
+				}
 				message = message.replace("%jobname%", ""+progression.getJob().getName());
 				message = message.replace("%jobcolour%", ""+progression.getJob().getChatColour());
 				if(progression.getTitle() != null){
@@ -74,8 +79,14 @@ public class JobsJobListener extends JobsEventListener{
 				message = message.replace("%playername%", ""+event.getPlayer().getName());
 				message = message.replace("%playerdisplayname%", ""+event.getPlayer().getDisplayName());
 				message = message.replace("%joblevel%", ""+progression.getLevel());
-				for(String line: message.split("\n")){
-					event.getPlayer().sendMessage(line);
+				if(JobsConfiguration.getInstance().isBroadcastingLevelups()) {
+    				for(String line: message.split("\n")){
+    					plugin.getServer().broadcastMessage(line);
+    				}
+				} else {
+				    for(String line: message.split("\n")){
+                        event.getPlayer().sendMessage(line);
+                    }
 				}
 				
 				// stats plugin integration
@@ -107,7 +118,7 @@ public class JobsJobListener extends JobsEventListener{
 			event.getJobProgression().setTitle(event.getNewTitle());
 			
 			//broadcast
-			if(JobsConfiguration.getInstance().isBroadcasting()){
+			if(JobsConfiguration.getInstance().isBroadcastingSkillups()){
 				String message = JobsMessages.getInstance().getMessage("skill-up-broadcast");
 				message = message.replace("%playername%", event.getPlayer().getName());
 				if(event.getNewTitle() != null){
@@ -117,7 +128,7 @@ public class JobsJobListener extends JobsEventListener{
 				message = message.replace("%jobcolour%", event.getJobProgression().getJob().getChatColour().toString());
 				message = message.replace("%jobname%", event.getJobProgression().getJob().getName());
 				for(String line: message.split("\n")){
-					event.getPlayer().sendMessage(line);
+				    plugin.getServer().broadcastMessage(line);
 				}
 			}
 			else{

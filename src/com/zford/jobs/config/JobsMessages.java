@@ -86,7 +86,8 @@ public class JobsMessages {
         KILL_NONE,
         LEAVE_JOB_FAILED_TOO_MANY,
         LEAVE_JOB_SUCCESS,
-        LEVEL_UP,
+        LEVEL_UP_BROADCAST,
+        LEVEL_UP_NO_BROADCAST,
         PLACE_HEADER,
         PLACE_INFO_NO_SUB,
         PLACE_INFO_SUB,
@@ -298,8 +299,10 @@ public class JobsMessages {
             return "You have already joined too many jobs.";
         case LEAVE_JOB_SUCCESS:
             return "You have left the job %jobcolour%%jobname%"+ChatColor.WHITE+".";
-        case LEVEL_UP:
-            return ChatColor.YELLOW + "-- Job Level Up --";
+        case LEVEL_UP_BROADCAST:
+            return "%playername% is now a level %joblevel% %jobcolour%%jobname%"+ChatColor.WHITE+".";
+        case LEVEL_UP_NO_BROADCAST:
+            return "You are now a level %joblevel% %jobcolour%%jobname%"+ChatColor.WHITE+".";
         case PLACE_HEADER:
             return "Place:";
         case PLACE_INFO_NO_SUB:
