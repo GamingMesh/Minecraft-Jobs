@@ -3,7 +3,7 @@ description: Job plugin for bukkit
 main: com.zford.jobs.Jobs
 version: @VERSION@
 author: phrstbrn
-softdepend: [Permissions, iConomy, BOSEconomy, Essentials, Stats]
+softdepend: [Permissions, iConomy, BOSEconomy, Essentials, Stats, Spout]
 commands:
     Jobs:
         description: Jobs

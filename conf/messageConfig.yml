@@ -70,7 +70,7 @@ jobs-leave: |
 jobs-stats: |
     ChatColor.YELLOW/jobs statsChatColor.WHITE - show the level you are in each job you are part of.
 jobs-info: |
-    ChatColor.YELLOW/jobs info <jobname> <break, place, kill, fish>ChatColor.WHITE - show how much each job is getting paid and for what.
+    ChatColor.YELLOW/jobs info <jobname> <break, place, kill, fish, craft>ChatColor.WHITE - show how much each job is getting paid and for what.
 jobs-admin-info: |
     ChatColor.YELLOW/jobs admininfo <playername>ChatColor.WHITE - shows the level of each job and experience gains for the player.
 jobs-admin-fire: |
@@ -97,6 +97,8 @@ kill-header: |
     Kill:
 fish-header: |
     Fish:
+craft-header: |
+    Craft:
 break-info-no-sub: |
     ChatColor.WHITE    %item% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp
 break-info-sub: |
@@ -113,6 +115,10 @@ fish-info-no-sub: |
     ChatColor.WHITE    %item% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp
 fish-info-sub: |
     ChatColor.WHITE    %item%:%subitem% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp
+craft-info-no-sub: |
+    ChatColor.WHITE    %item% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp
+craft-info-sub: |
+    ChatColor.WHITE    %item%:%subitem% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp
 break-none: |
     %jobcolour%%jobname%ChatColor.WHITE does not get money for breaking anything.
 place-none: |
@@ -121,6 +127,8 @@ kill-none: |
     %jobcolour%%jobname%ChatColor.WHITE does not get money for killing anything.
 fish-none: |
     %jobcolour%%jobname%ChatColor.WHITE does not get money for fishing.
+craft-none: |
+    %jobcolour%%jobname%ChatColor.WHITE does not get money from crafting.
 level-up: |
     ChatColor.YELLOW-- Job Level Up --
 at-max-level: |

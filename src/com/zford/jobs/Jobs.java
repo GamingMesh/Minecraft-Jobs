@@ -56,6 +56,7 @@ import com.zford.jobs.event.JobsJoinEvent;
 import com.zford.jobs.event.JobsLeaveEvent;
 import com.zford.jobs.fake.JobsPlayer;
 import com.zford.jobs.listener.JobsBlockPaymentListener;
+import com.zford.jobs.listener.JobsCraftPaymentListener;
 import com.zford.jobs.listener.JobsFishPaymentListener;
 import com.zford.jobs.listener.JobsJobListener;
 import com.zford.jobs.listener.JobsKillPaymentListener;
@@ -75,6 +76,22 @@ public class Jobs extends JavaPlugin{
 	private HashMap<Player, PlayerJobInfo> players = null;
 	
 	private static Jobs plugin = null;
+	
+    private JobsBlockPaymentListener blockListener;
+    private JobsJobListener jobListener;
+    private JobsKillPaymentListener killListener;
+    private JobsPlayerListener playerListener;
+    private JobsFishPaymentListener fishListener;
+    private JobsCraftPaymentListener craftListener;
+	
+    public Jobs() {
+        blockListener = new JobsBlockPaymentListener(this);
+        jobListener = new JobsJobListener(this);
+        killListener = new JobsKillPaymentListener(this);
+        playerListener = new JobsPlayerListener(this);
+        fishListener = new JobsFishPaymentListener(this);
+        plugin = this;
+    }
 
 	/**
 	 * Method called when you disable the plugin
@@ -102,16 +119,10 @@ public class Jobs extends JavaPlugin{
 	 */
 	public void onEnable() {
 		// load the jobConfogiration
-		plugin = this;
 		players = new HashMap<Player, PlayerJobInfo>();
 		JobsConfiguration.getInstance();
 		
 		if(isEnabled()){
-			JobsBlockPaymentListener blockListener = new JobsBlockPaymentListener(this);
-			JobsJobListener jobListener = new JobsJobListener(this);
-			JobsKillPaymentListener killListener = new JobsKillPaymentListener(this);
-            JobsPlayerListener playerListener = new JobsPlayerListener(this);
-            JobsFishPaymentListener fishListener = new JobsFishPaymentListener(this);
 			
 			// set the system to auto save
 			if(JobsConfiguration.getInstance().getSavePeriod() > 0){
@@ -171,6 +182,15 @@ public class Jobs extends JavaPlugin{
 							jc.setPermissions((Permissions)pm.getPlugin("Permissions"));
 		                    System.out.println("[Jobs] Successfully linked with Permissions.");
 						}
+					}
+					
+					// spout
+					if(craftListener == null){
+					    if(getServer().getPluginManager().getPlugin("Spout") != null){
+					        craftListener = new JobsCraftPaymentListener(plugin);
+				            getServer().getPluginManager().registerEvent(Event.Type.CUSTOM_EVENT, craftListener, Event.Priority.Monitor, plugin);
+                            System.out.println("[Jobs] Successfully linked with Spout.");
+					    }
 					}
 				}
 				
@@ -859,7 +879,7 @@ public class Jobs extends JavaPlugin{
         String message = "";
         
         int showAllTypes = 1;
-        if(type.equalsIgnoreCase("break") || type.equalsIgnoreCase("place") || type.equalsIgnoreCase("kill") || type.equalsIgnoreCase("fish")) {
+        if(type.equalsIgnoreCase("break") || type.equalsIgnoreCase("place") || type.equalsIgnoreCase("kill") || type.equalsIgnoreCase("fish") || type.equalsIgnoreCase("craft")) {
             showAllTypes = 0;
         }
         
@@ -917,6 +937,23 @@ public class Jobs extends JavaPlugin{
                 myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
                 myMessage = myMessage.replace("%jobname%", job.getName());
                 message += myMessage;
+            }
+        }
+        
+        if(getServer().getPluginManager().getPlugin("Spout") != null){
+            if(type.equalsIgnoreCase("craft") || showAllTypes == 1){
+                // craft
+                HashMap<String, JobsMaterialInfo> jobCraftInfo = job.getCraftInfo();
+                
+                if(jobCraftInfo != null){
+                    message += jobInfoCraftMessage(player, job, jobCraftInfo);
+                }
+                else if(showAllTypes == 0) {
+                    String myMessage = JobsMessages.getInstance().getMessage("craft-none");
+                    myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
+                    myMessage = myMessage.replace("%jobname%", job.getName());
+                    message += myMessage;
+                }
             }
         }
         return message;
@@ -1107,6 +1144,56 @@ public class Jobs extends JavaPlugin{
             }
             else {
                 myMessage = JobsMessages.getInstance().getMessage("fish-info-no-sub");
+            }
+            if(temp.getKey().contains(":")){
+                myMessage = myMessage.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
+                myMessage = myMessage.replace("%subitem%", temp.getKey().split(":")[1]);
+            }
+            else{
+                myMessage = myMessage.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
+            }
+            myMessage = myMessage.replace("%income%", format.format(incomeEquation.getValue()));
+            myMessage = myMessage.replace("%experience%", format.format(expEquation.getValue()));
+            message += myMessage;
+        }
+        return message;
+    }
+    
+    /**
+     * Displays info about fishing
+     * @param player - the player of the job
+     * @param job - the job we are displaying info about
+     * @param jobFishInfo - the information to display
+     * @return the message
+     */ 
+    private String jobInfoCraftMessage(Player player, Job job, HashMap<String, JobsMaterialInfo> jobFishInfo) {
+        
+        String message = "";
+        message += JobsMessages.getInstance().getMessage("craft-header");
+
+        DecimalFormat format = new DecimalFormat("#.##");
+        JobProgression prog = getJob(player).getJobsProgression(job);
+        Parser expEquation = job.getExpEquation();
+        Parser incomeEquation = job.getIncomeEquation();
+        if(prog != null){
+            expEquation.setVariable("joblevel", prog.getLevel());
+            incomeEquation.setVariable("joblevel", prog.getLevel());
+        }
+        else {
+            expEquation.setVariable("joblevel", 1);
+            incomeEquation.setVariable("joblevel", 1);
+        }
+        expEquation.setVariable("numjobs", getJob(player).getJobs().size());
+        incomeEquation.setVariable("numjobs", getJob(player).getJobs().size());
+        for(Entry<String, JobsMaterialInfo> temp: jobFishInfo.entrySet()){
+            expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
+            incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
+            String myMessage;
+            if(temp.getKey().contains(":")){
+                myMessage = JobsMessages.getInstance().getMessage("craft-info-sub");
+            }
+            else {
+                myMessage = JobsMessages.getInstance().getMessage("craft-info-no-sub");
             }
             if(temp.getKey().contains(":")){
                 myMessage = myMessage.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());

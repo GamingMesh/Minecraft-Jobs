@@ -30,6 +30,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.JobsConfiguration;
@@ -230,6 +231,45 @@ public class PlayerJobInfo {
             if(jobNone != null) {
                 param.put("joblevel", 1.0);
                 Double income = jobNone.getFishIncome(item, param);
+                if(income != null) {
+                    // give income
+                    JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+                }
+                param.remove("joblevel");
+            }
+        }
+        JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
+	}
+	
+	/**
+	 * crafted an item.
+	 * 
+	 * Give correct experience and income
+	 * 
+	 * @param block - the block broken
+	 */
+	public void crafted(ItemStack items){
+		HashMap<String, Double> param = new HashMap<String, Double>();
+		// add the number of jobs to the parameter list
+		param.put("numjobs", (double)progression.size());
+		for(Entry<Job, JobProgression> temp: progression.entrySet()){
+			// add the current level to the parameter list
+			param.put("joblevel", (double)temp.getValue().getLevel());
+			// get the income and give it
+			Double income = temp.getKey().getCraftIncome(items, param);
+			if(income != null){
+				JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+				temp.getValue().addExp(temp.getKey().getCraftExp(items, param));
+				checkLevels();
+			}
+			param.remove("joblevel");
+		}
+		// no job
+        if(this.progression.size() == 0) {
+            Job jobNone = JobsConfiguration.getInstance().getJob("None");
+            if(jobNone != null) {
+                param.put("joblevel", 1.0);
+                Double income = jobNone.getCraftIncome(items, param);
                 if(income != null) {
                     // give income
                     JobsConfiguration.getInstance().getEconomyLink().pay(player, income);

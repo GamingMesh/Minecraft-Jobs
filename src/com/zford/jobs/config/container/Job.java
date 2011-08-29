@@ -22,11 +22,11 @@ package com.zford.jobs.config.container;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
+import org.bukkit.inventory.ItemStack;
 import org.mbertoli.jfep.Parser;
 
 import com.zford.jobs.util.DisplayMethod;
@@ -42,6 +42,8 @@ public class Job {
 	
 	// payment for breaking a block
 	private HashMap<String, JobsMaterialInfo> jobBreakInfo;
+	// payment for crafting
+	private HashMap<String, JobsMaterialInfo> jobCraftInfo;
 	// payment for placing a block
 	private HashMap<String, JobsMaterialInfo> jobPlaceInfo;
 	// payment for killing a living entity
@@ -75,6 +77,7 @@ public class Job {
 	 * @param jobBreakInfo - information about base rewards for breaking a block
 	 * @param jobPlaceInfo - information about base rewards for placing a block
 	 * @param jobKillInfo - information about base rewards for killing a LivingEntity
+	 * @param jobCreateInfo - information about base rewards for creating an item
 	 * @param jobKillCustomInfo - information about base rewards for killing a custom jobs class
 	 * @param jobName - the name of the job
 	 * @param jobShortName - the shortened version of the name of the job.
@@ -90,6 +93,7 @@ public class Job {
 			HashMap<String, JobsMaterialInfo> jobPlaceInfo, 
 			HashMap<String, JobsLivingEntityInfo> jobKillInfo,
 		    HashMap<String, JobsMaterialInfo> jobFishInfo,
+		    HashMap<String, JobsMaterialInfo> jobCreateInfo,
 			String jobName,
 			String jobShortName,
 			ChatColor jobColour,
@@ -101,6 +105,7 @@ public class Job {
 			Integer maxSlots){
 		this.jobBreakInfo = jobBreakInfo;
 		this.jobPlaceInfo = jobPlaceInfo;
+		this.jobCraftInfo = jobCreateInfo;
 		this.jobKillInfo = jobKillInfo;
 		this.jobFishInfo = jobFishInfo;
 		this.jobName = jobName;
@@ -186,6 +191,28 @@ public class Job {
 	 */
 	public Double getBreakExp(Block block, HashMap<String, Double> param){
         return this.getBlockActionExp(block, param, this.jobBreakInfo);
+	}
+	
+	/**
+	 * Function to get the income for crafting an item
+	 * @param items - the items
+	 * @param param - parameters for the customisable equation
+	 * @return the income received for crafting the item
+	 * @return null if job has no payment for this type of block
+	 */
+	public Double getCraftIncome(ItemStack items, HashMap<String, Double> param){
+        return this.getItemActionIncome(items, param, this.jobCraftInfo);
+	}
+	
+	/**
+	 * Function to get the exp for crafting an item
+	 * @param items - the items
+	 * @param param - parameters for the customisable equation
+	 * @return the income received for crafting the item
+	 * @return null if job has no payment for this type of block
+	 */
+	public Double getCraftExp(ItemStack items, HashMap<String, Double> param){
+        return this.getItemActionExp(items, param, this.jobCraftInfo);
 	}
 	
     /**
@@ -290,6 +317,65 @@ public class Job {
                 // try with sub-class
                 if(info.containsKey(blockKey+":"+block.getData())){
                     return info.get(blockKey+":"+block.getData()).getXPFromMaterial(expEquation, param);
+                }
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Function to get the income for performing the action
+     * @param block - the block
+     * @param param - parameters for the customisable equation
+     * @param info - info for performing the action
+     * @return the income received for performing the action
+     * @return null if job has no payment for this type of action
+     */
+    private Double getItemActionIncome(ItemStack item, HashMap<String, Double> param, HashMap<String, JobsMaterialInfo> info) {
+        String blockKey = item.getType().toString();
+        // Normalize GLOWING_REDSTONE_ORE to REDSTONE_ORE
+        if(item.getType().equals(Material.GLOWING_REDSTONE_ORE)) {
+            blockKey = Material.REDSTONE_ORE.toString();
+        }
+        if(info != null){
+            // try simple
+            if(info.containsKey(blockKey)){            	
+                return item.getAmount() * info.get(blockKey).getMoneyFromMaterial(incomeEquation, param);
+            }
+            else{
+                // try with sub-class
+                if(info.containsKey(blockKey+":"+item.getData())){
+                    return item.getAmount() * info.get(blockKey+":"+item.getData()).getMoneyFromMaterial(incomeEquation, param);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Function to get the exp for performing the action
+     * @param block - the block
+     * @param param - parameters for the customisable equation
+     * @param info - info for performing the action
+     * @return the exp received for performing the action
+     * @return null if job has no payment for this type of action
+     */
+    private Double getItemActionExp(ItemStack item, HashMap<String, Double> param, HashMap<String, JobsMaterialInfo> info) {
+        String blockKey = item.getType().toString();
+        
+        // Normalize GLOWING_REDSTONE_ORE to REDSTONE_ORE
+        if(item.getType().equals(Material.GLOWING_REDSTONE_ORE)) {
+            blockKey = Material.REDSTONE_ORE.toString();
+        }
+        if(info != null){
+            // try simple
+            if(info.containsKey(blockKey)){
+                return item.getAmount() * info.get(blockKey).getXPFromMaterial(expEquation, param);
+            }
+            else{
+                // try with sub-class
+                if(info.containsKey(blockKey+":"+item.getData())){
+                    return item.getAmount() * info.get(blockKey+":"+item.getData()).getXPFromMaterial(expEquation, param);
                 }
             }
         }
@@ -413,4 +499,12 @@ public class Job {
 	public HashMap<String, JobsMaterialInfo> getFishInfo(){
 	    return jobFishInfo;
 	}
+    
+    /**
+     * Get the payout information for crafting
+     * @return the map of fishing and its payment
+     */
+    public HashMap<String, JobsMaterialInfo> getCraftInfo(){
+        return jobCraftInfo;
+    }
 }

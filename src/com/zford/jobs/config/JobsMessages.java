@@ -47,6 +47,10 @@ public class JobsMessages {
         BROWSE_JOBS_FOOTER,
         BROWSE_JOBS_HEADER,
         BROWSE_NO_JOBS,
+        CRAFT_HEADER,
+        CRAFT_NONE,
+        CRAFT_INFO_NO_SUB,
+        CRAFT_INFO_SUB,
         DEMOTE_TARGET,
         EMPLOY_TARGET,
         ERROR_NO_JOB,
@@ -210,6 +214,16 @@ public class JobsMessages {
             return "You are allowed to join the following jobs:";
         case BROWSE_NO_JOBS:
             return "There are no jobs you can join";
+        case CRAFT_HEADER:
+            return "Craft:";
+        case CRAFT_INFO_NO_SUB:
+            return "    %item% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
+            ChatColor.YELLOW + " exp";
+        case CRAFT_INFO_SUB:
+            return "    %item%:%subitem% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
+                ChatColor.YELLOW + " exp";
+        case CRAFT_NONE:
+            return "%jobcolour%%jobname%" +ChatColor.WHITE+ " does not get money from crafting.";
         case DEMOTE_TARGET:
             return "You have been demoted %levelslost% levels in %jobcolour%%jobname%";
         case EMPLOY_TARGET:
@@ -255,7 +269,7 @@ public class JobsMessages {
         case JOBS_BROWSE:
             return "/jobs browse - list the jobs available to you";
         case JOBS_INFO:
-            return "/jobs info <jobname> <break, place, kill, fish> - show how much each job is getting paid and for what";
+            return "/jobs info <jobname> <break, place, kill, fish, craft> - show how much each job is getting paid and for what";
         case JOBS_JOIN:
             return "/jobs join <jobname> - join the selected job";
         case JOBS_LEAVE:

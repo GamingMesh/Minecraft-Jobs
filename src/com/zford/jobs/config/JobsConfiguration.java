@@ -402,6 +402,41 @@ public class JobsConfiguration {
                 jobPlaceInfo = null;
             }
             
+            // craft
+            List<String> craftKeys = conf.getKeys("Jobs."+jobKey+".Craft");
+            HashMap<String, JobsMaterialInfo> jobCraftInfo = new HashMap<String, JobsMaterialInfo>();
+            if(craftKeys != null) {
+                for(String craftKey : craftKeys) {
+                    String materialType = craftKey.toUpperCase();
+                    String subType = "";
+                    Material material;
+                    if(materialType.contains("-")) {
+                        // uses subType
+                        subType = ":"+materialType.split("-")[1];
+                        materialType = materialType.split("-")[0];
+                    }
+                    try {
+                        material = Material.matchMaterial(materialType);
+                    }
+                    catch(IllegalArgumentException e) {
+                        material = null;
+                    }
+                    if(material == null) {
+                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + craftKey + " Craft material type property. Disabling jobs!");
+                        Jobs.disablePlugin();
+                        return;
+                    }
+                    MaterialData materialData = new MaterialData(material);
+                    
+                    Double income = conf.getDouble("Jobs."+jobKey+".Craft."+craftKey+".income", 0.0);
+                    Double experience = conf.getDouble("Jobs."+jobKey+".Craft."+craftKey+".experience", 0.0);
+                    
+                    jobCraftInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
+                }
+            } else {
+            	jobCraftInfo = null;
+            }
+            
             // kill
             List<String> killKeys = conf.getKeys("Jobs."+jobKey+".Kill");
             HashMap<String, JobsLivingEntityInfo> jobKillInfo = new HashMap<String, JobsLivingEntityInfo>();
@@ -491,7 +526,7 @@ public class JobsConfiguration {
                 jobKillInfo = null;
             }
             
-            this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobFishInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots));
+            this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobFishInfo, jobCraftInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots));
         }
 	}
 	
