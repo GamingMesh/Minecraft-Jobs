@@ -158,6 +158,7 @@ public class JobsDAOMySQL implements JobsDAO {
 			prest.setString(4, job.getName());
 			prest.executeUpdate();
 			prest.close();
+			conn.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
