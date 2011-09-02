@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.5.1
+* Fixed NPE when crafting
+
 ## 2.5.0
 * Added support for Crafting (via Spout)
 * Added ability to broadcast on level up
