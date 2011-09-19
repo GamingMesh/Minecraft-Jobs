@@ -34,7 +34,7 @@ import org.bukkit.util.config.Configuration;
  *
  */
 
-public class JobsMessages {
+public class MessageConfig {
     
     private enum JobsMessageEnum {
         ADMIN_COMMAND_FAILED,
@@ -113,23 +113,23 @@ public class JobsMessages {
         }
     }
     
-    private static JobsMessages instance = null;
+    private static MessageConfig instance = null;
 
     private HashMap<String, String> messages;
     
     /**
      * Private function to create singleton pattern
      */
-    private JobsMessages() {
+    private MessageConfig() {
     }
     
     /**
      * Retrieve instance
      * @return - an instance of JobsMessageConfig
      */
-    public static JobsMessages getInstance() {
+    public static MessageConfig getInstance() {
         if(instance == null) {
-            instance = new JobsMessages();
+            instance = new MessageConfig();
         }
         return instance;
     }
@@ -137,7 +137,7 @@ public class JobsMessages {
     /**
      * Reloads the config
      */
-    public void reloadConfig(){
+    public void reload(){
         this.messages = new HashMap<String, String>();
         File f = new File("plugins/Jobs/messageConfig.yml");
         Configuration conf;

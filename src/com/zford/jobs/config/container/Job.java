@@ -126,10 +126,8 @@ public class Job {
 	 * @return the income received for killing the LivingEntity
 	 */
 	public Double getKillIncome(String mob, HashMap<String, Double> param){
-		if(jobKillInfo != null){
-			if(jobKillInfo.containsKey(mob)){
-				return jobKillInfo.get(mob).getMoneyFromKill(incomeEquation, mob, param);
-			}
+		if(jobKillInfo.containsKey(mob)){
+			return jobKillInfo.get(mob).getMoneyFromKill(incomeEquation, mob, param);
 		}
 		return null;
 	}
@@ -141,10 +139,8 @@ public class Job {
 	 * @return the exp received for killing the LivingEntity
 	 */
 	public Double getKillExp(String mob, HashMap<String, Double> param){
-		if(jobKillInfo != null){
-			if(jobKillInfo.containsKey(mob)){
-				return jobKillInfo.get(mob).getXPFromKill(expEquation, mob, param);
-			}
+		if(jobKillInfo.containsKey(mob)){
+			return jobKillInfo.get(mob).getXPFromKill(expEquation, mob, param);
 		}
 		return null;
 	}
@@ -224,16 +220,14 @@ public class Job {
      */
 	public Double getFishIncome(Item item, HashMap<String, Double> param) {
 	    String materialKey = item.getItemStack().getType().toString();
-        if(this.jobFishInfo != null){
-            // try simple
-            if(this.jobFishInfo.containsKey(materialKey)){
-                return this.jobFishInfo.get(materialKey).getMoneyFromMaterial(incomeEquation, param);
-            }
-            else{
-                // try with sub-class
-                if(this.jobFishInfo.containsKey(materialKey+":"+item.getItemStack().getData())){
-                    return this.jobFishInfo.get(materialKey+":"+item.getItemStack().getData()).getMoneyFromMaterial(incomeEquation, param);
-                }
+        // try simple
+        if(this.jobFishInfo.containsKey(materialKey)){
+            return this.jobFishInfo.get(materialKey).getMoneyFromMaterial(incomeEquation, param);
+        }
+        else{
+            // try with sub-class
+            if(this.jobFishInfo.containsKey(materialKey+":"+item.getItemStack().getData())){
+                return this.jobFishInfo.get(materialKey+":"+item.getItemStack().getData()).getMoneyFromMaterial(incomeEquation, param);
             }
         }
         return null;
@@ -248,16 +242,14 @@ public class Job {
      */
     public Double getFishExp(Item item, HashMap<String, Double> param) {
         String materialKey = item.getItemStack().getType().toString();
-        if(this.jobFishInfo != null){
-            // try simple
-            if(this.jobFishInfo.containsKey(materialKey)){
-                return this.jobFishInfo.get(materialKey).getXPFromMaterial(expEquation, param);
-            }
-            else{
-                // try with sub-class
-                if(this.jobFishInfo.containsKey(materialKey+":"+item.getItemStack().getData())){
-                    return this.jobFishInfo.get(materialKey+":"+item.getItemStack().getData()).getXPFromMaterial(expEquation, param);
-                }
+        // try simple
+        if(this.jobFishInfo.containsKey(materialKey)){
+            return this.jobFishInfo.get(materialKey).getXPFromMaterial(expEquation, param);
+        }
+        else{
+            // try with sub-class
+            if(this.jobFishInfo.containsKey(materialKey+":"+item.getItemStack().getData())){
+                return this.jobFishInfo.get(materialKey+":"+item.getItemStack().getData()).getXPFromMaterial(expEquation, param);
             }
         }
         return null;
@@ -278,16 +270,14 @@ public class Job {
         if(block.getType().equals(Material.GLOWING_REDSTONE_ORE)) {
             blockKey = Material.REDSTONE_ORE.toString();
         }
-        if(info != null){
-            // try simple
-            if(info.containsKey(blockKey)){
-                return info.get(blockKey).getMoneyFromMaterial(incomeEquation, param);
-            }
-            else{
-                // try with sub-class
-                if(info.containsKey(blockKey+":"+block.getData())){
-                    return info.get(blockKey+":"+block.getData()).getMoneyFromMaterial(incomeEquation, param);
-                }
+        // try simple
+        if(info.containsKey(blockKey)){
+            return info.get(blockKey).getMoneyFromMaterial(incomeEquation, param);
+        }
+        else{
+            // try with sub-class
+            if(info.containsKey(blockKey+":"+block.getData())){
+                return info.get(blockKey+":"+block.getData()).getMoneyFromMaterial(incomeEquation, param);
             }
         }
         return null;
@@ -308,16 +298,14 @@ public class Job {
         if(block.getType().equals(Material.GLOWING_REDSTONE_ORE)) {
             blockKey = Material.REDSTONE_ORE.toString();
         }
-        if(info != null){
-            // try simple
-            if(info.containsKey(blockKey)){
-                return info.get(blockKey).getXPFromMaterial(expEquation, param);
-            }
-            else{
-                // try with sub-class
-                if(info.containsKey(blockKey+":"+block.getData())){
-                    return info.get(blockKey+":"+block.getData()).getXPFromMaterial(expEquation, param);
-                }
+        // try simple
+        if(info.containsKey(blockKey)){
+            return info.get(blockKey).getXPFromMaterial(expEquation, param);
+        }
+        else{
+            // try with sub-class
+            if(info.containsKey(blockKey+":"+block.getData())){
+                return info.get(blockKey+":"+block.getData()).getXPFromMaterial(expEquation, param);
             }
         }
         return null;
@@ -337,16 +325,14 @@ public class Job {
         if(item.getType().equals(Material.GLOWING_REDSTONE_ORE)) {
             blockKey = Material.REDSTONE_ORE.toString();
         }
-        if(info != null){
-            // try simple
-            if(info.containsKey(blockKey)){            	
-                return item.getAmount() * info.get(blockKey).getMoneyFromMaterial(incomeEquation, param);
-            }
-            else{
-                // try with sub-class
-                if(info.containsKey(blockKey+":"+item.getData())){
-                    return item.getAmount() * info.get(blockKey+":"+item.getData()).getMoneyFromMaterial(incomeEquation, param);
-                }
+        // try simple
+        if(info.containsKey(blockKey)){            	
+            return item.getAmount() * info.get(blockKey).getMoneyFromMaterial(incomeEquation, param);
+        }
+        else{
+            // try with sub-class
+            if(info.containsKey(blockKey+":"+item.getData())){
+                return item.getAmount() * info.get(blockKey+":"+item.getData()).getMoneyFromMaterial(incomeEquation, param);
             }
         }
         return null;
@@ -367,16 +353,14 @@ public class Job {
         if(item.getType().equals(Material.GLOWING_REDSTONE_ORE)) {
             blockKey = Material.REDSTONE_ORE.toString();
         }
-        if(info != null){
-            // try simple
-            if(info.containsKey(blockKey)){
-                return item.getAmount() * info.get(blockKey).getXPFromMaterial(expEquation, param);
-            }
-            else{
-                // try with sub-class
-                if(info.containsKey(blockKey+":"+item.getData())){
-                    return item.getAmount() * info.get(blockKey+":"+item.getData()).getXPFromMaterial(expEquation, param);
-                }
+        // try simple
+        if(info.containsKey(blockKey)){
+            return item.getAmount() * info.get(blockKey).getXPFromMaterial(expEquation, param);
+        }
+        else{
+            // try with sub-class
+            if(info.containsKey(blockKey+":"+item.getData())){
+                return item.getAmount() * info.get(blockKey+":"+item.getData()).getXPFromMaterial(expEquation, param);
             }
         }
         return null;

@@ -33,6 +33,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.zford.jobs.Jobs;
+import com.zford.jobs.config.JobConfig;
 import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.dao.JobsDAO;
 import com.zford.jobs.dao.container.JobsDAOData;
@@ -65,13 +66,13 @@ public class PlayerJobInfo {
 		List<JobsDAOData> list = dao.getAllJobs(player);
 		if(list != null){
 			for(JobsDAOData job: list){
-				if(JobsConfiguration.getInstance().getJob(job.getJobName()) != null){
+				if(JobConfig.getInstance().getJob(job.getJobName()) != null){
 					// add the job
-					jobs.add(JobsConfiguration.getInstance().getJob(job.getJobName()));
+					jobs.add(JobConfig.getInstance().getJob(job.getJobName()));
 					
 					// create the progression object
 					JobProgression jobProgression = 
-						new JobProgression(JobsConfiguration.getInstance().getJob(job.getJobName()), job.getExperience(),job.getLevel(), this);
+						new JobProgression(JobConfig.getInstance().getJob(job.getJobName()), job.getExperience(),job.getLevel(), this);
 					// calculate the max level
 					
 					// add the progression level.
@@ -108,7 +109,7 @@ public class PlayerJobInfo {
 		}
 		// no job
         if(this.progression.size() == 0) {
-            Job jobNone = JobsConfiguration.getInstance().getJob("None");
+            Job jobNone = JobConfig.getInstance().getJob("None");
             if(jobNone != null) {
                 param.put("joblevel", 1.0);
                 Double income = jobNone.getBreakIncome(block, param);
@@ -148,7 +149,7 @@ public class PlayerJobInfo {
 		}
 		// no job
         if(this.progression.size() == 0) {
-            Job jobNone = JobsConfiguration.getInstance().getJob("None");
+            Job jobNone = JobConfig.getInstance().getJob("None");
             if(jobNone != null) {
                 param.put("joblevel", 1.0);
                 Double income = jobNone.getPlaceIncome(block, param);
@@ -188,7 +189,7 @@ public class PlayerJobInfo {
 		}
 		// no job
 		if(this.progression.size() == 0) {
-		    Job jobNone = JobsConfiguration.getInstance().getJob("None");
+		    Job jobNone = JobConfig.getInstance().getJob("None");
 		    if(jobNone != null) {
     		    param.put("joblevel", 1.0);
     		    Double income = jobNone.getKillIncome(victim, param);
@@ -227,7 +228,7 @@ public class PlayerJobInfo {
         }
 	    // no job
         if(this.progression.size() == 0) {
-            Job jobNone = JobsConfiguration.getInstance().getJob("None");
+            Job jobNone = JobConfig.getInstance().getJob("None");
             if(jobNone != null) {
                 param.put("joblevel", 1.0);
                 Double income = jobNone.getFishIncome(item, param);
@@ -266,7 +267,7 @@ public class PlayerJobInfo {
 		}
 		// no job
         if(this.progression.size() == 0) {
-            Job jobNone = JobsConfiguration.getInstance().getJob("None");
+            Job jobNone = JobConfig.getInstance().getJob("None");
             if(jobNone != null) {
                 param.put("joblevel", 1.0);
                 Double income = jobNone.getCraftIncome(items, param);
@@ -367,7 +368,7 @@ public class PlayerJobInfo {
 		else{
 		    Job job;
 		    if(jobs.size() == 0) {
-		        job = JobsConfiguration.getInstance().getJob("None");
+		        job = JobConfig.getInstance().getJob("None");
 		    } else {
 		        job = jobs.get(0);
 		    }
