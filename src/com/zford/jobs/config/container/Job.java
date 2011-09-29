@@ -328,8 +328,7 @@ public class Job {
         // try simple
         if(info.containsKey(blockKey)){            	
             return item.getAmount() * info.get(blockKey).getMoneyFromMaterial(incomeEquation, param);
-        }
-        else{
+        }else if(item.getData()!=null){
             // try with sub-class
             if(info.containsKey(blockKey+":"+item.getData())){
                 return item.getAmount() * info.get(blockKey+":"+item.getData()).getMoneyFromMaterial(incomeEquation, param);

@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.5.3
+* Fixed NPE when crafting
+
 ## 2.5.2
 * Fixed some /jobs reload Issues
 * Fix killing of creatures/animals for 1.8+
