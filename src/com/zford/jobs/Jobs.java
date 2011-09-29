@@ -399,7 +399,13 @@ public class Jobs extends JavaPlugin{
                         (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
 			        try {
     			        if(isEnabled()) {
+    			            for(Player player : this.getServer().getOnlinePlayers()) {
+    			                removePlayer(player);
+    			            }
     			            reloadConfigurations();
+    			            for(Player player : this.getServer().getOnlinePlayers()) {
+    			                addPlayer(player);
+    			            }
         			        if(sender instanceof Player) {
         			            Jobs.sendMessageByLine(sender, MessageConfig.getInstance().getMessage("admin-command-success"));
         			        }

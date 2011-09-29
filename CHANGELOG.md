@@ -2,6 +2,7 @@
 
 ## 2.5.3
 * Fixed NPE when crafting
+* Reload should actually work properly now
 
 ## 2.5.2
 * Fixed some /jobs reload Issues
