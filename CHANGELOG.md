@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.5.4
+* Yet another crafting NPE fix
+
 ## 2.5.3
 * Fixed NPE when crafting
 * Reload should actually work properly now

@@ -321,6 +321,8 @@ public class Job {
      */
     private Double getItemActionIncome(ItemStack item, HashMap<String, Double> param, HashMap<String, JobsMaterialInfo> info) {
         String blockKey = item.getType().toString();
+        if(blockKey == null)
+            return null;
         // Normalize GLOWING_REDSTONE_ORE to REDSTONE_ORE
         if(item.getType().equals(Material.GLOWING_REDSTONE_ORE)) {
             blockKey = Material.REDSTONE_ORE.toString();
@@ -330,7 +332,7 @@ public class Job {
             return item.getAmount() * info.get(blockKey).getMoneyFromMaterial(incomeEquation, param);
         }else if(item.getData()!=null){
             // try with sub-class
-            if(info.containsKey(blockKey+":"+item.getData())){
+            if(info.containsKey(blockKey+":"+item.getData().getData())){
                 return item.getAmount() * info.get(blockKey+":"+item.getData()).getMoneyFromMaterial(incomeEquation, param);
             }
         }
@@ -347,6 +349,8 @@ public class Job {
      */
     private Double getItemActionExp(ItemStack item, HashMap<String, Double> param, HashMap<String, JobsMaterialInfo> info) {
         String blockKey = item.getType().toString();
+        if(blockKey == null)
+            return null;
         
         // Normalize GLOWING_REDSTONE_ORE to REDSTONE_ORE
         if(item.getType().equals(Material.GLOWING_REDSTONE_ORE)) {
@@ -355,10 +359,9 @@ public class Job {
         // try simple
         if(info.containsKey(blockKey)){
             return item.getAmount() * info.get(blockKey).getXPFromMaterial(expEquation, param);
-        }
-        else{
+        }else if(item.getData()!=null){
             // try with sub-class
-            if(info.containsKey(blockKey+":"+item.getData())){
+            if(info.containsKey(blockKey+":"+item.getData().getData())){
                 return item.getAmount() * info.get(blockKey+":"+item.getData()).getXPFromMaterial(expEquation, param);
             }
         }
