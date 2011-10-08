@@ -20,10 +20,14 @@
 package com.zford.jobs.listener;
 
 
+import java.util.HashSet;
+
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Wolf;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityListener;
@@ -41,9 +45,11 @@ import com.zford.jobs.config.container.RestrictedArea;
  */
 public class JobsKillPaymentListener extends EntityListener{
 	private Jobs plugin;
+	private HashSet<LivingEntity> mobSpawnerCreatures;
 	
 	public JobsKillPaymentListener(Jobs plugin) {
 		this.plugin = plugin;
+		this.mobSpawnerCreatures = new HashSet<LivingEntity>();
 	}
 	
 	/**
@@ -70,8 +76,9 @@ public class JobsKillPaymentListener extends EntityListener{
             }
             if(pDamager != null && e.getEntity() instanceof LivingEntity) {
                 LivingEntity lVictim = (LivingEntity)e.getEntity();
-                // near mob spawner, no payment or experience
-                if (nearMobSpawner(pDamager) || nearMobSpawner(lVictim)) return;
+                // mob spawner, no payment or experience
+                if(mobSpawnerCreatures.remove(lVictim))
+                    return;
 
                 // inside restricted area, no payment or experience
                 if (RestrictedArea.isRestricted(pDamager) || RestrictedArea.isRestricted(lVictim)) return;
@@ -88,30 +95,21 @@ public class JobsKillPaymentListener extends EntityListener{
             }
         }
     }
-    
-    /**
-     * Function to check whether an entity is near a mob spawner
-     * @param entity - the entity to be checked
-     * @return true - near a mob spawner
-     * @return false - not near a mob spawner
-     */
-    private boolean nearMobSpawner(LivingEntity entity){
-        if(JobsConfiguration.getInstance().payNearSpawner()){
-            return false;
-        }
-        int x = entity.getLocation().getBlockX();
-        int y = entity.getLocation().getBlockY();
-        int z = entity.getLocation().getBlockZ();
-        for(int a=0; a< 10; ++a){
-            for(int b=0; b< 10; ++b){
-                for(int c=0; c< 10; ++c){
-                    if((entity.getWorld().getBlockAt(x-a,y-b,z-c).getTypeId() == 52)||
-                            (entity.getWorld().getBlockAt(x+a,y+b,z+c).getTypeId() == 52)){
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
+	
+	/**
+	 * Track creatures that are spawned from a mob spawner
+	 * 
+	 * These creatures shouldn't payout if the configuration is set
+	 */
+	@Override
+	public void onCreatureSpawn(CreatureSpawnEvent event) {
+	    if(!(event.getEntity() instanceof LivingEntity))
+	        return;
+	    if(!event.getSpawnReason().equals(SpawnReason.SPAWNER))
+	        return;
+	    if(JobsConfiguration.getInstance().payNearSpawner())
+	        return;
+	    LivingEntity creature = (LivingEntity)event.getEntity();
+	    mobSpawnerCreatures.add(creature);
+	}
 }
