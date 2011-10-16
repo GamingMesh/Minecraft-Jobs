@@ -475,6 +475,17 @@ public class PlayerJobInfo {
 	}
 	
 	/**
+     * Function that removes your honorific
+     */
+    public void removeHonorific() {
+        String newHonorific = null;
+        if(honorific != null) {
+            player.setDisplayName(player.getDisplayName().trim().replaceFirst(honorific + " ", "").trim());
+        }
+        honorific = newHonorific;
+    }
+	
+	/**
 	 * Function to reload all of the maximum experiences
 	 */
 	public void reloadMaxExperience(){

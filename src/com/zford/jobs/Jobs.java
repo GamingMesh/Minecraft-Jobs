@@ -401,6 +401,8 @@ public class Jobs extends JavaPlugin{
 			        try {
     			        if(isEnabled()) {
     			            for(Player player : this.getServer().getOnlinePlayers()) {
+    			                PlayerJobInfo info = getJob(player);
+    			                info.removeHonorific();
     			                removePlayer(player);
     			            }
     			            reloadConfigurations();
