@@ -99,14 +99,17 @@ public class Jobs extends JavaPlugin{
 	public void onDisable() {
 		// kill all scheduled tasks associated to this.
 		getServer().getScheduler().cancelTasks(this);
+
+        
+        for(JobsPlayer player: players.values()){
+            // wipe the honorific
+            player.removeHonorific();
+        }
+        
 		// save all
 		if(JobsConfiguration.getInstance().getJobsDAO() != null){
 			saveAll();
-		}
-		
-		for(JobsPlayer player: players.values()){
-			// wipe the honorific
-		    player.removeHonorific();
+			JobsConfiguration.getInstance().getJobsDAO().closeConnections();
 		}
 		
 		getServer().getLogger().info("[Jobs v" + getDescription().getVersion() + "] has been disabled succesfully.");
@@ -248,6 +251,7 @@ public class Jobs extends JavaPlugin{
 		
 		if(sender instanceof Player) {
 		    Player pSender = (Player)sender;
+		    JobsPlayer jPlayer = getJobsPlayer(pSender.getName());
 			// player only commands
 			// join
 			if(args.length == 2 && args[0].equalsIgnoreCase("join")){
@@ -258,9 +262,8 @@ public class Jobs extends JavaPlugin{
 							JobsConfiguration.getInstance().getPermissions().getHandler().has(pSender, "jobs.join."+jobName))
 							||
 							((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled()))){
-						if(JobsConfiguration.getInstance().getMaxJobs() == null || players.get(pSender).getJobs().size() < JobsConfiguration.getInstance().getMaxJobs()){
-							getServer().getPluginManager().callEvent(new JobsJoinEvent(
-									getJobsPlayer(pSender.getName()), JobConfig.getInstance().getJob(jobName)));
+						if(JobsConfiguration.getInstance().getMaxJobs() == null || jPlayer.getJobs().size() < JobsConfiguration.getInstance().getMaxJobs()){
+							getServer().getPluginManager().callEvent(new JobsJoinEvent(jPlayer, JobConfig.getInstance().getJob(jobName)));
 							return true;
 						}
 						else{
@@ -284,10 +287,8 @@ public class Jobs extends JavaPlugin{
 			else if(args.length >= 2 && args[0].equalsIgnoreCase("leave")){
 				String jobName = args[1].trim();
 				if(JobConfig.getInstance().getJob(jobName) != null){
-					getServer().getPluginManager().callEvent(new JobsLeaveEvent(
-					        getJobsPlayer(pSender.getName()), JobConfig.getInstance().getJob(jobName)));
-				}
-				else{
+					getServer().getPluginManager().callEvent(new JobsLeaveEvent(jPlayer, JobConfig.getInstance().getJob(jobName)));
+				} else{
 					Jobs.sendMessageByLine(sender, MessageConfig.getInstance().getMessage("error-no-job"));
 				}
 				return true;
@@ -299,7 +300,7 @@ public class Jobs extends JavaPlugin{
 		        if(args.length >= 3) {
 		            type = args[2];
 		        }
-		        sendMessageByLine(sender, jobInfoMessage(getJobsPlayer(pSender.getName()), job, type));
+		        sendMessageByLine(sender, jobInfoMessage(jPlayer, job, type));
 		        return true;
 			}
 		}

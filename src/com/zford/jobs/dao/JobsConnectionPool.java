@@ -33,4 +33,15 @@ public class JobsConnectionPool {
     public synchronized void returnToPool(JobsConnection conn) {
         pooledConnections.add(conn);
     }
+    
+    public synchronized void closeConnections() {
+        while(!pooledConnections.isEmpty()) {
+            JobsConnection conn = pooledConnections.remove();
+            try {
+                conn.closeConnection();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

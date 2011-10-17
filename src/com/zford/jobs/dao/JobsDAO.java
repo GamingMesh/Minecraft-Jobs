@@ -19,8 +19,10 @@
 
 package com.zford.jobs.dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import com.zford.jobs.Jobs;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobsPlayer;
 import com.zford.jobs.dao.container.JobsDAOData;
@@ -32,40 +34,67 @@ import com.zford.jobs.dao.container.JobsDAOData;
  * @author Alex
  *
  */
-public interface JobsDAO {
+public abstract class JobsDAO {
+    
+    private JobsConnectionPool pool;
+    
+    public JobsDAO(String driver, String url, String username, String password) {
+        try {
+            pool = new JobsConnectionPool(driver, url, username, password);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("[Jobs] - database connection error. Disabling jobs!");
+            Jobs.disablePlugin();
+        }
+    }
     
     /**
      * Get all jobs the player is part of.
      * @param player - the player being searched for
      * @return list of all of the names of the jobs the players are part of.
      */
-    public List<JobsDAOData> getAllJobs(JobsPlayer player);
+    public abstract List<JobsDAOData> getAllJobs(JobsPlayer player);
     
     /**
      * Join a job (create player-job entry from storage)
      * @param player - player that wishes to join the job
      * @param job - job that the player wishes to join
      */
-    public void joinJob(JobsPlayer player, Job job);
+    public abstract void joinJob(JobsPlayer player, Job job);
 
     /**
      * Quit a job (delete player-job entry from storage)
      * @param player - player that wishes to quit the job
      * @param job - job that the player wishes to quit
      */
-    public void quitJob(JobsPlayer player, Job job);
+    public abstract void quitJob(JobsPlayer player, Job job);
     
     /**
      * Save player-job information
      * @param jobInfo - the information getting saved
      */
-    public void save(JobsPlayer player);
+    public abstract void save(JobsPlayer player);
     
     /**
      * Get the number of players that have a particular job
      * @param job - the job
      * @return  the number of players that have a particular job
      */
-    public Integer getSlotsTaken(Job job);
+    public abstract Integer getSlotsTaken(Job job);
     
+    /**
+     * Get a database connection
+     * @return  JobsConnection object
+     * @throws SQLException 
+     */
+    protected JobsConnection getConnection() throws SQLException {
+        return pool.getConnection();
+    }
+    
+    /**
+     * Close all active database handles
+     */
+    public void closeConnections() {
+        pool.closeConnections();
+    }
 }
