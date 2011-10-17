@@ -34,6 +34,7 @@ import org.bukkit.util.config.Configuration;
  *
  */
 
+@SuppressWarnings("deprecation")
 public class MessageConfig {
     
     private enum JobsMessageEnum {

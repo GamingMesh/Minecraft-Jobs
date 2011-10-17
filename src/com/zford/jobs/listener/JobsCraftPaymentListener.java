@@ -28,7 +28,7 @@ public class JobsCraftPaymentListener extends InventoryListener{
 		if(event.getResult() != null && (JobsConfiguration.getInstance().getPermissions() == null || 
 		        !JobsConfiguration.getInstance().getPermissions().isEnabled() ||
 		        JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName()))){
-			plugin.getJob(event.getPlayer()).crafted(event.getResult());			
+			plugin.getJobsPlayer(event.getPlayer().getName()).crafted(event.getResult());			
 		}
 	}
 }

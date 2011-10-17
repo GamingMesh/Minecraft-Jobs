@@ -20,10 +20,10 @@
 package com.zford.jobs.economy;
 
 
-import org.bukkit.entity.Player;
 
 import com.nidefawl.Stats.Stats;
 import com.zford.jobs.config.JobsConfiguration;
+import com.zford.jobs.config.container.JobsPlayer;
 
 import cosine.boseconomy.BOSEconomy;
 
@@ -44,12 +44,12 @@ public class JobsBOSEconomyLink implements JobsEconomyLink{
 	}
 	
 	@Override
-	public void pay(Player player, double amount) {
+	public void pay(JobsPlayer player, double amount) {
 		economy.addPlayerMoney(player.getName(), (int)amount, true);
 	}
 
 	@Override
-	public void updateStats(Player player) {
+	public void updateStats(JobsPlayer player) {
 		// TODO Auto-generated method stub
 		// stats plugin integration
 		if(JobsConfiguration.getInstance().getStats() != null &&

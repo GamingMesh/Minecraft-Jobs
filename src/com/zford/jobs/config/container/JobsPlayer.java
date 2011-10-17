@@ -41,9 +41,9 @@ import com.zford.jobs.event.JobsLevelUpEvent;
 import com.zford.jobs.event.JobsSkillUpEvent;
 import com.zford.jobs.util.DisplayMethod;
 
-public class PlayerJobInfo {
+public class JobsPlayer {
 	// the player the object belongs to
-	private Player player;
+	private String playername;
 	// list of all jobs that the player does
 	private List<Job> jobs;
 	// progression of the player in each job
@@ -54,16 +54,16 @@ public class PlayerJobInfo {
 	/**
 	 * Constructor.
 	 * Reads data storage and configures itself.
-	 * @param player - the player that has just logged in
+	 * @param playername - the player this represents
 	 * @param dao - the data access object
 	 */
-	public PlayerJobInfo(Player player, JobsDAO dao){
+	public JobsPlayer(String playername, JobsDAO dao){
 		// set player link
-		this.player = player;
+		this.playername = playername;
 		this.jobs = new ArrayList<Job>();
 		this.progression = new HashMap<Job, JobProgression>();
 		// for all jobs players have
-		List<JobsDAOData> list = dao.getAllJobs(player);
+		List<JobsDAOData> list = dao.getAllJobs(this);
 		if(list != null){
 			for(JobsDAOData job: list){
 				if(JobConfig.getInstance().getJob(job.getJobName()) != null){
@@ -101,7 +101,7 @@ public class PlayerJobInfo {
 			// get the income and give it
 			Double income = temp.getKey().getBreakIncome(block, param);
 			if(income != null){
-				JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+				JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
 				temp.getValue().addExp(temp.getKey().getBreakExp(block, param));
 				checkLevels();
 			}
@@ -115,12 +115,12 @@ public class PlayerJobInfo {
                 Double income = jobNone.getBreakIncome(block, param);
                 if(income != null) {
                     // give income
-                    JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+                    JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
                 }
                 param.remove("joblevel");
             }
         }
-        JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
+        JobsConfiguration.getInstance().getEconomyLink().updateStats(this);
 	}
 	
 	/**
@@ -141,7 +141,7 @@ public class PlayerJobInfo {
 			Double income = temp.getKey().getPlaceIncome(block, param);
 			if(income != null){
 				// give income
-				JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+				JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
 				temp.getValue().addExp(temp.getKey().getPlaceExp(block, param));
 				checkLevels();
 			}
@@ -155,12 +155,12 @@ public class PlayerJobInfo {
                 Double income = jobNone.getPlaceIncome(block, param);
                 if(income != null) {
                     // give income
-                    JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+                    JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
                 }
                 param.remove("joblevel");
             }
         }
-		JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
+		JobsConfiguration.getInstance().getEconomyLink().updateStats(this);
 	}
 	
 	/**
@@ -181,7 +181,7 @@ public class PlayerJobInfo {
 			Double income = temp.getKey().getKillIncome(victim, param);
 			if(income != null){
 				// give income
-				JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+				JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
 				temp.getValue().addExp(temp.getKey().getKillExp(victim, param));
 				checkLevels();	
 			}
@@ -195,12 +195,12 @@ public class PlayerJobInfo {
     		    Double income = jobNone.getKillIncome(victim, param);
     		    if(income != null) {
     		        // give income
-    		        JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+    		        JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
     		    }
     		    param.remove("joblevel");
 		    }
 		}
-		JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
+		JobsConfiguration.getInstance().getEconomyLink().updateStats(this);
 	}
 	
 	/**
@@ -220,7 +220,7 @@ public class PlayerJobInfo {
             Double income = temp.getKey().getFishIncome(item, param);
             if(income != null){
                 // give income
-                JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+                JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
                 temp.getValue().addExp(temp.getKey().getFishExp(item, param));
                 checkLevels();
             }
@@ -234,12 +234,12 @@ public class PlayerJobInfo {
                 Double income = jobNone.getFishIncome(item, param);
                 if(income != null) {
                     // give income
-                    JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+                    JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
                 }
                 param.remove("joblevel");
             }
         }
-        JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
+        JobsConfiguration.getInstance().getEconomyLink().updateStats(this);
 	}
 	
 	/**
@@ -259,7 +259,7 @@ public class PlayerJobInfo {
 			// get the income and give it
 			Double income = temp.getKey().getCraftIncome(items, param);
 			if(income != null){
-				JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+				JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
 				temp.getValue().addExp(temp.getKey().getCraftExp(items, param));
 				checkLevels();
 			}
@@ -273,12 +273,12 @@ public class PlayerJobInfo {
                 Double income = jobNone.getCraftIncome(items, param);
                 if(income != null) {
                     // give income
-                    JobsConfiguration.getInstance().getEconomyLink().pay(player, income);
+                    JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
                 }
                 param.remove("joblevel");
             }
         }
-        JobsConfiguration.getInstance().getEconomyLink().updateStats(player);
+        JobsConfiguration.getInstance().getEconomyLink().updateStats(this);
 	}
 	
 	/**
@@ -309,8 +309,8 @@ public class PlayerJobInfo {
 	 * get the player
 	 * @return the player
 	 */
-	public Player getPlayer(){
-		return player;
+	public String getName(){
+		return playername;
 	}
 	
 	/**
@@ -321,7 +321,7 @@ public class PlayerJobInfo {
 			if(temp.canLevelUp()){
 				// user would level up, call the joblevelupevent
 				if(Jobs.getJobsServer() != null){
-					JobsLevelUpEvent event = new JobsLevelUpEvent(player, temp, this);
+					JobsLevelUpEvent event = new JobsLevelUpEvent(this, temp);
 					Jobs.getJobsServer().getPluginManager().callEvent(event);
 				}
 			}
@@ -329,7 +329,7 @@ public class PlayerJobInfo {
 			if(JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()) != null && !JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()).equals(temp.getTitle())){
 				// user would skill up
 				if(Jobs.getJobsServer() != null){
-					JobsSkillUpEvent event = new JobsSkillUpEvent(player, temp, JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()));
+					JobsSkillUpEvent event = new JobsSkillUpEvent(this, temp, JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()));
 					Jobs.getJobsServer().getPluginManager().callEvent(event);
 				}
 			}
@@ -458,17 +458,21 @@ public class PlayerJobInfo {
 	 */
 	public void reloadHonorific(){
 		String newHonorific = getDisplayHonorific();
+        Player player = Jobs.getJobsServer().getPlayer(playername);
+        if(player == null)
+            return;
+		
 		if(newHonorific == null && honorific != null){
 			// strip the current honorific.
-			player.setDisplayName(player.getDisplayName().trim().replaceFirst(honorific + " ", "").trim());
+		    player.setDisplayName(player.getDisplayName().trim().replaceFirst(honorific + " ", "").trim());
 		}
 		else if (newHonorific != null && honorific != null){
 			// replace the honorific
-			player.setDisplayName(player.getDisplayName().trim().replaceFirst(honorific, newHonorific).trim());
+		    player.setDisplayName(player.getDisplayName().trim().replaceFirst(honorific, newHonorific).trim());
 		}
 		else if(newHonorific != null && honorific == null){
 			// new honorific
-			player.setDisplayName((newHonorific + " " + player.getDisplayName().trim()).trim());
+		    player.setDisplayName((newHonorific + " " + player.getDisplayName().trim()).trim());
 		}
 		// set the new honorific
 		honorific = newHonorific;
@@ -478,11 +482,13 @@ public class PlayerJobInfo {
      * Function that removes your honorific
      */
     public void removeHonorific() {
-        String newHonorific = null;
+        Player player = Jobs.getJobsServer().getPlayer(playername);
+        if(player == null)
+            return;
         if(honorific != null) {
             player.setDisplayName(player.getDisplayName().trim().replaceFirst(honorific + " ", "").trim());
         }
-        honorific = newHonorific;
+        honorific = null;
     }
 	
 	/**

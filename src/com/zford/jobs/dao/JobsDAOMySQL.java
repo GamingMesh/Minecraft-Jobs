@@ -26,151 +26,148 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import org.bukkit.entity.Player;
-
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobProgression;
-import com.zford.jobs.config.container.PlayerJobInfo;
+import com.zford.jobs.config.container.JobsPlayer;
 import com.zford.jobs.dao.container.JobsDAOData;
 
 public class JobsDAOMySQL implements JobsDAO {
-	private String driver = "com.mysql.jdbc.Driver";
+    private String driver = "com.mysql.jdbc.Driver";
     private JobsConnectionPool pool;
-	private String prefix = "";
-	
-	public JobsDAOMySQL(String url, String dbName, String username, String password, String prefix) {
-	    try {
+    private String prefix = "";
+    
+    public JobsDAOMySQL(String url, String dbName, String username, String password, String prefix) {
+        try {
             pool = new JobsConnectionPool(driver, url+dbName, username, password);
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("[Jobs] - database connection error. Disabling jobs!");
             Jobs.disablePlugin();
         }
-		this.prefix = prefix;
-		setUp();
-	}
-	
-	public void setUp(){
-		try{
+        this.prefix = prefix;
+        setUp();
+    }
+    
+    public void setUp(){
+        try{
             JobsConnection conn = pool.getConnection();
-			if(conn != null){
-				Statement st = conn.createStatement();
-				String table = "CREATE TABLE IF NOT EXISTS " + prefix + "jobs (username varchar(20), experience integer, level integer, job varchar(20));";
-				st.executeUpdate(table);
-				conn.close();
-			}
-			else{
-				System.err.println("[Jobs] - MySQL connection problem");
-				Jobs.disablePlugin();
-			}
-		}
-		catch (SQLException e){
+            if(conn != null){
+                Statement st = conn.createStatement();
+                String table = "CREATE TABLE IF NOT EXISTS " + prefix + "jobs (username varchar(20), experience integer, level integer, job varchar(20));";
+                st.executeUpdate(table);
+                conn.close();
+            }
+            else{
+                System.err.println("[Jobs] - MySQL connection problem");
+                Jobs.disablePlugin();
+            }
+        }
+        catch (SQLException e){
             e.printStackTrace();
             Jobs.disablePlugin();
-		}
-	}
-	
-	@Override
-	public List<JobsDAOData> getAllJobs(Player player) {
-		ArrayList<JobsDAOData> jobs = null;
-		try{
+        }
+    }
+    
+    @Override
+    public List<JobsDAOData> getAllJobs(JobsPlayer player) {
+        ArrayList<JobsDAOData> jobs = null;
+        try{
             JobsConnection conn = pool.getConnection();
-			String sql = "SELECT `experience`, `level`, `job` FROM `" + prefix + "jobs` WHERE `username` = ?;";
-			PreparedStatement prest = conn.prepareStatement(sql);
-			prest.setString(1, player.getName());
-			ResultSet res = prest.executeQuery();
-			while(res.next()){
-				if(jobs == null){
-					jobs = new ArrayList<JobsDAOData>();
-				}
-				jobs.add(new JobsDAOData(res.getString(3), res.getInt(1), res.getInt(2)));
-			}
-			conn.close();
-		}
-		catch(SQLException e){
+            String sql = "SELECT `experience`, `level`, `job` FROM `" + prefix + "jobs` WHERE `username` = ?;";
+            PreparedStatement prest = conn.prepareStatement(sql);
+            prest.setString(1, player.getName());
+            ResultSet res = prest.executeQuery();
+            while(res.next()){
+                if(jobs == null){
+                    jobs = new ArrayList<JobsDAOData>();
+                }
+                jobs.add(new JobsDAOData(res.getString(3), res.getInt(1), res.getInt(2)));
+            }
+            conn.close();
+        }
+        catch(SQLException e){
             e.printStackTrace();
             Jobs.disablePlugin();
-		}
-		return jobs;
-	}
+        }
+        return jobs;
+    }
 
-	@Override
-	public void quitJob(Player player, Job job) {
-		try{
+    @Override
+    public void quitJob(JobsPlayer player, Job job) {
+        try{
             JobsConnection conn = pool.getConnection();
-			String sql1 = "DELETE FROM `" + prefix + "jobs` WHERE `username` = ? AND `job` = ?;";
-			PreparedStatement prest = conn.prepareStatement(sql1);
-			prest.setString(1, player.getName());
-			prest.setString(2, job.getName());
-			prest.executeUpdate();
-			prest.close();
-			conn.close();
-		}
-		catch(SQLException e){
+            String sql1 = "DELETE FROM `" + prefix + "jobs` WHERE `username` = ? AND `job` = ?;";
+            PreparedStatement prest = conn.prepareStatement(sql1);
+            prest.setString(1, player.getName());
+            prest.setString(2, job.getName());
+            prest.executeUpdate();
+            prest.close();
+            conn.close();
+        }
+        catch(SQLException e){
             e.printStackTrace();
             Jobs.disablePlugin();
-		}		
-	}
+        }       
+    }
 
-	@Override
-	public void save(PlayerJobInfo jobInfo) {
-		String sql = "UPDATE `" + prefix + "jobs` SET `experience` = ?, `level` = ? WHERE `username` = ? AND `job` = ?;";
-		try {
+    @Override
+    public void save(JobsPlayer player) {
+        String sql = "UPDATE `" + prefix + "jobs` SET `experience` = ?, `level` = ? WHERE `username` = ? AND `job` = ?;";
+        try {
             JobsConnection conn = pool.getConnection();
-			PreparedStatement prest = conn.prepareStatement(sql);
-			for(JobProgression temp: jobInfo.getJobsProgression()){
-				prest.setInt(1, (int)temp.getExperience());
-				prest.setInt(2, temp.getLevel());
-				prest.setString(3, jobInfo.getPlayer().getName());
-				prest.setString(4, temp.getJob().getName());
-				prest.executeUpdate();
-			}
-			conn.close();
-		} catch (SQLException e) {
+            PreparedStatement prest = conn.prepareStatement(sql);
+            for(JobProgression temp: player.getJobsProgression()){
+                prest.setInt(1, (int)temp.getExperience());
+                prest.setInt(2, temp.getLevel());
+                prest.setString(3, player.getName());
+                prest.setString(4, temp.getJob().getName());
+                prest.executeUpdate();
+            }
+            conn.close();
+        } catch (SQLException e) {
             e.printStackTrace();
             Jobs.disablePlugin();
-		}
-	}
+        }
+    }
 
-	@Override
-	public void joinJob(Player player, Job job) {
-		String sql = "INSERT INTO `" + prefix + "jobs` (`username`, `experience`, `level`, `job`) VALUES (?, ?, ?, ?);";
-		try {
+    @Override
+    public void joinJob(JobsPlayer player, Job job) {
+        String sql = "INSERT INTO `" + prefix + "jobs` (`username`, `experience`, `level`, `job`) VALUES (?, ?, ?, ?);";
+        try {
             JobsConnection conn = pool.getConnection();
-			PreparedStatement prest = conn.prepareStatement(sql);
-			prest.setString(1, player.getName());
-			prest.setInt(2, 0);
-			prest.setInt(3, 1);
-			prest.setString(4, job.getName());
-			prest.executeUpdate();
-			prest.close();
-			conn.close();
-		} catch (SQLException e) {
+            PreparedStatement prest = conn.prepareStatement(sql);
+            prest.setString(1, player.getName());
+            prest.setInt(2, 0);
+            prest.setInt(3, 1);
+            prest.setString(4, job.getName());
+            prest.executeUpdate();
+            prest.close();
+            conn.close();
+        } catch (SQLException e) {
             e.printStackTrace();
             Jobs.disablePlugin();
-		}
-	}
+        }
+    }
 
-	@Override
-	public Integer getSlotsTaken(Job job) {
-		Integer slot = 0;
-		try{
+    @Override
+    public Integer getSlotsTaken(Job job) {
+        Integer slot = 0;
+        try{
             JobsConnection conn = pool.getConnection();
-			String sql = "SELECT COUNT(*) FROM `" + prefix + "jobs` WHERE `job` = ?;";
-			PreparedStatement prest = conn.prepareStatement(sql);
-			prest.setString(1, job.getName());
-			ResultSet res = prest.executeQuery();
-			if(res.next()){
-				slot = res.getInt(1);
-			}
-			conn.close();
-		}
-		catch(SQLException e){
+            String sql = "SELECT COUNT(*) FROM `" + prefix + "jobs` WHERE `job` = ?;";
+            PreparedStatement prest = conn.prepareStatement(sql);
+            prest.setString(1, job.getName());
+            ResultSet res = prest.executeQuery();
+            if(res.next()){
+                slot = res.getInt(1);
+            }
+            conn.close();
+        }
+        catch(SQLException e){
             e.printStackTrace();
             Jobs.disablePlugin();
-		}
-		return slot;
-	}
+        }
+        return slot;
+    }
 }

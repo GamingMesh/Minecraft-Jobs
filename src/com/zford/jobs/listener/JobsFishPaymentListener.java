@@ -44,7 +44,7 @@ public class JobsFishPaymentListener extends PlayerListener {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
         if(event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
-            plugin.getJob(event.getPlayer()).fished((Item)event.getCaught());
+            plugin.getJobsPlayer(event.getPlayer().getName()).fished((Item)event.getCaught());
         }
     }
 }

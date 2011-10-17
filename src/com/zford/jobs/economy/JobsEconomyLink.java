@@ -19,7 +19,8 @@
 
 package com.zford.jobs.economy;
 
-import org.bukkit.entity.Player;
+
+import com.zford.jobs.config.container.JobsPlayer;
 
 /**
  * Interface that to be used when creating a class that talks with the 
@@ -33,11 +34,11 @@ public interface JobsEconomyLink {
 	 * @param player - player to be paid
 	 * @param amount - amount to be paid
 	 */
-	public void pay(Player player, double amount);
+	public void pay(JobsPlayer player, double amount);
 	
 	/**
 	 * Update Stats plugin money stats
 	 * @param player - the player
 	 */
-	public void updateStats(Player player);
+	public void updateStats(JobsPlayer player);
 }

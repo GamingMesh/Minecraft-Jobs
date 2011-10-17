@@ -38,7 +38,7 @@ public class JobProgression {
 	private int maxExperience;
 	private int level;
 	
-	public JobProgression(Job job, double experience, int level, PlayerJobInfo info){
+	public JobProgression(Job job, double experience, int level, JobsPlayer info){
 		this.job = job;
 		this.experience = experience;
 		this.level = level;

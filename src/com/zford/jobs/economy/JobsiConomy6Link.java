@@ -20,12 +20,12 @@
 package com.zford.jobs.economy;
 
 
-import org.bukkit.entity.Player;
 
 import com.iCo6.iConomy;
 import com.iCo6.system.Accounts;
 import com.nidefawl.Stats.Stats;
 import com.zford.jobs.config.JobsConfiguration;
+import com.zford.jobs.config.container.JobsPlayer;
 
 /**
  * Class that interfaces with iConomy and does the payment
@@ -44,12 +44,12 @@ public class JobsiConomy6Link implements JobsEconomyLink{
 	}
 	
 	@Override
-	public void pay(Player player, double amount) {
+	public void pay(JobsPlayer player, double amount) {
 	    accounts.get(player.getName()).getHoldings().add(amount);
 	}
 
 	@Override
-	public void updateStats(Player player) {
+	public void updateStats(JobsPlayer player) {
 		// stats plugin integration
 		if(JobsConfiguration.getInstance().getStats() != null &&
 				JobsConfiguration.getInstance().getStats().isEnabled()){

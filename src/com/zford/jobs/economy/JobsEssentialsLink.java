@@ -19,7 +19,6 @@
 
 package com.zford.jobs.economy;
 
-import org.bukkit.entity.Player;
 
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.api.Economy;
@@ -27,6 +26,7 @@ import com.earth2me.essentials.api.NoLoanPermittedException;
 import com.earth2me.essentials.api.UserDoesNotExistException;
 import com.nidefawl.Stats.Stats;
 import com.zford.jobs.config.JobsConfiguration;
+import com.zford.jobs.config.container.JobsPlayer;
 
 public class JobsEssentialsLink implements JobsEconomyLink{
 	
@@ -34,7 +34,7 @@ public class JobsEssentialsLink implements JobsEconomyLink{
 	}
 	
 	@Override
-	public void pay(Player player, double amount) {
+	public void pay(JobsPlayer player, double amount) {
 		try {
 			Economy.add(player.getName(), amount);
 		} catch (UserDoesNotExistException e) {
@@ -45,7 +45,7 @@ public class JobsEssentialsLink implements JobsEconomyLink{
 	}
 
     @Override
-	public void updateStats(Player player) {
+	public void updateStats(JobsPlayer player) {
         // stats plugin integration
         if(JobsConfiguration.getInstance().getStats() != null &&
                 JobsConfiguration.getInstance().getStats().isEnabled()){

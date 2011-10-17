@@ -35,6 +35,7 @@ import org.bukkit.event.entity.EntityListener;
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.container.Job;
+import com.zford.jobs.config.container.JobsPlayer;
 import com.zford.jobs.config.container.RestrictedArea;
 
 /**
@@ -83,12 +84,14 @@ public class JobsKillPaymentListener extends EntityListener{
                 // inside restricted area, no payment or experience
                 if (RestrictedArea.isRestricted(pDamager) || RestrictedArea.isRestricted(lVictim)) return;
                 // pay
-                plugin.getPlayerJobInfo(pDamager).killed(lVictim.getClass().toString().replace("class ", "").trim());
+                JobsPlayer jDamager = plugin.getJobsPlayer(pDamager.getName());
+                jDamager.killed(lVictim.getClass().toString().replace("class ", "").trim());
                 // pay for jobs
                 if(lVictim instanceof Player){
-                    if(plugin.getPlayerJobInfo((Player)lVictim)!=null && plugin.getPlayerJobInfo((Player)lVictim).getJobs()!= null){
-                        for(Job temp: plugin.getPlayerJobInfo((Player)lVictim).getJobs()){
-                            plugin.getPlayerJobInfo(pDamager).killed((lVictim.getClass().toString().replace("class ", "")+":"+temp.getName()).trim());
+                    JobsPlayer jVictim = plugin.getJobsPlayer(((Player)lVictim).getName());
+                    if(jVictim!=null && jVictim.getJobs()!= null){
+                        for(Job temp: jVictim.getJobs()){
+                            jDamager.killed((lVictim.getClass().toString().replace("class ", "")+":"+temp.getName()).trim());
                         }
                     }
                 }

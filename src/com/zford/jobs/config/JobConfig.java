@@ -44,6 +44,7 @@ import com.zford.jobs.util.DisplayMethod;
  * @author Zak Ford <zak.j.ford@gmail.com>
  *
  */
+@SuppressWarnings("deprecation")
 public class JobConfig {
 	// all of the possible jobs
 	private HashMap<String, Job> jobs;

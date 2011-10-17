@@ -4,6 +4,7 @@
 * Changed kill payouts to be based on creature spawn type, not distance from spawners
 * Fixed duplicate honorific on /jobs reload
 * Improved database performance
+* Commands should work for offline players properly
 
 ## 2.5.4
 * Yet another crafting NPE fix

@@ -38,13 +38,13 @@ public class JobsPlayerListener extends PlayerListener{
 	public void onPlayerJoin(PlayerJoinEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-		plugin.addPlayer(event.getPlayer());
+		plugin.addPlayer(event.getPlayer().getName());
 	}
 	
 	@Override
 	public void onPlayerQuit(PlayerQuitEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-		plugin.removePlayer(event.getPlayer());
+		plugin.removePlayer(event.getPlayer().getName());
 	}
 }

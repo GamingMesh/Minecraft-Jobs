@@ -26,13 +26,10 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import org.bukkit.entity.Player;
-
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobProgression;
-import com.zford.jobs.config.container.PlayerJobInfo;
+import com.zford.jobs.config.container.JobsPlayer;
 import com.zford.jobs.dao.container.JobsDAOData;
 
 /**
@@ -79,7 +76,7 @@ public class JobsDAOH2 implements JobsDAO {
     }
     
     @Override
-    public List<JobsDAOData> getAllJobs(Player player) {
+    public List<JobsDAOData> getAllJobs(JobsPlayer player) {
         ArrayList<JobsDAOData> jobs = null;
         try{
             JobsConnection conn = pool.getConnection();
@@ -103,7 +100,7 @@ public class JobsDAOH2 implements JobsDAO {
     }
 
     @Override
-    public void quitJob(Player player, Job job) {
+    public void quitJob(JobsPlayer player, Job job) {
         try{
             JobsConnection conn = pool.getConnection();
             String sql1 = "DELETE FROM `jobs` WHERE `username` = ? AND `job` = ?;";
@@ -121,15 +118,15 @@ public class JobsDAOH2 implements JobsDAO {
     }
 
     @Override
-    public void save(PlayerJobInfo jobInfo) {
+    public void save(JobsPlayer player) {
         String sql = "UPDATE `jobs` SET `experience` = ?, `level` = ? WHERE `username` = ? AND `job` = ?;";
         try {
             JobsConnection conn = pool.getConnection();
             PreparedStatement prest = conn.prepareStatement(sql);
-            for(JobProgression temp: jobInfo.getJobsProgression()){
+            for(JobProgression temp: player.getJobsProgression()){
                 prest.setInt(1, (int)temp.getExperience());
                 prest.setInt(2, temp.getLevel());
-                prest.setString(3, jobInfo.getPlayer().getName());
+                prest.setString(3, player.getName());
                 prest.setString(4, temp.getJob().getName());
                 prest.executeUpdate();
             }
@@ -141,7 +138,7 @@ public class JobsDAOH2 implements JobsDAO {
     }
 
     @Override
-    public void joinJob(Player player, Job job) {
+    public void joinJob(JobsPlayer player, Job job) {
         String sql = "INSERT INTO `jobs` (`username`, `experience`, `level`, `job`) VALUES (?, ?, ?, ?);";
         try {
             JobsConnection conn = pool.getConnection();

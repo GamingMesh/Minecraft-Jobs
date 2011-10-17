@@ -50,6 +50,7 @@ import com.zford.jobs.util.DisplayMethod;
  * @author Zak Ford <zak.j.ford@gmail.com>
  *
  */
+@SuppressWarnings("deprecation")
 public class JobsConfiguration {
 	// enum of the chat display method
 	private DisplayMethod dispMethod;
