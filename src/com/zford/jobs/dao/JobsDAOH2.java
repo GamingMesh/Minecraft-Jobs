@@ -19,12 +19,10 @@
 
 package com.zford.jobs.dao;
 
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,15 +45,22 @@ import com.zford.jobs.dao.container.JobsDAOData;
 
 public class JobsDAOH2 implements JobsDAO {
     private String driver = "org.h2.Driver";
-    private Connection conn;
+    private JobsConnectionPool pool;
     
     public JobsDAOH2() {
+        try {
+            pool = new JobsConnectionPool(driver, "jdbc:h2:plugins/Jobs/jobs", "sa", "sa");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("[Jobs] - database connection error. Disabling jobs!");
+            Jobs.disablePlugin();
+        }
         setUp();
     }
     
     public void setUp(){
         try{
-            Connection conn = getConnection();
+            JobsConnection conn = pool.getConnection();
             if(conn != null){
                 Statement st = conn.createStatement();
                 String table = "CREATE TABLE IF NOT EXISTS `jobs` (username varchar(20), experience INT, level INT, job varchar(20));";
@@ -67,34 +72,17 @@ public class JobsDAOH2 implements JobsDAO {
                 Jobs.disablePlugin();
             }
         }
-        catch (SQLException s){
-            s.printStackTrace();
-            Jobs.disablePlugin();
-        }
-    }
-
-    private Connection getConnection(){
-        if(this.conn!=null) {
-            return this.conn;
-        }
-        
-        try{
-            Class.forName(driver).newInstance();
-            return (Connection) DriverManager.getConnection("jdbc:h2:plugins/Jobs/jobs", "sa", "sa");
-        }
-        catch (Exception e){
+        catch (SQLException e){
             e.printStackTrace();
-            System.err.println("[Jobs - database connection error. Disabling jobs!]");
             Jobs.disablePlugin();
-            return null;
         }
     }
     
     @Override
     public List<JobsDAOData> getAllJobs(Player player) {
         ArrayList<JobsDAOData> jobs = null;
-        Connection conn = getConnection();
         try{
+            JobsConnection conn = pool.getConnection();
             String sql = "SELECT `experience`, `level`, `job` FROM `jobs` WHERE `username` = ?;";
             PreparedStatement prest = conn.prepareStatement(sql);
             prest.setString(1, player.getName());
@@ -109,6 +97,7 @@ public class JobsDAOH2 implements JobsDAO {
         }
         catch(SQLException e){
             e.printStackTrace();
+            Jobs.disablePlugin();
         }
         return jobs;
     }
@@ -116,7 +105,7 @@ public class JobsDAOH2 implements JobsDAO {
     @Override
     public void quitJob(Player player, Job job) {
         try{
-            Connection conn = getConnection();
+            JobsConnection conn = pool.getConnection();
             String sql1 = "DELETE FROM `jobs` WHERE `username` = ? AND `job` = ?;";
             PreparedStatement prest = conn.prepareStatement(sql1);
             prest.setString(1, player.getName());
@@ -126,7 +115,8 @@ public class JobsDAOH2 implements JobsDAO {
             conn.close();
         }
         catch(SQLException e){
-            
+            e.printStackTrace();
+            Jobs.disablePlugin();
         }       
     }
 
@@ -134,7 +124,7 @@ public class JobsDAOH2 implements JobsDAO {
     public void save(PlayerJobInfo jobInfo) {
         String sql = "UPDATE `jobs` SET `experience` = ?, `level` = ? WHERE `username` = ? AND `job` = ?;";
         try {
-            Connection conn = getConnection();
+            JobsConnection conn = pool.getConnection();
             PreparedStatement prest = conn.prepareStatement(sql);
             for(JobProgression temp: jobInfo.getJobsProgression()){
                 prest.setInt(1, (int)temp.getExperience());
@@ -146,6 +136,7 @@ public class JobsDAOH2 implements JobsDAO {
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            Jobs.disablePlugin();
         }
     }
 
@@ -153,7 +144,7 @@ public class JobsDAOH2 implements JobsDAO {
     public void joinJob(Player player, Job job) {
         String sql = "INSERT INTO `jobs` (`username`, `experience`, `level`, `job`) VALUES (?, ?, ?, ?);";
         try {
-            Connection conn = getConnection();
+            JobsConnection conn = pool.getConnection();
             PreparedStatement prest = conn.prepareStatement(sql);
             prest.setString(1, player.getName());
             prest.setInt(2, 0);
@@ -164,14 +155,15 @@ public class JobsDAOH2 implements JobsDAO {
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
+            Jobs.disablePlugin();
         }
     }
 
     @Override
     public Integer getSlotsTaken(Job job) {
         Integer slot = 0;
-        Connection conn = getConnection();
         try{
+            JobsConnection conn = pool.getConnection();
             String sql = "SELECT COUNT(*) FROM `jobs` WHERE `job` = ?;";
             PreparedStatement prest = conn.prepareStatement(sql);
             prest.setString(1, job.getName());
@@ -183,6 +175,7 @@ public class JobsDAOH2 implements JobsDAO {
         }
         catch(SQLException e){
             e.printStackTrace();
+            Jobs.disablePlugin();
         }
         return slot;
     }
