@@ -90,19 +90,22 @@ public class JobsPlayer {
 	 * Give correct experience and income
 	 * 
 	 * @param block - the block broken
+     * @param multiplier - the payment/xp multiplier
 	 */
-	public void broke(Block block){
+	public void broke(Block block, double multiplier) {
 		HashMap<String, Double> param = new HashMap<String, Double>();
 		// add the number of jobs to the parameter list
 		param.put("numjobs", (double)progression.size());
-		for(Entry<Job, JobProgression> temp: progression.entrySet()){
+		for(Entry<Job, JobProgression> entry: progression.entrySet()) {
 			// add the current level to the parameter list
-			param.put("joblevel", (double)temp.getValue().getLevel());
+			param.put("joblevel", (double)entry.getValue().getLevel());
 			// get the income and give it
-			Double income = temp.getKey().getBreakIncome(block, param);
-			if(income != null){
-				JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
-				temp.getValue().addExp(temp.getKey().getBreakExp(block, param));
+			Double income = entry.getKey().getBreakIncome(block, param);
+			if(income != null) {
+                Double exp = entry.getKey().getBreakExp(block, param);
+                // give income
+				JobsConfiguration.getInstance().getEconomyLink().pay(this, income*multiplier);
+				entry.getValue().addExp(exp*multiplier);
 				checkLevels();
 			}
 			param.remove("joblevel");
@@ -115,7 +118,7 @@ public class JobsPlayer {
                 Double income = jobNone.getBreakIncome(block, param);
                 if(income != null) {
                     // give income
-                    JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
+                    JobsConfiguration.getInstance().getEconomyLink().pay(this, income*multiplier);
                 }
                 param.remove("joblevel");
             }
@@ -129,20 +132,22 @@ public class JobsPlayer {
 	 * Give correct experience and income
 	 * 
 	 * @param block - the block placed
+     * @param multiplier - the payment/xp multiplier
 	 */
-	public void placed(Block block){
+	public void placed(Block block, double multiplier) {
 		HashMap<String, Double> param = new HashMap<String, Double>();
 		// add the number of jobs to the parameter list
 		param.put("numjobs", (double)progression.size());
-		for(Entry<Job, JobProgression> temp: progression.entrySet()){
+		for(Entry<Job, JobProgression> entry: progression.entrySet()) {
 			// add the current level to the parameter list
-			param.put("joblevel", (double)temp.getValue().getLevel());
+			param.put("joblevel", (double)entry.getValue().getLevel());
 			// get the income and give it
-			Double income = temp.getKey().getPlaceIncome(block, param);
-			if(income != null){
+			Double income = entry.getKey().getPlaceIncome(block, param);
+			if(income != null) {
+                Double exp = entry.getKey().getPlaceExp(block, param);
 				// give income
-				JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
-				temp.getValue().addExp(temp.getKey().getPlaceExp(block, param));
+				JobsConfiguration.getInstance().getEconomyLink().pay(this, income*multiplier);
+				entry.getValue().addExp(exp*multiplier);
 				checkLevels();
 			}
 			param.remove("joblevel");
@@ -155,7 +160,7 @@ public class JobsPlayer {
                 Double income = jobNone.getPlaceIncome(block, param);
                 if(income != null) {
                     // give income
-                    JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
+                    JobsConfiguration.getInstance().getEconomyLink().pay(this, income*multiplier);
                 }
                 param.remove("joblevel");
             }
@@ -168,21 +173,23 @@ public class JobsPlayer {
 	 * 
 	 * Give correct experience and income
 	 * 
-	 * @param mob - the mob killed
+	 * @param victim - the mob killed
+	 * @param multiplier - the payment/xp multiplier
 	 */
-	public void killed(String victim){
+	public void killed(String victim, double multiplier) {
 		HashMap<String, Double> param = new HashMap<String, Double>();
 		// add the number of jobs to the parameter list
 		param.put("numjobs", (double)progression.size());
-		for(Entry<Job, JobProgression> temp: progression.entrySet()){
+		for(Entry<Job, JobProgression> entry: progression.entrySet()) {
 			// add the current level to the parameter list
-			param.put("joblevel", (double)temp.getValue().getLevel());
+			param.put("joblevel", (double)entry.getValue().getLevel());
 			// get the income and give it
-			Double income = temp.getKey().getKillIncome(victim, param);
-			if(income != null){
+			Double income = entry.getKey().getKillIncome(victim, param);
+			if(income != null) {
+                Double exp = entry.getKey().getKillExp(victim, param);
 				// give income
-				JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
-				temp.getValue().addExp(temp.getKey().getKillExp(victim, param));
+				JobsConfiguration.getInstance().getEconomyLink().pay(this, income*multiplier);
+				entry.getValue().addExp(exp*multiplier);
 				checkLevels();	
 			}
 			param.remove("joblevel");
@@ -195,7 +202,7 @@ public class JobsPlayer {
     		    Double income = jobNone.getKillIncome(victim, param);
     		    if(income != null) {
     		        // give income
-    		        JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
+    		        JobsConfiguration.getInstance().getEconomyLink().pay(this, income*multiplier);
     		    }
     		    param.remove("joblevel");
 		    }
@@ -209,19 +216,21 @@ public class JobsPlayer {
 	 * Give correct experience and income
 	 * 
 	 * @param item - the item fished
+     * @param multiplier - the payment/xp multiplier
 	 */
-	public void fished(Item item) {
+	public void fished(Item item, double multiplier) {
 	    HashMap<String, Double> param = new HashMap<String, Double>();
 	    param.put("numjobs", (double)progression.size());
-	    for(Entry<Job, JobProgression> temp: progression.entrySet()){
+	    for(Entry<Job, JobProgression> entry: progression.entrySet()) {
             // add the current level to the parameter list
-            param.put("joblevel", (double)temp.getValue().getLevel());
+            param.put("joblevel", (double)entry.getValue().getLevel());
             // get the income and give it
-            Double income = temp.getKey().getFishIncome(item, param);
-            if(income != null){
+            Double income = entry.getKey().getFishIncome(item, param);
+            if(income != null) {
+                Double exp = entry.getKey().getFishExp(item, param);
                 // give income
-                JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
-                temp.getValue().addExp(temp.getKey().getFishExp(item, param));
+                JobsConfiguration.getInstance().getEconomyLink().pay(this, income*multiplier);
+                entry.getValue().addExp(exp*multiplier);
                 checkLevels();
             }
             param.remove("joblevel");
@@ -234,7 +243,7 @@ public class JobsPlayer {
                 Double income = jobNone.getFishIncome(item, param);
                 if(income != null) {
                     // give income
-                    JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
+                    JobsConfiguration.getInstance().getEconomyLink().pay(this, income*multiplier);
                 }
                 param.remove("joblevel");
             }
@@ -247,20 +256,23 @@ public class JobsPlayer {
 	 * 
 	 * Give correct experience and income
 	 * 
-	 * @param block - the block broken
+	 * @param items - the items crafted
+     * @param multipler - the payment/xp multiplier
 	 */
-	public void crafted(ItemStack items){
+	public void crafted(ItemStack items, double multiplier) {
 		HashMap<String, Double> param = new HashMap<String, Double>();
 		// add the number of jobs to the parameter list
 		param.put("numjobs", (double)progression.size());
-		for(Entry<Job, JobProgression> temp: progression.entrySet()){
+		for(Entry<Job, JobProgression> entry: progression.entrySet()) {
 			// add the current level to the parameter list
-			param.put("joblevel", (double)temp.getValue().getLevel());
+			param.put("joblevel", (double)entry.getValue().getLevel());
 			// get the income and give it
-			Double income = temp.getKey().getCraftIncome(items, param);
-			if(income != null){
-				JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
-				temp.getValue().addExp(temp.getKey().getCraftExp(items, param));
+			Double income = entry.getKey().getCraftIncome(items, param);
+			if(income != null) {
+                Double exp = entry.getKey().getCraftExp(items, param);
+                // give income
+				JobsConfiguration.getInstance().getEconomyLink().pay(this, income*multiplier);
+				entry.getValue().addExp(exp*multiplier);
 				checkLevels();
 			}
 			param.remove("joblevel");
@@ -273,7 +285,7 @@ public class JobsPlayer {
                 Double income = jobNone.getCraftIncome(items, param);
                 if(income != null) {
                     // give income
-                    JobsConfiguration.getInstance().getEconomyLink().pay(this, income);
+                    JobsConfiguration.getInstance().getEconomyLink().pay(this, income*multiplier);
                 }
                 param.remove("joblevel");
             }

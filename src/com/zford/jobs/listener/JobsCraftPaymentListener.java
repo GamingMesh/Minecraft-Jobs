@@ -22,13 +22,13 @@ public class JobsCraftPaymentListener extends InventoryListener{
         // make sure event is not canceled
         if(event.isCancelled()) return;
 	    
-        // inside restricted area, no payment or experience
-        if (RestrictedArea.isRestricted(event.getPlayer())) return;
+        // restricted area multiplier
+        double multiplier = RestrictedArea.getMultiplier(event.getPlayer());
         
 		if(event.getResult() != null && (JobsConfiguration.getInstance().getPermissions() == null || 
 		        !JobsConfiguration.getInstance().getPermissions().isEnabled() ||
 		        JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName()))){
-			plugin.getJobsPlayer(event.getPlayer().getName()).crafted(event.getResult());			
+			plugin.getJobsPlayer(event.getPlayer().getName()).crafted(event.getResult(), multiplier);			
 		}
 	}
 }

@@ -40,14 +40,14 @@ public class JobsBlockPaymentListener extends BlockListener{
 	    if(!plugin.isEnabled()) return;
         // make sure event is not canceled
         if(event.isCancelled()) return;
-	    
-        // inside restricted area, no payment or experience
-        if (RestrictedArea.isRestricted(event.getPlayer())) return;
+        
+        // restricted area multiplier
+        double multiplier = RestrictedArea.getMultiplier(event.getPlayer());
         
 		if((JobsConfiguration.getInstance().getPermissions() == null || 
 		        !JobsConfiguration.getInstance().getPermissions().isEnabled()) ||
 		        JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName())){
-			plugin.getJobsPlayer(event.getPlayer().getName()).broke(event.getBlock());			
+			plugin.getJobsPlayer(event.getPlayer().getName()).broke(event.getBlock(), multiplier);			
 		}
 	}
 	
@@ -60,13 +60,13 @@ public class JobsBlockPaymentListener extends BlockListener{
         // check to make sure you can build
         if(!event.canBuild());
         
-        // inside restricted area, no payment or experience
-        if (RestrictedArea.isRestricted(event.getPlayer())) return;
+        // restricted area multiplier
+        double multiplier = RestrictedArea.getMultiplier(event.getPlayer());
         
 		if((JobsConfiguration.getInstance().getPermissions() == null || 
 		        !JobsConfiguration.getInstance().getPermissions().isEnabled()) ||		
 		        JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName())){
-			plugin.getJobsPlayer(event.getPlayer().getName()).placed(event.getBlock());
+			plugin.getJobsPlayer(event.getPlayer().getName()).placed(event.getBlock(), multiplier);
 		}
 	}
 }

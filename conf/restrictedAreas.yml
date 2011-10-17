@@ -5,10 +5,13 @@
 
 # Uncomment below to enable restricted names.  There is no limit to the number
 # of restricted areas.
+#
+# The multiplier changes the experience/money gains in an area.  A multiplier of 0.0 means no money or xp, while 0.5 means you will get half the normal money/exp 
 
 #restrictedareas:
 #    area1:
 #        world: 'world'
+#        multiplier: 0.0
 #        point1:
 #            x: 125
 #            y: 0
@@ -19,6 +22,7 @@
 #            z: 150
 #    area2:
 #        world: 'world_nether'
+#        multiplier: 0.0
 #        point1:
 #            x: -100
 #            y: 0

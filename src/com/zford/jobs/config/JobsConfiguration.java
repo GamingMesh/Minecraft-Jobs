@@ -253,6 +253,7 @@ public class JobsConfiguration {
             }
             for (String areaKey : areaKeys) {
                 String worldName = conf.getString("restrictedareas."+areaKey+".world");
+                double multiplier = conf.getDouble("restrictedareas."+areaKey+".multiplier", 0.0);
                 World pointWorld = null;
                 for (World world : worlds) {
                     if (world.getName().equals(worldName)) {
@@ -269,7 +270,7 @@ public class JobsConfiguration {
                         conf.getDouble("restrictedareas."+areaKey+".point2.x", 0.0),
                         conf.getDouble("restrictedareas."+areaKey+".point2.y", 0.0),
                         conf.getDouble("restrictedareas."+areaKey+".point2.z", 0.0));
-                this.restrictedAreas.add(new RestrictedArea(point1, point2));
+                this.restrictedAreas.add(new RestrictedArea(point1, point2, multiplier));
             }
         } else {
             System.err.println("[Jobs] - configuration file restrictedAreas.yml does not exist");

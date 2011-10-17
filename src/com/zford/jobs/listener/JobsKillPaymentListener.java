@@ -81,17 +81,17 @@ public class JobsKillPaymentListener extends EntityListener{
                 if(mobSpawnerCreatures.remove(lVictim))
                     return;
 
-                // inside restricted area, no payment or experience
-                if (RestrictedArea.isRestricted(pDamager) || RestrictedArea.isRestricted(lVictim)) return;
+                // restricted area multiplier
+                double multiplier = RestrictedArea.getMultiplier(pDamager);
                 // pay
                 JobsPlayer jDamager = plugin.getJobsPlayer(pDamager.getName());
-                jDamager.killed(lVictim.getClass().toString().replace("class ", "").trim());
+                jDamager.killed(lVictim.getClass().toString().replace("class ", "").trim(), multiplier);
                 // pay for jobs
                 if(lVictim instanceof Player){
                     JobsPlayer jVictim = plugin.getJobsPlayer(((Player)lVictim).getName());
                     if(jVictim!=null && jVictim.getJobs()!= null){
                         for(Job temp: jVictim.getJobs()){
-                            jDamager.killed((lVictim.getClass().toString().replace("class ", "")+":"+temp.getName()).trim());
+                            jDamager.killed((lVictim.getClass().toString().replace("class ", "")+":"+temp.getName()).trim(), multiplier);
                         }
                     }
                 }
