@@ -42,6 +42,8 @@ import com.zford.jobs.event.JobsSkillUpEvent;
 import com.zford.jobs.util.DisplayMethod;
 
 public class JobsPlayer {
+    // jobs plugin
+    private Jobs plugin;
 	// the player the object belongs to
 	private String playername;
 	// list of all jobs that the player does
@@ -54,10 +56,12 @@ public class JobsPlayer {
 	/**
 	 * Constructor.
 	 * Reads data storage and configures itself.
+	 * @param plugin - the jobs plugin
 	 * @param playername - the player this represents
 	 * @param dao - the data access object
 	 */
-	public JobsPlayer(String playername, JobsDAO dao){
+	public JobsPlayer(Jobs plugin, String playername, JobsDAO dao) {
+	    this.plugin = plugin;
 		// set player link
 		this.playername = playername;
 		this.jobs = new ArrayList<Job>();
@@ -332,18 +336,14 @@ public class JobsPlayer {
 		for(JobProgression temp: progression.values()){
 			if(temp.canLevelUp()){
 				// user would level up, call the joblevelupevent
-				if(Jobs.getJobsServer() != null){
-					JobsLevelUpEvent event = new JobsLevelUpEvent(this, temp);
-					Jobs.getJobsServer().getPluginManager().callEvent(event);
-				}
+				JobsLevelUpEvent event = new JobsLevelUpEvent(this, temp);
+                plugin.getServer().getPluginManager().callEvent(event);
 			}
 			
 			if(JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()) != null && !JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()).equals(temp.getTitle())){
 				// user would skill up
-				if(Jobs.getJobsServer() != null){
-					JobsSkillUpEvent event = new JobsSkillUpEvent(this, temp, JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()));
-					Jobs.getJobsServer().getPluginManager().callEvent(event);
-				}
+				JobsSkillUpEvent event = new JobsSkillUpEvent(this, temp, JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()));
+				plugin.getServer().getPluginManager().callEvent(event);
 			}
 		}
 	}
@@ -470,7 +470,7 @@ public class JobsPlayer {
 	 */
 	public void reloadHonorific(){
 		String newHonorific = getDisplayHonorific();
-        Player player = Jobs.getJobsServer().getPlayer(playername);
+        Player player = plugin.getServer().getPlayer(playername);
         if(player == null)
             return;
 		
@@ -494,7 +494,7 @@ public class JobsPlayer {
      * Function that removes your honorific
      */
     public void removeHonorific() {
-        Player player = Jobs.getJobsServer().getPlayer(playername);
+        Player player = plugin.getServer().getPlayer(playername);
         if(player == null)
             return;
         if(honorific != null) {
