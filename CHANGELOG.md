@@ -2,6 +2,7 @@
 
 ## 2.5.6
 * Added a multiplier to restricted areas
+* Fixed memory leak with creatures from monster spawners
 
 ## 2.5.5
 * Changed kill payouts to be based on creature spawn type, not distance from spawners

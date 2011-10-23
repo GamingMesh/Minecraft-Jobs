@@ -63,8 +63,19 @@ public class JobsKillPaymentListener extends EntityListener{
 	 */
 	public void onEntityDeath(EntityDeathEvent event)
 	{
+	    // Entity that died must be living
+	    if(!(event.getEntity() instanceof LivingEntity))
+	        return;
+        LivingEntity lVictim = (LivingEntity)event.getEntity();
+        
+        // mob spawner, no payment or experience
+        if(mobSpawnerCreatures.remove(lVictim))
+            return;
+        
         // make sure plugin is enabled
-        if(!plugin.isEnabled()) return;
+        if(!plugin.isEnabled())
+            return;
+        
         if (event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent){
             EntityDamageByEntityEvent e = (EntityDamageByEntityEvent)event.getEntity().getLastDamageCause();
             Player pDamager = null;
@@ -75,12 +86,7 @@ public class JobsKillPaymentListener extends EntityListener{
             } else if(e.getDamager() instanceof Wolf && ((Wolf)e.getDamager()).isTamed() == true && ((Wolf)e.getDamager()).getOwner() instanceof Player) {
                 pDamager = (Player)((Wolf)e.getDamager()).getOwner();
             }
-            if(pDamager != null && e.getEntity() instanceof LivingEntity) {
-                LivingEntity lVictim = (LivingEntity)e.getEntity();
-                // mob spawner, no payment or experience
-                if(mobSpawnerCreatures.remove(lVictim))
-                    return;
-
+            if(pDamager != null) {
                 // restricted area multiplier
                 double multiplier = RestrictedArea.getMultiplier(pDamager);
                 // pay
@@ -106,6 +112,8 @@ public class JobsKillPaymentListener extends EntityListener{
 	 */
 	@Override
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
+	    if(event.isCancelled())
+	        return;
 	    if(!(event.getEntity() instanceof LivingEntity))
 	        return;
 	    if(!event.getSpawnReason().equals(SpawnReason.SPAWNER))
