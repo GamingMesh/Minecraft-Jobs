@@ -20,7 +20,9 @@
 package com.zford.jobs.listener;
 
 
-import java.util.HashSet;
+import java.util.Collections;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -46,11 +48,11 @@ import com.zford.jobs.config.container.RestrictedArea;
  */
 public class JobsKillPaymentListener extends EntityListener{
 	private Jobs plugin;
-	private HashSet<LivingEntity> mobSpawnerCreatures;
+	private Set<LivingEntity> mobSpawnerCreatures;
 	
 	public JobsKillPaymentListener(Jobs plugin) {
 		this.plugin = plugin;
-		this.mobSpawnerCreatures = new HashSet<LivingEntity>();
+		this.mobSpawnerCreatures = Collections.newSetFromMap(new WeakHashMap<LivingEntity, Boolean>());
 	}
 	
 	/**
