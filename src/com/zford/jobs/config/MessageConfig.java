@@ -20,11 +20,12 @@
 package com.zford.jobs.config;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.List;
+import java.io.IOException;
 
 import org.bukkit.ChatColor;
-import org.bukkit.util.config.Configuration;
+import org.bukkit.configuration.file.YamlConfiguration;
+
+import com.zford.jobs.Jobs;
 
 /**
  * Message configuration class.
@@ -34,126 +35,166 @@ import org.bukkit.util.config.Configuration;
  *
  */
 
-@SuppressWarnings("deprecation")
 public class MessageConfig {
     
     private enum JobsMessageEnum {
-        ADMIN_COMMAND_FAILED,
-        ADMIN_COMMAND_SUCCESS,
-        AT_MAX_LEVEL,
-        BREAK_HEADER,
-        BREAK_INFO_NO_SUB,
-        BREAK_INFO_SUB,
-        BREAK_NONE,
-        BROWSE_JOBS_FOOTER,
-        BROWSE_JOBS_HEADER,
-        BROWSE_NO_JOBS,
-        CRAFT_HEADER,
-        CRAFT_NONE,
-        CRAFT_INFO_NO_SUB,
-        CRAFT_INFO_SUB,
-        DEMOTE_TARGET,
-        EMPLOY_TARGET,
-        ERROR_NO_JOB,
-        ERROR_NO_PERMISSION,
-        FIRE_TARGET,
-        FIRE_TARGET_NO_JOB,
-        FISH_HEADER,
-        FISH_INFO_NO_SUB,
-        FISH_INFO_SUB,
-        FISH_NONE,
-        GRANTXP_TARGET,
-        JOBS_ADMIN_DEMOTE,
-        JOBS_ADMIN_EMPLOY,
-        JOBS_ADMIN_FIRE,
-        JOBS_ADMIN_GRANTXP,
-        JOBS_ADMIN_INFO,
-        JOBS_ADMIN_PROMOTE,
-        JOBS_ADMIN_REMOVEXP,
-        JOBS_ADMIN_TRANSFER,
-        JOBS_ADMIN_RELOAD,
-        JOBS_BROWSE,
-        JOBS_INFO,
-        JOBS_JOIN,
-        JOBS_LEAVE,
-        JOBS_STATS,
-        JOIN_JOB_FAILED_ALREADY_IN,
-        JOIN_JOB_FAILED_NO_SLOTS,
-        JOIN_JOB_SUCCESS,
-        JOIN_TOO_MANY_JOB,
-        KILL_HEADER,
-        KILL_INFO_NO_SUB,
-        KILL_INFO_SUB,
-        KILL_NONE,
-        LEAVE_JOB_FAILED_TOO_MANY,
-        LEAVE_JOB_SUCCESS,
-        LEVEL_UP_BROADCAST,
-        LEVEL_UP_NO_BROADCAST,
-        PLACE_HEADER,
-        PLACE_INFO_NO_SUB,
-        PLACE_INFO_SUB,
-        PLACE_NONE,
-        PROMOTE_TARGET,
-        REMOVEXP_TARGET,
-        SKILL_UP_BROADCAST,
-        SKILL_UP_NO_BROADCAST,
-        STATS_JOB,
-        STATS_NO_JOB,
-        TRANSFER_TARGET;
+        STATS_NO_JOB("ChatColor.REDPlease join a job first."),
+        STATS_JOB("lvl%joblevel% %jobcolour%%jobname%ChatColor.WHITE : %jobexp%/%jobmaxexp% exp"),
+        BROWSE_NO_JOBS("There are no jobs you can join."),
+        BROWSE_JOBS_HEADER("You are allowed to join the following jobs :"),
+        BROWSE_JOBS_FOOTER("For more information type in /jobs info [JobName]"),
+        ADMIN_COMMAND_SUCCESS("Your command has been performed."),
+        ADMIN_COMMAND_FAILED("ChatColor.REDThere was an error in the command."),
+        FIRE_TARGET("You have been fired from %jobcolour%%jobname%."),
+        FIRE_TARGET_NO_JOB("Plyer does not have the job %jobcolour%%jobname%."),
+        EMPLOY_TARGET("You have been employed in %jobcolour%%jobname%."),
+        PROMOTE_TARGET("You have been promoted %levelsgained% levels in %jobcolour%%jobname%."),
+        DEMOTE_TARGET("You have been demoted %levelslost% levels in %jobcolour%%jobname%."),
+        GRANTXP_TARGET("You have been granted %expgained% experience in %jobcolour%%jobname%."),
+        REMOVEXP_TARGET("You have lost %explost% experience in %jobcolour%%jobname%."),
+        TRANSFER_TARGET("You have been transferred from %oldjobcolour%%oldjobname% to %newjobcolour%%newjobname%."),
+        JOIN_TOO_MANY_JOBS("ChatColor.REDYou have already joined too many jobs."),
+        JOBS_BROWSE("ChatColor.YELLOW/jobs browseChatColor.WHITE - list the jobs available to you."),
+        JOBS_JOIN("ChatColor.YELLOW/jobs join <jobname>ChatColor.WHITE - join the selected job."),
+        JOBS_LEAVE("ChatColor.YELLOW/jobs leave <jobname>ChatColor.WHITE - leave the selected job."),
+        JOBS_STATS("ChatColor.YELLOW/jobs statsChatColor.WHITE - show the level you are in each job you are part of."),
+        JOBS_INFO("ChatColor.YELLOW/jobs info <jobname> <break, place, kill, fish, craft>ChatColor.WHITE - show how much each job is getting paid and for what."),
+        JOBS_ADMIN_INFO("ChatColor.YELLOW/jobs admininfo <playername>ChatColor.WHITE - shows the level of each job and experience gains for the player."),
+        JOBS_ADMIN_FIRE("ChatColor.YELLOW/jobs fire <playername> <job>ChatColor.WHITE - fire the player from the job."),
+        JOBS_ADMIN_EMPLOY("ChatColor.YELLOW/jobs employ <playername> <job>ChatColor.WHITE - employ the player to the job."),
+        JOBS_ADMIN_PROMOTE("ChatColor.YELLOW/jobs promote <playername> <job> <levels>ChatColor.WHITE - promote the player X levels in a job."),
+        JOBS_ADMIN_DEMOTE("ChatColor.YELLOW/jobs demote <playername> <job> <levels>ChatColor.WHITE - demote the player X levels in a job."),
+        JOBS_ADMIN_GRANTXP("ChatColor.YELLOW/jobs grantxp <playername> <job> <experience>ChatColor.WHITE - grant the player X experience in a job."),
+        JOBS_ADMIN_REMOVEXP("ChatColor.YELLOW/jobs removexp <playername> <job> <experience>ChatColor.WHITE - remove X experience from the player in a job."),
+        JOBS_ADMIN_TRANSFER("ChatColor.YELLOW/jobs transfer <playername> <oldjob> <newjob>ChatColor.WHITE - transfer a player's job from an old job to a new job."),
+        JOBS_ADMIN_RELOAD("ChatColor.YELLOW/jobs reloadChatColor.WHITE - reload the Jobs plugin."),
+        BREAK_HEADER("Break:"),
+        PLACE_HEADER("Place:"),
+        KILL_HEADER("Kill:"),
+        FISH_HEADER("Fish:"),
+        CRAFT_HEADER("Craft:"),
+        BREAK_INFO_NO_SUB("ChatColor.WHITE    %item% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp"),
+        BREAK_INFO_SUB("ChatColor.WHITE    %item%:%subitem% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp"),
+        PLACE_INFO_NO_SUB("ChatColor.WHITE    %item% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp"),
+        PLACE_INFO_SUB("ChatColor.WHITE    %item%:%subitem% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp"),
+        KILL_INFO_NO_SUB("ChatColor.WHITE    %item% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp"),
+        KILL_INFO_SUB("ChatColor.WHITE    %item%:%subitem% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp"),
+        FISH_INFO_NO_SUB("ChatColor.WHITE    %item% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp"),
+        FISH_INFO_SUB("ChatColor.WHITE    %item%:%subitem% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp"),
+        CRAFT_INFO_NO_SUB("ChatColor.WHITE    %item% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp"),
+        CRAFT_INFO_SUB("ChatColor.WHITE    %item%:%subitem% - %income% ChatColor.GREENincomeChatColor.WHITE. %experience% ChatColor.YELLOWexp"),
+        BREAK_NONE("%jobcolour%%jobname%ChatColor.WHITE does not get money for breaking anything."),
+        PLACE_NONE("%jobcolour%%jobname%ChatColor.WHITE does not get money for placing anything."),
+        KILL_NONE("%jobcolour%%jobname%ChatColor.WHITE does not get money for killing anything."),
+        FISH_NONE("%jobcolour%%jobname%ChatColor.WHITE does not get money for fishing."),
+        CRAFT_NONE("%jobcolour%%jobname%ChatColor.WHITE does not get money from crafting."),
+        AT_MAX_LEVEL("ChatColor.YELLOW-- You have reached the maximum level --"),
+        SKILL_UP_BROADCAST("%playername% has been promoted to a %titlecolour%%titlename% %jobcolour%%jobname%ChatColor.WHITE."),
+        SKILL_UP_NO_BROADCAST("Congratulations, you have been promoted to a %titlecolour%%titlename% %jobcolour%%jobname%ChatColor.WHITE."),
+        LEVEL_UP_BROADCAST("%playername% is now a level %joblevel% %jobcolour%%jobname%ChatColor.WHITE."),
+        LEVEL_UP_NO_BROADCAST("You are now a level %joblevel% %jobcolour%%jobname%ChatColor.WHITE."),
+        JOIN_JOB_SUCCESS("You have joined the job %jobcolour%%jobname%ChatColor.WHITE."),
+        JOIN_JOB_FAILED_ALREADY_IN("You are already in the job %jobcolour%%jobname%ChatColor.WHITE."),
+        JOIN_JOB_FAILED_TOO_MANY("You have already joined too many jobs."),
+        JOIN_JOB_FAILED_NO_SLOTS("You cannot join the job %jobcolour%%jobname%ChatColor.WHITE, there are no slots available."),
+        LEAVE_JOB_SUCESS("You have left the job %jobcolour%%jobname%ChatColor.WHITE."),
+        ERROR_NO_JOB("ChatColor.REDThe job you have selected does not exist!"),
+        ERROR_NO_PERMISSION("ChatColor.REDYou do not have permission to do that!"),
+        JOIN_TOO_MANY_JOB("ChatColor.REDYou have joined too many jobs."),
+        LEAVE_JOB_FAILED_TOO_MANY("ChatColor.REDYou have joined too many jobs!"),
+        LEAVE_JOB_SUCCESS("You have left the job %jobcolour%%jobname%ChatColor.WHITE.");
         
-        public static JobsMessageEnum fromString(String text) {
-            if(text != null) {
-                text = text.replace('-', '_').toUpperCase();
-                for(JobsMessageEnum m : JobsMessageEnum.values()) {
-                    if(text.equals(m.toString())) {
-                        return m;
-                    }
-                }
+        private String message;
+        
+        private JobsMessageEnum(String message) {
+            this.message = message;
+        }
+        
+        public String getMessage() {
+            return message;
+        }
+        
+        public String toConfigName() {
+            return name().toLowerCase().replace('_', '-');
+        }
+    }
+    
+    private File file;
+    private YamlConfiguration config;
+    
+    /**
+     * Constructor
+     */
+    public MessageConfig(Jobs plugin) {
+        File dir = plugin.getDataFolder();
+        if(!dir.exists())
+            dir.mkdirs();
+        file = new File(dir, "messageConfig.yml");
+        if(!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                System.err.println("[Jobs] - Could not create new config file messageConfig.yml");
+                e.printStackTrace();
             }
-            return null;
         }
-    }
-    
-    private static MessageConfig instance = null;
-
-    private HashMap<String, String> messages;
-    
-    /**
-     * Private function to create singleton pattern
-     */
-    private MessageConfig() {
-    }
-    
-    /**
-     * Retrieve instance
-     * @return - an instance of JobsMessageConfig
-     */
-    public static MessageConfig getInstance() {
-        if(instance == null) {
-            instance = new MessageConfig();
-        }
-        return instance;
+        config = new YamlConfiguration();
     }
     
     /**
      * Reloads the config
      */
-    public void reload(){
-        this.messages = new HashMap<String, String>();
-        File f = new File("plugins/Jobs/messageConfig.yml");
-        Configuration conf;
-        if(!f.exists()) {
-            System.err.println("[Jobs] - configuration file messageConfig.yml does not exist, using default messages.");
-            return;
+    public void reload() {
+        try {
+            config.load(file);
+        } catch (Exception e) {
+            System.err.println("[Jobs] - Could not load config file messageConfig.yml!");
         }
-        conf = new Configuration(f);
-        conf.load();
-        List<String> configKeys = conf.getKeys(null);
-        if (configKeys == null) {
-            return;
+        config.options().header(new StringBuilder()
+            .append("Configuration file for the messages\n")
+            .append("\n")
+            .append("Replace the messages if you want.\n")
+            .append("\n")
+            .append("ChatColor.<Color> will make any words following (including spaces that colour).\n")
+            .append("\n")
+            .append("Supported colors:\n")
+            .append("   AQUA\n")
+            .append("   BLACK\n")
+            .append("   BLUE\n")
+            .append("   DARK_AQUA\n")
+            .append("   DARK_BLUE\n")
+            .append("   DARK_GRAY\n")
+            .append("   DARK_GREEN\n")
+            .append("   DARK_PURPLE\n")
+            .append("   DARK_RED\n")
+            .append("   GOLD\n")
+            .append("   GRAY\n")
+            .append("   GREEN\n")
+            .append("   LIGHT_PURPLE\n")
+            .append("   RED\n")
+            .append("   WHITE\n")
+            .append("   YELLOW\n")
+            .append("\n")
+            .append("Each message has slightly different parameters. The parameters available\n")
+            .append("are the ones that are already in the message (and none others)\n")
+            .append("\n")
+            .append("NOTE:\n")
+            .append("  Any character other than normal characters will not get read and will crash the \n")
+            .append("configuration.\n")
+            .append("\n")
+            .toString());
+        
+        for(JobsMessageEnum message : JobsMessageEnum.values()) {
+            String key = message.toConfigName();
+            Object value = config.get(key);
+            if(!(value instanceof String)) {
+                config.set(key, message.getMessage());
+            }
         }
-        for(String key : configKeys) {
-            this.messages.put(key, this.parseColors(conf.getString(key)));
+        try {
+            config.save(file);
+        } catch (IOException e) {
+            System.err.println("[Jobs] - Could not save config file messageConfig.yml!");
         }
     }
     
@@ -163,6 +204,8 @@ public class MessageConfig {
      * @return string with replaced colors
      */
     private String parseColors(String value) {
+        if(value == null)
+            return null;
         return value.replace("ChatColor.AQUA", ChatColor.AQUA.toString())
             .replace("ChatColor.BLACK", ChatColor.BLACK.toString())
             .replace("ChatColor.BLUE", ChatColor.BLUE.toString())
@@ -186,151 +229,7 @@ public class MessageConfig {
      * @param key - the key of the message
      * @return the message
      */
-    public String getMessage(String key){
-        String message = this.messages.get(key);
-        if(message != null) {
-            return message;
-        }
-        // We can't find the message in the YML file, use default
-        JobsMessageEnum enumKey = JobsMessageEnum.fromString(key);
-        switch(enumKey) {
-        case ADMIN_COMMAND_FAILED:
-            return ChatColor.RED + "There was an error in the command";
-        case ADMIN_COMMAND_SUCCESS:
-            return "Your command has been performed.";
-        case AT_MAX_LEVEL:
-            return ChatColor.YELLOW + "-- You have reached the maximum level --";
-        case BREAK_HEADER:
-            return "Break:";
-        case BREAK_INFO_NO_SUB:
-            return "    %item% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
-            ChatColor.YELLOW + " exp";
-        case BREAK_INFO_SUB:
-            return "    %item%:%subitem% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
-                ChatColor.YELLOW + " exp";
-        case BREAK_NONE:
-            return "%jobcolour%%jobname%" +ChatColor.WHITE+ " does not get money from breaking anything.";
-        case BROWSE_JOBS_FOOTER:
-            return "For more information type in /jobs info [JobName]";
-        case BROWSE_JOBS_HEADER:
-            return "You are allowed to join the following jobs:";
-        case BROWSE_NO_JOBS:
-            return "There are no jobs you can join";
-        case CRAFT_HEADER:
-            return "Craft:";
-        case CRAFT_INFO_NO_SUB:
-            return "    %item% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
-            ChatColor.YELLOW + " exp";
-        case CRAFT_INFO_SUB:
-            return "    %item%:%subitem% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
-                ChatColor.YELLOW + " exp";
-        case CRAFT_NONE:
-            return "%jobcolour%%jobname%" +ChatColor.WHITE+ " does not get money from crafting.";
-        case DEMOTE_TARGET:
-            return "You have been demoted %levelslost% levels in %jobcolour%%jobname%";
-        case EMPLOY_TARGET:
-            return "You have been employed in %jobcolour%%jobname%";
-        case ERROR_NO_JOB:
-            return ChatColor.RED + "The job you have selected does not exist";
-        case ERROR_NO_PERMISSION:
-            return ChatColor.RED + "You do not have permission to do that";
-        case FIRE_TARGET:
-            return "You have been fired from %jobcolour%%jobname%";
-        case FIRE_TARGET_NO_JOB:
-            return "Player does not have the job %jobcolour%%jobname%";
-        case FISH_HEADER:
-            return "Fish:";
-        case FISH_INFO_NO_SUB:
-            return "    %item% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
-            ChatColor.YELLOW + " exp";
-        case FISH_INFO_SUB:
-            return "    %item%:%subitem% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
-                ChatColor.YELLOW + " exp";
-        case FISH_NONE:
-            return "%jobcolour%%jobname%" +ChatColor.WHITE+ " does not get money for fish.";
-        case GRANTXP_TARGET:
-            return "You have been granted %expgained% experience in %jobcolour%%jobname%";
-        case JOBS_ADMIN_DEMOTE:
-            return "/jobs demote <playername> <job> <levels> - demote the player X levels in a job";
-        case JOBS_ADMIN_EMPLOY:
-            return "/jobs employ <playername> <job> - employ the player to the job";
-        case JOBS_ADMIN_FIRE:
-            return "/jobs fire <playername> <job> - fire the player from the job";
-        case JOBS_ADMIN_GRANTXP:
-            return "/jobs grantxp <playername> <job> <experience> - grant the player X experience in a job";
-        case JOBS_ADMIN_INFO:
-            return ChatColor.YELLOW+"/jobs admininfo <playername>"+ChatColor.WHITE+" - shows the level of each job and experience gains for the player.";
-        case JOBS_ADMIN_PROMOTE:
-            return "/jobs promote <playername> <job> <levels> - promote the player X levels in a job";
-        case JOBS_ADMIN_REMOVEXP:
-            return "/jobs removexp <playername> <job> <experience> - remove X experience from the player in a job";
-        case JOBS_ADMIN_TRANSFER:
-            return "/jobs transfer <playername> <oldjob> <newjob> - transfer a player's job from an old job to a new job";
-        case JOBS_ADMIN_RELOAD:
-            return ChatColor.YELLOW+"/jobs reload"+ChatColor.WHITE+" - reload the Jobs plugin.";
-        case JOBS_BROWSE:
-            return "/jobs browse - list the jobs available to you";
-        case JOBS_INFO:
-            return "/jobs info <jobname> <break, place, kill, fish, craft> - show how much each job is getting paid and for what";
-        case JOBS_JOIN:
-            return "/jobs join <jobname> - join the selected job";
-        case JOBS_LEAVE:
-            return "/jobs leave <jobname> - leave the selected job";
-        case JOBS_STATS:
-            return "/jobs stats - show the level you are in each job you are part of";
-        case JOIN_JOB_FAILED_ALREADY_IN:
-            return "You are already in the job %jobcolour%%jobname%"+ChatColor.WHITE+".";
-        case JOIN_JOB_FAILED_NO_SLOTS:
-            return "You cannot join the job %jobcolour%%jobname%"+ChatColor.WHITE+", there are no slots available.";
-        case JOIN_JOB_SUCCESS:
-            return "You have joined the job %jobcolour%%jobname%"+ChatColor.WHITE+".";
-        case JOIN_TOO_MANY_JOB:
-            return ChatColor.RED + "You have already joined too many jobs.";
-        case KILL_HEADER:
-            return "Kill:";
-        case KILL_INFO_NO_SUB:
-            return "    %item% - %income%" + ChatColor.WHITE + ", %experience%" +
-                ChatColor.YELLOW + " exp";
-        case KILL_INFO_SUB:
-            return "    %item%:%subitem% - %income%" + ChatColor.WHITE + ", %experience%" +
-                ChatColor.YELLOW + " exp";
-        case KILL_NONE:
-            return "%jobcolour%%jobname%" +ChatColor.WHITE+ " does not get money from killing anything.";
-        case LEAVE_JOB_FAILED_TOO_MANY:
-            return "You have already joined too many jobs.";
-        case LEAVE_JOB_SUCCESS:
-            return "You have left the job %jobcolour%%jobname%"+ChatColor.WHITE+".";
-        case LEVEL_UP_BROADCAST:
-            return "%playername% is now a level %joblevel% %jobcolour%%jobname%"+ChatColor.WHITE+".";
-        case LEVEL_UP_NO_BROADCAST:
-            return "You are now a level %joblevel% %jobcolour%%jobname%"+ChatColor.WHITE+".";
-        case PLACE_HEADER:
-            return "Place:";
-        case PLACE_INFO_NO_SUB:
-            return "    %item% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
-                ChatColor.YELLOW + " exp";
-        case PLACE_INFO_SUB:
-            return "    %item%:%subitem% - %income%" + ChatColor.GREEN + " income" + ChatColor.WHITE + ", %experience%" + 
-                ChatColor.YELLOW + " exp";
-        case PLACE_NONE:
-            return "%jobcolour%%jobname%" +ChatColor.WHITE+ " does not get money from placing anything.";
-        case PROMOTE_TARGET:
-            return "You have been promoted %levelsgained% levels in %jobcolour%%jobname%";
-        case REMOVEXP_TARGET:
-            return "You have lost %explost% experience in jobcolour%%jobname%";
-        case SKILL_UP_BROADCAST:
-            return "%playername% has been promoted to a %titlecolour%%titlename% %jobcolour%%jobname%"+ChatColor.WHITE+".";
-        case SKILL_UP_NO_BROADCAST:
-            return "Congratulations, you have been promoted to a %titlecolour%%titlename% %jobcolour%%jobname%"+ChatColor.WHITE+".";
-        case STATS_JOB:
-            return "lvl%joblevel% %jobcolour%%jobname%:\n    Experience: %jobexp% / %jobmaxexp%";
-        case STATS_NO_JOB:
-            return ChatColor.RED + "Please join a job first";
-        case TRANSFER_TARGET:
-            return "You have been transferred from %oldjobcolour%%oldjobname% to %newjobcolour%%newjobname%";
-        default:
-            System.err.println("[Jobs] Message "+key+" does not exist!");
-            return null;
-        }
+    public String getMessage(String key) {
+        return parseColors(config.getString(key));
     }
 }

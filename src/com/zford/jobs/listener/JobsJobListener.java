@@ -27,7 +27,6 @@ import com.nidefawl.Stats.Stats;
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.JobConfig;
 import com.zford.jobs.config.JobsConfiguration;
-import com.zford.jobs.config.MessageConfig;
 import com.zford.jobs.config.container.JobProgression;
 import com.zford.jobs.config.container.JobsPlayer;
 import com.zford.jobs.event.JobsEventListener;
@@ -71,9 +70,9 @@ public class JobsJobListener extends JobsEventListener{
             
             String message;
             if(JobsConfiguration.getInstance().isBroadcastingLevelups()) {
-                message = MessageConfig.getInstance().getMessage("level-up-broadcast");
+                message = plugin.getMessageConfig().getMessage("level-up-broadcast");
             } else {
-                message = MessageConfig.getInstance().getMessage("level-up-no-broadcast");
+                message = plugin.getMessageConfig().getMessage("level-up-no-broadcast");
             }
             message = message.replace("%jobname%", ""+progression.getJob().getName());
             message = message.replace("%jobcolour%", ""+progression.getJob().getChatColour());
@@ -110,7 +109,7 @@ public class JobsJobListener extends JobsEventListener{
             event.getPlayer().checkLevels();
         } else if(player != null) {
             event.getJobProgression().setExperience(0.0);
-            String message = MessageConfig.getInstance().getMessage("at-max-level");
+            String message = plugin.getMessageConfig().getMessage("at-max-level");
         
             for(String line: message.split("\n")){
                 player.sendMessage(line);
@@ -130,7 +129,7 @@ public class JobsJobListener extends JobsEventListener{
         
         //broadcast
         if(JobsConfiguration.getInstance().isBroadcastingSkillups()){
-            String message = MessageConfig.getInstance().getMessage("skill-up-broadcast");
+            String message = plugin.getMessageConfig().getMessage("skill-up-broadcast");
             message = message.replace("%playername%", event.getPlayer().getName());
             if(event.getNewTitle() != null){
                 message = message.replace("%titlecolour%", event.getNewTitle().getChatColor().toString());
@@ -142,7 +141,7 @@ public class JobsJobListener extends JobsEventListener{
                 plugin.getServer().broadcastMessage(line);
             }
         } else if(player != null) {
-            String message = MessageConfig.getInstance().getMessage("skill-up-no-broadcast");
+            String message = plugin.getMessageConfig().getMessage("skill-up-no-broadcast");
             if(event.getNewTitle() != null){
                 message = message.replace("%titlecolour%", event.getNewTitle().getChatColor().toString());
                 message = message.replace("%titlename%", event.getNewTitle().getName());
@@ -170,7 +169,7 @@ public class JobsJobListener extends JobsEventListener{
                 event.getPlayer().joinJob(event.getNewJob());
                 JobsConfiguration.getInstance().getJobsDAO().joinJob(event.getPlayer(), event.getNewJob());
                 JobConfig.getInstance().takeSlot(event.getNewJob());
-                String message = MessageConfig.getInstance().getMessage("join-job-success");
+                String message = plugin.getMessageConfig().getMessage("join-job-success");
                 message = message.replace("%jobcolour%", event.getNewJob().getChatColour().toString());
                 message = message.replace("%jobname%", event.getNewJob().getName());
                 if(player != null) {
@@ -196,7 +195,7 @@ public class JobsJobListener extends JobsEventListener{
             } else if(player != null) {
                 if(event.getPlayer().isInJob(event.getNewJob())){
                     // already in job message
-                    String message = MessageConfig.getInstance().getMessage("join-job-failed-already-in");
+                    String message = plugin.getMessageConfig().getMessage("join-job-failed-already-in");
                     message = message.replace("%jobcolour%", event.getNewJob().getChatColour().toString());
                     message = message.replace("%jobname%", event.getNewJob().getName());
                     for(String line: message.split("\n")){
@@ -205,7 +204,7 @@ public class JobsJobListener extends JobsEventListener{
                 }
                 else{
                     // you are already in too many jobs
-                    String message = MessageConfig.getInstance().getMessage("leave-job-failed-too-many");
+                    String message = plugin.getMessageConfig().getMessage("leave-job-failed-too-many");
                     for(String line: message.split("\n")){
                         player.sendMessage(line);
                     }
@@ -213,7 +212,7 @@ public class JobsJobListener extends JobsEventListener{
             }
         } else if (player != null && JobConfig.getInstance().getUsedSlots(event.getNewJob()) >= event.getNewJob().getMaxSlots()) {
             // already in job message
-            String message = MessageConfig.getInstance().getMessage("join-job-failed-no-slots");
+            String message = plugin.getMessageConfig().getMessage("join-job-failed-no-slots");
             message = message.replace("%jobcolour%", event.getNewJob().getChatColour().toString());
             message = message.replace("%jobname%", event.getNewJob().getName());
             for(String line: message.split("\n")){
@@ -235,7 +234,7 @@ public class JobsJobListener extends JobsEventListener{
             JobsConfiguration.getInstance().getJobsDAO().quitJob(event.getPlayer(), event.getOldJob());
             JobConfig.getInstance().leaveSlot(event.getOldJob());
             if(player != null) {
-                String message = MessageConfig.getInstance().getMessage("leave-job-success");
+                String message = plugin.getMessageConfig().getMessage("leave-job-success");
                 message = message.replace("%jobcolour%", event.getOldJob().getChatColour().toString());
                 message = message.replace("%jobname%", event.getOldJob().getName());
                 for(String line: message.split("\n")){

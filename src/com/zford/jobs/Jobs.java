@@ -67,6 +67,7 @@ public class Jobs extends JavaPlugin{
     private JobsPlayerListener playerListener;
     private JobsFishPaymentListener fishListener;
     private JobsCraftPaymentListener craftListener;
+    private MessageConfig messageConfig;
 	
     public Jobs() {
         blockListener = new JobsBlockPaymentListener(this);
@@ -109,6 +110,8 @@ public class Jobs extends JavaPlugin{
 		players = new HashMap<String, JobsPlayer>();
 		JobsCommands commands = new JobsCommands(this);
 		this.getCommand("jobs").setExecutor(commands);
+		
+		messageConfig = new MessageConfig(this);
 		
 		reloadConfigurations();
 		
@@ -249,7 +252,7 @@ public class Jobs extends JavaPlugin{
 	/**
 	 * Save all the information of all of the players in the game
 	 */
-	public void saveAll(){
+	public void saveAll() {
 		for(String playername : players.keySet()){
 			save(playername);
 		}
@@ -286,10 +289,18 @@ public class Jobs extends JavaPlugin{
 	}
 	
 	/**
+	 * Get the message configuration data
+	 * @return - the message configuration
+	 */
+	public MessageConfig getMessageConfig() {
+	    return messageConfig;
+	}
+	
+	/**
 	 * Reloads all configuration files
 	 */
-	public static void reloadConfigurations() {
-        MessageConfig.getInstance().reload();
+	public void reloadConfigurations() {
+	    getMessageConfig().reload();
 	    JobsConfiguration.getInstance().reload();
 	    JobConfig.getInstance().reload();
 	}
