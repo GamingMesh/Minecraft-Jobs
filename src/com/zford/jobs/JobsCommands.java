@@ -61,11 +61,7 @@ public class JobsCommands implements CommandExecutor {
             if(args.length == 2 && args[0].equalsIgnoreCase("join")){
                 String jobName = args[1].trim();
                 if(JobConfig.getInstance().getJob(jobName) != null && !jobName.equalsIgnoreCase("None")) {
-                    if((JobsConfiguration.getInstance().getPermissions()!= null &&
-                            JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                            JobsConfiguration.getInstance().getPermissions().getHandler().has(pSender, "jobs.join."+jobName))
-                            ||
-                            ((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled()))){
+                    if(plugin.hasPermission(pSender, "jobs.join."+jobName)) {
                         if(JobsConfiguration.getInstance().getMaxJobs() == null || jPlayer.getJobs().size() < JobsConfiguration.getInstance().getMaxJobs()){
                             plugin.getServer().getPluginManager().callEvent(new JobsJoinEvent(jPlayer, JobConfig.getInstance().getJob(jobName)));
                             return true;
@@ -113,8 +109,7 @@ public class JobsCommands implements CommandExecutor {
             if(args.length >= 1 && args[0].equalsIgnoreCase("stats")){
                 JobsPlayer jPlayer = null;
                 if(args.length >= 2) {
-                    if(sender instanceof ConsoleCommandSender || JobsConfiguration.getInstance().getPermissions()!= null &&
-                            JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.stats")) {
+                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.stats")) {
                         jPlayer = plugin.getJobsPlayer(args[1]);
                     } else {
                         sender.sendMessage(ChatColor.RED + "There was an error in your command");
@@ -141,12 +136,7 @@ public class JobsCommands implements CommandExecutor {
             else if(args.length >= 1 && args[0].equalsIgnoreCase("browse")){
                 ArrayList<String> jobs = new ArrayList<String>();
                 for(Job temp: JobConfig.getInstance().getJobs()){
-                    if(sender instanceof ConsoleCommandSender || 
-                            (JobsConfiguration.getInstance().getPermissions()!= null &&
-                            JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                            JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.join."+temp.getName()))
-                            ||
-                            ((JobsConfiguration.getInstance().getPermissions() == null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled()))){
+                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.join."+temp.getName())) {
                         if(!temp.getName().equalsIgnoreCase("None")) {
                             if(temp.getMaxLevel() == null){
                                 jobs.add(temp.getChatColour() + temp.getName());
@@ -175,13 +165,7 @@ public class JobsCommands implements CommandExecutor {
             
             // admin commands
             else if(args.length >= 2 && args[0].equalsIgnoreCase("admininfo")){
-                if(sender instanceof ConsoleCommandSender || 
-                        (JobsConfiguration.getInstance().getPermissions()!= null &&
-                        JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                        JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.info"))
-                        ||
-                        (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
-                    
+                if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.info")) {
                     String message = "";
                     message += "----------------\n";
                     JobsPlayer player = plugin.getJobsPlayer(args[1]);
@@ -197,12 +181,7 @@ public class JobsCommands implements CommandExecutor {
             }
             
             if(args.length == 1 && args[0].equalsIgnoreCase("reload")) {
-                if(sender instanceof ConsoleCommandSender || 
-                        (JobsConfiguration.getInstance().getPermissions()!= null &&
-                        JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                        JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.reload"))
-                        ||
-                        (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+                if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.reload")) {
                     try {
                         if(plugin.isEnabled()) {
                             for(Player player : plugin.getServer().getOnlinePlayers()) {
@@ -226,12 +205,7 @@ public class JobsCommands implements CommandExecutor {
             }
             if(args.length == 3){
                 if(args[0].equalsIgnoreCase("fire")){
-                    if(sender instanceof ConsoleCommandSender || 
-                            (JobsConfiguration.getInstance().getPermissions()!= null &&
-                            JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                            JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.fire"))
-                            ||
-                            (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.fire")) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job job = JobConfig.getInstance().getJob(args[2]);
@@ -264,12 +238,7 @@ public class JobsCommands implements CommandExecutor {
                     return true;
                 }
                 else if(args[0].equalsIgnoreCase("employ")){
-                    if(sender instanceof ConsoleCommandSender || 
-                            (JobsConfiguration.getInstance().getPermissions()!= null &&
-                            JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                            JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.employ."+args[2]))
-                            ||
-                            (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.employ."+args[2])) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job job = JobConfig.getInstance().getJob(args[2]);
@@ -297,12 +266,7 @@ public class JobsCommands implements CommandExecutor {
             }
             else if(args.length == 4){
                 if(args[0].equalsIgnoreCase("promote")){
-                    if(sender instanceof ConsoleCommandSender || 
-                            (JobsConfiguration.getInstance().getPermissions()!= null &&
-                            JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                            JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.promote"))
-                            ||
-                            (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.promote")) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job job = JobConfig.getInstance().getJob(args[2]);
@@ -339,12 +303,7 @@ public class JobsCommands implements CommandExecutor {
                     return true;
                 }
                 else if(args[0].equalsIgnoreCase("demote")){
-                    if(sender instanceof ConsoleCommandSender || 
-                            (JobsConfiguration.getInstance().getPermissions()!= null &&
-                            JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                            JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.demote"))
-                            ||
-                            (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.demote")) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job job = JobConfig.getInstance().getJob(args[2]);
@@ -381,12 +340,7 @@ public class JobsCommands implements CommandExecutor {
                     return true;
                 }
                 else if(args[0].equalsIgnoreCase("grantxp")){
-                    if(sender instanceof ConsoleCommandSender || 
-                            (JobsConfiguration.getInstance().getPermissions()!= null &&
-                            JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                            JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.grantxp"))
-                            ||
-                            (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.grantxp")) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job job = JobConfig.getInstance().getJob(args[2]);
@@ -422,12 +376,7 @@ public class JobsCommands implements CommandExecutor {
                     return true;
                 }
                 else if(args[0].equalsIgnoreCase("removexp")){
-                    if(sender instanceof ConsoleCommandSender || 
-                            (JobsConfiguration.getInstance().getPermissions()!= null &&
-                            JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                            JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.removexp"))
-                            ||
-                            (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.removexp")) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job job = JobConfig.getInstance().getJob(args[2]);
@@ -462,12 +411,7 @@ public class JobsCommands implements CommandExecutor {
                     return true;
                 }
                 else if(args[0].equalsIgnoreCase("transfer")){
-                    if(sender instanceof ConsoleCommandSender || 
-                            (JobsConfiguration.getInstance().getPermissions()!= null &&
-                            JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                            JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.transfer"))
-                            ||
-                            (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.transfer")) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job oldjob = JobConfig.getInstance().getJob(args[2]);
@@ -537,83 +481,38 @@ public class JobsCommands implements CommandExecutor {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-info"));
             }
             //jobs-admin-info
-            if(sender instanceof ConsoleCommandSender || 
-                    (JobsConfiguration.getInstance().getPermissions()!= null &&
-                    JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                    JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.info"))
-                    ||
-                    (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.info")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-info"));
             }
             //jobs-admin-fire
-            if(sender instanceof ConsoleCommandSender || 
-                    (JobsConfiguration.getInstance().getPermissions()!= null &&
-                    JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                    JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.fire"))
-                    ||
-                    (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.fire")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-fire"));
             }
             //jobs-admin-employ
-            if(sender instanceof ConsoleCommandSender || 
-                    (JobsConfiguration.getInstance().getPermissions()!= null &&
-                    JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                    JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.employ"))
-                    ||
-                    (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.employ")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-employ"));
             }
             //jobs-admin-promote
-            if(sender instanceof ConsoleCommandSender || 
-                    (JobsConfiguration.getInstance().getPermissions()!= null &&
-                    JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                    JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.promote"))
-                    ||
-                    (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.promote")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-promote"));
             }
             //jobs-admin-demote
-            if(sender instanceof ConsoleCommandSender || 
-                    (JobsConfiguration.getInstance().getPermissions()!= null &&
-                    JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                    JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.demote"))
-                    ||
-                    (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.demote")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-demote"));
             }
             //jobs-admin-grantxp
-            if(sender instanceof ConsoleCommandSender || 
-                    (JobsConfiguration.getInstance().getPermissions()!= null &&
-                    JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                    JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.grantxp"))
-                    ||
-                    (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.grantxp")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-grantxp"));
             }
             //jobs-admin-removexp
-            if(sender instanceof ConsoleCommandSender || 
-                    (JobsConfiguration.getInstance().getPermissions()!= null &&
-                    JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                    JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.removexp"))
-                    ||
-                    (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.removexp")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-removexp"));
             }
             //jobs-admin-transfer
-            if(sender instanceof ConsoleCommandSender || 
-                    (JobsConfiguration.getInstance().getPermissions()!= null &&
-                    JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                    JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.transfer"))
-                    ||
-                    (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.transfer")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-transfer"));
             }
-            if(sender instanceof ConsoleCommandSender || 
-                    (JobsConfiguration.getInstance().getPermissions()!= null &&
-                    JobsConfiguration.getInstance().getPermissions().isEnabled() &&
-                    JobsConfiguration.getInstance().getPermissions().getHandler().has((Player)sender, "jobs.admin.reload"))
-                    ||
-                    (((JobsConfiguration.getInstance().getPermissions()== null) || !(JobsConfiguration.getInstance().getPermissions().isEnabled())) && sender.isOp())){
+            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.reload")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-reload"));
             }
         }

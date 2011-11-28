@@ -19,11 +19,11 @@
 
 package com.zford.jobs.listener;
 
+import org.bukkit.entity.Player;
 import org.getspout.spoutapi.event.inventory.InventoryCraftEvent;
 import org.getspout.spoutapi.event.inventory.InventoryListener;
 
 import com.zford.jobs.Jobs;
-import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.container.RestrictedArea;
 
 public class JobsCraftPaymentListener extends InventoryListener{
@@ -44,10 +44,13 @@ public class JobsCraftPaymentListener extends InventoryListener{
         // restricted area multiplier
         double multiplier = RestrictedArea.getMultiplier(event.getPlayer());
         
-		if(event.getResult() != null && (JobsConfiguration.getInstance().getPermissions() == null || 
-		        !JobsConfiguration.getInstance().getPermissions().isEnabled() ||
-		        JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName()))){
-			plugin.getJobsPlayer(event.getPlayer().getName()).crafted(event.getResult(), multiplier);			
+        if(event.getResult() == null)
+            return;
+        
+        Player player = event.getPlayer();
+        
+        if(plugin.hasPermission(player, "jobs.world." + player.getWorld().getName())) {
+			plugin.getJobsPlayer(player.getName()).crafted(event.getResult(), multiplier);			
 		}
 	}
 }

@@ -20,12 +20,12 @@
 package com.zford.jobs.listener;
 
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 import com.zford.jobs.Jobs;
-import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.container.RestrictedArea;
 
 public class JobsBlockPaymentListener extends BlockListener{
@@ -44,10 +44,10 @@ public class JobsBlockPaymentListener extends BlockListener{
         // restricted area multiplier
         double multiplier = RestrictedArea.getMultiplier(event.getPlayer());
         
-		if((JobsConfiguration.getInstance().getPermissions() == null || 
-		        !JobsConfiguration.getInstance().getPermissions().isEnabled()) ||
-		        JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName())){
-			plugin.getJobsPlayer(event.getPlayer().getName()).broke(event.getBlock(), multiplier);			
+        Player player = event.getPlayer();
+        
+		if(plugin.hasPermission(player, "jobs.world." + player.getWorld().getName())) {
+			plugin.getJobsPlayer(player.getName()).broke(event.getBlock(), multiplier);			
 		}
 	}
 	
@@ -63,10 +63,10 @@ public class JobsBlockPaymentListener extends BlockListener{
         // restricted area multiplier
         double multiplier = RestrictedArea.getMultiplier(event.getPlayer());
         
-		if((JobsConfiguration.getInstance().getPermissions() == null || 
-		        !JobsConfiguration.getInstance().getPermissions().isEnabled()) ||		
-		        JobsConfiguration.getInstance().getPermissions().getHandler().has(event.getPlayer(), "jobs.world." + event.getPlayer().getWorld().getName())){
-			plugin.getJobsPlayer(event.getPlayer().getName()).placed(event.getBlock(), multiplier);
+        Player player = event.getPlayer();
+        
+        if(plugin.hasPermission(player, "jobs.world." + player.getWorld().getName())) {
+			plugin.getJobsPlayer(player.getName()).placed(event.getBlock(), multiplier);
 		}
 	}
 }

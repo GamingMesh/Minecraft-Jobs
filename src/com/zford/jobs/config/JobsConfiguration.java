@@ -32,7 +32,6 @@ import org.bukkit.World;
 import org.bukkit.util.config.Configuration;
 
 import com.nidefawl.Stats.Stats;
-import com.nijikokun.bukkit.Permissions.Permissions;
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.container.RestrictedArea;
 import com.zford.jobs.config.container.Title;
@@ -66,8 +65,6 @@ public class JobsConfiguration {
 	private JobsEconomyLink economy = null;
 	// stats integration
 	private Stats stats = null;
-	// permissions integration
-	private Permissions permissions = null;
 	// do i broadcast skillups?
     private boolean broadcastSkillups;
     // do i broadcast level ups?
@@ -330,15 +327,6 @@ public class JobsConfiguration {
 	}
 	
 	/**
-	 * Unhook the all plugins being used
-	 */
-	public void unhookAll(){
-		economy = null;
-		stats = null;
-		permissions = null;
-	}
-	
-	/**
 	 * Set the economy link
 	 * @param economy - the new economy link
 	 */
@@ -360,22 +348,6 @@ public class JobsConfiguration {
 	 */
 	public void setStats(Stats stats) {
 		this.stats = stats;
-	}
-
-	/**
-	 * Getter for the permissions plugin
-	 * @return the permissions plugin
-	 */
-	public Permissions getPermissions() {
-		return permissions;
-	}
-
-	/**
-	 * Setter for the permissions plugin
-	 * @param permissions - the permissions plugin
-	 */
-	public void setPermissions(Permissions permissions) {
-		this.permissions = permissions;
 	}
 	
 	/**

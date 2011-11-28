@@ -26,6 +26,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerListener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -170,14 +171,6 @@ public class Jobs extends JavaPlugin{
 					}
 				}
 				
-				// permissions
-				if(jc.getPermissions() == null){
-					if(pm.getPlugin("Permissions") != null){
-						jc.setPermissions((Permissions)pm.getPlugin("Permissions"));
-	                    System.out.println("[Jobs] Successfully linked with Permissions.");
-					}
-				}
-				
 				// spout
 				if(craftListener == null){
 				    if(getServer().getPluginManager().getPlugin("Spout") != null){
@@ -203,12 +196,6 @@ public class Jobs extends JavaPlugin{
 				if(event.getPlugin().getDescription().getName().equalsIgnoreCase("Stats")){
 					jc.setStats(null);
                     System.out.println("[Jobs] Successfully unlinked with Stats.");
-				}
-				
-				// permissions
-				if(event.getPlugin().getDescription().getName().equalsIgnoreCase("Permissions")){
-					jc.setPermissions(null);
-                    System.out.println("[Jobs] Successfully unlinked with Permissions.");
 				}
 			}
 		}, Event.Priority.Monitor, this);
@@ -303,5 +290,20 @@ public class Jobs extends JavaPlugin{
 	    getMessageConfig().reload();
 	    JobsConfiguration.getInstance().reload();
 	    JobConfig.getInstance().reload();
+	}
+	
+	/**
+	 * Check permissions
+	 */
+	public boolean hasPermission(Player player, String node) {
+	    Plugin plugin = getServer().getPluginManager().getPlugin("Permissions");
+	    if (plugin == null || !plugin.isEnabled()) {
+	        if (node.toLowerCase().startsWith("jobs.admin"))
+	            return player.isOp();
+	        else
+	            return true;
+	    }
+	    Permissions permissions = (Permissions) plugin;
+	    return permissions.getHandler().has(player, node);
 	}
 }
