@@ -27,12 +27,10 @@ import org.bukkit.event.Event;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.event.server.ServerListener;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.nidefawl.Stats.Stats;
-import com.nijikokun.bukkit.Permissions.Permissions;
 import com.zford.jobs.config.JobConfig;
 import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.MessageConfig;
@@ -298,28 +296,28 @@ public class Jobs extends JavaPlugin{
      * Check permissions
      */
     public boolean hasPermission(Player player, String node) {
-        Plugin plugin = getServer().getPluginManager().getPlugin("Permissions");
-        if (plugin == null || !plugin.isEnabled()) {
-            if (node.toLowerCase().startsWith("jobs.admin"))
-                return player.isOp();
-            else
-                return true;
-        }
-        Permissions permissions = (Permissions) plugin;
-        return permissions.getHandler().has(player, node);
+        return player.hasPermission(node);
     }
     
     /**
      * Check World permissions
      */
     public boolean hasWorldPermission(Player player, World world) {
-        return hasPermission(player, "jobs.world."+world.getName());
+        if (player.hasPermission("jobs.world.*")) {
+            return true;
+        } else {
+            return player.hasPermission("jobs.world."+world.getName().toLowerCase());
+        }
     }
     
     /**
      * Check Job joining permission
      */
     public boolean hasJobPermission(Player player, Job job) {
-        return hasPermission(player, "jobs.join."+job.getName());
+        if (player.hasPermission("jobs.join.*")) {
+            return true;
+        } else {
+            return player.hasPermission("jobs.join."+job.getName().toLowerCase());
+        }
     }
 }

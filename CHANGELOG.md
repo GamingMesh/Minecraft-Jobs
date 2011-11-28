@@ -1,5 +1,9 @@
 # Jobs plugin change log summary
 
+## 2.6.0
+* Added workaround to MySQL timeout issues
+* Removed Permissions 3 support, converted to DinnerPerms
+
 ## 2.5.6
 * Added a multiplier to restricted areas
 * Fixed memory leak with creatures from monster spawners
