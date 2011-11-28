@@ -46,7 +46,7 @@ public class JobsBlockPaymentListener extends BlockListener{
         
         Player player = event.getPlayer();
         
-		if(plugin.hasPermission(player, "jobs.world." + player.getWorld().getName())) {
+		if(plugin.hasWorldPermission(player, player.getWorld())) {
 			plugin.getJobsPlayer(player.getName()).broke(event.getBlock(), multiplier);			
 		}
 	}
@@ -65,7 +65,7 @@ public class JobsBlockPaymentListener extends BlockListener{
         
         Player player = event.getPlayer();
         
-        if(plugin.hasPermission(player, "jobs.world." + player.getWorld().getName())) {
+        if(plugin.hasWorldPermission(player, player.getWorld())) {
 			plugin.getJobsPlayer(player.getName()).placed(event.getBlock(), multiplier);
 		}
 	}

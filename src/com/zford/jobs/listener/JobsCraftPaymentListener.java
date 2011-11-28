@@ -49,7 +49,7 @@ public class JobsCraftPaymentListener extends InventoryListener{
         
         Player player = event.getPlayer();
         
-        if(plugin.hasPermission(player, "jobs.world." + player.getWorld().getName())) {
+        if(plugin.hasWorldPermission(player, player.getWorld())) {
 			plugin.getJobsPlayer(player.getName()).crafted(event.getResult(), multiplier);			
 		}
 	}

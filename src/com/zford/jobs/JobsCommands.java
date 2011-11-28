@@ -60,10 +60,11 @@ public class JobsCommands implements CommandExecutor {
             // join
             if(args.length == 2 && args[0].equalsIgnoreCase("join")){
                 String jobName = args[1].trim();
-                if(JobConfig.getInstance().getJob(jobName) != null && !jobName.equalsIgnoreCase("None")) {
-                    if(plugin.hasPermission(pSender, "jobs.join."+jobName)) {
+                Job job = JobConfig.getInstance().getJob(jobName);
+                if(job != null && !jobName.equalsIgnoreCase("None")) {
+                    if(plugin.hasJobPermission(pSender, job)) {
                         if(JobsConfiguration.getInstance().getMaxJobs() == null || jPlayer.getJobs().size() < JobsConfiguration.getInstance().getMaxJobs()){
-                            plugin.getServer().getPluginManager().callEvent(new JobsJoinEvent(jPlayer, JobConfig.getInstance().getJob(jobName)));
+                            plugin.getServer().getPluginManager().callEvent(new JobsJoinEvent(jPlayer, job));
                             return true;
                         }
                         else{
@@ -135,14 +136,14 @@ public class JobsCommands implements CommandExecutor {
             // browse
             else if(args.length >= 1 && args[0].equalsIgnoreCase("browse")){
                 ArrayList<String> jobs = new ArrayList<String>();
-                for(Job temp: JobConfig.getInstance().getJobs()){
-                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.join."+temp.getName())) {
-                        if(!temp.getName().equalsIgnoreCase("None")) {
-                            if(temp.getMaxLevel() == null){
-                                jobs.add(temp.getChatColour() + temp.getName());
+                for(Job job: JobConfig.getInstance().getJobs()){
+                    if(sender instanceof ConsoleCommandSender || plugin.hasJobPermission((Player) sender, job)) {
+                        if(!job.getName().equalsIgnoreCase("None")) {
+                            if(job.getMaxLevel() == null){
+                                jobs.add(job.getChatColour() + job.getName());
                             }
                             else{
-                                jobs.add(temp.getChatColour() + temp.getName() + ChatColor.WHITE + " - max lvl: " + temp.getMaxLevel());
+                                jobs.add(job.getChatColour() + job.getName() + ChatColor.WHITE + " - max lvl: " + job.getMaxLevel());
                             }
                         }
                     }

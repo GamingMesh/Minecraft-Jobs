@@ -21,6 +21,7 @@ package com.zford.jobs;
 
 import java.util.HashMap;
 
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.server.PluginDisableEvent;
@@ -35,6 +36,7 @@ import com.nijikokun.bukkit.Permissions.Permissions;
 import com.zford.jobs.config.JobConfig;
 import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.MessageConfig;
+import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobsPlayer;
 import com.zford.jobs.economy.JobsBOSEconomyLink;
 import com.zford.jobs.economy.JobsEssentialsLink;
@@ -292,18 +294,32 @@ public class Jobs extends JavaPlugin{
 	    JobConfig.getInstance().reload();
 	}
 	
-	/**
-	 * Check permissions
-	 */
-	public boolean hasPermission(Player player, String node) {
-	    Plugin plugin = getServer().getPluginManager().getPlugin("Permissions");
-	    if (plugin == null || !plugin.isEnabled()) {
-	        if (node.toLowerCase().startsWith("jobs.admin"))
-	            return player.isOp();
-	        else
-	            return true;
-	    }
-	    Permissions permissions = (Permissions) plugin;
-	    return permissions.getHandler().has(player, node);
-	}
+    /**
+     * Check permissions
+     */
+    public boolean hasPermission(Player player, String node) {
+        Plugin plugin = getServer().getPluginManager().getPlugin("Permissions");
+        if (plugin == null || !plugin.isEnabled()) {
+            if (node.toLowerCase().startsWith("jobs.admin"))
+                return player.isOp();
+            else
+                return true;
+        }
+        Permissions permissions = (Permissions) plugin;
+        return permissions.getHandler().has(player, node);
+    }
+    
+    /**
+     * Check World permissions
+     */
+    public boolean hasWorldPermission(Player player, World world) {
+        return hasPermission(player, "jobs.world."+world.getName());
+    }
+    
+    /**
+     * Check Job joining permission
+     */
+    public boolean hasJobPermission(Player player, Job job) {
+        return hasPermission(player, "jobs.join."+job.getName());
+    }
 }
