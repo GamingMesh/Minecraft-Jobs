@@ -333,7 +333,7 @@ public class Job {
         }else if(item.getData()!=null){
             // try with sub-class
             if(info.containsKey(blockKey+":"+item.getData().getData())){
-                return item.getAmount() * info.get(blockKey+":"+item.getData()).getMoneyFromMaterial(incomeEquation, param);
+                return item.getAmount() * info.get(blockKey+":"+item.getData().getData()).getMoneyFromMaterial(incomeEquation, param);
             }
         }
         return null;
