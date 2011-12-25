@@ -19,9 +19,6 @@
 
 package com.zford.jobs.economy.link;
 
-
-import com.zford.jobs.config.container.JobsPlayer;
-
 /**
  * Interface that to be used when creating a class that talks with the 
  * economy systems (e.g. iConomy, BOSEconomy ...)
@@ -34,11 +31,11 @@ public interface EconomyLink {
 	 * @param player - player to be paid
 	 * @param amount - amount to be paid
 	 */
-	public void pay(JobsPlayer player, double amount);
+	public void pay(String playername, double amount);
 	
 	/**
 	 * Update Stats plugin money stats
 	 * @param player - the player
 	 */
-	public void updateStats(JobsPlayer player);
+	public void updateStats(String playername);
 }

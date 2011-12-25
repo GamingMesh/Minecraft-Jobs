@@ -129,6 +129,13 @@ public class Jobs extends JavaPlugin{
 			}, 20*60*JobsConfiguration.getInstance().getSavePeriod(), 20*60*JobsConfiguration.getInstance().getSavePeriod());
 		}
 		
+		// schedule payouts to buffered payments
+		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
+		    public void run() {
+		        JobsConfiguration.getInstance().getBufferedPayment().payAll();
+		    }
+		}, 100, 100);
+		
 		// enable the link for economy plugins
 		getServer().getPluginManager().registerEvent(Event.Type.PLUGIN_ENABLE, new ServerListener() {
 		    

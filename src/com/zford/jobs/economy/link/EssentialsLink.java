@@ -26,7 +26,6 @@ import com.earth2me.essentials.api.NoLoanPermittedException;
 import com.earth2me.essentials.api.UserDoesNotExistException;
 import com.nidefawl.Stats.Stats;
 import com.zford.jobs.config.JobsConfiguration;
-import com.zford.jobs.config.container.JobsPlayer;
 
 public class EssentialsLink implements EconomyLink{
 	
@@ -34,9 +33,9 @@ public class EssentialsLink implements EconomyLink{
 	}
 	
 	@Override
-	public void pay(JobsPlayer player, double amount) {
+    public void pay(String playername, double amount) {
 		try {
-			Economy.add(player.getName(), amount);
+			Economy.add(playername, amount);
 		} catch (UserDoesNotExistException e) {
 			e.printStackTrace();
 		} catch (NoLoanPermittedException e) {
@@ -45,20 +44,20 @@ public class EssentialsLink implements EconomyLink{
 	}
 
     @Override
-	public void updateStats(JobsPlayer player) {
+	public void updateStats(String playername) {
         // stats plugin integration
         if(JobsConfiguration.getInstance().getStats() != null &&
                 JobsConfiguration.getInstance().getStats().isEnabled()){
             Stats stats = JobsConfiguration.getInstance().getStats();
             double balance;
             try {
-                balance = Economy.getMoney(player.getName());
+                balance = Economy.getMoney(playername);
             } catch(UserDoesNotExistException e) {
                 e.printStackTrace();
                 return;
             }
-            if(balance > stats.get(player.getName(), "job", "money")){
-                stats.setStat(player.getName(), "job", "money", (int) balance);
+            if(balance > stats.get(playername, "job", "money")){
+                stats.setStat(playername, "job", "money", (int) balance);
                 stats.saveAll();
             }
         }

@@ -38,6 +38,7 @@ import com.zford.jobs.config.container.Title;
 import com.zford.jobs.dao.JobsDAO;
 import com.zford.jobs.dao.JobsDAOH2;
 import com.zford.jobs.dao.JobsDAOMySQL;
+import com.zford.jobs.economy.BufferedPayment;
 import com.zford.jobs.economy.link.EconomyLink;
 import com.zford.jobs.util.DisplayMethod;
 
@@ -63,6 +64,8 @@ public class JobsConfiguration {
 	private static JobsConfiguration jobsConfig = null;
 	// economy plugin
 	private EconomyLink economy = null;
+	// economy payment buffer
+    private BufferedPayment bufferedPayment;
 	// stats integration
 	private Stats stats = null;
 	// do i broadcast skillups?
@@ -87,6 +90,7 @@ public class JobsConfiguration {
 	 * Made to observe the singleton pattern.
 	 */
 	private JobsConfiguration(){
+	    bufferedPayment = new BufferedPayment();
 	}
 	
 	public void reload() {
@@ -333,6 +337,14 @@ public class JobsConfiguration {
 	public void setEconomyLink(EconomyLink economy){
 		this.economy = economy;
 	}
+    
+    /**
+     * Gets the economy buffered payment
+     * @return the buffered payment class
+     */
+    public BufferedPayment getBufferedPayment() {
+        return bufferedPayment;
+    }
 	
 	/**
 	 * Getter for the stats plugin
