@@ -21,7 +21,6 @@ package com.zford.jobs.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.LinkedList;
 
@@ -42,20 +41,13 @@ public class JobsConnectionPool {
         // Try to get a pooled connection
         while(!pooledConnections.isEmpty()) {
             JobsConnection conn = pooledConnections.remove();
-            if(!conn.isClosed()) {
-                // test the connection to make sure it's not stale
-                String sql = "SELECT 1 FROM DUAL";
-                PreparedStatement prest;
+            if (conn.isClosed() || !conn.isValid(1)) {
                 try {
-                    prest = conn.prepareStatement(sql);
-                    prest.executeQuery();
-                    return conn;
-                } catch (SQLException e) {
-                    try {
-                        conn.closeConnection();
-                    } catch (SQLException ex) { }
-                }
+                    conn.closeConnection();
+                } catch (SQLException e) {}
+                continue;
             }
+            return conn;
         }
         // create a new connection
         Connection conn = DriverManager.getConnection(url, username, password);

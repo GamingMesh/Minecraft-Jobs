@@ -41,6 +41,10 @@ public class JobsConnection {
         }
     }
     
+    public synchronized boolean isValid(int timeout) throws SQLException {
+        return conn.isValid(timeout);
+    }
+    
     public synchronized void close() {
         pool.returnToPool(this);
     }
