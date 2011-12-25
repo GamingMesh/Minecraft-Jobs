@@ -17,7 +17,7 @@
  * 
  */
 
-package com.zford.jobs.economy;
+package com.zford.jobs.economy.link;
 
 
 
@@ -32,20 +32,20 @@ import cosine.boseconomy.BOSEconomy;
  * @author Alex
  *
  */
-public class JobsBOSEconomyLink implements JobsEconomyLink{
+public class BOSEconomy7Link implements EconomyLink{
 	private BOSEconomy economy;
 	
 	/**
 	 * Constructor for creating the link
 	 * @param economy - the BOSEconomy object
 	 */
-	public JobsBOSEconomyLink(BOSEconomy economy) {
+	public BOSEconomy7Link(BOSEconomy economy) {
 		this.economy = economy;
 	}
 	
 	@Override
 	public void pay(JobsPlayer player, double amount) {
-		economy.addPlayerMoney(player.getName(), (int)amount, true);
+		economy.addPlayerMoney(player.getName(), amount, true);
 	}
 
 	@Override
@@ -55,7 +55,7 @@ public class JobsBOSEconomyLink implements JobsEconomyLink{
 		if(JobsConfiguration.getInstance().getStats() != null &&
 				JobsConfiguration.getInstance().getStats().isEnabled()){
 			Stats stats = JobsConfiguration.getInstance().getStats();
-			double balance = economy.getPlayerMoney(player.getName()) + economy.getBankMoney(player.getName());
+			double balance = economy.getPlayerMoneyDouble(player.getName()) + economy.getBankMoneyDouble(player.getName());
 			if(balance > stats.get(player.getName(), "job", "money")){
 				stats.setStat(player.getName(), "job", "money", (int) balance);
 				stats.saveAll();

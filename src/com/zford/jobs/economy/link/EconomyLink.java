@@ -17,7 +17,7 @@
  * 
  */
 
-package com.zford.jobs.economy;
+package com.zford.jobs.economy.link;
 
 
 import com.zford.jobs.config.container.JobsPlayer;
@@ -28,7 +28,7 @@ import com.zford.jobs.config.container.JobsPlayer;
  * @author Alex
  *
  */
-public interface JobsEconomyLink {
+public interface EconomyLink {
 	/**
 	 * Pay the player
 	 * @param player - player to be paid

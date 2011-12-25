@@ -36,10 +36,11 @@ import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.MessageConfig;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobsPlayer;
-import com.zford.jobs.economy.JobsBOSEconomyLink;
-import com.zford.jobs.economy.JobsEssentialsLink;
-import com.zford.jobs.economy.JobsiConomy5Link;
-import com.zford.jobs.economy.JobsiConomy6Link;
+import com.zford.jobs.economy.link.BOSEconomy6Link;
+import com.zford.jobs.economy.link.BOSEconomy7Link;
+import com.zford.jobs.economy.link.EssentialsLink;
+import com.zford.jobs.economy.link.iConomy5Link;
+import com.zford.jobs.economy.link.iConomy6Link;
 import com.zford.jobs.listener.JobsBlockPaymentListener;
 import com.zford.jobs.listener.JobsCraftPaymentListener;
 import com.zford.jobs.listener.JobsFishPaymentListener;
@@ -142,22 +143,26 @@ public class Jobs extends JavaPlugin{
 							pm.getPlugin("BOSEconomy") != null ||
 							pm.getPlugin("Essentials") != null) {
 						if(pm.getPlugin("iConomy") != null && 
-						        (jc.getDefaultEconomy() == null || jc.getDefaultEconomy().equalsIgnoreCase("iconomy")) &&
-						        pm.getPlugin("iConomy").getDescription().getVersion().startsWith("5")) {
-							jc.setEconomyLink(new JobsiConomy5Link((com.iConomy.iConomy)pm.getPlugin("iConomy")));
-                            System.out.println("[Jobs] Successfully linked with iConomy 5.");
-						} else if(pm.getPlugin("iConomy") != null && 
-                                (jc.getDefaultEconomy() == null || jc.getDefaultEconomy().equalsIgnoreCase("iconomy")) &&
-                                pm.getPlugin("iConomy").getDescription().getVersion().startsWith("6")) {
-                            jc.setEconomyLink(new JobsiConomy6Link((com.iCo6.iConomy)pm.getPlugin("iConomy")));
-                            System.out.println("[Jobs] Successfully linked with iConomy 6.");
+						        (jc.getDefaultEconomy() == null || jc.getDefaultEconomy().equalsIgnoreCase("iconomy"))) {
+					        if(pm.getPlugin("iConomy").getDescription().getVersion().startsWith("5")) {
+					            jc.setEconomyLink(new iConomy5Link((com.iConomy.iConomy)pm.getPlugin("iConomy")));
+					            System.out.println("[Jobs] Successfully linked with iConomy 5.");
+					        } else if(pm.getPlugin("iConomy").getDescription().getVersion().startsWith("6")) {
+                                jc.setEconomyLink(new iConomy6Link((com.iCo6.iConomy)pm.getPlugin("iConomy")));
+                                System.out.println("[Jobs] Successfully linked with iConomy 6.");
+					        }
                         } else if(pm.getPlugin("BOSEconomy") != null &&
-						        (jc.getDefaultEconomy() == null || jc.getDefaultEconomy().equalsIgnoreCase("boseconomy"))) {
-							jc.setEconomyLink(new JobsBOSEconomyLink((BOSEconomy)pm.getPlugin("BOSEconomy")));
-							System.out.println("[Jobs] Successfully linked with BOSEconomy.");
-						} else if(pm.getPlugin("Essentials") != null &&
+                                (jc.getDefaultEconomy() == null || jc.getDefaultEconomy().equalsIgnoreCase("boseconomy"))) {
+                            if(pm.getPlugin("boseconomy").getDescription().getVersion().startsWith("6")) {
+                                jc.setEconomyLink(new BOSEconomy6Link((BOSEconomy)pm.getPlugin("BOSEconomy")));
+                                System.out.println("[Jobs] Successfully linked with BOSEconomy 6.");
+                            } else if(pm.getPlugin("boseconomy").getDescription().getVersion().startsWith("7")) {
+                                jc.setEconomyLink(new BOSEconomy7Link((BOSEconomy)pm.getPlugin("BOSEconomy")));
+                                System.out.println("[Jobs] Successfully linked with BOSEconomy 7.");
+                            }
+                        } else if(pm.getPlugin("Essentials") != null &&
                                 (jc.getDefaultEconomy() == null || jc.getDefaultEconomy().equalsIgnoreCase("essentials"))) {
-                            jc.setEconomyLink(new JobsEssentialsLink((Essentials)pm.getPlugin("Essentials")));
+                            jc.setEconomyLink(new EssentialsLink((Essentials)pm.getPlugin("Essentials")));
                             System.out.println("[Jobs] Successfully linked with Essentials.");
                         }
 					}
@@ -184,9 +189,9 @@ public class Jobs extends JavaPlugin{
 			@Override
 			public void onPluginDisable(PluginDisableEvent event) {
                 JobsConfiguration jc = JobsConfiguration.getInstance();
-			    if(jc.getEconomyLink() instanceof JobsiConomy5Link && event.getPlugin().getDescription().getName().equalsIgnoreCase("iConomy") ||
-                        jc.getEconomyLink() instanceof JobsBOSEconomyLink && event.getPlugin().getDescription().getName().equalsIgnoreCase("BOSEconomy") ||
-                        jc.getEconomyLink() instanceof JobsEssentialsLink && event.getPlugin().getDescription().getName().equalsIgnoreCase("Essentials")
+			    if(jc.getEconomyLink() instanceof iConomy5Link && event.getPlugin().getDescription().getName().equalsIgnoreCase("iConomy") ||
+                        jc.getEconomyLink() instanceof BOSEconomy6Link && event.getPlugin().getDescription().getName().equalsIgnoreCase("BOSEconomy") ||
+                        jc.getEconomyLink() instanceof EssentialsLink && event.getPlugin().getDescription().getName().equalsIgnoreCase("Essentials")
 			            ) {
 					jc.setEconomyLink(null);
                     System.out.println("[Jobs] Economy system successfully unlinked.");

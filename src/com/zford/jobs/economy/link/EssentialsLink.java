@@ -17,7 +17,7 @@
  * 
  */
 
-package com.zford.jobs.economy;
+package com.zford.jobs.economy.link;
 
 
 import com.earth2me.essentials.Essentials;
@@ -28,9 +28,9 @@ import com.nidefawl.Stats.Stats;
 import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.container.JobsPlayer;
 
-public class JobsEssentialsLink implements JobsEconomyLink{
+public class EssentialsLink implements EconomyLink{
 	
-	public JobsEssentialsLink(Essentials essentials){
+	public EssentialsLink(Essentials essentials){
 	}
 	
 	@Override

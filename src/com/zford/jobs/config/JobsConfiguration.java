@@ -38,7 +38,7 @@ import com.zford.jobs.config.container.Title;
 import com.zford.jobs.dao.JobsDAO;
 import com.zford.jobs.dao.JobsDAOH2;
 import com.zford.jobs.dao.JobsDAOMySQL;
-import com.zford.jobs.economy.JobsEconomyLink;
+import com.zford.jobs.economy.link.EconomyLink;
 import com.zford.jobs.util.DisplayMethod;
 
 /**
@@ -62,7 +62,7 @@ public class JobsConfiguration {
 	// JobsConfiguration object.
 	private static JobsConfiguration jobsConfig = null;
 	// economy plugin
-	private JobsEconomyLink economy = null;
+	private EconomyLink economy = null;
 	// stats integration
 	private Stats stats = null;
 	// do i broadcast skillups?
@@ -322,7 +322,7 @@ public class JobsConfiguration {
 	 * Gets the economy interface to the economy being used
 	 * @return the interface to the economy being used
 	 */
-	public JobsEconomyLink getEconomyLink(){
+	public EconomyLink getEconomyLink(){
 		return economy;
 	}
 	
@@ -330,7 +330,7 @@ public class JobsConfiguration {
 	 * Set the economy link
 	 * @param economy - the new economy link
 	 */
-	public void setEconomyLink(JobsEconomyLink economy){
+	public void setEconomyLink(EconomyLink economy){
 		this.economy = economy;
 	}
 	
