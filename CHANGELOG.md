@@ -1,5 +1,11 @@
 # Jobs plugin change log summary
 
+## 2.6.1
+* Fixed NPE with crafting
+* Removed ugly timeout hack
+* Fixed rounding issues when using BOSEconomy 7
+* Buffered payments to reduce lag created by economy plugins
+
 ## 2.6.0
 * Added workaround to MySQL timeout issues
 * Removed Permissions 3 support, converted to DinnerPerms
