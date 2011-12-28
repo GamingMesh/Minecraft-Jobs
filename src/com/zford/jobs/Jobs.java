@@ -160,10 +160,10 @@ public class Jobs extends JavaPlugin{
 					        }
                         } else if(pm.getPlugin("BOSEconomy") != null &&
                                 (jc.getDefaultEconomy() == null || jc.getDefaultEconomy().equalsIgnoreCase("boseconomy"))) {
-                            if(pm.getPlugin("boseconomy").getDescription().getVersion().startsWith("6")) {
+                            if(pm.getPlugin("BOSEconomy").getDescription().getVersion().startsWith("0.6")) {
                                 jc.setEconomyLink(new BOSEconomy6Link((BOSEconomy)pm.getPlugin("BOSEconomy")));
                                 System.out.println("[Jobs] Successfully linked with BOSEconomy 6.");
-                            } else if(pm.getPlugin("boseconomy").getDescription().getVersion().startsWith("7")) {
+                            } else if(pm.getPlugin("BOSEconomy").getDescription().getVersion().startsWith("0.7")) {
                                 jc.setEconomyLink(new BOSEconomy7Link((BOSEconomy)pm.getPlugin("BOSEconomy")));
                                 System.out.println("[Jobs] Successfully linked with BOSEconomy 7.");
                             }
