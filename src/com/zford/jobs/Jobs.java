@@ -244,8 +244,10 @@ public class Jobs extends JavaPlugin{
 	 * @param playername
 	 */
 	public void removePlayer(String playername){
-		save(playername);
-		players.remove(playername);
+	    if(players.containsKey(playername)) {
+    		save(playername);
+    		players.remove(playername);
+	    }
 	}
 	
 	/**

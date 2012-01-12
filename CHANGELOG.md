@@ -1,5 +1,9 @@
 # Jobs plugin change log summary
 
+## 2.6.2
+* Fixed linking issues with BOSEconomy
+* Fixed NPE due to double onPlayerQuit events
+
 ## 2.6.1
 * Fixed NPE with crafting
 * Removed ugly timeout hack
