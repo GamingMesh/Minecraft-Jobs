@@ -22,8 +22,6 @@ package com.zford.jobs.config.container;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import com.zford.jobs.config.JobsConfiguration;
-
 /**
  * Restricted Area Class
  * 
@@ -84,18 +82,5 @@ public class RestrictedArea {
             return true;
         }
         return false;
-    }
-    
-    /**
-     * Gets the area multiplier for the player
-     * @param player
-     * @return - the multiplier
-     */
-    public static double getMultiplier(Player player) {
-        for(RestrictedArea area : JobsConfiguration.getInstance().getRestrictedAreas()) {
-            if (area.inRestrictedArea(player))
-                return area.getMultiplier();
-        }
-        return 1.0;
     }
 }

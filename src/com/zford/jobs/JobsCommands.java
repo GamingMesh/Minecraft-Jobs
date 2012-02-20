@@ -33,8 +33,6 @@ import org.bukkit.entity.Player;
 import org.mbertoli.jfep.Parser;
 
 import com.nidefawl.Stats.Stats;
-import com.zford.jobs.config.JobConfig;
-import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobProgression;
 import com.zford.jobs.config.container.JobsLivingEntityInfo;
@@ -60,10 +58,10 @@ public class JobsCommands implements CommandExecutor {
             // join
             if(args.length == 2 && args[0].equalsIgnoreCase("join")){
                 String jobName = args[1].trim();
-                Job job = JobConfig.getInstance().getJob(jobName);
+                Job job = plugin.getJobConfig().getJob(jobName);
                 if(job != null && !jobName.equalsIgnoreCase("None")) {
                     if(plugin.hasJobPermission(pSender, job)) {
-                        if(JobsConfiguration.getInstance().getMaxJobs() == null || jPlayer.getJobs().size() < JobsConfiguration.getInstance().getMaxJobs()){
+                        if(plugin.getJobsConfiguration().getMaxJobs() == null || jPlayer.getJobs().size() < plugin.getJobsConfiguration().getMaxJobs()){
                             plugin.getServer().getPluginManager().callEvent(new JobsJoinEvent(jPlayer, job));
                             return true;
                         }
@@ -87,8 +85,8 @@ public class JobsCommands implements CommandExecutor {
             // leave
             else if(args.length >= 2 && args[0].equalsIgnoreCase("leave")){
                 String jobName = args[1].trim();
-                if(JobConfig.getInstance().getJob(jobName) != null){
-                    plugin.getServer().getPluginManager().callEvent(new JobsLeaveEvent(jPlayer, JobConfig.getInstance().getJob(jobName)));
+                if(plugin.getJobConfig().getJob(jobName) != null){
+                    plugin.getServer().getPluginManager().callEvent(new JobsLeaveEvent(jPlayer, plugin.getJobConfig().getJob(jobName)));
                 } else{
                     sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
                 }
@@ -96,7 +94,7 @@ public class JobsCommands implements CommandExecutor {
             }
             // jobs info <jobname> <break, place, kill>
             else if(args.length >= 2 && args[0].equalsIgnoreCase("info")){
-                Job job = JobConfig.getInstance().getJob(args[1]);
+                Job job = plugin.getJobConfig().getJob(args[1]);
                 String type = "";
                 if(args.length >= 3) {
                     type = args[2];
@@ -136,7 +134,7 @@ public class JobsCommands implements CommandExecutor {
             // browse
             else if(args.length >= 1 && args[0].equalsIgnoreCase("browse")){
                 ArrayList<String> jobs = new ArrayList<String>();
-                for(Job job: JobConfig.getInstance().getJobs()){
+                for(Job job: plugin.getJobConfig().getJobs()){
                     if(sender instanceof ConsoleCommandSender || plugin.hasJobPermission((Player) sender, job)) {
                         if(!job.getName().equalsIgnoreCase("None")) {
                             if(job.getMaxLevel() == null){
@@ -209,7 +207,7 @@ public class JobsCommands implements CommandExecutor {
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.fire")) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
-                        Job job = JobConfig.getInstance().getJob(args[2]);
+                        Job job = plugin.getJobConfig().getJob(args[2]);
                         if(jPlayer != null && job != null){
                             try{
                                 // check if player already has the job
@@ -242,7 +240,7 @@ public class JobsCommands implements CommandExecutor {
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.employ."+args[2])) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
-                        Job job = JobConfig.getInstance().getJob(args[2]);
+                        Job job = plugin.getJobConfig().getJob(args[2]);
                         if(jPlayer != null && job != null){
                             try{
                                 // check if player already has the job
@@ -270,7 +268,7 @@ public class JobsCommands implements CommandExecutor {
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.promote")) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
-                        Job job = JobConfig.getInstance().getJob(args[2]);
+                        Job job = plugin.getJobConfig().getJob(args[2]);
                         if(jPlayer != null && job != null){
                             try{
                                 // check if player already has the job
@@ -294,7 +292,7 @@ public class JobsCommands implements CommandExecutor {
                                     }
                                     sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
                                 }
-                                JobsConfiguration.getInstance().getJobsDAO().save(jPlayer);
+                                plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
                             }
                             catch (Exception e){
                                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
@@ -307,7 +305,7 @@ public class JobsCommands implements CommandExecutor {
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.demote")) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
-                        Job job = JobConfig.getInstance().getJob(args[2]);
+                        Job job = plugin.getJobConfig().getJob(args[2]);
                         if(jPlayer != null && job != null){
                             try{
                                 // check if player already has the job
@@ -331,7 +329,7 @@ public class JobsCommands implements CommandExecutor {
                                     sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
                                 }
 
-                                JobsConfiguration.getInstance().getJobsDAO().save(jPlayer);
+                                plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
                             }
                             catch (Exception e){
                                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
@@ -344,7 +342,7 @@ public class JobsCommands implements CommandExecutor {
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.grantxp")) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
-                        Job job = JobConfig.getInstance().getJob(args[2]);
+                        Job job = plugin.getJobConfig().getJob(args[2]);
                         if(jPlayer != null && job != null){
                             Double expGained;
                             try{
@@ -371,7 +369,7 @@ public class JobsCommands implements CommandExecutor {
                                 }
                                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
                             }
-                            JobsConfiguration.getInstance().getJobsDAO().save(jPlayer);
+                            plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
                         }
                     }
                     return true;
@@ -380,7 +378,7 @@ public class JobsCommands implements CommandExecutor {
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.removexp")) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
-                        Job job = JobConfig.getInstance().getJob(args[2]);
+                        Job job = plugin.getJobConfig().getJob(args[2]);
                         if(jPlayer != null && job != null){
                             Double expLost;
                             try{
@@ -406,7 +404,7 @@ public class JobsCommands implements CommandExecutor {
                                 }
                                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
                             }
-                            JobsConfiguration.getInstance().getJobsDAO().save(jPlayer);
+                            plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
                         }
                     }
                     return true;
@@ -415,8 +413,8 @@ public class JobsCommands implements CommandExecutor {
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.transfer")) {
                         JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
-                        Job oldjob = JobConfig.getInstance().getJob(args[2]);
-                        Job newjob = JobConfig.getInstance().getJob(args[3]);
+                        Job oldjob = plugin.getJobConfig().getJob(args[2]);
+                        Job newjob = plugin.getJobConfig().getJob(args[3]);
                         if(jPlayer != null && oldjob != null & newjob != null){
                             try{
                                 if(jPlayer.isInJob(oldjob) && !jPlayer.isInJob(newjob)){
@@ -428,11 +426,11 @@ public class JobsCommands implements CommandExecutor {
                                     jPlayer.reloadHonorific();
                                     jPlayer.checkLevels();
                                     // quit old job
-                                    JobsConfiguration.getInstance().getJobsDAO().quitJob(jPlayer, oldjob);
+                                    plugin.getJobsConfiguration().getJobsDAO().quitJob(jPlayer, oldjob);
                                     // join new job
-                                    JobsConfiguration.getInstance().getJobsDAO().joinJob(jPlayer, newjob);
+                                    plugin.getJobsConfiguration().getJobsDAO().joinJob(jPlayer, newjob);
                                     // save data
-                                    JobsConfiguration.getInstance().getJobsDAO().save(jPlayer);
+                                    plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
                                     if(player != null) {
                                         String message = plugin.getMessageConfig().getMessage("transfer-target");
                                         message = message.replace("%oldjobcolour%", oldjob.getChatColour().toString());
@@ -443,9 +441,9 @@ public class JobsCommands implements CommandExecutor {
                                     }
                                     sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
                                     // stats plugin integration
-                                    if(JobsConfiguration.getInstance().getStats() != null &&
-                                            JobsConfiguration.getInstance().getStats().isEnabled()){
-                                        Stats stats = JobsConfiguration.getInstance().getStats();
+                                    if(plugin.getJobsConfiguration().getStats() != null &&
+                                            plugin.getJobsConfiguration().getStats().isEnabled()){
+                                        Stats stats = plugin.getJobsConfiguration().getStats();
                                         if(jPlayer.getJobsProgression(newjob).getLevel() > stats.get(jPlayer.getName(), "job", newjob.getName())){
                                             stats.setStat(jPlayer.getName(), "job", newjob.getName(), jPlayer.getJobsProgression(newjob).getLevel());
                                             stats.saveAll();

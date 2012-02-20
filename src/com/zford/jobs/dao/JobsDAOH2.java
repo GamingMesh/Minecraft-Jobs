@@ -42,8 +42,8 @@ import com.zford.jobs.dao.container.JobsDAOData;
 
 public class JobsDAOH2 extends JobsDAO {
     
-    public JobsDAOH2() {
-        super("org.h2.Driver", "jdbc:h2:plugins/Jobs/jobs", "sa", "sa");
+    public JobsDAOH2(Jobs plugin) {
+        super(plugin, "org.h2.Driver", "jdbc:h2:plugins/Jobs/jobs", "sa", "sa");
         setUp();
     }
     
@@ -58,12 +58,12 @@ public class JobsDAOH2 extends JobsDAO {
             }
             else{
                 System.err.println("[Jobs] - H2 connection problem");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
             }
         }
         catch (SQLException e){
             e.printStackTrace();
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
         }
     }
     
@@ -86,7 +86,7 @@ public class JobsDAOH2 extends JobsDAO {
         }
         catch(SQLException e){
             e.printStackTrace();
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
         }
         return jobs;
     }
@@ -105,7 +105,7 @@ public class JobsDAOH2 extends JobsDAO {
         }
         catch(SQLException e){
             e.printStackTrace();
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
         }       
     }
 
@@ -125,7 +125,7 @@ public class JobsDAOH2 extends JobsDAO {
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
         }
     }
 
@@ -144,7 +144,7 @@ public class JobsDAOH2 extends JobsDAO {
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
         }
     }
 
@@ -164,7 +164,7 @@ public class JobsDAOH2 extends JobsDAO {
         }
         catch(SQLException e){
             e.printStackTrace();
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
         }
         return slot;
     }

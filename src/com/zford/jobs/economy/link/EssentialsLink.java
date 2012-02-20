@@ -19,17 +19,17 @@
 
 package com.zford.jobs.economy.link;
 
-
 import com.earth2me.essentials.Essentials;
 import com.earth2me.essentials.api.Economy;
 import com.earth2me.essentials.api.NoLoanPermittedException;
 import com.earth2me.essentials.api.UserDoesNotExistException;
 import com.nidefawl.Stats.Stats;
-import com.zford.jobs.config.JobsConfiguration;
+import com.zford.jobs.Jobs;
 
 public class EssentialsLink implements EconomyLink{
-	
-	public EssentialsLink(Essentials essentials){
+	private Jobs plugin;
+	public EssentialsLink(Jobs plugin, Essentials essentials){
+	    this.plugin = plugin;
 	}
 	
 	@Override
@@ -46,9 +46,9 @@ public class EssentialsLink implements EconomyLink{
     @Override
 	public void updateStats(String playername) {
         // stats plugin integration
-        if(JobsConfiguration.getInstance().getStats() != null &&
-                JobsConfiguration.getInstance().getStats().isEnabled()){
-            Stats stats = JobsConfiguration.getInstance().getStats();
+        if(plugin.getJobsConfiguration().getStats() != null &&
+                plugin.getJobsConfiguration().getStats().isEnabled()){
+            Stats stats = plugin.getJobsConfiguration().getStats();
             double balance;
             try {
                 balance = Economy.getMoney(playername);

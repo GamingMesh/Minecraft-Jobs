@@ -34,6 +34,7 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 
 import com.nidefawl.Stats.Stats;
 import com.zford.jobs.Jobs;
@@ -63,12 +64,10 @@ public class JobsConfiguration {
 	private int savePeriod;
 	// data access object being used.
 	private JobsDAO dao;
-	// JobsConfiguration object.
-	private static JobsConfiguration jobsConfig = null;
 	// economy plugin
 	private EconomyLink economy = null;
 	// economy payment buffer
-    private BufferedPayment bufferedPayment = new BufferedPayment();
+    private BufferedPayment bufferedPayment;
 	// stats integration
 	private Stats stats = null;
 	// do i broadcast skillups?
@@ -86,13 +85,12 @@ public class JobsConfiguration {
 	
 	private ArrayList<RestrictedArea> restrictedAreas;
 	
-	/**
-	 * Private constructor.
-	 * 
-	 * Can only be called from within the class.
-	 * Made to observe the singleton pattern.
-	 */
-	private JobsConfiguration() {}
+	private Jobs plugin;
+	
+	public JobsConfiguration(Jobs plugin) {
+	    this.plugin = plugin;
+	    this.bufferedPayment = new BufferedPayment(plugin);
+	}
 	
 	public void reload() {
         // general settings
@@ -114,7 +112,7 @@ public class JobsConfiguration {
         if(!f.exists()) {
             // disable plugin
             System.err.println("[Jobs] - configuration file generalConfig.yml does not exist.  Disabling jobs !");
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
             return;
         }
         conf = new YamlConfiguration();
@@ -132,32 +130,32 @@ public class JobsConfiguration {
             String username = conf.getString("mysql-username");
             if(username == null) {
                 System.err.println("[Jobs] - mysql-username property invalid or missing");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
             String password = conf.getString("mysql-password", "");
             String dbName = conf.getString("mysql-database");
             if(dbName == null) {
                 System.err.println("[Jobs] - mysql-database property invalid or missing");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
             String url = conf.getString("mysql-url");
             if(url == null) {
                 System.err.println("[Jobs] - mysql-url property invalid or missing");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
             String prefix = conf.getString("mysql-table-prefix", "");
-            this.dao = new JobsDAOMySQL(url, dbName, username, password, prefix);
+            this.dao = new JobsDAOMySQL(plugin, url, dbName, username, password, prefix);
         }
         else if(storageMethod.equalsIgnoreCase("h2")) {
-            this.dao = new JobsDAOH2();
+            this.dao = new JobsDAOH2(plugin);
         }
         else {
 			// invalid selection
 			System.err.println("[Jobs] - Storage method invalid or missing");
-			Jobs.disablePlugin();
+			plugin.disablePlugin();
 		}
         
         // save-period
@@ -228,22 +226,22 @@ public class JobsConfiguration {
             
             if(titleName == null) {
                 System.err.println("[Jobs] - Title " + titleKey + " has an invalid Name property. Disabling jobs !");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
             if(titleShortName == null) {
                 System.err.println("[Jobs] - Title " + titleKey + " has an invalid ShortName property. Disabling jobs !");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
             if(colour == null) {
                 System.err.println("[Jobs] - Title " + titleKey + " has an invalid ChatColour property. Disabling jobs !");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
             if(levelReq == -1) {
                 System.err.println("[Jobs] - Title " + titleKey + " has an invalid levelReq property. Disabling jobs !");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
             
@@ -302,18 +300,6 @@ public class JobsConfiguration {
             this.restrictedAreas.add(new RestrictedArea(point1, point2, multiplier));
         }
     }
-	
-	/**
-	 * Method to get the configuration.
-	 * Never store this. Always call the function and then do something.
-	 * @return the job configuration object
-	 */
-	public static JobsConfiguration getInstance(){
-		if(jobsConfig == null){
-			jobsConfig = new JobsConfiguration();
-		}
-		return jobsConfig;
-	}
 	
 	/**
 	 * Get the display method
@@ -462,4 +448,17 @@ public class JobsConfiguration {
 	public List<RestrictedArea> getRestrictedAreas() {
 	    return this.restrictedAreas;
 	}
+    
+    /**
+     * Gets the area multiplier for the player
+     * @param player
+     * @return - the multiplier
+     */
+    public double getRestrictedMultiplier(Player player) {
+        for(RestrictedArea area : getRestrictedAreas()) {
+            if (area.inRestrictedArea(player))
+                return area.getMultiplier();
+        }
+        return 1.0;
+    }
 }

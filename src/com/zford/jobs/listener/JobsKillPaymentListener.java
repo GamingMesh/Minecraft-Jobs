@@ -19,7 +19,6 @@
 
 package com.zford.jobs.listener;
 
-
 import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -37,10 +36,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 import com.zford.jobs.Jobs;
-import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobsPlayer;
-import com.zford.jobs.config.container.RestrictedArea;
 
 /**
  * Plugin that monitors when things get killed by you and then pays you
@@ -93,7 +90,7 @@ public class JobsKillPaymentListener implements Listener {
             }
             if(pDamager != null) {
                 // restricted area multiplier
-                double multiplier = RestrictedArea.getMultiplier(pDamager);
+                double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(pDamager);
                 // pay
                 JobsPlayer jDamager = plugin.getJobsPlayer(pDamager.getName());
                 jDamager.killed(lVictim.getClass().toString().replace("class ", "").trim(), multiplier);
@@ -123,7 +120,7 @@ public class JobsKillPaymentListener implements Listener {
 	        return;
 	    if(!event.getSpawnReason().equals(SpawnReason.SPAWNER))
 	        return;
-	    if(JobsConfiguration.getInstance().payNearSpawner())
+	    if(plugin.getJobsConfiguration().payNearSpawner())
 	        return;
 	    LivingEntity creature = (LivingEntity)event.getEntity();
 	    mobSpawnerCreatures.add(creature);

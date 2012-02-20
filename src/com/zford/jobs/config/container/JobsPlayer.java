@@ -33,8 +33,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.zford.jobs.Jobs;
-import com.zford.jobs.config.JobConfig;
-import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.dao.JobsDAO;
 import com.zford.jobs.dao.container.JobsDAOData;
 import com.zford.jobs.event.JobsLevelUpEvent;
@@ -70,13 +68,13 @@ public class JobsPlayer {
 		List<JobsDAOData> list = dao.getAllJobs(this);
 		if(list != null){
 			for(JobsDAOData job: list){
-				if(JobConfig.getInstance().getJob(job.getJobName()) != null){
+				if(plugin.getJobConfig().getJob(job.getJobName()) != null){
 					// add the job
-					jobs.add(JobConfig.getInstance().getJob(job.getJobName()));
+					jobs.add(plugin.getJobConfig().getJob(job.getJobName()));
 					
 					// create the progression object
 					JobProgression jobProgression = 
-						new JobProgression(JobConfig.getInstance().getJob(job.getJobName()), job.getExperience(),job.getLevel(), this);
+						new JobProgression(plugin, plugin.getJobConfig().getJob(job.getJobName()), job.getExperience(),job.getLevel(), this);
 					// calculate the max level
 					
 					// add the progression level.
@@ -108,7 +106,7 @@ public class JobsPlayer {
 			if(income != null) {
                 Double exp = entry.getKey().getBreakExp(block, param);
                 // give income
-				JobsConfiguration.getInstance().getBufferedPayment().pay(this, income*multiplier);
+				plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
 				entry.getValue().addExp(exp*multiplier);
 				checkLevels();
 			}
@@ -116,13 +114,13 @@ public class JobsPlayer {
 		}
 		// no job
         if(this.progression.size() == 0) {
-            Job jobNone = JobConfig.getInstance().getJob("None");
+            Job jobNone = plugin.getJobConfig().getJob("None");
             if(jobNone != null) {
                 param.put("joblevel", 1.0);
                 Double income = jobNone.getBreakIncome(block, param);
                 if(income != null) {
                     // give income
-                    JobsConfiguration.getInstance().getBufferedPayment().pay(this, income*multiplier);
+                    plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
                 }
                 param.remove("joblevel");
             }
@@ -149,7 +147,7 @@ public class JobsPlayer {
 			if(income != null) {
                 Double exp = entry.getKey().getPlaceExp(block, param);
 				// give income
-				JobsConfiguration.getInstance().getBufferedPayment().pay(this, income*multiplier);
+				plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
 				entry.getValue().addExp(exp*multiplier);
 				checkLevels();
 			}
@@ -157,13 +155,13 @@ public class JobsPlayer {
 		}
 		// no job
         if(this.progression.size() == 0) {
-            Job jobNone = JobConfig.getInstance().getJob("None");
+            Job jobNone = plugin.getJobConfig().getJob("None");
             if(jobNone != null) {
                 param.put("joblevel", 1.0);
                 Double income = jobNone.getPlaceIncome(block, param);
                 if(income != null) {
                     // give income
-                    JobsConfiguration.getInstance().getBufferedPayment().pay(this, income*multiplier);
+                    plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
                 }
                 param.remove("joblevel");
             }
@@ -190,7 +188,7 @@ public class JobsPlayer {
 			if(income != null) {
                 Double exp = entry.getKey().getKillExp(victim, param);
 				// give income
-				JobsConfiguration.getInstance().getBufferedPayment().pay(this, income*multiplier);
+				plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
 				entry.getValue().addExp(exp*multiplier);
 				checkLevels();	
 			}
@@ -198,13 +196,13 @@ public class JobsPlayer {
 		}
 		// no job
 		if(this.progression.size() == 0) {
-		    Job jobNone = JobConfig.getInstance().getJob("None");
+		    Job jobNone = plugin.getJobConfig().getJob("None");
 		    if(jobNone != null) {
     		    param.put("joblevel", 1.0);
     		    Double income = jobNone.getKillIncome(victim, param);
     		    if(income != null) {
     		        // give income
-    		        JobsConfiguration.getInstance().getBufferedPayment().pay(this, income*multiplier);
+    		        plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
     		    }
     		    param.remove("joblevel");
 		    }
@@ -230,7 +228,7 @@ public class JobsPlayer {
             if(income != null) {
                 Double exp = entry.getKey().getFishExp(item, param);
                 // give income
-                JobsConfiguration.getInstance().getBufferedPayment().pay(this, income*multiplier);
+                plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
                 entry.getValue().addExp(exp*multiplier);
                 checkLevels();
             }
@@ -238,13 +236,13 @@ public class JobsPlayer {
         }
 	    // no job
         if(this.progression.size() == 0) {
-            Job jobNone = JobConfig.getInstance().getJob("None");
+            Job jobNone = plugin.getJobConfig().getJob("None");
             if(jobNone != null) {
                 param.put("joblevel", 1.0);
                 Double income = jobNone.getFishIncome(item, param);
                 if(income != null) {
                     // give income
-                    JobsConfiguration.getInstance().getBufferedPayment().pay(this, income*multiplier);
+                    plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
                 }
                 param.remove("joblevel");
             }
@@ -271,7 +269,7 @@ public class JobsPlayer {
 			if(income != null) {
                 Double exp = entry.getKey().getCraftExp(items, param);
                 // give income
-				JobsConfiguration.getInstance().getBufferedPayment().pay(this, income*multiplier);
+				plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
 				entry.getValue().addExp(exp*multiplier);
 				checkLevels();
 			}
@@ -279,13 +277,13 @@ public class JobsPlayer {
 		}
 		// no job
         if(this.progression.size() == 0) {
-            Job jobNone = JobConfig.getInstance().getJob("None");
+            Job jobNone = plugin.getJobConfig().getJob("None");
             if(jobNone != null) {
                 param.put("joblevel", 1.0);
                 Double income = jobNone.getCraftIncome(items, param);
                 if(income != null) {
                     // give income
-                    JobsConfiguration.getInstance().getBufferedPayment().pay(this, income*multiplier);
+                    plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
                 }
                 param.remove("joblevel");
             }
@@ -335,9 +333,9 @@ public class JobsPlayer {
                 plugin.getServer().getPluginManager().callEvent(event);
 			}
 			
-			if(JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()) != null && !JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()).equals(temp.getTitle())){
+			if(plugin.getJobsConfiguration().getTitleForLevel(temp.getLevel()) != null && !plugin.getJobsConfiguration().getTitleForLevel(temp.getLevel()).equals(temp.getTitle())){
 				// user would skill up
-				JobsSkillUpEvent event = new JobsSkillUpEvent(this, temp, JobsConfiguration.getInstance().getTitleForLevel(temp.getLevel()));
+				JobsSkillUpEvent event = new JobsSkillUpEvent(this, temp, plugin.getJobsConfiguration().getTitleForLevel(temp.getLevel()));
 				plugin.getServer().getPluginManager().callEvent(event);
 			}
 		}
@@ -375,7 +373,7 @@ public class JobsPlayer {
 		else{
 		    Job job;
 		    if(jobs.size() == 0) {
-		        job = JobConfig.getInstance().getJob("None");
+		        job = plugin.getJobConfig().getJob("None");
 		    } else {
 		        job = jobs.get(0);
 		    }
@@ -424,7 +422,7 @@ public class JobsPlayer {
 	 */
 	public void joinJob(Job job){
 		jobs.add(job);
-		progression.put(job, new JobProgression(job, 0.0, 1, this));
+		progression.put(job, new JobProgression(plugin, job, 0.0, 1, this));
 	}
 	
 	/**

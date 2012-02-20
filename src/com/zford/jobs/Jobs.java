@@ -46,9 +46,10 @@ public class Jobs extends JavaPlugin{
 	
 	private HashMap<String, JobsPlayer> players = null;
 	
-	private static Jobs plugin = null;
-	
     private MessageConfig messageConfig;
+    
+    private JobsConfiguration jobsConfiguration;
+    private JobConfig jobConfig;
 
 	/**
 	 * Method called when you disable the plugin
@@ -64,9 +65,9 @@ public class Jobs extends JavaPlugin{
         }
         
 		// save all
-		if(JobsConfiguration.getInstance().getJobsDAO() != null){
+		if(getJobsConfiguration().getJobsDAO() != null){
 			saveAll();
-			JobsConfiguration.getInstance().getJobsDAO().closeConnections();
+			getJobsConfiguration().getJobsDAO().closeConnections();
 		}
 		
 		getServer().getLogger().info("[" + getDescription().getFullName() + "] has been disabled succesfully.");
@@ -78,8 +79,9 @@ public class Jobs extends JavaPlugin{
 	 * Method called when the plugin is enabled
 	 */
 	public void onEnable() {
-        plugin = this;
-		// load the jobConfogiration
+	    jobsConfiguration = new JobsConfiguration(this);
+	    jobConfig = new JobConfig(this);
+	    
 		players = new HashMap<String, JobsPlayer>();
 		JobsCommands commands = new JobsCommands(this);
 		this.getCommand("jobs").setExecutor(commands);
@@ -92,18 +94,18 @@ public class Jobs extends JavaPlugin{
 		    return;
 		
 		// set the system to auto save
-		if(JobsConfiguration.getInstance().getSavePeriod() > 0) {
+		if(getJobsConfiguration().getSavePeriod() > 0) {
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
 				public void run(){
 					saveAll();
 				}
-			}, 20*60*JobsConfiguration.getInstance().getSavePeriod(), 20*60*JobsConfiguration.getInstance().getSavePeriod());
+			}, 20*60*getJobsConfiguration().getSavePeriod(), 20*60*getJobsConfiguration().getSavePeriod());
 		}
 		
 		// schedule payouts to buffered payments
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
 		    public void run() {
-		        JobsConfiguration.getInstance().getBufferedPayment().payAll();
+		        getJobsConfiguration().getBufferedPayment().payAll();
 		    }
 		}, 100, 100);
 		
@@ -131,7 +133,7 @@ public class Jobs extends JavaPlugin{
 	 * @param playername
 	 */
 	public void addPlayer(String playername) {
-		players.put(playername, new JobsPlayer(this, playername, JobsConfiguration.getInstance().getJobsDAO()));
+		players.put(playername, new JobsPlayer(this, playername, getJobsConfiguration().getJobsDAO()));
 	}
 	
 	/**
@@ -160,7 +162,7 @@ public class Jobs extends JavaPlugin{
 	 */
 	private void save(String playername) {
 	    JobsPlayer player = players.get(playername);
-		JobsConfiguration.getInstance().getJobsDAO().save(player);
+	    getJobsConfiguration().getJobsDAO().save(player);
 	}
 	
 	/**
@@ -172,17 +174,29 @@ public class Jobs extends JavaPlugin{
 		JobsPlayer player = players.get(playername);
 		if(player != null)
 		    return player;
-		return new JobsPlayer(this, playername, JobsConfiguration.getInstance().getJobsDAO());
+		return new JobsPlayer(this, playername, getJobsConfiguration().getJobsDAO());
 	}
 	
 	/**
 	 * Disable the plugin
 	 */
-	public static void disablePlugin(){
-		if(plugin != null){
-		    plugin.setEnabled(false);
-		}
+	public void disablePlugin(){
+	    setEnabled(false);
 	}
+    
+    /**
+     * Returns the jobs configuration
+     */
+    public JobsConfiguration getJobsConfiguration() {
+        return jobsConfiguration;
+    }
+    
+    /**
+     * Returns the job config
+     */
+    public JobConfig getJobConfig() {
+        return jobConfig;
+    }
 	
 	/**
 	 * Get the message configuration data
@@ -197,8 +211,8 @@ public class Jobs extends JavaPlugin{
 	 */
 	public void reloadConfigurations() {
 	    getMessageConfig().reload();
-	    JobsConfiguration.getInstance().reload();
-	    JobConfig.getInstance().reload();
+	    jobsConfiguration.reload();
+	    getJobConfig().reload();
 	}
 	
     /**

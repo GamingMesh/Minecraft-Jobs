@@ -26,7 +26,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
 
 import com.zford.jobs.Jobs;
-import com.zford.jobs.config.container.RestrictedArea;
 
 /**
  * Listener for fishing classes
@@ -48,7 +47,7 @@ public class JobsFishPaymentListener implements Listener {
         if(!plugin.isEnabled()) return;
         
         // restricted area multiplier
-        double multiplier = RestrictedArea.getMultiplier(event.getPlayer());
+        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
         
         if(event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
             plugin.getJobsPlayer(event.getPlayer().getName()).fished((Item)event.getCaught(), multiplier);

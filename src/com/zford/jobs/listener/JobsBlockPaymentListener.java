@@ -19,7 +19,6 @@
 
 package com.zford.jobs.listener;
 
-
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -28,7 +27,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 import com.zford.jobs.Jobs;
-import com.zford.jobs.config.container.RestrictedArea;
 
 public class JobsBlockPaymentListener implements Listener {
 	private Jobs plugin;
@@ -45,7 +43,7 @@ public class JobsBlockPaymentListener implements Listener {
         if(event.isCancelled()) return;
         
         // restricted area multiplier
-        double multiplier = RestrictedArea.getMultiplier(event.getPlayer());
+        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
         
         Player player = event.getPlayer();
         
@@ -65,7 +63,7 @@ public class JobsBlockPaymentListener implements Listener {
         if(!event.canBuild());
         
         // restricted area multiplier
-        double multiplier = RestrictedArea.getMultiplier(event.getPlayer());
+        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
         
         Player player = event.getPlayer();
         

@@ -35,8 +35,8 @@ import com.zford.jobs.dao.container.JobsDAOData;
 public class JobsDAOMySQL extends JobsDAO {
     private String prefix = "";
     
-    public JobsDAOMySQL(String url, String dbName, String username, String password, String prefix) {
-        super("com.mysql.jdbc.Driver", url+dbName, username, password);
+    public JobsDAOMySQL(Jobs plugin, String url, String dbName, String username, String password, String prefix) {
+        super(plugin, "com.mysql.jdbc.Driver", url+dbName, username, password);
         this.prefix = prefix;
         setUp();
     }
@@ -52,12 +52,12 @@ public class JobsDAOMySQL extends JobsDAO {
             }
             else{
                 System.err.println("[Jobs] - MySQL connection problem");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
             }
         }
         catch (SQLException e){
             e.printStackTrace();
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
         }
     }
     
@@ -80,7 +80,7 @@ public class JobsDAOMySQL extends JobsDAO {
         }
         catch(SQLException e){
             e.printStackTrace();
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
         }
         return jobs;
     }
@@ -99,7 +99,7 @@ public class JobsDAOMySQL extends JobsDAO {
         }
         catch(SQLException e){
             e.printStackTrace();
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
         }       
     }
 
@@ -119,7 +119,7 @@ public class JobsDAOMySQL extends JobsDAO {
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
         }
     }
 
@@ -138,7 +138,7 @@ public class JobsDAOMySQL extends JobsDAO {
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
         }
     }
 
@@ -158,7 +158,7 @@ public class JobsDAOMySQL extends JobsDAO {
         }
         catch(SQLException e){
             e.printStackTrace();
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
         }
         return slot;
     }

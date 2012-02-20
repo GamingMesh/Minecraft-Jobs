@@ -68,9 +68,6 @@ public class Job {
 	private Integer maxLevel;
 	// max number of people allowed with this job on the server.
 	private Integer maxSlots;
-	
-	@SuppressWarnings("unused")
-	private Job(){}
 
 	/**
 	 * Constructor

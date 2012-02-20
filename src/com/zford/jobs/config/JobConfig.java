@@ -50,18 +50,12 @@ import com.zford.jobs.util.DisplayMethod;
 public class JobConfig {
 	// all of the possible jobs
 	private HashMap<String, Job> jobs;
-	// JobConfig object.
-	private static JobConfig jobsConfig = null;
 	// used slots for each job
 	private HashMap<Job, Integer> usedSlots;
 	
-	/**
-	 * Private constructor.
-	 * 
-	 * Can only be called from within the class.
-	 * Made to observe the singleton pattern.
-	 */
-	private JobConfig(){
+	private Jobs plugin;
+	public JobConfig(Jobs plugin) {
+	    this.plugin = plugin;
 	}
 	
 	public void reload() {
@@ -83,7 +77,7 @@ public class JobConfig {
         if(!f.exists()) {
             // disable plugin
             System.err.println("[Jobs] - configuration file jobConfig.yml does not exist.  Disabling jobs !");
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
             return;
         }
         conf = new YamlConfiguration();
@@ -100,14 +94,14 @@ public class JobConfig {
         if(jobSection == null) {
             // no jobs
             System.err.println("[Jobs] - No jobs detected. Disabling Jobs!");
-            Jobs.disablePlugin();
+            plugin.disablePlugin();
             return;
         }
         for(String jobKey : jobSection.getKeys(false)) {
             String jobName = conf.getString("Jobs."+jobKey+".fullname");
             if(jobName == null) {
                 System.err.println("[Jobs] - Job " + jobKey + " has an invalid fullname property. Disabling jobs !");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
             
@@ -126,14 +120,14 @@ public class JobConfig {
             String jobShortName = conf.getString("Jobs."+jobKey+".shortname");
             if(jobShortName == null) {
                 System.err.println("[Jobs] - Job " + jobKey + " is missing the shortname property. Disabling jobs !");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
 
             ChatColor jobColour = ChatColor.valueOf(conf.getString("Jobs."+jobKey+".ChatColour", "").toUpperCase());
             if(jobColour == null) {
                 System.err.println("[Jobs] - Job " + jobKey + " is missing the ChatColour property. Disabling jobs !");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
             String disp = conf.getString("Jobs."+jobKey+".chat-display", "").toLowerCase();
@@ -169,7 +163,7 @@ public class JobConfig {
             else {
                 // error
                 System.err.println("[Jobs] - Job " + jobKey + " has an invalid chat-display property. Disabling jobs !");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
             
@@ -180,7 +174,7 @@ public class JobConfig {
             }
             catch(Exception e){
                 System.err.println("[Jobs] - Job " + jobKey + " has an invalid leveling-progression-equation property. Disabling jobs !");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
             
@@ -191,7 +185,7 @@ public class JobConfig {
             }
             catch(Exception e){
                 System.err.println("[Jobs] - Job " + jobKey + " has an invalid income-progression-equation property. Disabling jobs !");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
             
@@ -202,7 +196,7 @@ public class JobConfig {
             }
             catch(Exception e){
                 System.err.println("[Jobs] - Job " + jobKey + " has an invalid experience-progression-equation property. Disabling jobs !");
-                Jobs.disablePlugin();
+                plugin.disablePlugin();
                 return;
             }
             
@@ -346,7 +340,7 @@ public class JobConfig {
                     }
                     if(material == null) {
                         System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + fishKey + " Fish material type property. Disabling jobs!");
-                        Jobs.disablePlugin();
+                        plugin.disablePlugin();
                         return;
                     }
                     MaterialData materialData = new MaterialData(material);
@@ -371,7 +365,7 @@ public class JobConfig {
                         jobKillInfo.put(("org.bukkit.craftbukkit.entity.CraftPlayer:"+entityType).trim(), new JobsLivingEntityInfo(Class.forName("org.bukkit.craftbukkit.entity.CraftPlayer"), experience, income));
                     } catch (ClassNotFoundException e) {
                         System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + customKillKey + " custom-kill entity type property. Disabling jobs!");
-                        Jobs.disablePlugin();
+                        plugin.disablePlugin();
                         return;
                     }
                 }
@@ -387,21 +381,9 @@ public class JobConfig {
     private void loadSlots() {
         usedSlots = new HashMap<Job, Integer>();
         for(Job temp: jobs.values()){
-            usedSlots.put(temp, JobsConfiguration.getInstance().getJobsDAO().getSlotsTaken(temp));
+            usedSlots.put(temp, plugin.getJobsConfiguration().getJobsDAO().getSlotsTaken(temp));
         }
     }
-	
-	/**
-	 * Method to get the configuration.
-	 * Never store this. Always call the function and then do something.
-	 * @return the job configuration object
-	 */
-	public static JobConfig getInstance(){
-		if(jobsConfig == null){
-			jobsConfig = new JobConfig();
-		}
-		return jobsConfig;
-	}
 	
 	/**
 	 * Function to return the job information that matches the jobName given

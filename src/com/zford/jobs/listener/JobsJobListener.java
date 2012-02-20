@@ -28,8 +28,6 @@ import org.bukkit.event.Listener;
 
 import com.nidefawl.Stats.Stats;
 import com.zford.jobs.Jobs;
-import com.zford.jobs.config.JobConfig;
-import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.container.JobProgression;
 import com.zford.jobs.config.container.JobsPlayer;
 import com.zford.jobs.event.JobsJoinEvent;
@@ -71,7 +69,7 @@ public class JobsJobListener implements Listener {
             progression.setMaxExperience((int)progression.getJob().getMaxExp(param));
             
             String message;
-            if(JobsConfiguration.getInstance().isBroadcastingLevelups()) {
+            if(plugin.getJobsConfiguration().isBroadcastingLevelups()) {
                 message = plugin.getMessageConfig().getMessage("level-up-broadcast");
             } else {
                 message = plugin.getMessageConfig().getMessage("level-up-no-broadcast");
@@ -89,7 +87,7 @@ public class JobsJobListener implements Listener {
                 message = message.replace("%playerdisplayname%", ""+player.getDisplayName());
             }
             message = message.replace("%joblevel%", ""+progression.getLevel());
-            if(JobsConfiguration.getInstance().isBroadcastingLevelups()) {
+            if(plugin.getJobsConfiguration().isBroadcastingLevelups()) {
                 for(String line: message.split("\n")){
                     plugin.getServer().broadcastMessage(line);
                 }
@@ -100,9 +98,9 @@ public class JobsJobListener implements Listener {
             }
             
             // stats plugin integration
-            if(JobsConfiguration.getInstance().getStats() != null &&
-                    JobsConfiguration.getInstance().getStats().isEnabled()){
-                Stats stats = JobsConfiguration.getInstance().getStats();
+            if(plugin.getJobsConfiguration().getStats() != null &&
+                    plugin.getJobsConfiguration().getStats().isEnabled()){
+                Stats stats = plugin.getJobsConfiguration().getStats();
                 if(progression.getLevel() > stats.get(event.getPlayer().getName(), "job", progression.getJob().getName())){
                     stats.setStat(event.getPlayer().getName(), "job", progression.getJob().getName(), progression.getLevel());
                     stats.saveAll();
@@ -130,7 +128,7 @@ public class JobsJobListener implements Listener {
         event.getJobProgression().setTitle(event.getNewTitle());
         
         //broadcast
-        if(JobsConfiguration.getInstance().isBroadcastingSkillups()){
+        if(plugin.getJobsConfiguration().isBroadcastingSkillups()){
             String message = plugin.getMessageConfig().getMessage("skill-up-broadcast");
             message = message.replace("%playername%", event.getPlayer().getName());
             if(event.getNewTitle() != null){
@@ -165,12 +163,12 @@ public class JobsJobListener implements Listener {
         
         Player player = plugin.getServer().getPlayer(event.getPlayer().getName());
         
-        if(event.getNewJob().getMaxSlots() == null || JobConfig.getInstance().getUsedSlots(event.getNewJob()) < event.getNewJob().getMaxSlots()) {
+        if(event.getNewJob().getMaxSlots() == null || plugin.getJobConfig().getUsedSlots(event.getNewJob()) < event.getNewJob().getMaxSlots()) {
             if(!event.getPlayer().isInJob(event.getNewJob())){
                 // let the user join the job
                 event.getPlayer().joinJob(event.getNewJob());
-                JobsConfiguration.getInstance().getJobsDAO().joinJob(event.getPlayer(), event.getNewJob());
-                JobConfig.getInstance().takeSlot(event.getNewJob());
+                plugin.getJobsConfiguration().getJobsDAO().joinJob(event.getPlayer(), event.getNewJob());
+                plugin.getJobConfig().takeSlot(event.getNewJob());
                 String message = plugin.getMessageConfig().getMessage("join-job-success");
                 message = message.replace("%jobcolour%", event.getNewJob().getChatColour().toString());
                 message = message.replace("%jobname%", event.getNewJob().getName());
@@ -186,9 +184,9 @@ public class JobsJobListener implements Listener {
                 }
                 
                 // stats plugin integration
-                if(JobsConfiguration.getInstance().getStats() != null &&
-                        JobsConfiguration.getInstance().getStats().isEnabled()){
-                    Stats stats = JobsConfiguration.getInstance().getStats();
+                if(plugin.getJobsConfiguration().getStats() != null &&
+                        plugin.getJobsConfiguration().getStats().isEnabled()){
+                    Stats stats = plugin.getJobsConfiguration().getStats();
                     if(1 > stats.get(event.getPlayer().getName(), "job", event.getNewJob().getName())){
                         stats.setStat(event.getPlayer().getName(), "job", event.getNewJob().getName(), 1);
                         stats.saveAll();
@@ -212,7 +210,7 @@ public class JobsJobListener implements Listener {
                     }
                 }
             }
-        } else if (player != null && JobConfig.getInstance().getUsedSlots(event.getNewJob()) >= event.getNewJob().getMaxSlots()) {
+        } else if (player != null && plugin.getJobConfig().getUsedSlots(event.getNewJob()) >= event.getNewJob().getMaxSlots()) {
             // already in job message
             String message = plugin.getMessageConfig().getMessage("join-job-failed-no-slots");
             message = message.replace("%jobcolour%", event.getNewJob().getChatColour().toString());
@@ -233,8 +231,8 @@ public class JobsJobListener implements Listener {
         if(event.getPlayer().isInJob(event.getOldJob())){
             // let the user join the job
             event.getPlayer().leaveJob(event.getOldJob());
-            JobsConfiguration.getInstance().getJobsDAO().quitJob(event.getPlayer(), event.getOldJob());
-            JobConfig.getInstance().leaveSlot(event.getOldJob());
+            plugin.getJobsConfiguration().getJobsDAO().quitJob(event.getPlayer(), event.getOldJob());
+            plugin.getJobConfig().leaveSlot(event.getOldJob());
             if(player != null) {
                 String message = plugin.getMessageConfig().getMessage("leave-job-success");
                 message = message.replace("%jobcolour%", event.getOldJob().getChatColour().toString());

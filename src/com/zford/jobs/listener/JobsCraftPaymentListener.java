@@ -26,7 +26,6 @@ import org.bukkit.event.Listener;
 import org.getspout.spoutapi.event.inventory.InventoryCraftEvent;
 
 import com.zford.jobs.Jobs;
-import com.zford.jobs.config.container.RestrictedArea;
 
 public class JobsCraftPaymentListener implements Listener{
 	
@@ -45,7 +44,7 @@ public class JobsCraftPaymentListener implements Listener{
         if(event.isCancelled()) return;
 	    
         // restricted area multiplier
-        double multiplier = RestrictedArea.getMultiplier(event.getPlayer());
+        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
         
         if(event.getResult() == null)
             return;

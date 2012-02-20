@@ -21,7 +21,7 @@ package com.zford.jobs.config.container;
 
 import java.util.HashMap;
 
-import com.zford.jobs.config.JobsConfiguration;
+import com.zford.jobs.Jobs;
 
 
 /**
@@ -37,8 +37,10 @@ public class JobProgression {
 	private double experience;
 	private int maxExperience;
 	private int level;
+	private Jobs plugin;
 	
-	public JobProgression(Job job, double experience, int level, JobsPlayer info){
+	public JobProgression(Jobs plugin, Job job, double experience, int level, JobsPlayer info){
+	    this.plugin = plugin;
 		this.job = job;
 		this.experience = experience;
 		this.level = level;
@@ -46,7 +48,7 @@ public class JobProgression {
 		param.put("joblevel", (double) level);
 		param.put("numjobs", (double) info.getJobs().size());
 		maxExperience = (int)job.getMaxExp(param);
-		title = JobsConfiguration.getInstance().getTitleForLevel(level);
+		title = this.plugin.getJobsConfiguration().getTitleForLevel(level);
 	}
 	
 	/**

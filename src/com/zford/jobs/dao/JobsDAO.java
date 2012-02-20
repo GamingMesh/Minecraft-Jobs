@@ -37,14 +37,16 @@ import com.zford.jobs.dao.container.JobsDAOData;
 public abstract class JobsDAO {
     
     private JobsConnectionPool pool;
+    protected Jobs plugin;
     
-    public JobsDAO(String driver, String url, String username, String password) {
+    public JobsDAO(Jobs plugin, String driver, String url, String username, String password) {
+        this.plugin = plugin;
         try {
             pool = new JobsConnectionPool(driver, url, username, password);
         } catch (Exception e) {
             e.printStackTrace();
             System.err.println("[Jobs] - database connection error. Disabling jobs!");
-            Jobs.disablePlugin();
+            this.plugin.disablePlugin();
         }
     }
     
