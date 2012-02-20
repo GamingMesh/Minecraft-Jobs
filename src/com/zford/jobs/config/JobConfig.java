@@ -20,14 +20,17 @@
 package com.zford.jobs.config;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.material.MaterialData;
-import org.bukkit.util.config.Configuration;
 import org.mbertoli.jfep.Parser;
 
 import com.zford.jobs.Jobs;
@@ -44,7 +47,6 @@ import com.zford.jobs.util.DisplayMethod;
  * @author Zak Ford <zak.j.ford@gmail.com>
  *
  */
-@SuppressWarnings("deprecation")
 public class JobConfig {
 	// all of the possible jobs
 	private HashMap<String, Job> jobs;
@@ -76,7 +78,7 @@ public class JobConfig {
 	 */
 	private void loadJobSettings(){
 	    File f = new File("plugins/Jobs/jobConfig.yml");
-        Configuration conf;
+        YamlConfiguration conf;
         this.jobs = new HashMap<String, Job>();
         if(!f.exists()) {
             // disable plugin
@@ -84,16 +86,24 @@ public class JobConfig {
             Jobs.disablePlugin();
             return;
         }
-        conf = new Configuration(f);
-        conf.load();
-        List<String> jobKeys = conf.getKeys("Jobs");
-        if(jobKeys == null) {
+        conf = new YamlConfiguration();
+        try {
+            conf.load(f);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
+        ConfigurationSection jobSection = conf.getConfigurationSection("Jobs");
+        if(jobSection == null) {
             // no jobs
             System.err.println("[Jobs] - No jobs detected. Disabling Jobs!");
             Jobs.disablePlugin();
             return;
         }
-        for(String jobKey : jobKeys) {
+        for(String jobKey : jobSection.getKeys(false)) {
             String jobName = conf.getString("Jobs."+jobKey+".fullname");
             if(jobName == null) {
                 System.err.println("[Jobs] - Job " + jobKey + " has an invalid fullname property. Disabling jobs !");
@@ -199,10 +209,10 @@ public class JobConfig {
             // items
             
             // break
-            List<String> breakKeys = conf.getKeys("Jobs."+jobKey+".Break");
+            ConfigurationSection breakSection = conf.getConfigurationSection("Jobs."+jobKey+".Break");
             HashMap<String, JobsMaterialInfo> jobBreakInfo = new HashMap<String, JobsMaterialInfo>();
-            if(breakKeys != null) {
-                for(String breakKey : breakKeys) {
+            if(breakSection != null) {
+                for(String breakKey : breakSection.getKeys(false)) {
                     String materialType = breakKey.toUpperCase();
                     String subType = "";
                     Material material;
@@ -231,10 +241,10 @@ public class JobConfig {
             }
             
             // place
-            List<String> placeKeys = conf.getKeys("Jobs."+jobKey+".Place");
+            ConfigurationSection placeSection = conf.getConfigurationSection("Jobs."+jobKey+".Place");
             HashMap<String, JobsMaterialInfo> jobPlaceInfo = new HashMap<String, JobsMaterialInfo>();
-            if(placeKeys != null) {
-                for(String placeKey : placeKeys) {
+            if(placeSection != null) {
+                for(String placeKey : placeSection.getKeys(false)) {
                     String materialType = placeKey.toUpperCase();
                     String subType = "";
                     Material material;
@@ -263,10 +273,10 @@ public class JobConfig {
             }
             
             // craft
-            List<String> craftKeys = conf.getKeys("Jobs."+jobKey+".Craft");
+            ConfigurationSection craftSection = conf.getConfigurationSection("Jobs."+jobKey+".Craft");
             HashMap<String, JobsMaterialInfo> jobCraftInfo = new HashMap<String, JobsMaterialInfo>();
-            if(craftKeys != null) {
-                for(String craftKey : craftKeys) {
+            if(craftSection != null) {
+                for(String craftKey : craftSection.getKeys(false)) {
                     String materialType = craftKey.toUpperCase();
                     String subType = "";
                     Material material;
@@ -295,10 +305,10 @@ public class JobConfig {
             }
             
             // kill
-            List<String> killKeys = conf.getKeys("Jobs."+jobKey+".Kill");
+            ConfigurationSection killSection = conf.getConfigurationSection("Jobs."+jobKey+".Kill");
             HashMap<String, JobsLivingEntityInfo> jobKillInfo = new HashMap<String, JobsLivingEntityInfo>();
-            if(killKeys != null) {
-                for(String killKey : killKeys) {
+            if(killSection != null) {
+                for(String killKey : killSection.getKeys(false)) {
                     @SuppressWarnings("rawtypes")
                     Class victim;
                     try {
@@ -316,10 +326,10 @@ public class JobConfig {
             }
             
             // fish
-            List<String> fishKeys = conf.getKeys("Jobs."+jobKey+".Fish");
+            ConfigurationSection fishSection = conf.getConfigurationSection("Jobs."+jobKey+".Fish");
             HashMap<String, JobsMaterialInfo> jobFishInfo = new HashMap<String, JobsMaterialInfo>();
-            if(fishKeys != null) {
-                for(String fishKey : fishKeys) {
+            if(fishSection != null) {
+                for(String fishKey : fishSection.getKeys(false)) {
                     String materialType = fishKey.toUpperCase();
                     String subType = "";
                     Material material;
@@ -349,9 +359,9 @@ public class JobConfig {
             }
             
             // custom-kill
-            List<String> customKillKeys = conf.getKeys("Jobs."+jobKey+".custom-kill");
-            if(customKillKeys != null) {
-                for(String customKillKey : customKillKeys) {
+            ConfigurationSection customKillSection = conf.getConfigurationSection("Jobs."+jobKey+".custom-kill");
+            if(customKillSection != null) {
+                for(String customKillKey : customKillSection.getKeys(false)) {
                     String entityType = customKillKey.toString();
                     
                     Double income = conf.getDouble("Jobs."+jobKey+".custom-kill."+customKillKey+".income", 0.0);

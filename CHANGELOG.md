@@ -2,6 +2,7 @@
 
 ## 2.6.3
 * Updated to Bukkit 1.1 Event System
+* Updated off old Bukkit Configuration System
 
 ## 2.6.2
 * Fixed linking issues with BOSEconomy

@@ -20,6 +20,8 @@
 package com.zford.jobs.config;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.ArrayList;
@@ -29,7 +31,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.util.config.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.nidefawl.Stats.Stats;
 import com.zford.jobs.Jobs;
@@ -50,7 +54,6 @@ import com.zford.jobs.util.DisplayMethod;
  * @author Zak Ford <zak.j.ford@gmail.com>
  *
  */
-@SuppressWarnings("deprecation")
 public class JobsConfiguration {
 	// enum of the chat display method
 	private DisplayMethod dispMethod;
@@ -65,7 +68,7 @@ public class JobsConfiguration {
 	// economy plugin
 	private EconomyLink economy = null;
 	// economy payment buffer
-    private BufferedPayment bufferedPayment;
+    private BufferedPayment bufferedPayment = new BufferedPayment();
 	// stats integration
 	private Stats stats = null;
 	// do i broadcast skillups?
@@ -89,9 +92,7 @@ public class JobsConfiguration {
 	 * Can only be called from within the class.
 	 * Made to observe the singleton pattern.
 	 */
-	private JobsConfiguration(){
-	    bufferedPayment = new BufferedPayment();
-	}
+	private JobsConfiguration() {}
 	
 	public void reload() {
         // general settings
@@ -109,15 +110,23 @@ public class JobsConfiguration {
 	 */
 	private void loadGeneralSettings(){
         File f = new File("plugins/Jobs/generalConfig.yml");
-        Configuration conf;
+        YamlConfiguration conf;
         if(!f.exists()) {
             // disable plugin
             System.err.println("[Jobs] - configuration file generalConfig.yml does not exist.  Disabling jobs !");
             Jobs.disablePlugin();
             return;
         }
-        conf = new Configuration(f);
-        conf.load();
+        conf = new YamlConfiguration();
+        try {
+            conf.load(f);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
         String storageMethod = conf.getString("storage-method", "");
         if(storageMethod.equalsIgnoreCase("mysql")) {
             String username = conf.getString("mysql-username");
@@ -186,24 +195,32 @@ public class JobsConfiguration {
 	 */
 	private void loadTitleSettings(){
 	    File f = new File("plugins/Jobs/titleConfig.yml");
-        Configuration conf;
+        YamlConfiguration conf;
         if(!f.exists()) {
             // no titles detected
             this.titles = null;
             System.err.println("[Jobs] - configuration file titleConfig.yml does not exist, disabling titles");
             return;
         }
-        conf = new Configuration(f);
-        conf.load();
-        List<String> titleKeys = conf.getKeys("Titles");
-        if(titleKeys == null) {
+        conf = new YamlConfiguration();
+        try {
+            conf.load(f);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
+        ConfigurationSection titleSection = conf.getConfigurationSection("Titles");
+        if(titleSection == null) {
             // no titles found
             System.err.println("[Jobs] - No titles found. Disabling titles");
             titles = null;
             return;
         }
         this.titles = new TreeMap<Integer, Title>();
-        for(String titleKey : titleKeys) {
+        for(String titleKey : titleSection.getKeys(false)) {
             String titleName = conf.getString("Titles."+titleKey+".Name");
             String titleShortName = conf.getString("Titles."+titleKey+".ShortName");
             ChatColor colour = ChatColor.valueOf(conf.getString("Titles."+titleKey+".ChatColour", "").toUpperCase());
@@ -243,38 +260,46 @@ public class JobsConfiguration {
     private void loadRestrictedAreaSettings(){
         this.restrictedAreas = new ArrayList<RestrictedArea>();
         File f = new File("plugins/Jobs/restrictedAreas.yml");
-        Configuration conf;
-        if(f.exists()) {
-            conf = new Configuration(f);
-            conf.load();
-            List<String> areaKeys = conf.getKeys("restrictedareas");
-            List<World> worlds = Bukkit.getServer().getWorlds();
-            if ( areaKeys == null ) {
-                return;
-            }
-            for (String areaKey : areaKeys) {
-                String worldName = conf.getString("restrictedareas."+areaKey+".world");
-                double multiplier = conf.getDouble("restrictedareas."+areaKey+".multiplier", 0.0);
-                World pointWorld = null;
-                for (World world : worlds) {
-                    if (world.getName().equals(worldName)) {
-                        pointWorld = world;
-                        break;
-                    }
-                }
-                Location point1 = new Location(pointWorld,
-                        conf.getDouble("restrictedareas."+areaKey+".point1.x", 0.0),
-                        conf.getDouble("restrictedareas."+areaKey+".point1.y", 0.0),
-                        conf.getDouble("restrictedareas."+areaKey+".point1.z", 0.0));
-
-                Location point2 = new Location(pointWorld,
-                        conf.getDouble("restrictedareas."+areaKey+".point2.x", 0.0),
-                        conf.getDouble("restrictedareas."+areaKey+".point2.y", 0.0),
-                        conf.getDouble("restrictedareas."+areaKey+".point2.z", 0.0));
-                this.restrictedAreas.add(new RestrictedArea(point1, point2, multiplier));
-            }
-        } else {
+        YamlConfiguration conf;
+        if(!f.exists()) {
             System.err.println("[Jobs] - configuration file restrictedAreas.yml does not exist");
+            return;
+        }
+        conf = new YamlConfiguration();
+        try {
+            conf.load(f);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
+        ConfigurationSection areaSection = conf.getConfigurationSection("restrictedareas");
+        List<World> worlds = Bukkit.getServer().getWorlds();
+        if (areaSection == null)
+            return;
+        
+        for (String areaKey : areaSection.getKeys(false)) {
+            String worldName = conf.getString("restrictedareas."+areaKey+".world");
+            double multiplier = conf.getDouble("restrictedareas."+areaKey+".multiplier", 0.0);
+            World pointWorld = null;
+            for (World world : worlds) {
+                if (world.getName().equals(worldName)) {
+                    pointWorld = world;
+                    break;
+                }
+            }
+            Location point1 = new Location(pointWorld,
+                    conf.getDouble("restrictedareas."+areaKey+".point1.x", 0.0),
+                    conf.getDouble("restrictedareas."+areaKey+".point1.y", 0.0),
+                    conf.getDouble("restrictedareas."+areaKey+".point1.z", 0.0));
+
+            Location point2 = new Location(pointWorld,
+                    conf.getDouble("restrictedareas."+areaKey+".point2.x", 0.0),
+                    conf.getDouble("restrictedareas."+areaKey+".point2.y", 0.0),
+                    conf.getDouble("restrictedareas."+areaKey+".point2.z", 0.0));
+            this.restrictedAreas.add(new RestrictedArea(point1, point2, multiplier));
         }
     }
 	
