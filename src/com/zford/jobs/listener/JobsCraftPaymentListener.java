@@ -20,20 +20,23 @@
 package com.zford.jobs.listener;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.getspout.spoutapi.event.inventory.InventoryCraftEvent;
-import org.getspout.spoutapi.event.inventory.InventoryListener;
 
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.container.RestrictedArea;
 
-public class JobsCraftPaymentListener extends InventoryListener{
+public class JobsCraftPaymentListener implements Listener{
 	
 	private Jobs plugin;
 	
 	public JobsCraftPaymentListener(Jobs plugin){
 		this.plugin = plugin;
 	}
-	
+
+    @EventHandler(priority=EventPriority.MONITOR)
 	public void onInventoryCraft(InventoryCraftEvent event){
 		
 		// make sure plugin is enabled

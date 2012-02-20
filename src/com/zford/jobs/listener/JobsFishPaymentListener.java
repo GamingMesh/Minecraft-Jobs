@@ -20,8 +20,10 @@
 package com.zford.jobs.listener;
 
 import org.bukkit.entity.Item;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerFishEvent;
-import org.bukkit.event.player.PlayerListener;
 
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.container.RestrictedArea;
@@ -32,15 +34,15 @@ import com.zford.jobs.config.container.RestrictedArea;
  * @author Zak Ford <zak.j.ford@gmail.com>
  */
 
-public class JobsFishPaymentListener extends PlayerListener {
+public class JobsFishPaymentListener implements Listener {
     // hook to the main plugin
     private Jobs plugin;
     
     public JobsFishPaymentListener(Jobs plugin) {
         this.plugin = plugin;
     }
-    
-    @Override
+
+    @EventHandler(priority=EventPriority.MONITOR)
     public void onPlayerFish(PlayerFishEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;

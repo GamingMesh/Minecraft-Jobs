@@ -20,28 +20,30 @@
 package com.zford.jobs.listener;
 
 
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerListener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import com.zford.jobs.Jobs;
 
-public class JobsPlayerListener extends PlayerListener{
+public class JobsPlayerListener implements Listener {
 	// hook to the main plugin
 	private Jobs plugin;
 	
 	public JobsPlayerListener(Jobs plugin) {
 		this.plugin = plugin;
 	}
-	
-	@Override
+
+    @EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerJoin(PlayerJoinEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
 		plugin.addPlayer(event.getPlayer().getName());
 	}
-	
-	@Override
+
+    @EventHandler(priority=EventPriority.MONITOR)
 	public void onPlayerQuit(PlayerQuitEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;

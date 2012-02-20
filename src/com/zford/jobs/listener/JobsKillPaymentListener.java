@@ -28,11 +28,13 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Wolf;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityListener;
 
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.JobsConfiguration;
@@ -46,7 +48,7 @@ import com.zford.jobs.config.container.RestrictedArea;
  * @author Alex
  *
  */
-public class JobsKillPaymentListener extends EntityListener{
+public class JobsKillPaymentListener implements Listener {
 	private Jobs plugin;
 	private Set<LivingEntity> mobSpawnerCreatures;
 	
@@ -63,6 +65,7 @@ public class JobsKillPaymentListener extends EntityListener{
 	 * 
 	 * Then it pays the killer
 	 */
+    @EventHandler(priority=EventPriority.MONITOR)
 	public void onEntityDeath(EntityDeathEvent event)
 	{
 	    // Entity that died must be living
@@ -112,7 +115,7 @@ public class JobsKillPaymentListener extends EntityListener{
 	 * 
 	 * These creatures shouldn't payout if the configuration is set
 	 */
-	@Override
+    @EventHandler(priority=EventPriority.MONITOR)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
 	    if(event.isCancelled())
 	        return;

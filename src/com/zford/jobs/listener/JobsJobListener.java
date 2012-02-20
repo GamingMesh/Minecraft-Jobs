@@ -22,6 +22,9 @@ package com.zford.jobs.listener;
 import java.util.HashMap;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 
 import com.nidefawl.Stats.Stats;
 import com.zford.jobs.Jobs;
@@ -29,7 +32,6 @@ import com.zford.jobs.config.JobConfig;
 import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.container.JobProgression;
 import com.zford.jobs.config.container.JobsPlayer;
-import com.zford.jobs.event.JobsEventListener;
 import com.zford.jobs.event.JobsJoinEvent;
 import com.zford.jobs.event.JobsLeaveEvent;
 import com.zford.jobs.event.JobsLevelUpEvent;
@@ -40,14 +42,14 @@ import com.zford.jobs.event.JobsSkillUpEvent;
  * @author Alex
  *
  */
-public class JobsJobListener extends JobsEventListener{
+public class JobsJobListener implements Listener {
     Jobs plugin;
     
     public JobsJobListener(Jobs plugin) {
         this.plugin = plugin;
     }
-    
-    @Override
+
+    @EventHandler(priority=EventPriority.MONITOR)
     public void onJobLevelUp(JobsLevelUpEvent event) {
         if(event.isCancelled())
             return;
@@ -116,8 +118,8 @@ public class JobsJobListener extends JobsEventListener{
             }
         }
     }
-    
-    @Override
+
+    @EventHandler(priority=EventPriority.MONITOR)
     public void onJobSkillUp(JobsSkillUpEvent event) {
         if(event.isCancelled())
             return;
@@ -155,8 +157,8 @@ public class JobsJobListener extends JobsEventListener{
         event.getJobProgression().setTitle(event.getNewTitle());
         event.getPlayer().reloadHonorific();
     }
-    
-    @Override
+
+    @EventHandler(priority=EventPriority.MONITOR)
     public void onJobJoin(JobsJoinEvent event) {
         if(event.isCancelled())
             return;
@@ -220,8 +222,8 @@ public class JobsJobListener extends JobsEventListener{
             }
         }
     }
-    
-    @Override
+
+    @EventHandler(priority=EventPriority.MONITOR)
     public void onJobLeave(JobsLeaveEvent event) {
         if(event.isCancelled())
             return;

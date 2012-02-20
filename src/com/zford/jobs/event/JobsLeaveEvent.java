@@ -19,11 +19,17 @@
 
 package com.zford.jobs.event;
 
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobsPlayer;
 
 @SuppressWarnings("serial")
-public class JobsLeaveEvent extends JobsEvent{
+public class JobsLeaveEvent extends Event implements Cancellable {
+    private static final HandlerList handlers = new HandlerList();
+    private boolean cancelled = false;
     private JobsPlayer player;
     private Job job;
 
@@ -33,7 +39,6 @@ public class JobsLeaveEvent extends JobsEvent{
      * @param job - job they are leaving
      */
     public JobsLeaveEvent(JobsPlayer player, Job job){
-        super(JobsEventType.Leave);
         this.player = player;
         this.job = job;
     }
@@ -54,4 +59,22 @@ public class JobsLeaveEvent extends JobsEvent{
         return job;
     }
 
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
+    }
 }

@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.6.3
+* Updated to Bukkit 1.1 Event System
+
 ## 2.6.2
 * Fixed linking issues with BOSEconomy
 * Fixed NPE due to double onPlayerQuit events

@@ -23,34 +23,19 @@ import java.util.HashMap;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.event.server.ServerListener;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.nidefawl.Stats.Stats;
 import com.zford.jobs.config.JobConfig;
 import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.MessageConfig;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobsPlayer;
-import com.zford.jobs.economy.link.BOSEconomy6Link;
-import com.zford.jobs.economy.link.BOSEconomy7Link;
-import com.zford.jobs.economy.link.EssentialsLink;
-import com.zford.jobs.economy.link.iConomy5Link;
-import com.zford.jobs.economy.link.iConomy6Link;
 import com.zford.jobs.listener.JobsBlockPaymentListener;
-import com.zford.jobs.listener.JobsCraftPaymentListener;
 import com.zford.jobs.listener.JobsFishPaymentListener;
 import com.zford.jobs.listener.JobsJobListener;
 import com.zford.jobs.listener.JobsKillPaymentListener;
 import com.zford.jobs.listener.JobsPlayerListener;
-
-import cosine.boseconomy.BOSEconomy;
-
-import com.earth2me.essentials.Essentials;
+import com.zford.jobs.listener.JobsPluginListener;
 
 /**
  * Jobs main class
@@ -63,22 +48,7 @@ public class Jobs extends JavaPlugin{
 	
 	private static Jobs plugin = null;
 	
-    private JobsBlockPaymentListener blockListener;
-    private JobsJobListener jobListener;
-    private JobsKillPaymentListener killListener;
-    private JobsPlayerListener playerListener;
-    private JobsFishPaymentListener fishListener;
-    private JobsCraftPaymentListener craftListener;
     private MessageConfig messageConfig;
-	
-    public Jobs() {
-        blockListener = new JobsBlockPaymentListener(this);
-        jobListener = new JobsJobListener(this);
-        killListener = new JobsKillPaymentListener(this);
-        playerListener = new JobsPlayerListener(this);
-        fishListener = new JobsFishPaymentListener(this);
-        plugin = this;
-    }
 
 	/**
 	 * Method called when you disable the plugin
@@ -99,7 +69,7 @@ public class Jobs extends JavaPlugin{
 			JobsConfiguration.getInstance().getJobsDAO().closeConnections();
 		}
 		
-		getServer().getLogger().info("[Jobs v" + getDescription().getVersion() + "] has been disabled succesfully.");
+		getServer().getLogger().info("[" + getDescription().getFullName() + "] has been disabled succesfully.");
 		// wipe the hashMap
 		players.clear();
 	}
@@ -108,6 +78,7 @@ public class Jobs extends JavaPlugin{
 	 * Method called when the plugin is enabled
 	 */
 	public void onEnable() {
+        plugin = this;
 		// load the jobConfogiration
 		players = new HashMap<String, JobsPlayer>();
 		JobsCommands commands = new JobsCommands(this);
@@ -137,90 +108,14 @@ public class Jobs extends JavaPlugin{
 		}, 100, 100);
 		
 		// enable the link for economy plugins
-		getServer().getPluginManager().registerEvent(Event.Type.PLUGIN_ENABLE, new ServerListener() {
-		    
-			@Override
-			public void onPluginEnable(PluginEnableEvent event) {
-                JobsConfiguration jc = JobsConfiguration.getInstance();
-                PluginManager pm = getServer().getPluginManager();
-                
-				// economy plugins
-				if(jc.getEconomyLink() == null){
-					if(pm.getPlugin("iConomy") != null || 
-							pm.getPlugin("BOSEconomy") != null ||
-							pm.getPlugin("Essentials") != null) {
-						if(pm.getPlugin("iConomy") != null && 
-						        (jc.getDefaultEconomy() == null || jc.getDefaultEconomy().equalsIgnoreCase("iconomy"))) {
-					        if(pm.getPlugin("iConomy").getDescription().getVersion().startsWith("5")) {
-					            jc.setEconomyLink(new iConomy5Link((com.iConomy.iConomy)pm.getPlugin("iConomy")));
-					            System.out.println("[Jobs] Successfully linked with iConomy 5.");
-					        } else if(pm.getPlugin("iConomy").getDescription().getVersion().startsWith("6")) {
-                                jc.setEconomyLink(new iConomy6Link((com.iCo6.iConomy)pm.getPlugin("iConomy")));
-                                System.out.println("[Jobs] Successfully linked with iConomy 6.");
-					        }
-                        } else if(pm.getPlugin("BOSEconomy") != null &&
-                                (jc.getDefaultEconomy() == null || jc.getDefaultEconomy().equalsIgnoreCase("boseconomy"))) {
-                            if(pm.getPlugin("BOSEconomy").getDescription().getVersion().startsWith("0.6")) {
-                                jc.setEconomyLink(new BOSEconomy6Link((BOSEconomy)pm.getPlugin("BOSEconomy")));
-                                System.out.println("[Jobs] Successfully linked with BOSEconomy 6.");
-                            } else if(pm.getPlugin("BOSEconomy").getDescription().getVersion().startsWith("0.7")) {
-                                jc.setEconomyLink(new BOSEconomy7Link((BOSEconomy)pm.getPlugin("BOSEconomy")));
-                                System.out.println("[Jobs] Successfully linked with BOSEconomy 7.");
-                            }
-                        } else if(pm.getPlugin("Essentials") != null &&
-                                (jc.getDefaultEconomy() == null || jc.getDefaultEconomy().equalsIgnoreCase("essentials"))) {
-                            jc.setEconomyLink(new EssentialsLink((Essentials)pm.getPlugin("Essentials")));
-                            System.out.println("[Jobs] Successfully linked with Essentials.");
-                        }
-					}
-				}
-				
-				// stats
-				if(jc.getStats() == null && jc.isStatsEnabled()){
-					if(pm.getPlugin("Stats") != null){
-						jc.setStats((Stats)pm.getPlugin("Stats"));
-	                    System.out.println("[Jobs] Successfully linked with Stats.");
-					}
-				}
-				
-				// spout
-				if(craftListener == null){
-				    if(getServer().getPluginManager().getPlugin("Spout") != null){
-				        craftListener = new JobsCraftPaymentListener(plugin);
-			            getServer().getPluginManager().registerEvent(Event.Type.CUSTOM_EVENT, craftListener, Event.Priority.Monitor, plugin);
-                        System.out.println("[Jobs] Successfully linked with Spout.");
-				    }
-				}
-			}
-			
-			@Override
-			public void onPluginDisable(PluginDisableEvent event) {
-                JobsConfiguration jc = JobsConfiguration.getInstance();
-			    if(jc.getEconomyLink() instanceof iConomy5Link && event.getPlugin().getDescription().getName().equalsIgnoreCase("iConomy") ||
-                        jc.getEconomyLink() instanceof BOSEconomy6Link && event.getPlugin().getDescription().getName().equalsIgnoreCase("BOSEconomy") ||
-                        jc.getEconomyLink() instanceof EssentialsLink && event.getPlugin().getDescription().getName().equalsIgnoreCase("Essentials")
-			            ) {
-					jc.setEconomyLink(null);
-                    System.out.println("[Jobs] Economy system successfully unlinked.");
-				}
-				
-				// stats
-				if(event.getPlugin().getDescription().getName().equalsIgnoreCase("Stats")){
-					jc.setStats(null);
-                    System.out.println("[Jobs] Successfully unlinked with Stats.");
-				}
-			}
-		}, Event.Priority.Monitor, this);
+		getServer().getPluginManager().registerEvents(new JobsPluginListener(this), this);
 		
 		// register the listeners
-		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_BREAK, blockListener, Event.Priority.Monitor, this);
-		getServer().getPluginManager().registerEvent(Event.Type.BLOCK_PLACE, blockListener, Event.Priority.Monitor, this);
-		getServer().getPluginManager().registerEvent(Event.Type.CUSTOM_EVENT, jobListener, Event.Priority.Monitor, this);
-        getServer().getPluginManager().registerEvent(Event.Type.ENTITY_DEATH, killListener, Event.Priority.Monitor, this);
-        getServer().getPluginManager().registerEvent(Event.Type.CREATURE_SPAWN, killListener, Event.Priority.Monitor, this);
-        getServer().getPluginManager().registerEvent(Event.Type.PLAYER_FISH, fishListener, Event.Priority.Monitor, this);
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_JOIN, playerListener, Event.Priority.Monitor, this);
-		getServer().getPluginManager().registerEvent(Event.Type.PLAYER_QUIT, playerListener, Event.Priority.Monitor, this);
+		getServer().getPluginManager().registerEvents(new JobsBlockPaymentListener(this), this);
+		getServer().getPluginManager().registerEvents(new JobsJobListener(this), this);
+        getServer().getPluginManager().registerEvents(new JobsKillPaymentListener(this), this);
+        getServer().getPluginManager().registerEvents(new JobsFishPaymentListener(this), this);
+		getServer().getPluginManager().registerEvents(new JobsPlayerListener(this), this);
 		
 		// add all online players
 		for(Player online: getServer().getOnlinePlayers()){
@@ -228,7 +123,7 @@ public class Jobs extends JavaPlugin{
 		}
 		
 		// all loaded properly.
-		getServer().getLogger().info("[Jobs v" + getDescription().getVersion() + "] has been enabled succesfully.");
+		getServer().getLogger().info("[" + getDescription().getFullName() + "] has been enabled succesfully.");
 	}
 	
 	/**

@@ -21,20 +21,23 @@ package com.zford.jobs.listener;
 
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.container.RestrictedArea;
 
-public class JobsBlockPaymentListener extends BlockListener{
+public class JobsBlockPaymentListener implements Listener {
 	private Jobs plugin;
 	
 	public JobsBlockPaymentListener(Jobs plugin){
 		this.plugin = plugin;
 	}
 	
+	@EventHandler(priority=EventPriority.MONITOR)
 	public void onBlockBreak(BlockBreakEvent event){
 	    // make sure plugin is enabled
 	    if(!plugin.isEnabled()) return;
@@ -50,7 +53,8 @@ public class JobsBlockPaymentListener extends BlockListener{
 			plugin.getJobsPlayer(player.getName()).broke(event.getBlock(), multiplier);			
 		}
 	}
-	
+
+    @EventHandler(priority=EventPriority.MONITOR)
 	public void onBlockPlace(BlockPlaceEvent event){
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;

@@ -19,16 +19,21 @@
 
 package com.zford.jobs.event;
 
+import org.bukkit.event.Cancellable;
+import org.bukkit.event.Event;
+import org.bukkit.event.HandlerList;
+
 import com.zford.jobs.config.container.JobProgression;
 import com.zford.jobs.config.container.JobsPlayer;
 
 @SuppressWarnings("serial")
-public class JobsLevelUpEvent extends JobsEvent{
+public class JobsLevelUpEvent extends Event implements Cancellable {
+    private static final HandlerList handlers = new HandlerList();
+    private boolean cancelled = false;
     private JobsPlayer player;
     private JobProgression jobProgression;
 
     public JobsLevelUpEvent(JobsPlayer player, JobProgression jobProgression) {
-        super(JobsEventType.LevelUp);
         this.player = player;
         this.jobProgression = jobProgression;
     }
@@ -47,5 +52,24 @@ public class JobsLevelUpEvent extends JobsEvent{
     
     public int getNumJobs(){
         return player.getJobs().size();
+    }
+
+    @Override
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    @Override
+    public void setCancelled(boolean cancelled) {
+        this.cancelled = cancelled;
+    }
+
+    @Override
+    public HandlerList getHandlers() {
+        return handlers;
+    }
+
+    public static HandlerList getHandlerList() {
+        return handlers;
     }
 }
