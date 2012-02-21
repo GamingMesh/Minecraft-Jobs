@@ -26,7 +26,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 
-import com.nidefawl.Stats.Stats;
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.container.JobProgression;
 import com.zford.jobs.config.container.JobsPlayer;
@@ -94,16 +93,6 @@ public class JobsJobListener implements Listener {
             } else if(player != null) {
                 for(String line: message.split("\n")){
                     player.sendMessage(line);
-                }
-            }
-            
-            // stats plugin integration
-            if(plugin.getJobsConfiguration().getStats() != null &&
-                    plugin.getJobsConfiguration().getStats().isEnabled()){
-                Stats stats = plugin.getJobsConfiguration().getStats();
-                if(progression.getLevel() > stats.get(event.getPlayer().getName(), "job", progression.getJob().getName())){
-                    stats.setStat(event.getPlayer().getName(), "job", progression.getJob().getName(), progression.getLevel());
-                    stats.saveAll();
                 }
             }
             event.getPlayer().checkLevels();
@@ -181,16 +170,6 @@ public class JobsJobListener implements Listener {
                     // if it's a real player
                     event.getPlayer().reloadHonorific();
                     event.getPlayer().reloadMaxExperience();
-                }
-                
-                // stats plugin integration
-                if(plugin.getJobsConfiguration().getStats() != null &&
-                        plugin.getJobsConfiguration().getStats().isEnabled()){
-                    Stats stats = plugin.getJobsConfiguration().getStats();
-                    if(1 > stats.get(event.getPlayer().getName(), "job", event.getNewJob().getName())){
-                        stats.setStat(event.getPlayer().getName(), "job", event.getNewJob().getName(), 1);
-                        stats.saveAll();
-                    }
                 }
             } else if(player != null) {
                 if(event.getPlayer().isInJob(event.getNewJob())){

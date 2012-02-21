@@ -19,10 +19,7 @@
 
 package com.zford.jobs.economy.link;
 
-import com.iCo6.iConomy;
 import com.iCo6.system.Accounts;
-import com.nidefawl.Stats.Stats;
-import com.zford.jobs.Jobs;
 
 /**
  * Class that interfaces with iConomy and does the payment
@@ -31,14 +28,11 @@ import com.zford.jobs.Jobs;
  */
 public class iConomy6Link implements EconomyLink{
 	private Accounts accounts;
-	private Jobs plugin;
 	
 	/**
 	 * Constructor for creating the link
-	 * @param economy - the iConomy object
 	 */
-	public iConomy6Link(Jobs plugin, iConomy economy){
-	    this.plugin = plugin;
+	public iConomy6Link(){
 		this.accounts = new Accounts();
 	}
 	
@@ -46,19 +40,4 @@ public class iConomy6Link implements EconomyLink{
     public void pay(String playername, double amount) {
 	    accounts.get(playername).getHoldings().add(amount);
 	}
-
-	@Override
-	public void updateStats(String playername) {
-		// stats plugin integration
-		if(plugin.getJobsConfiguration().getStats() != null &&
-		        plugin.getJobsConfiguration().getStats().isEnabled()){
-			Stats stats = plugin.getJobsConfiguration().getStats();
-			double balance = accounts.get(playername).getHoldings().getBalance();
-			if(balance > stats.get(playername, "job", "money")){
-				stats.setStat(playername, "job", "money", (int) balance);
-				stats.saveAll();
-			}
-		}
-	}
-	
 }

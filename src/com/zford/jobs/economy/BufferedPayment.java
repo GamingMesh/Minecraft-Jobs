@@ -43,7 +43,6 @@ public class BufferedPayment {
                 String playername = entry.getKey();
                 double total = entry.getValue();
                 economy.pay(playername, total);
-                economy.updateStats(playername);
             }
         }
         payments.clear();

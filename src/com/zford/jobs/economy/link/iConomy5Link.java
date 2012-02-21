@@ -20,9 +20,6 @@
 package com.zford.jobs.economy.link;
 
 import com.iConomy.iConomy;
-import com.iConomy.system.BankAccount;
-import com.nidefawl.Stats.Stats;
-import com.zford.jobs.Jobs;
 
 /**
  * Class that interfaces with iConomy and does the payment
@@ -32,13 +29,12 @@ import com.zford.jobs.Jobs;
 public class iConomy5Link implements EconomyLink{
 	// iConomy link
 	private iConomy economy;
-	private Jobs plugin;
 	
 	/**
 	 * Constructor for creating the link
 	 * @param economy - the iConomy object
 	 */
-	public iConomy5Link(Jobs plugin, iConomy economy){
+	public iConomy5Link(iConomy economy){
 		this.economy = economy;
 	}
 	
@@ -47,26 +43,4 @@ public class iConomy5Link implements EconomyLink{
     public void pay(String playername, double amount) {
 		economy.getAccount(playername).getHoldings().add(amount);
 	}
-
-	@SuppressWarnings("static-access")
-	@Override
-	public void updateStats(String playername) {
-		// stats plugin integration
-		if(plugin.getJobsConfiguration().getStats() != null &&
-		        plugin.getJobsConfiguration().getStats().isEnabled()){
-			Stats stats = plugin.getJobsConfiguration().getStats();
-			double balance = economy.getAccount(playername).getHoldings().balance();
-			if(economy.getAccount(playername) != null &&
-					economy.getAccount(playername).getBankAccounts() != null){
-				for(BankAccount temp: economy.getAccount(playername).getBankAccounts()){
-					balance += temp.getHoldings().balance();
-				}
-			}
-			if(balance > stats.get(playername, "job", "money")){
-				stats.setStat(playername, "job", "money", (int) balance);
-				stats.saveAll();
-			}
-		}
-	}
-	
 }

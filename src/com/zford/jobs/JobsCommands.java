@@ -32,7 +32,6 @@ import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.mbertoli.jfep.Parser;
 
-import com.nidefawl.Stats.Stats;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobProgression;
 import com.zford.jobs.config.container.JobsLivingEntityInfo;
@@ -440,15 +439,6 @@ public class JobsCommands implements CommandExecutor {
                                         sendMessageByLine(player, message);
                                     }
                                     sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
-                                    // stats plugin integration
-                                    if(plugin.getJobsConfiguration().getStats() != null &&
-                                            plugin.getJobsConfiguration().getStats().isEnabled()){
-                                        Stats stats = plugin.getJobsConfiguration().getStats();
-                                        if(jPlayer.getJobsProgression(newjob).getLevel() > stats.get(jPlayer.getName(), "job", newjob.getName())){
-                                            stats.setStat(jPlayer.getName(), "job", newjob.getName(), jPlayer.getJobsProgression(newjob).getLevel());
-                                            stats.saveAll();
-                                        }
-                                    }
                                 }
                             }
                             catch (Exception e){

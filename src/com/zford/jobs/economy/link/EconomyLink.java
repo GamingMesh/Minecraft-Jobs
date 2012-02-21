@@ -32,10 +32,4 @@ public interface EconomyLink {
 	 * @param amount - amount to be paid
 	 */
 	public void pay(String playername, double amount);
-	
-	/**
-	 * Update Stats plugin money stats
-	 * @param player - the player
-	 */
-	public void updateStats(String playername);
 }

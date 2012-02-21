@@ -36,7 +36,6 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-import com.nidefawl.Stats.Stats;
 import com.zford.jobs.Jobs;
 import com.zford.jobs.config.container.RestrictedArea;
 import com.zford.jobs.config.container.Title;
@@ -68,8 +67,6 @@ public class JobsConfiguration {
 	private EconomyLink economy = null;
 	// economy payment buffer
     private BufferedPayment bufferedPayment;
-	// stats integration
-	private Stats stats = null;
 	// do i broadcast skillups?
     private boolean broadcastSkillups;
     // do i broadcast level ups?
@@ -356,22 +353,6 @@ public class JobsConfiguration {
     public BufferedPayment getBufferedPayment() {
         return bufferedPayment;
     }
-	
-	/**
-	 * Getter for the stats plugin
-	 * @return the stats plugin
-	 */
-	public Stats getStats() {
-		return stats;
-	}
-
-	/**
-	 * Setter for the stats plugin
-	 * @param stats - the stats plugin
-	 */
-	public void setStats(Stats stats) {
-		this.stats = stats;
-	}
 	
 	/**
 	 * Function that tells if the system is set to broadcast on skill up

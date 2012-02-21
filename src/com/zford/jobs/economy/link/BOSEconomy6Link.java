@@ -19,8 +19,6 @@
 
 package com.zford.jobs.economy.link;
 
-import com.nidefawl.Stats.Stats;
-import com.zford.jobs.Jobs;
 
 import cosine.boseconomy.BOSEconomy;
 
@@ -31,13 +29,12 @@ import cosine.boseconomy.BOSEconomy;
  */
 public class BOSEconomy6Link implements EconomyLink{
 	private BOSEconomy economy;
-	private Jobs plugin;
 	
 	/**
 	 * Constructor for creating the link
 	 * @param economy - the BOSEconomy object
 	 */
-	public BOSEconomy6Link(Jobs plugin, BOSEconomy economy) {
+	public BOSEconomy6Link(BOSEconomy economy) {
 		this.economy = economy;
 	}
 
@@ -46,20 +43,4 @@ public class BOSEconomy6Link implements EconomyLink{
 	public void pay(String playername, double amount) {
 		economy.addPlayerMoney(playername, (int)amount, true);
 	}
-
-    @Override
-	@SuppressWarnings("deprecation")
-	public void updateStats(String playername) {
-		// stats plugin integration
-		if(plugin.getJobsConfiguration().getStats() != null &&
-		        plugin.getJobsConfiguration().getStats().isEnabled()){
-			Stats stats = plugin.getJobsConfiguration().getStats();
-			double balance = economy.getPlayerMoney(playername) + economy.getBankMoney(playername);
-			if(balance > stats.get(playername, "job", "money")){
-				stats.setStat(playername, "job", "money", (int) balance);
-				stats.saveAll();
-			}
-		}
-	}
-
 }
