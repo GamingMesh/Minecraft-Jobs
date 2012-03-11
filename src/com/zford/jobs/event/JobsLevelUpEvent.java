@@ -26,7 +26,6 @@ import org.bukkit.event.HandlerList;
 import com.zford.jobs.config.container.JobProgression;
 import com.zford.jobs.config.container.JobsPlayer;
 
-@SuppressWarnings("serial")
 public class JobsLevelUpEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private boolean cancelled = false;

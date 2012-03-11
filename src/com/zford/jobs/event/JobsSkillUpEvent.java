@@ -27,7 +27,6 @@ import com.zford.jobs.config.container.JobProgression;
 import com.zford.jobs.config.container.JobsPlayer;
 import com.zford.jobs.config.container.Title;
 
-@SuppressWarnings("serial")
 public class JobsSkillUpEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private boolean cancelled = false;

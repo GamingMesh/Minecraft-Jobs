@@ -26,7 +26,6 @@ import org.bukkit.event.HandlerList;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobsPlayer;
 
-@SuppressWarnings("serial")
 public class JobsLeaveEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private boolean cancelled = false;

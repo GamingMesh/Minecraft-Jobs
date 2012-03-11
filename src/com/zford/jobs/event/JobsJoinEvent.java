@@ -31,7 +31,6 @@ import com.zford.jobs.config.container.JobsPlayer;
  * @author Alex
  *
  */
-@SuppressWarnings("serial")
 public class JobsJoinEvent extends Event implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     private boolean cancelled = false;
