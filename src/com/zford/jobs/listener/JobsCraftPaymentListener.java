@@ -19,11 +19,16 @@
 
 package com.zford.jobs.listener;
 
+import java.util.List;
+
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.getspout.spoutapi.event.inventory.InventoryCraftEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 
 import com.zford.jobs.Jobs;
 
@@ -36,7 +41,7 @@ public class JobsCraftPaymentListener implements Listener{
 	}
 
     @EventHandler(priority=EventPriority.MONITOR)
-	public void onInventoryCraft(InventoryCraftEvent event){
+	public void onInventoryCraft(CraftItemEvent event){
 		
 		// make sure plugin is enabled
 	    if(!plugin.isEnabled()) return;
@@ -44,15 +49,28 @@ public class JobsCraftPaymentListener implements Listener{
         if(event.isCancelled()) return;
 	    
         // restricted area multiplier
-        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
+        List<HumanEntity> viewers = event.getViewers();
+        if (viewers.size() == 0)
+            return;
+        Player player = null;
+        for (HumanEntity viewer : event.getViewers()) {
+            if (viewer instanceof Player) {
+                player = (Player) viewer;
+                break;
+            }
+        }
         
-        if(event.getResult() == null)
+        if (player == null)
             return;
         
-        Player player = event.getPlayer();
+        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         
-        if(plugin.hasWorldPermission(player, player.getWorld())) {
-			plugin.getJobsPlayer(player.getName()).crafted(event.getResult(), multiplier);			
-		}
+        Recipe recipe = event.getRecipe();
+        
+        ItemStack stack = recipe.getResult();
+        
+        if (!plugin.hasWorldPermission(player, player.getWorld()))
+            return;
+		plugin.getJobsPlayer(player.getName()).crafted(stack, multiplier);
 	}
 }

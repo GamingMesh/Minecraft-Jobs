@@ -23,6 +23,7 @@ import java.util.HashMap;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.zford.jobs.config.JobConfig;
@@ -30,12 +31,13 @@ import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.MessageConfig;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobsPlayer;
+import com.zford.jobs.economy.link.VaultLink;
 import com.zford.jobs.listener.JobsBlockPaymentListener;
+import com.zford.jobs.listener.JobsCraftPaymentListener;
 import com.zford.jobs.listener.JobsFishPaymentListener;
 import com.zford.jobs.listener.JobsJobListener;
 import com.zford.jobs.listener.JobsKillPaymentListener;
 import com.zford.jobs.listener.JobsPlayerListener;
-import com.zford.jobs.listener.JobsPluginListener;
 
 /**
  * Jobs main class
@@ -70,7 +72,7 @@ public class Jobs extends JavaPlugin{
 			getJobsConfiguration().getJobsDAO().closeConnections();
 		}
 		
-		getServer().getLogger().info("[" + getDescription().getFullName() + "] has been disabled succesfully.");
+		getServer().getLogger().info("["+getDescription().getName()+"] has been disabled succesfully.");
 		// wipe the hashMap
 		players.clear();
 	}
@@ -93,6 +95,12 @@ public class Jobs extends JavaPlugin{
 		if(!this.isEnabled())
 		    return;
 		
+		if (!loadVault()) {
+		    getLogger().severe("["+getDescription().getName()+"] Could not load Vault!");
+		    setEnabled(false);
+		    return;
+		}
+		
 		// set the system to auto save
 		if(getJobsConfiguration().getSavePeriod() > 0) {
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
@@ -109,15 +117,14 @@ public class Jobs extends JavaPlugin{
 		    }
 		}, 100, 100);
 		
-		// enable the link for economy plugins
-		getServer().getPluginManager().registerEvents(new JobsPluginListener(this), this);
-		
 		// register the listeners
 		getServer().getPluginManager().registerEvents(new JobsBlockPaymentListener(this), this);
 		getServer().getPluginManager().registerEvents(new JobsJobListener(this), this);
         getServer().getPluginManager().registerEvents(new JobsKillPaymentListener(this), this);
         getServer().getPluginManager().registerEvents(new JobsFishPaymentListener(this), this);
 		getServer().getPluginManager().registerEvents(new JobsPlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new JobsCraftPaymentListener(this), this);
+
 		
 		// add all online players
 		for(Player online: getServer().getOnlinePlayers()){
@@ -125,7 +132,18 @@ public class Jobs extends JavaPlugin{
 		}
 		
 		// all loaded properly.
-		getServer().getLogger().info("[" + getDescription().getFullName() + "] has been enabled succesfully.");
+		getServer().getLogger().info("["+getDescription().getName()+"] has been enabled succesfully.");
+	}
+	
+	private boolean loadVault() {
+	    Plugin test = getServer().getPluginManager().getPlugin("Vault");
+	    if (test == null)
+	        return false;
+	    
+	    getJobsConfiguration().setEconomyLink(new VaultLink(this));
+        
+        getLogger().info("["+getDescription().getName()+"] Successfully linked with Vault.");
+	    return true;
 	}
 	
 	/**

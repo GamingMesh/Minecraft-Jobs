@@ -19,26 +19,35 @@
 
 package com.zford.jobs.economy.link;
 
-import cosine.boseconomy.BOSEconomy;
+import org.bukkit.plugin.RegisteredServiceProvider;
+
+import net.milkbowl.vault.economy.Economy;
+
+import com.zford.jobs.Jobs;
+
 
 /**
- * Class that interfaces with BOSEconomt and does the payment
- * @author Alex
+ * Class that interfaces with Vault and does the payment
+ * @author phrstbrn
  *
  */
-public class BOSEconomy7Link implements EconomyLink{
-	private BOSEconomy economy;
-	
-	/**
-	 * Constructor for creating the link
-	 * @param economy - the BOSEconomy object
-	 */
-	public BOSEconomy7Link(BOSEconomy economy) {
-		this.economy = economy;
-	}
-	
-	@Override
+public class VaultLink implements EconomyLink {
+    
+    private Jobs plugin;
+    
+    /**
+     * Constructor for creating the link
+     */
+    public VaultLink(Jobs plugin) {
+        this.plugin = plugin;
+    }
+    
+    @Override
     public void pay(String playername, double amount) {
-		economy.addPlayerMoney(playername, amount, true);
-	}
+        RegisteredServiceProvider<Economy> provider = plugin.getServer().getServicesManager().getRegistration(Economy.class);
+        if (provider == null)
+            return;
+        Economy economy = provider.getProvider();
+        economy.depositPlayer(playername, amount);
+    }
 }
