@@ -3,16 +3,15 @@ package com.zford.jobs.economy;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import com.zford.jobs.Jobs;
 import com.zford.jobs.config.container.JobsPlayer;
 import com.zford.jobs.economy.link.EconomyLink;
 
 public class BufferedPayment {
     
     private HashMap<String, Double> payments;
-    private Jobs plugin;
-    public BufferedPayment(Jobs plugin) {
-        this.plugin = plugin;
+    private EconomyLink economy;
+    public BufferedPayment(EconomyLink economy) {
+        this.economy = economy;
         payments = new HashMap<String, Double>();
     }
 
@@ -37,7 +36,6 @@ public class BufferedPayment {
     public void payAll() {
         if (payments.isEmpty())
             return;
-        EconomyLink economy = plugin.getJobsConfiguration().getEconomyLink();
         if (economy != null) {
             for (Entry<String, Double> entry : payments.entrySet()) {
                 String playername = entry.getKey();

@@ -31,6 +31,7 @@ import com.zford.jobs.config.JobsConfiguration;
 import com.zford.jobs.config.MessageConfig;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobsPlayer;
+import com.zford.jobs.economy.BufferedPayment;
 import com.zford.jobs.economy.link.VaultLink;
 import com.zford.jobs.listener.JobsBlockPaymentListener;
 import com.zford.jobs.listener.JobsCraftPaymentListener;
@@ -52,6 +53,7 @@ public class Jobs extends JavaPlugin{
     
     private JobsConfiguration jobsConfiguration;
     private JobConfig jobConfig;
+    private BufferedPayment economy;
 
 	/**
 	 * Method called when you disable the plugin
@@ -113,7 +115,7 @@ public class Jobs extends JavaPlugin{
 		// schedule payouts to buffered payments
 		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
 		    public void run() {
-		        getJobsConfiguration().getBufferedPayment().payAll();
+		        economy.payAll();
 		    }
 		}, 100, 100);
 		
@@ -135,15 +137,26 @@ public class Jobs extends JavaPlugin{
 		getServer().getLogger().info("["+getDescription().getName()+"] has been enabled succesfully.");
 	}
 	
+	/**
+	 * Loads vault and sets as default economy
+	 */
 	private boolean loadVault() {
 	    Plugin test = getServer().getPluginManager().getPlugin("Vault");
 	    if (test == null)
 	        return false;
 	    
-	    getJobsConfiguration().setEconomyLink(new VaultLink(this));
+	    VaultLink link = new VaultLink(this);
+	    economy = new BufferedPayment(link);
         
         getLogger().info("["+getDescription().getName()+"] Successfully linked with Vault.");
 	    return true;
+	}
+	/**
+	 * Retrieves the economy hook
+	 * @return - buffered payment hook
+	 */
+	public BufferedPayment getEconomy() {
+	    return economy;
 	}
 	
 	/**

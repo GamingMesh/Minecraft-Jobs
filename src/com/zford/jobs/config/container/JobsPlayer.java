@@ -106,7 +106,7 @@ public class JobsPlayer {
 			if(income != null) {
                 Double exp = entry.getKey().getBreakExp(block, param);
                 // give income
-				plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
+                plugin.getEconomy().pay(this, income*multiplier);
 				entry.getValue().addExp(exp*multiplier);
 				checkLevels();
 			}
@@ -120,7 +120,7 @@ public class JobsPlayer {
                 Double income = jobNone.getBreakIncome(block, param);
                 if(income != null) {
                     // give income
-                    plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
+                    plugin.getEconomy().pay(this, income*multiplier);
                 }
                 param.remove("joblevel");
             }
@@ -147,7 +147,7 @@ public class JobsPlayer {
 			if(income != null) {
                 Double exp = entry.getKey().getPlaceExp(block, param);
 				// give income
-				plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
+                plugin.getEconomy().pay(this, income*multiplier);
 				entry.getValue().addExp(exp*multiplier);
 				checkLevels();
 			}
@@ -161,7 +161,7 @@ public class JobsPlayer {
                 Double income = jobNone.getPlaceIncome(block, param);
                 if(income != null) {
                     // give income
-                    plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
+                    plugin.getEconomy().pay(this, income*multiplier);
                 }
                 param.remove("joblevel");
             }
@@ -188,7 +188,7 @@ public class JobsPlayer {
 			if(income != null) {
                 Double exp = entry.getKey().getKillExp(victim, param);
 				// give income
-				plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
+                plugin.getEconomy().pay(this, income*multiplier);
 				entry.getValue().addExp(exp*multiplier);
 				checkLevels();	
 			}
@@ -202,7 +202,7 @@ public class JobsPlayer {
     		    Double income = jobNone.getKillIncome(victim, param);
     		    if(income != null) {
     		        // give income
-    		        plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
+    		        plugin.getEconomy().pay(this, income*multiplier);
     		    }
     		    param.remove("joblevel");
 		    }
@@ -228,7 +228,7 @@ public class JobsPlayer {
             if(income != null) {
                 Double exp = entry.getKey().getFishExp(item, param);
                 // give income
-                plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
+                plugin.getEconomy().pay(this, income*multiplier);
                 entry.getValue().addExp(exp*multiplier);
                 checkLevels();
             }
@@ -242,7 +242,7 @@ public class JobsPlayer {
                 Double income = jobNone.getFishIncome(item, param);
                 if(income != null) {
                     // give income
-                    plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
+                    plugin.getEconomy().pay(this, income*multiplier);
                 }
                 param.remove("joblevel");
             }
@@ -269,7 +269,7 @@ public class JobsPlayer {
 			if(income != null) {
                 Double exp = entry.getKey().getCraftExp(items, param);
                 // give income
-				plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
+                plugin.getEconomy().pay(this, income*multiplier);
 				entry.getValue().addExp(exp*multiplier);
 				checkLevels();
 			}
@@ -283,7 +283,7 @@ public class JobsPlayer {
                 Double income = jobNone.getCraftIncome(items, param);
                 if(income != null) {
                     // give income
-                    plugin.getJobsConfiguration().getBufferedPayment().pay(this, income*multiplier);
+                    plugin.getEconomy().pay(this, income*multiplier);
                 }
                 param.remove("joblevel");
             }

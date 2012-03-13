@@ -42,8 +42,6 @@ import com.zford.jobs.config.container.Title;
 import com.zford.jobs.dao.JobsDAO;
 import com.zford.jobs.dao.JobsDAOH2;
 import com.zford.jobs.dao.JobsDAOMySQL;
-import com.zford.jobs.economy.BufferedPayment;
-import com.zford.jobs.economy.link.EconomyLink;
 import com.zford.jobs.util.DisplayMethod;
 
 /**
@@ -63,10 +61,6 @@ public class JobsConfiguration {
 	private int savePeriod;
 	// data access object being used.
 	private JobsDAO dao;
-	// economy plugin
-	private EconomyLink economy = null;
-	// economy payment buffer
-    private BufferedPayment bufferedPayment;
 	// do i broadcast skillups?
     private boolean broadcastSkillups;
     // do i broadcast level ups?
@@ -82,7 +76,6 @@ public class JobsConfiguration {
 	
 	public JobsConfiguration(Jobs plugin) {
 	    this.plugin = plugin;
-	    this.bufferedPayment = new BufferedPayment(plugin);
 	}
 	
 	public void reload() {
@@ -311,30 +304,6 @@ public class JobsConfiguration {
 	public JobsDAO getJobsDAO(){
 		return dao;
 	}
-	
-	/**
-	 * Gets the economy interface to the economy being used
-	 * @return the interface to the economy being used
-	 */
-	public EconomyLink getEconomyLink(){
-		return economy;
-	}
-	
-	/**
-	 * Set the economy link
-	 * @param economy - the new economy link
-	 */
-	public void setEconomyLink(EconomyLink economy){
-		this.economy = economy;
-	}
-    
-    /**
-     * Gets the economy buffered payment
-     * @return the buffered payment class
-     */
-    public BufferedPayment getBufferedPayment() {
-        return bufferedPayment;
-    }
 	
 	/**
 	 * Function that tells if the system is set to broadcast on skill up
