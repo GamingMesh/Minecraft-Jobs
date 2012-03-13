@@ -20,6 +20,7 @@
 package com.zford.jobs.listener;
 
 import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -46,11 +47,15 @@ public class JobsFishPaymentListener implements Listener {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
         
+        Player player = event.getPlayer();
+        
+        if (!plugin.hasWorldPermission(player, player.getWorld())) return;
+        
         // restricted area multiplier
-        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
+        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         
         if(event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
-            plugin.getJobsPlayer(event.getPlayer().getName()).fished((Item)event.getCaught(), multiplier);
+            plugin.getJobsPlayer(player.getName()).fished((Item)event.getCaught(), multiplier);
         }
     }
 }
