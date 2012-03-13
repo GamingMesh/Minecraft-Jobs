@@ -60,7 +60,7 @@ public class JobsCommands implements CommandExecutor {
                 Job job = plugin.getJobConfig().getJob(jobName);
                 if(job != null && !jobName.equalsIgnoreCase("None")) {
                     if(plugin.hasJobPermission(pSender, job)) {
-                        if(plugin.getJobsConfiguration().getMaxJobs() == null || jPlayer.getJobs().size() < plugin.getJobsConfiguration().getMaxJobs()){
+                        if(plugin.getJobsConfiguration().getMaxJobs() <= 0 || jPlayer.getJobs().size() < plugin.getJobsConfiguration().getMaxJobs()){
                             plugin.getServer().getPluginManager().callEvent(new JobsJoinEvent(jPlayer, job));
                             return true;
                         }

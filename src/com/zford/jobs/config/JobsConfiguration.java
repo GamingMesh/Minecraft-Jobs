@@ -31,6 +31,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -52,20 +53,11 @@ import com.zford.jobs.dao.JobsDAOMySQL;
  *
  */
 public class JobsConfiguration {
+    private YamlConfiguration generalConfig;
 	// all of the possible titles
 	private TreeMap<Integer, Title> titles;
-	// how often to save the data in minutes
-	private int savePeriod;
 	// data access object being used.
 	private JobsDAO dao;
-	// do i broadcast skillups?
-    private boolean broadcastSkillups;
-    // do i broadcast level ups?
-    private boolean broadcastLevelups;
-	// maximum number of jobs a player can join
-	private Integer maxJobs;
-	// can get money near spawner.
-	private boolean payNearSpawner;
 	
 	private ArrayList<RestrictedArea> restrictedAreas;
 	
@@ -91,16 +83,67 @@ public class JobsConfiguration {
 	 */
 	private void loadGeneralSettings(){
         File f = new File("plugins/Jobs/generalConfig.yml");
-        YamlConfiguration conf;
+        
         if(!f.exists()) {
-            // disable plugin
-            System.err.println("[Jobs] - configuration file generalConfig.yml does not exist.  Disabling jobs !");
-            plugin.disablePlugin();
-            return;
+            try {
+                f.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        conf = new YamlConfiguration();
+        
+        generalConfig = new YamlConfiguration();
+        CommentedYamlConfiguration writer = new CommentedYamlConfiguration();
+        StringBuilder header = new StringBuilder();
+        header.append("General configuration.");
+        header.append(System.getProperty("line.separator"));
+        header.append("  The general configuration for the jobs plugin mostly includes how often the plugin");
+        header.append(System.getProperty("line.separator"));
+        header.append("saves user data (when the user is in the game), the storage method, whether");
+        header.append(System.getProperty("line.separator"));
+        header.append("to broadcast a message to the server when a user goes up a skill level.");
+        header.append(System.getProperty("line.separator"));
+        header.append("  It also allows admins to set the maximum number of jobs a player can have at");
+        header.append(System.getProperty("line.separator"));
+        header.append("any one time.");
+        header.append(System.getProperty("line.separator"));
+        
+        generalConfig.options().copyDefaults(true);
+        
+        writer.options().header(header.toString());
+
+        writer.addComment("storage-method", "storage method, can be MySQL, h2");
+        generalConfig.addDefault("storage-method", "h2");
+        
+        writer.addComment("mysql-username", "Requires Mysql.");
+        generalConfig.addDefault("mysql-username", "root");        
+        generalConfig.addDefault("mysql-password", "");
+        generalConfig.addDefault("mysql-url", "jdbc:mysql://localhost:3306/");
+        generalConfig.addDefault("mysql-table-prefix", "");
+        
+        writer.addComment("save-period", 
+                "How often in minutes you want it to save, 0 disables periodic saving and",
+                "the system will only save on logout"
+        );
+        generalConfig.addDefault("save-period", 10);
+        
+        writer.addComment("broadcast-on-skill-up", "Do all players get a message when somone goes up a skill level?");
+        generalConfig.addDefault("broadcast-on-skill-up", false);
+        
+        writer.addComment("broadcast-on-level-up", "Do all players get a message when somone goes up a level?");
+        generalConfig.addDefault("broadcast-on-level-up", false);
+        
+        writer.addComment("max-jobs",
+                "Maximum number of jobs a player can join.",
+                "Use 0 for no maximum"
+        );
+        generalConfig.addDefault("max-jobs", 3);
+        
+        writer.addComment("enable-pay-near-spawner", "option to allow payment to be made when near a spawner");
+        generalConfig.addDefault("enable-pay-near-spawner", false);
+        
         try {
-            conf.load(f);
+            generalConfig.load(f);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -108,59 +151,63 @@ public class JobsConfiguration {
         } catch (InvalidConfigurationException e) {
             e.printStackTrace();
         }
-        String storageMethod = conf.getString("storage-method", "");
+        
+        String storageMethod = generalConfig.getString("storage-method");
         if(storageMethod.equalsIgnoreCase("mysql")) {
-            String username = conf.getString("mysql-username");
+            String username = generalConfig.getString("mysql-username");
             if(username == null) {
-                System.err.println("[Jobs] - mysql-username property invalid or missing");
+                plugin.getLogger().severe("[Jobs] - mysql-username property invalid or missing");
                 plugin.disablePlugin();
-                return;
             }
-            String password = conf.getString("mysql-password", "");
-            String dbName = conf.getString("mysql-database");
+            String password = generalConfig.getString("mysql-password");
+            String dbName = generalConfig.getString("mysql-database");
             if(dbName == null) {
-                System.err.println("[Jobs] - mysql-database property invalid or missing");
+                plugin.getLogger().severe("[Jobs] - mysql-database property invalid or missing");
                 plugin.disablePlugin();
-                return;
             }
-            String url = conf.getString("mysql-url");
+            String url = generalConfig.getString("mysql-url");
             if(url == null) {
-                System.err.println("[Jobs] - mysql-url property invalid or missing");
+                plugin.getLogger().severe("[Jobs] - mysql-url property invalid or missing");
                 plugin.disablePlugin();
-                return;
             }
-            String prefix = conf.getString("mysql-table-prefix", "");
+            String prefix = generalConfig.getString("mysql-table-prefix");
             this.dao = new JobsDAOMySQL(plugin, url, dbName, username, password, prefix);
-        }
-        else if(storageMethod.equalsIgnoreCase("h2")) {
+        } else if(storageMethod.equalsIgnoreCase("h2")) {
             this.dao = new JobsDAOH2(plugin);
-        }
-        else {
-			// invalid selection
-			System.err.println("[Jobs] - Storage method invalid or missing");
-			plugin.disablePlugin();
+        } else {
+			plugin.getLogger().warning("[Jobs] - Invalid storage method!  Defaulting to H2!");
+            this.dao = new JobsDAOH2(plugin);
+            generalConfig.set("storage-method", "h2");
 		}
         
         // save-period
-        this.savePeriod = conf.getInt("save-period", -1);
-        if(this.savePeriod <= 0) {
-            System.out.println("[Jobs] - save-period property not found. Defaulting to 10!");
-            savePeriod = 10;
+        if(generalConfig.getInt("save-period") <= 0) {
+            plugin.getLogger().info("[Jobs] - Invalid save-period property! Defaulting to 10!");
+            generalConfig.set("save-period", 10);
         }
-			
-		// broadcasting
-        this.broadcastSkillups = conf.getBoolean("broadcast-on-skill-up", false);
-        this.broadcastLevelups = conf.getBoolean("broadcast-on-level-up", false);
-			
-		// enable pay near spawner
-        this.payNearSpawner = conf.getBoolean("enable-pay-near-spawner", false);
         
-        // max-jobs
-        this.maxJobs = conf.getInt("max-jobs", -1);
-        if(this.maxJobs == -1) {
-            System.out.println("[Jobs] - max-jobs property not found. Defaulting to unlimited!");
-            maxJobs = null;
+        // Make sure we're only copying settings we care about
+        copySetting(generalConfig, writer, "storage-method");
+        copySetting(generalConfig, writer, "mysql-username");
+        copySetting(generalConfig, writer, "mysql-password");
+        copySetting(generalConfig, writer, "mysql-url");
+        copySetting(generalConfig, writer, "mysql-table-prefix");
+        copySetting(generalConfig, writer, "save-period");
+        copySetting(generalConfig, writer, "broadcast-on-skill-up");
+        copySetting(generalConfig, writer, "broadcast-on-level-up");
+        copySetting(generalConfig, writer, "max-jobs");
+        copySetting(generalConfig, writer, "enable-pay-near-spawner");
+        
+        // Write back config
+        try {
+            writer.save(f);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+	}
+	
+	private void copySetting(Configuration reader, Configuration writer, String path) {
+	    writer.set(path, reader.get(path));
 	}
 	
 	/**
@@ -283,7 +330,7 @@ public class JobsConfiguration {
 	 * @return how often in minutes to save job information
 	 */
 	public int getSavePeriod(){
-		return savePeriod;
+		return generalConfig.getInt("save-period");
 	}
 
 	/**
@@ -300,7 +347,7 @@ public class JobsConfiguration {
 	 * @return false - do not broadcast on skill up
 	 */
 	public boolean isBroadcastingSkillups(){
-		return broadcastSkillups;
+		return generalConfig.getBoolean("broadcast-on-skill-up");
 	}
 	
 	/**
@@ -309,7 +356,7 @@ public class JobsConfiguration {
      * @return false - do not broadcast on level up
      */
     public boolean isBroadcastingLevelups(){
-        return broadcastLevelups;
+        return generalConfig.getBoolean("broadcast-on-level-up");
     }
 	
 	/**
@@ -340,8 +387,8 @@ public class JobsConfiguration {
 	 * Function to return the maximum number of jobs a player can join
 	 * @return
 	 */
-	public Integer getMaxJobs(){
-		return maxJobs;
+	public int getMaxJobs() {
+	    return generalConfig.getInt("max-jobs");
 	}
 	
 	/**
@@ -349,8 +396,8 @@ public class JobsConfiguration {
 	 * @return true - you get paid
 	 * @return false - you don't get paid
 	 */
-	public boolean payNearSpawner(){
-		return payNearSpawner;
+	public boolean payNearSpawner() {
+	    return generalConfig.getBoolean("enable-pay-near-spawner");
 	}
 	
    /**
