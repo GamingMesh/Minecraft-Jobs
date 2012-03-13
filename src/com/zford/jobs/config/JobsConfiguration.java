@@ -42,7 +42,6 @@ import com.zford.jobs.config.container.Title;
 import com.zford.jobs.dao.JobsDAO;
 import com.zford.jobs.dao.JobsDAOH2;
 import com.zford.jobs.dao.JobsDAOMySQL;
-import com.zford.jobs.util.DisplayMethod;
 
 /**
  * Configuration class.
@@ -53,8 +52,6 @@ import com.zford.jobs.util.DisplayMethod;
  *
  */
 public class JobsConfiguration {
-	// enum of the chat display method
-	private DisplayMethod dispMethod;
 	// all of the possible titles
 	private TreeMap<Integer, Title> titles;
 	// how often to save the data in minutes
@@ -280,14 +277,6 @@ public class JobsConfiguration {
             this.restrictedAreas.add(new RestrictedArea(point1, point2, multiplier));
         }
     }
-	
-	/**
-	 * Get the display method
-	 * @return the display method
-	 */
-	public DisplayMethod getDisplayMethod(){
-		return dispMethod;
-	}
 	
 	/**
 	 * Get how often in minutes to save job information
