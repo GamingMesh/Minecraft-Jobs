@@ -161,15 +161,7 @@ public class JobsConfiguration {
             }
             String password = generalConfig.getString("mysql-password");
             String dbName = generalConfig.getString("mysql-database");
-            if(dbName == null) {
-                plugin.getLogger().severe("[Jobs] - mysql-database property invalid or missing");
-                plugin.disablePlugin();
-            }
             String url = generalConfig.getString("mysql-url");
-            if(url == null) {
-                plugin.getLogger().severe("[Jobs] - mysql-url property invalid or missing");
-                plugin.disablePlugin();
-            }
             String prefix = generalConfig.getString("mysql-table-prefix");
             this.dao = new JobsDAOMySQL(plugin, url, dbName, username, password, prefix);
         } else if(storageMethod.equalsIgnoreCase("h2")) {
@@ -282,12 +274,77 @@ public class JobsConfiguration {
     private void loadRestrictedAreaSettings(){
         this.restrictedAreas = new ArrayList<RestrictedArea>();
         File f = new File("plugins/Jobs/restrictedAreas.yml");
-        YamlConfiguration conf;
-        if(!f.exists()) {
-            System.err.println("[Jobs] - configuration file restrictedAreas.yml does not exist");
-            return;
+        if (!f.exists()) {
+            try {
+                f.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        conf = new YamlConfiguration();
+        YamlConfiguration conf = new YamlConfiguration();
+        conf.options().indent(2);
+        conf.options().copyDefaults(true);
+        StringBuilder header = new StringBuilder();
+        
+        header.append("Restricted area configuration")
+            .append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("Configures restricted areas where you cannot get experience or money")
+            .append(System.getProperty("line.separator"))
+            .append("when performing a job.")
+            .append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("The multiplier changes the experience/money gains in an area.")
+            .append(System.getProperty("line.separator"))
+            .append("A multiplier of 0.0 means no money or xp, while 0.5 means you will get half the normal money/exp")
+            .append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("restrictedareas:")
+            .append(System.getProperty("line.separator"))
+            .append("  area1:")
+            .append(System.getProperty("line.separator"))
+            .append("    world: 'world'")
+            .append(System.getProperty("line.separator"))
+            .append("    multiplier: 0.0")
+            .append(System.getProperty("line.separator"))
+            .append("    point1:")
+            .append(System.getProperty("line.separator"))
+            .append("      x: 125")
+            .append(System.getProperty("line.separator"))
+            .append("      y: 0")
+            .append(System.getProperty("line.separator"))
+            .append("      z: 125")
+            .append(System.getProperty("line.separator"))
+            .append("    point2:")
+            .append(System.getProperty("line.separator"))
+            .append("      x: 150")
+            .append(System.getProperty("line.separator"))
+            .append("      y: 100")
+            .append(System.getProperty("line.separator"))
+            .append("      z: 150")
+            .append(System.getProperty("line.separator"))
+            .append("  area2:")
+            .append(System.getProperty("line.separator"))
+            .append("    world: 'world_nether'")
+            .append(System.getProperty("line.separator"))
+            .append("    multiplier: 0.0")
+            .append(System.getProperty("line.separator"))
+            .append("    point1:")
+            .append(System.getProperty("line.separator"))
+            .append("      x: -100")
+            .append(System.getProperty("line.separator"))
+            .append("      y: 0")
+            .append(System.getProperty("line.separator"))
+            .append("      z: -100")
+            .append(System.getProperty("line.separator"))
+            .append("    point2:")
+            .append(System.getProperty("line.separator"))
+            .append("      x: -150")
+            .append(System.getProperty("line.separator"))
+            .append("      y: 100")
+            .append(System.getProperty("line.separator"))
+            .append("      z: -150");
+        conf.options().header(header.toString());
         try {
             conf.load(f);
         } catch (FileNotFoundException e) {
@@ -297,31 +354,35 @@ public class JobsConfiguration {
         } catch (InvalidConfigurationException e) {
             e.printStackTrace();
         }
-        ConfigurationSection areaSection = conf.getConfigurationSection("restrictedareas");
         List<World> worlds = Bukkit.getServer().getWorlds();
-        if (areaSection == null)
-            return;
-        
-        for (String areaKey : areaSection.getKeys(false)) {
-            String worldName = conf.getString("restrictedareas."+areaKey+".world");
-            double multiplier = conf.getDouble("restrictedareas."+areaKey+".multiplier", 0.0);
-            World pointWorld = null;
-            for (World world : worlds) {
-                if (world.getName().equals(worldName)) {
-                    pointWorld = world;
-                    break;
+        ConfigurationSection areaSection = conf.getConfigurationSection("restrictedareas");
+        if (areaSection != null) {
+            for (String areaKey : areaSection.getKeys(false)) {
+                String worldName = conf.getString("restrictedareas."+areaKey+".world");
+                double multiplier = conf.getDouble("restrictedareas."+areaKey+".multiplier", 0.0);
+                World pointWorld = null;
+                for (World world : worlds) {
+                    if (world.getName().equals(worldName)) {
+                        pointWorld = world;
+                        break;
+                    }
                 }
+                Location point1 = new Location(pointWorld,
+                        conf.getDouble("restrictedareas."+areaKey+".point1.x", 0.0),
+                        conf.getDouble("restrictedareas."+areaKey+".point1.y", 0.0),
+                        conf.getDouble("restrictedareas."+areaKey+".point1.z", 0.0));
+    
+                Location point2 = new Location(pointWorld,
+                        conf.getDouble("restrictedareas."+areaKey+".point2.x", 0.0),
+                        conf.getDouble("restrictedareas."+areaKey+".point2.y", 0.0),
+                        conf.getDouble("restrictedareas."+areaKey+".point2.z", 0.0));
+                this.restrictedAreas.add(new RestrictedArea(point1, point2, multiplier));
             }
-            Location point1 = new Location(pointWorld,
-                    conf.getDouble("restrictedareas."+areaKey+".point1.x", 0.0),
-                    conf.getDouble("restrictedareas."+areaKey+".point1.y", 0.0),
-                    conf.getDouble("restrictedareas."+areaKey+".point1.z", 0.0));
-
-            Location point2 = new Location(pointWorld,
-                    conf.getDouble("restrictedareas."+areaKey+".point2.x", 0.0),
-                    conf.getDouble("restrictedareas."+areaKey+".point2.y", 0.0),
-                    conf.getDouble("restrictedareas."+areaKey+".point2.z", 0.0));
-            this.restrictedAreas.add(new RestrictedArea(point1, point2, multiplier));
+        }
+        try {
+            conf.save(f);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 	
