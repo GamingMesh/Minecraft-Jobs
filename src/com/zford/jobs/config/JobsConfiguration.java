@@ -73,8 +73,6 @@ public class JobsConfiguration {
     private boolean broadcastLevelups;
 	// maximum number of jobs a player can join
 	private Integer maxJobs;
-	// is stats enabled
-	private boolean statsEnabled;
 	// can get money near spawner.
 	private boolean payNearSpawner;
 	// default economy plugin
@@ -165,9 +163,6 @@ public class JobsConfiguration {
 		// broadcasting
         this.broadcastSkillups = conf.getBoolean("broadcast-on-skill-up", false);
         this.broadcastLevelups = conf.getBoolean("broadcast-on-level-up", false);
-        
-        // enable stats
-        this.statsEnabled = conf.getBoolean("enable-stats", false);
 			
 		// enable pay near spawner
         this.payNearSpawner = conf.getBoolean("enable-pay-near-spawner", false);
@@ -402,15 +397,6 @@ public class JobsConfiguration {
 	 */
 	public Integer getMaxJobs(){
 		return maxJobs;
-	}
-	
-	/**
-	 * Function to check if stats is enabled
-	 * @return true - stats is enabled
-	 * @return false - stats is disabled
-	 */
-	public boolean isStatsEnabled(){
-		return statsEnabled;
 	}
 	
 	/**
