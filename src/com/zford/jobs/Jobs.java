@@ -23,7 +23,10 @@ import java.util.HashMap;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.zford.jobs.config.JobConfig;
@@ -132,6 +135,9 @@ public class Jobs extends JavaPlugin{
 		for(Player online: getServer().getOnlinePlayers()){
 			addPlayer(online.getName());
 		}
+		
+		// register permissions
+		reRegisterPermissions();
 		
 		// all loaded properly.
 		getServer().getLogger().info("["+getDescription().getName()+"] has been enabled succesfully.");
@@ -257,8 +263,8 @@ public class Jobs extends JavaPlugin{
      * Check World permissions
      */
     public boolean hasWorldPermission(Player player, World world) {
-        if (player.hasPermission("jobs.world.*")) {
-            return true;
+        if (!player.hasPermission("jobs.use")) {
+            return false;
         } else {
             return player.hasPermission("jobs.world."+world.getName().toLowerCase());
         }
@@ -268,10 +274,22 @@ public class Jobs extends JavaPlugin{
      * Check Job joining permission
      */
     public boolean hasJobPermission(Player player, Job job) {
-        if (player.hasPermission("jobs.join.*")) {
-            return true;
+        if (!player.hasPermission("jobs.use")) {
+            return false;
         } else {
             return player.hasPermission("jobs.join."+job.getName().toLowerCase());
+        }
+    }
+    
+    public void reRegisterPermissions() {
+        PluginManager pm = getServer().getPluginManager();
+        for (World world : getServer().getWorlds()) {
+            pm.removePermission("jobs.world."+world.getName());
+            pm.addPermission(new Permission("jobs.world."+world.getName(), PermissionDefault.TRUE));
+        }
+        for (Job job : getJobConfig().getJobs()) {
+            pm.removePermission("jobs.join."+job.getName());
+            pm.addPermission(new Permission("jobs.join."+job.getName(), PermissionDefault.TRUE));
         }
     }
 }

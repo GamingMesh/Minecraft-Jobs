@@ -13,13 +13,9 @@ permissions:
     description: Grants access to all Jobs commands
     children:
       jobs.admin.*: true
-      jobs.join.*: true
-      jobs.world.*: true
-  jobs.join.*:
-    description: Grants player ability to join the job.
-    default: true
-  jobs.world.*:
-    description: Grants player to gain money and xp in world
+      jobs.use: true
+  jobs.use:
+    description: Grants ability to use this plugin
     default: true
   jobs.admin.*:
     description: Grants player access to all admin commands

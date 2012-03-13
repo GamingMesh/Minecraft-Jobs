@@ -179,7 +179,7 @@ public class JobsCommands implements CommandExecutor {
             }
             
             if(args.length == 1 && args[0].equalsIgnoreCase("reload")) {
-                if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.reload")) {
+                if(sender instanceof ConsoleCommandSender || sender instanceof Player && plugin.hasPermission((Player) sender, "jobs.admin.reload")) {
                     try {
                         if(plugin.isEnabled()) {
                             for(Player player : plugin.getServer().getOnlinePlayers()) {
@@ -191,9 +191,8 @@ public class JobsCommands implements CommandExecutor {
                             for(Player player : plugin.getServer().getOnlinePlayers()) {
                                 plugin.addPlayer(player.getName());
                             }
-                            if(sender instanceof Player) {
-                                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
-                            }
+                            plugin.reRegisterPermissions();
+                            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
                         }
                     } catch (Exception e) {
                         sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
