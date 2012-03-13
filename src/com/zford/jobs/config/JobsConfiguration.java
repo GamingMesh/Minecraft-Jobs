@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
-import java.util.TreeMap;
 import java.util.ArrayList;
 
 
@@ -55,11 +54,11 @@ import com.zford.jobs.dao.JobsDAOMySQL;
 public class JobsConfiguration {
     private YamlConfiguration generalConfig;
 	// all of the possible titles
-	private TreeMap<Integer, Title> titles;
+	private List<Title> titles = new ArrayList<Title>();
 	// data access object being used.
 	private JobsDAO dao;
 	
-	private ArrayList<RestrictedArea> restrictedAreas;
+	private ArrayList<RestrictedArea> restrictedAreas = new ArrayList<RestrictedArea>();
 	
 	private Jobs plugin;
 	
@@ -208,15 +207,58 @@ public class JobsConfiguration {
 	 * loads from Jobs/titleConfig.yml
 	 */
 	private void loadTitleSettings(){
+	    this.titles.clear();
 	    File f = new File(plugin.getDataFolder(), "titleConfig.yml");
-        YamlConfiguration conf;
         if(!f.exists()) {
-            // no titles detected
-            this.titles = null;
-            System.err.println("[Jobs] - configuration file titleConfig.yml does not exist, disabling titles");
-            return;
+            try {
+                f.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        conf = new YamlConfiguration();
+        YamlConfiguration conf = new YamlConfiguration();
+        StringBuilder header = new StringBuilder()
+            .append("Title configuration")
+            .append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("Stores the titles people gain at certain levels.")
+            .append(System.getProperty("line.separator"))
+            .append("Each title requres to have a name, short name (used when the player has more than")
+            .append(System.getProperty("line.separator"))
+            .append("1 job) the colour of the title and the level requrirement to attain the title.")
+            .append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("It is recommended but not required to have a title at level 0.")
+            .append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("Titles are completely optional.")
+            .append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("Titles:").append(System.getProperty("line.separator"))
+            .append("  Apprentice:").append(System.getProperty("line.separator"))
+            .append("    Name: Apprentice").append(System.getProperty("line.separator"))
+            .append("    ShortName: A").append(System.getProperty("line.separator"))
+            .append("    ChatColour: WHITE").append(System.getProperty("line.separator"))
+            .append("    levelReq: 0").append(System.getProperty("line.separator"))
+            .append("  Novice:").append(System.getProperty("line.separator"))
+            .append("    Name: Novice").append(System.getProperty("line.separator"))
+            .append("    ShortName: N").append(System.getProperty("line.separator"))
+            .append("    ChatColour: GRAY").append(System.getProperty("line.separator"))
+            .append("    levelReq: 30").append(System.getProperty("line.separator"))
+            .append("  Journeyman:").append(System.getProperty("line.separator"))
+            .append("    Name: Journeyman").append(System.getProperty("line.separator"))
+            .append("    ShortName: J").append(System.getProperty("line.separator"))
+            .append("    ChatColour: GOLD").append(System.getProperty("line.separator"))
+            .append("    levelReq: 60").append(System.getProperty("line.separator"))
+            .append("  Master:").append(System.getProperty("line.separator"))
+            .append("    Name: Master").append(System.getProperty("line.separator"))
+            .append("    ShortName: M").append(System.getProperty("line.separator"))
+            .append("    ChatColour: BLACK").append(System.getProperty("line.separator"))
+            .append("    levelReq: 90").append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"));
+        conf.options().header(header.toString());
+        conf.options().copyDefaults(true);
+        conf.options().indent(2);
         try {
             conf.load(f);
         } catch (FileNotFoundException e) {
@@ -227,41 +269,44 @@ public class JobsConfiguration {
             e.printStackTrace();
         }
         ConfigurationSection titleSection = conf.getConfigurationSection("Titles");
-        if(titleSection == null) {
-            // no titles found
-            System.err.println("[Jobs] - No titles found. Disabling titles");
-            titles = null;
-            return;
+        if (titleSection == null) {
+            titleSection = conf.createSection("Titles");
         }
-        this.titles = new TreeMap<Integer, Title>();
-        for(String titleKey : titleSection.getKeys(false)) {
+        for (String titleKey : titleSection.getKeys(false)) {
             String titleName = conf.getString("Titles."+titleKey+".Name");
             String titleShortName = conf.getString("Titles."+titleKey+".ShortName");
-            ChatColor colour = ChatColor.valueOf(conf.getString("Titles."+titleKey+".ChatColour", "").toUpperCase());
+            ChatColor colour = null;
+            try {
+                colour = ChatColor.valueOf(conf.getString("Titles."+titleKey+".ChatColour", "").toUpperCase());
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().severe("[Jobs] - Title " + titleKey + "has an invalid ChatColour property. Skipping!");
+                continue;
+            }
             int levelReq = conf.getInt("Titles."+titleKey+".levelReq", -1);
             
-            if(titleName == null) {
-                System.err.println("[Jobs] - Title " + titleKey + " has an invalid Name property. Disabling jobs !");
-                plugin.disablePlugin();
-                return;
+            if (titleName == null) {
+                plugin.getLogger().severe("[Jobs] - Title " + titleKey + " has an invalid Name property. Skipping!");
+                continue;
             }
-            if(titleShortName == null) {
-                System.err.println("[Jobs] - Title " + titleKey + " has an invalid ShortName property. Disabling jobs !");
-                plugin.disablePlugin();
-                return;
+            if (titleShortName == null) {
+                plugin.getLogger().severe("[Jobs] - Title " + titleKey + " has an invalid ShortName property. Skipping!");
+                continue;
             }
-            if(colour == null) {
-                System.err.println("[Jobs] - Title " + titleKey + " has an invalid ChatColour property. Disabling jobs !");
-                plugin.disablePlugin();
-                return;
+            if (colour == null) {
+                plugin.getLogger().severe("[Jobs] - Title " + titleKey + " has an invalid ChatColour property. Skipping!");
+                continue;
             }
-            if(levelReq == -1) {
-                System.err.println("[Jobs] - Title " + titleKey + " has an invalid levelReq property. Disabling jobs !");
-                plugin.disablePlugin();
-                return;
+            if (levelReq <= -1) {
+                plugin.getLogger().severe("[Jobs] - Title " + titleKey + " has an invalid levelReq property. Skipping!");
+                continue;
             }
             
-            this.titles.put(levelReq, new Title(titleName, titleShortName, colour, levelReq));
+            this.titles.add(new Title(titleName, titleShortName, colour, levelReq));
+        }
+        try {
+            conf.save(f);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 	}
 	
@@ -272,7 +317,7 @@ public class JobsConfiguration {
      * loads from Jobs/restrictedAreas.yml
      */
     private void loadRestrictedAreaSettings(){
-        this.restrictedAreas = new ArrayList<RestrictedArea>();
+        this.restrictedAreas.clear();
         File f = new File(plugin.getDataFolder(), "restrictedAreas.yml");
         if (!f.exists()) {
             try {
@@ -425,19 +470,16 @@ public class JobsConfiguration {
 	 * @return the correct title
 	 * @return null if no title matches
 	 */
-	public Title getTitleForLevel(int level){
+	public Title getTitleForLevel(int level) {
 		Title title = null;
-		if(titles != null){
-			for(Title temp: titles.values()){
-				if(title == null){
-					if(temp.getLevelReq() <= level){
-						title = temp;
-					}
+		for (Title t: titles) {
+			if (title == null) {
+				if (t.getLevelReq() <= level) {
+					title = t;
 				}
-				else {
-					if(temp.getLevelReq() <= level && temp.getLevelReq() > title.getLevelReq()){
-						title = temp;
-					}
+			} else {
+				if (t.getLevelReq() <= level && t.getLevelReq() > title.getLevelReq()) {
+					title = t;
 				}
 			}
 		}
