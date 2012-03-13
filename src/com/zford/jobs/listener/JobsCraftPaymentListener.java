@@ -63,14 +63,14 @@ public class JobsCraftPaymentListener implements Listener{
         if (player == null)
             return;
         
+        if (!plugin.hasWorldPermission(player, player.getWorld()))
+            return;
+        
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         
         Recipe recipe = event.getRecipe();
         
         ItemStack stack = recipe.getResult();
-        
-        if (!plugin.hasWorldPermission(player, player.getWorld()))
-            return;
 		plugin.getJobsPlayer(player.getName()).crafted(stack, multiplier);
 	}
 }
