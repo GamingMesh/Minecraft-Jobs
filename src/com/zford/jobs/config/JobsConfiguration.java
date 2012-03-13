@@ -75,8 +75,6 @@ public class JobsConfiguration {
 	private Integer maxJobs;
 	// can get money near spawner.
 	private boolean payNearSpawner;
-	// default economy plugin
-	private String defaultEconomy = null;
 	
 	private ArrayList<RestrictedArea> restrictedAreas;
 	
@@ -173,9 +171,6 @@ public class JobsConfiguration {
             System.out.println("[Jobs] - max-jobs property not found. Defaulting to unlimited!");
             maxJobs = null;
         }
-
-		// default economy plugin to use
-        this.defaultEconomy = conf.getString("economy");
 	}
 	
 	/**
@@ -307,14 +302,6 @@ public class JobsConfiguration {
 	 */
 	public int getSavePeriod(){
 		return savePeriod;
-	}
-	
-	/**
-	* Get which economy plugin should we use
-	* @return which economy plugin should we use
-	*/
-	public String getDefaultEconomy(){
-		return defaultEconomy;
 	}
 
 	/**
