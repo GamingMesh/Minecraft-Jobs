@@ -71,7 +71,7 @@ public class JobConfig {
 	 * loads from Jobs/jobConfig.yml
 	 */
 	private void loadJobSettings(){
-	    File f = new File("plugins/Jobs/jobConfig.yml");
+	    File f = new File(plugin.getDataFolder(), "jobConfig.yml");
         YamlConfiguration conf;
         this.jobs = new HashMap<String, Job>();
         if(!f.exists()) {

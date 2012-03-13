@@ -82,7 +82,7 @@ public class JobsConfiguration {
 	 * loads from Jobs/generalConfig.yml
 	 */
 	private void loadGeneralSettings(){
-        File f = new File("plugins/Jobs/generalConfig.yml");
+        File f = new File(plugin.getDataFolder(), "generalConfig.yml");
         
         if(!f.exists()) {
             try {
@@ -208,7 +208,7 @@ public class JobsConfiguration {
 	 * loads from Jobs/titleConfig.yml
 	 */
 	private void loadTitleSettings(){
-	    File f = new File("plugins/Jobs/titleConfig.yml");
+	    File f = new File(plugin.getDataFolder(), "titleConfig.yml");
         YamlConfiguration conf;
         if(!f.exists()) {
             // no titles detected
@@ -273,7 +273,7 @@ public class JobsConfiguration {
      */
     private void loadRestrictedAreaSettings(){
         this.restrictedAreas = new ArrayList<RestrictedArea>();
-        File f = new File("plugins/Jobs/restrictedAreas.yml");
+        File f = new File(plugin.getDataFolder(), "restrictedAreas.yml");
         if (!f.exists()) {
             try {
                 f.createNewFile();
