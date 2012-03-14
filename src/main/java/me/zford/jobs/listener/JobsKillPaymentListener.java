@@ -31,7 +31,7 @@ import org.bukkit.GameMode;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Wolf;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -87,8 +87,11 @@ public class JobsKillPaymentListener implements Listener {
                 pDamager = (Player)e.getDamager();
             } else if(e.getDamager() instanceof Projectile && ((Projectile)e.getDamager()).getShooter() instanceof Player) {
                 pDamager = (Player)((Projectile)e.getDamager()).getShooter();
-            } else if(e.getDamager() instanceof Wolf && ((Wolf)e.getDamager()).isTamed() == true && ((Wolf)e.getDamager()).getOwner() instanceof Player) {
-                pDamager = (Player)((Wolf)e.getDamager()).getOwner();
+            } else if(e.getDamager() instanceof Tameable) {
+                Tameable t = (Tameable) e.getDamager();
+                if (t.isTamed() && t.getOwner() instanceof Player) {
+                    pDamager = (Player) t.getOwner();
+                }
             }
             if(pDamager != null) {
                 // check if in creative
