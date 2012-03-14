@@ -22,6 +22,8 @@ package com.zford.jobs.config;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -42,6 +44,8 @@ import com.zford.jobs.config.container.Title;
 import com.zford.jobs.dao.JobsDAO;
 import com.zford.jobs.dao.JobsDAOH2;
 import com.zford.jobs.dao.JobsDAOMySQL;
+import com.zford.jobs.util.ClassPathHack;
+import com.zford.jobs.util.FileDownloader;
 
 /**
  * Configuration class.
@@ -162,13 +166,34 @@ public class JobsConfiguration {
             String dbName = generalConfig.getString("mysql-database");
             String url = generalConfig.getString("mysql-url");
             String prefix = generalConfig.getString("mysql-table-prefix");
-            this.dao = new JobsDAOMySQL(plugin, url, dbName, username, password, prefix);
+            if (plugin.isEnabled())
+                this.dao = new JobsDAOMySQL(plugin, url, dbName, username, password, prefix);
         } else if(storageMethod.equalsIgnoreCase("h2")) {
-            this.dao = new JobsDAOH2(plugin);
+            File h2jar = new File(plugin.getDataFolder(), "h2.jar");
+            if (!h2jar.exists()) {
+                plugin.getLogger().info("[Jobs] H2 library not found, downloading...");
+                try {
+                    FileDownloader.downloadFile(new URL("http://repo2.maven.org/maven2/com/h2database/h2/1.3.164/h2-1.3.164.jar"), h2jar);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    plugin.getLogger().severe("[Jobs] Could not download database library.  Disabling jobs!");
+                    plugin.disablePlugin();
+                }
+            }
+            if (plugin.isEnabled()) {
+                try {
+                    ClassPathHack.addFile(h2jar);
+                } catch (IOException e) {
+                    plugin.getLogger().severe("[Jobs] Could not load database library.  Disabling jobs!");
+                    plugin.disablePlugin();
+                }
+                if (plugin.isEnabled())
+                    this.dao = new JobsDAOH2(plugin);
+            }
         } else {
-			plugin.getLogger().warning("[Jobs] - Invalid storage method!  Defaulting to H2!");
-            this.dao = new JobsDAOH2(plugin);
-            generalConfig.set("storage-method", "h2");
+			plugin.getLogger().severe("[Jobs] - Invalid storage method!  Disabling jobs!");
+            plugin.disablePlugin();
 		}
         
         // save-period
