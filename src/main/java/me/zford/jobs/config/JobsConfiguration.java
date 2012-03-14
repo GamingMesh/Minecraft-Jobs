@@ -143,7 +143,7 @@ public class JobsConfiguration {
         );
         generalConfig.addDefault("max-jobs", 3);
         
-        writer.addComment("enable-pay-near-spawner", "option to allow payment to be made when near a spawner");
+        writer.addComment("enable-pay-near-spawner", "option to allow payment to be made when killing mobs from a spawner");
         generalConfig.addDefault("enable-pay-near-spawner", false);
         
         try {
