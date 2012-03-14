@@ -20,9 +20,11 @@
 package com.zford.jobs.config;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import com.zford.jobs.Jobs;
@@ -126,18 +128,7 @@ public class MessageConfig {
      * Constructor
      */
     public MessageConfig(Jobs plugin) {
-        File dir = plugin.getDataFolder();
-        if(!dir.exists())
-            dir.mkdirs();
-        file = new File(dir, "messageConfig.yml");
-        if(!file.exists()) {
-            try {
-                file.createNewFile();
-            } catch (IOException e) {
-                System.err.println("[Jobs] - Could not create new config file messageConfig.yml");
-                e.printStackTrace();
-            }
-        }
+        file = new File(plugin.getDataFolder(), "messageConfig.yml");
         config = new YamlConfiguration();
     }
     
@@ -145,43 +136,57 @@ public class MessageConfig {
      * Reloads the config
      */
     public void reload() {
+        if(!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
         try {
             config.load(file);
-        } catch (Exception e) {
-            System.err.println("[Jobs] - Could not load config file messageConfig.yml!");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidConfigurationException e) {
+            e.printStackTrace();
         }
         config.options().header(new StringBuilder()
-            .append("Configuration file for the messages\n")
-            .append("\n")
-            .append("Replace the messages if you want.\n")
-            .append("\n")
-            .append("ChatColor.<Color> will make any words following (including spaces that colour).\n")
-            .append("\n")
-            .append("Supported colors:\n")
-            .append("   AQUA\n")
-            .append("   BLACK\n")
-            .append("   BLUE\n")
-            .append("   DARK_AQUA\n")
-            .append("   DARK_BLUE\n")
-            .append("   DARK_GRAY\n")
-            .append("   DARK_GREEN\n")
-            .append("   DARK_PURPLE\n")
-            .append("   DARK_RED\n")
-            .append("   GOLD\n")
-            .append("   GRAY\n")
-            .append("   GREEN\n")
-            .append("   LIGHT_PURPLE\n")
-            .append("   RED\n")
-            .append("   WHITE\n")
-            .append("   YELLOW\n")
-            .append("\n")
-            .append("Each message has slightly different parameters. The parameters available\n")
-            .append("are the ones that are already in the message (and none others)\n")
-            .append("\n")
-            .append("NOTE:\n")
-            .append("  Any character other than normal characters will not get read and will crash the \n")
-            .append("configuration.\n")
-            .append("\n")
+            .append("Configuration file for the messages").append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("Replace the messages if you want.").append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("ChatColor.<Color> will make any words following (including spaces that colour).")
+            .append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("Supported colors:").append(System.getProperty("line.separator"))
+            .append("   AQUA").append(System.getProperty("line.separator"))
+            .append("   BLACK").append(System.getProperty("line.separator"))
+            .append("   BLUE").append(System.getProperty("line.separator"))
+            .append("   DARK_AQUA").append(System.getProperty("line.separator"))
+            .append("   DARK_BLUE").append(System.getProperty("line.separator"))
+            .append("   DARK_GRAY").append(System.getProperty("line.separator"))
+            .append("   DARK_GREEN").append(System.getProperty("line.separator"))
+            .append("   DARK_PURPLE").append(System.getProperty("line.separator"))
+            .append("   DARK_RED").append(System.getProperty("line.separator"))
+            .append("   GOLD").append(System.getProperty("line.separator"))
+            .append("   GRAY").append(System.getProperty("line.separator"))
+            .append("   GREEN").append(System.getProperty("line.separator"))
+            .append("   LIGHT_PURPLE").append(System.getProperty("line.separator"))
+            .append("   RED").append(System.getProperty("line.separator"))
+            .append("   WHITE").append(System.getProperty("line.separator"))
+            .append("   YELLOW").append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("Each message has slightly different parameters. The parameters available")
+            .append(System.getProperty("line.separator"))
+            .append("are the ones that are already in the message (and none others)")
+            .append(System.getProperty("line.separator")).append(System.getProperty("line.separator"))
+            .append("NOTE:").append(System.getProperty("line.separator"))
+            .append("  Any character other than normal characters will not get read and will crash the ")
+            .append(System.getProperty("line.separator"))
+            .append("configuration.").append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
             .toString());
         
         for(JobsMessageEnum message : JobsMessageEnum.values()) {
@@ -194,7 +199,7 @@ public class MessageConfig {
         try {
             config.save(file);
         } catch (IOException e) {
-            System.err.println("[Jobs] - Could not save config file messageConfig.yml!");
+            e.printStackTrace();
         }
     }
     
