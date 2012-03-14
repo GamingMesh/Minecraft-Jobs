@@ -23,6 +23,7 @@ import java.util.List;
 
 import me.zford.jobs.Jobs;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -62,6 +63,10 @@ public class JobsCraftPaymentListener implements Listener{
         }
         
         if (player == null)
+            return;
+        
+        // check if in creative
+        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
             return;
         
         if (!plugin.hasWorldPermission(player, player.getWorld()))

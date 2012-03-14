@@ -146,6 +146,9 @@ public class JobsConfiguration {
         writer.addComment("enable-pay-near-spawner", "option to allow payment to be made when killing mobs from a spawner");
         generalConfig.addDefault("enable-pay-near-spawner", false);
         
+        writer.addComment("enable-pay-creative", "option to allow payment to be made in creative mode");
+        generalConfig.addDefault("enable-pay-creative", false);
+        
         try {
             generalConfig.load(f);
         } catch (FileNotFoundException e) {
@@ -214,6 +217,7 @@ public class JobsConfiguration {
         copySetting(generalConfig, writer, "broadcast-on-level-up");
         copySetting(generalConfig, writer, "max-jobs");
         copySetting(generalConfig, writer, "enable-pay-near-spawner");
+        copySetting(generalConfig, writer, "enable-pay-creative");
         
         // Write back config
         try {
@@ -481,14 +485,23 @@ public class JobsConfiguration {
 	public boolean isBroadcastingSkillups(){
 		return generalConfig.getBoolean("broadcast-on-skill-up");
 	}
-	
-	/**
+    
+    /**
      * Function that tells if the system is set to broadcast on level up
      * @return true - broadcast on level up
      * @return false - do not broadcast on level up
      */
     public boolean isBroadcastingLevelups(){
         return generalConfig.getBoolean("broadcast-on-level-up");
+    }
+    
+    /**
+     * Function that tells if the player should be paid while in creative
+     * @return true - pay in creative
+     * @return false - do not pay in creative
+     */
+    public boolean payInCreative() {
+        return generalConfig.getBoolean("enable-pay-creative");
     }
 	
 	/**

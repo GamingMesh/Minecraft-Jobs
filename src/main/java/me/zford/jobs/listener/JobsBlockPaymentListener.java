@@ -21,6 +21,7 @@ package me.zford.jobs.listener;
 
 import me.zford.jobs.Jobs;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -43,10 +44,14 @@ public class JobsBlockPaymentListener implements Listener {
         // make sure event is not canceled
         if(event.isCancelled()) return;
         
+        Player player = event.getPlayer();
+        
+        // check if in creative
+        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+            return;
+        
         // restricted area multiplier
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
-        
-        Player player = event.getPlayer();
         
 		if(plugin.hasWorldPermission(player, player.getWorld())) {
 			plugin.getJobsPlayer(player.getName()).broke(event.getBlock(), multiplier);			
@@ -61,12 +66,16 @@ public class JobsBlockPaymentListener implements Listener {
         if(event.isCancelled()) return;
         
         // check to make sure you can build
-        if(!event.canBuild());
+        if(!event.canBuild()) return;
+        
+        Player player = event.getPlayer();
+        
+        // check if in creative
+        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+            return;
         
         // restricted area multiplier
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
-        
-        Player player = event.getPlayer();
         
         if(plugin.hasWorldPermission(player, player.getWorld())) {
 			plugin.getJobsPlayer(player.getName()).placed(event.getBlock(), multiplier);

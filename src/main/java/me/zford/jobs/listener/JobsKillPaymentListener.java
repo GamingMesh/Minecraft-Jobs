@@ -27,6 +27,7 @@ import me.zford.jobs.Jobs;
 import me.zford.jobs.config.container.Job;
 import me.zford.jobs.config.container.JobsPlayer;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -90,6 +91,9 @@ public class JobsKillPaymentListener implements Listener {
                 pDamager = (Player)((Wolf)e.getDamager()).getOwner();
             }
             if(pDamager != null) {
+                // check if in creative
+                if (pDamager.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+                    return;
                 // restricted area multiplier
                 double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(pDamager);
                 // pay

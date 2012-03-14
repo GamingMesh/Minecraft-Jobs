@@ -21,6 +21,7 @@ package me.zford.jobs.listener;
 
 import me.zford.jobs.Jobs;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -45,10 +46,15 @@ public class JobsFishPaymentListener implements Listener {
 
     @EventHandler(priority=EventPriority.MONITOR)
     public void onPlayerFish(PlayerFishEvent event) {
+        if (event.isCancelled()) return;
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
         
         Player player = event.getPlayer();
+        
+        // check if in creative
+        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+            return;
         
         if (!plugin.hasWorldPermission(player, player.getWorld())) return;
         
