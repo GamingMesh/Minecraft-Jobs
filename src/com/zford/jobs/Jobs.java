@@ -284,12 +284,12 @@ public class Jobs extends JavaPlugin{
     public void reRegisterPermissions() {
         PluginManager pm = getServer().getPluginManager();
         for (World world : getServer().getWorlds()) {
-            pm.removePermission("jobs.world."+world.getName());
-            pm.addPermission(new Permission("jobs.world."+world.getName(), PermissionDefault.TRUE));
+            if (pm.getPermission("jobs.world."+world.getName().toLowerCase()) == null)
+                pm.addPermission(new Permission("jobs.world."+world.getName().toLowerCase(), PermissionDefault.TRUE));
         }
         for (Job job : getJobConfig().getJobs()) {
-            pm.removePermission("jobs.join."+job.getName());
-            pm.addPermission(new Permission("jobs.join."+job.getName(), PermissionDefault.TRUE));
+            if (pm.getPermission("jobs.join."+job.getName().toLowerCase()) == null)
+                pm.addPermission(new Permission("jobs.join."+job.getName().toLowerCase(), PermissionDefault.TRUE));
         }
     }
 }
