@@ -153,7 +153,7 @@ public class MessageConfig {
         } catch (InvalidConfigurationException e) {
             e.printStackTrace();
         }
-        config.options().header(new StringBuilder()
+        StringBuilder header = new StringBuilder()
             .append("Configuration file for the messages").append(System.getProperty("line.separator"))
             .append(System.getProperty("line.separator"))
             .append("Replace the messages if you want.").append(System.getProperty("line.separator"))
@@ -161,24 +161,11 @@ public class MessageConfig {
             .append("ChatColor.<Color> will make any words following (including spaces that colour).")
             .append(System.getProperty("line.separator"))
             .append(System.getProperty("line.separator"))
-            .append("Supported colors:").append(System.getProperty("line.separator"))
-            .append("   AQUA").append(System.getProperty("line.separator"))
-            .append("   BLACK").append(System.getProperty("line.separator"))
-            .append("   BLUE").append(System.getProperty("line.separator"))
-            .append("   DARK_AQUA").append(System.getProperty("line.separator"))
-            .append("   DARK_BLUE").append(System.getProperty("line.separator"))
-            .append("   DARK_GRAY").append(System.getProperty("line.separator"))
-            .append("   DARK_GREEN").append(System.getProperty("line.separator"))
-            .append("   DARK_PURPLE").append(System.getProperty("line.separator"))
-            .append("   DARK_RED").append(System.getProperty("line.separator"))
-            .append("   GOLD").append(System.getProperty("line.separator"))
-            .append("   GRAY").append(System.getProperty("line.separator"))
-            .append("   GREEN").append(System.getProperty("line.separator"))
-            .append("   LIGHT_PURPLE").append(System.getProperty("line.separator"))
-            .append("   RED").append(System.getProperty("line.separator"))
-            .append("   WHITE").append(System.getProperty("line.separator"))
-            .append("   YELLOW").append(System.getProperty("line.separator"))
-            .append(System.getProperty("line.separator"))
+            .append("Supported colors:").append(System.getProperty("line.separator"));
+        for (ChatColor color : ChatColor.values()) {
+            header.append("   "+color.name().toUpperCase()).append(System.getProperty("line.separator"));
+        }
+        header.append(System.getProperty("line.separator"))
             .append("Each message has slightly different parameters. The parameters available")
             .append(System.getProperty("line.separator"))
             .append("are the ones that are already in the message (and none others)")
@@ -187,8 +174,9 @@ public class MessageConfig {
             .append("  Any character other than normal characters will not get read and will crash the ")
             .append(System.getProperty("line.separator"))
             .append("configuration.").append(System.getProperty("line.separator"))
-            .append(System.getProperty("line.separator"))
-            .toString());
+            .append(System.getProperty("line.separator"));
+        
+        config.options().header(header.toString());
         
         for(JobsMessageEnum message : JobsMessageEnum.values()) {
             String key = message.toConfigName();
@@ -210,24 +198,12 @@ public class MessageConfig {
      * @return string with replaced colors
      */
     private String parseColors(String value) {
-        if(value == null)
+        if (value == null)
             return null;
-        return value.replace("ChatColor.AQUA", ChatColor.AQUA.toString())
-            .replace("ChatColor.BLACK", ChatColor.BLACK.toString())
-            .replace("ChatColor.BLUE", ChatColor.BLUE.toString())
-            .replace("ChatColor.DARK_AQUA", ChatColor.DARK_AQUA.toString())
-            .replace("ChatColor.DARK_BLUE", ChatColor.DARK_BLUE.toString())
-            .replace("ChatColor.DARK_GRAY", ChatColor.DARK_GRAY.toString())
-            .replace("ChatColor.DARK_GREEN", ChatColor.DARK_GREEN.toString())
-            .replace("ChatColor.DARK_PURPLE", ChatColor.DARK_PURPLE.toString())
-            .replace("ChatColor.DARK_RED", ChatColor.DARK_RED.toString())
-            .replace("ChatColor.GOLD", ChatColor.GOLD.toString())
-            .replace("ChatColor.GRAY", ChatColor.GRAY.toString())
-            .replace("ChatColor.GREEN", ChatColor.GREEN.toString())
-            .replace("ChatColor.LIGHT_PURPLE", ChatColor.LIGHT_PURPLE.toString())
-            .replace("ChatColor.RED", ChatColor.RED.toString())
-            .replace("ChatColor.WHITE", ChatColor.WHITE.toString())
-            .replace("ChatColor.YELLOW", ChatColor.YELLOW.toString());
+        for (ChatColor color : ChatColor.values()) {
+            value = value.replace("ChatColor."+color.name().toUpperCase(), color.toString());
+        }
+        return value;
     }
     
     /**
