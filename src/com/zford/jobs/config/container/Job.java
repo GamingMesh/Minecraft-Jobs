@@ -29,7 +29,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 import org.mbertoli.jfep.Parser;
 
-import com.zford.jobs.util.DisplayMethod;
 
 /**
  * Job Class that will hold the information about a job.

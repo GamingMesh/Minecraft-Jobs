@@ -37,7 +37,6 @@ import com.zford.jobs.dao.JobsDAO;
 import com.zford.jobs.dao.container.JobsDAOData;
 import com.zford.jobs.event.JobsLevelUpEvent;
 import com.zford.jobs.event.JobsSkillUpEvent;
-import com.zford.jobs.util.DisplayMethod;
 
 public class JobsPlayer {
     // jobs plugin

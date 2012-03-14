@@ -34,10 +34,10 @@ import org.bukkit.material.MaterialData;
 import org.mbertoli.jfep.Parser;
 
 import com.zford.jobs.Jobs;
+import com.zford.jobs.config.container.DisplayMethod;
 import com.zford.jobs.config.container.Job;
 import com.zford.jobs.config.container.JobsMaterialInfo;
 import com.zford.jobs.config.container.JobsLivingEntityInfo;
-import com.zford.jobs.util.DisplayMethod;
 
 /**
  * Configuration class.
