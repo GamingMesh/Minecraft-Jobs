@@ -3,7 +3,7 @@
 ## 2.7.1
 * Removed empty sections on /jobs info
 * Fixed broken MySQL
-** You WILL need to update your "mysql-url" configuration
+* You WILL need to update your "mysql-url" configuration
 
 ## 2.7.0
 * Vault now required for Economy support
