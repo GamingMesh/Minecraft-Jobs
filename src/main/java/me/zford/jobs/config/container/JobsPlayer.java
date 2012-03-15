@@ -416,7 +416,10 @@ public class JobsPlayer {
 	 * @param job - the job joined
 	 */
 	public void joinJob(Job job) {
-		progression.put(job, new JobProgression(plugin, job, 0.0, 1, this));
+	    if (!progression.containsKey(job)) {
+	        progression.put(job, new JobProgression(plugin, job, 0.0, 1, this));
+	        dao.joinJob(this, job);
+	    }
 	}
 	
 	/**
@@ -424,7 +427,10 @@ public class JobsPlayer {
 	 * @param job - the job left
 	 */
 	public void leaveJob(Job job) {
-		progression.remove(job);
+		JobProgression prog = progression.remove(job);
+		if (prog != null) {
+		    dao.quitJob(this, job);
+		}
 	}
 	
 	/**
@@ -432,9 +438,22 @@ public class JobsPlayer {
 	 * @param job - the job left
 	 */
 	public void transferJob(Job oldjob, Job newjob) {
-		JobProgression prog = progression.remove(oldjob);
-		prog.setJob(newjob);
-		progression.put(newjob, prog);
+	    if (!progression.containsKey(newjob)) {
+    		JobProgression prog = progression.remove(oldjob);
+    		if (prog != null) {
+    		    prog.setJob(newjob);
+    		    progression.put(newjob, prog);
+    		    dao.quitJob(this, oldjob);
+    		    dao.joinJob(this, newjob);
+                if (newjob.getMaxLevel() != null && prog.getLevel() > newjob.getMaxLevel()) {
+                    prog.setLevel(newjob.getMaxLevel());
+                }
+                reloadMaxExperience();
+                reloadHonorific();
+                checkLevels();
+    		    save();
+	        }
+	    }
 	}
 	
 	/**

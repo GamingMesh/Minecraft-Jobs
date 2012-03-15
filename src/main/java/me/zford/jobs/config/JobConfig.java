@@ -50,9 +50,9 @@ import org.bukkit.material.MaterialData;
  */
 public class JobConfig {
 	// all of the possible jobs
-	private HashMap<String, Job> jobs;
+	private HashMap<String, Job> jobs = new HashMap<String, Job>();
 	// used slots for each job
-	private HashMap<Job, Integer> usedSlots;
+	private HashMap<Job, Integer> usedSlots = new HashMap<Job, Integer>();
 	
 	private Jobs plugin;
 	public JobConfig(Jobs plugin) {
@@ -74,7 +74,7 @@ public class JobConfig {
 	private void loadJobSettings(){
 	    File f = new File(plugin.getDataFolder(), "jobConfig.yml");
         YamlConfiguration conf;
-        this.jobs = new HashMap<String, Job>();
+        this.jobs.clear();
         if(!f.exists()) {
             // disable plugin
             System.err.println("[Jobs] - configuration file jobConfig.yml does not exist.  Disabling jobs !");
@@ -385,7 +385,7 @@ public class JobConfig {
      * Load the slots available
      */
     private void loadSlots() {
-        usedSlots = new HashMap<Job, Integer>();
+        usedSlots.clear();
         for(Job temp: jobs.values()){
             usedSlots.put(temp, plugin.getJobsConfiguration().getJobsDAO().getSlotsTaken(temp));
         }
@@ -413,7 +413,7 @@ public class JobConfig {
 	 * @param job - the job
 	 * @return the number of slots
 	 */
-	public Integer getUsedSlots(Job job){
+	public int getUsedSlots(Job job){
 		return usedSlots.get(job);
 	}
 	

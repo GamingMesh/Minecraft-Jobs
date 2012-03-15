@@ -28,7 +28,6 @@ import me.zford.jobs.economy.link.VaultLink;
 import me.zford.jobs.listener.JobsBlockPaymentListener;
 import me.zford.jobs.listener.JobsCraftPaymentListener;
 import me.zford.jobs.listener.JobsFishPaymentListener;
-import me.zford.jobs.listener.JobsJobListener;
 import me.zford.jobs.listener.JobsKillPaymentListener;
 import me.zford.jobs.listener.JobsPlayerListener;
 
@@ -105,7 +104,6 @@ public class Jobs extends JavaPlugin {
 		
 		// register the listeners
 		getServer().getPluginManager().registerEvents(new JobsBlockPaymentListener(this), this);
-		getServer().getPluginManager().registerEvents(new JobsJobListener(this), this);
         getServer().getPluginManager().registerEvents(new JobsKillPaymentListener(this), this);
         getServer().getPluginManager().registerEvents(new JobsFishPaymentListener(this), this);
 		getServer().getPluginManager().registerEvents(new JobsPlayerListener(this), this);
