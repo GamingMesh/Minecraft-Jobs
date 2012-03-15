@@ -1,8 +1,7 @@
-.classpath
-.project
-.externalToolBuilders/
-.settings/
-bin/
-build/
-lib/
-dist/
+# maven
+/target/
+
+# eclipse
+/.classpath
+/.project
+/.settings/

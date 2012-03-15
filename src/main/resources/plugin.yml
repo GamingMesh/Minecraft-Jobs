@@ -1,0 +1,59 @@
+name: Jobs
+description: Job plugin for bukkit
+main: me.zford.jobs.Jobs
+version: ${project.version}
+author: phrstbrn
+depend: [Vault]
+commands:
+    Jobs:
+        description: Jobs
+        usage: /jobs
+permissions:
+  jobs.*:
+    description: Grants access to all Jobs commands
+    children:
+      jobs.admin.*: true
+      jobs.use: true
+  jobs.use:
+    description: Grants ability to use this plugin
+    default: true
+  jobs.admin.*:
+    description: Grants player access to all admin commands
+    children:
+      jobs.admin.info: true
+      jobs.admin.fire: true
+      jobs.admin.employ: true
+      jobs.admin.promote: true
+      jobs.admin.demote: true
+      jobs.admin.grantxp: true
+      jobs.admin.removexp: true
+      jobs.admin.transfer: true
+      jobs.admin.reload: true
+  jobs.admin.info:
+    description: Grants access to the admininfo command
+    default: op
+  jobs.admin.fire:
+    description: Grants access to the fire command
+    default: op
+  jobs.admin.employ:
+    description: Grants access to the employ command
+    default: op
+  jobs.admin.promote:
+    description: Grants access to the promote command
+    default: op
+  jobs.admin.demote:
+    description: Grants access to the demote command
+    default: op
+  jobs.admin.grantxp:
+    description: Grants access to the grantxp command
+    default: op
+  jobs.admin.removexp:
+    description: Grants access to the removexp command
+    default: op
+  jobs.admin.transfer:
+    description: Grants access to the transfer command
+    default: op
+  jobs.admin.reload:
+    description: Grants access to the reload command
+    default: op
+  
