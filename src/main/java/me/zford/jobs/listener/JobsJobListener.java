@@ -19,14 +19,9 @@
 
 package me.zford.jobs.listener;
 
-import java.util.HashMap;
-
 import me.zford.jobs.Jobs;
-import me.zford.jobs.config.container.JobProgression;
 import me.zford.jobs.event.JobsJoinEvent;
 import me.zford.jobs.event.JobsLeaveEvent;
-import me.zford.jobs.event.JobsLevelUpEvent;
-import me.zford.jobs.event.JobsSkillUpEvent;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -44,105 +39,6 @@ public class JobsJobListener implements Listener {
     
     public JobsJobListener(Jobs plugin) {
         this.plugin = plugin;
-    }
-
-    @EventHandler(priority=EventPriority.MONITOR)
-    public void onJobLevelUp(JobsLevelUpEvent event) {
-        if(event.isCancelled())
-            return;
-
-        Player player = plugin.getServer().getPlayer(event.getPlayer().getName());
-        
-        if(event.getJobProgression().getJob().getMaxLevel() == null ||
-                event.getJobProgression().getLevel() < event.getJobProgression().getJob().getMaxLevel()){
-            JobProgression progression = event.getJobProgression();
-            // increase the level
-            progression.setLevel(progression.getLevel()+1);
-            // decrease the current exp
-            progression.setExperience(progression.getExperience()-progression.getMaxExperience());
-            // recalculate the maxexp 
-            HashMap<String, Double> param = new HashMap<String, Double>();
-            param.put("numjobs", (double)event.getNumJobs());
-            param.put("joblevel", (double)progression.getLevel());
-            
-            progression.setMaxExperience((int)progression.getJob().getMaxExp(param));
-            
-            String message;
-            if(plugin.getJobsConfiguration().isBroadcastingLevelups()) {
-                message = plugin.getMessageConfig().getMessage("level-up-broadcast");
-            } else {
-                message = plugin.getMessageConfig().getMessage("level-up-no-broadcast");
-            }
-            message = message.replace("%jobname%", ""+progression.getJob().getName());
-            message = message.replace("%jobcolour%", ""+progression.getJob().getChatColour());
-            if(progression.getTitle() != null){
-                message = message.replace("%titlename%", ""+progression.getTitle().getName());
-                message = message.replace("%titlecolour%", ""+progression.getTitle().getChatColor());
-            }
-            message = message.replace("%playername%", ""+event.getPlayer().getName());
-            if(player == null) {
-                message = message.replace("%playerdisplayname%", ""+event.getPlayer().getName());
-            } else {
-                message = message.replace("%playerdisplayname%", ""+player.getDisplayName());
-            }
-            message = message.replace("%joblevel%", ""+progression.getLevel());
-            if(plugin.getJobsConfiguration().isBroadcastingLevelups()) {
-                for(String line: message.split("\n")){
-                    plugin.getServer().broadcastMessage(line);
-                }
-            } else if(player != null) {
-                for(String line: message.split("\n")){
-                    player.sendMessage(line);
-                }
-            }
-            event.getPlayer().checkLevels();
-        } else if(player != null) {
-            event.getJobProgression().setExperience(0.0);
-            String message = plugin.getMessageConfig().getMessage("at-max-level");
-        
-            for(String line: message.split("\n")){
-                player.sendMessage(line);
-            }
-        }
-    }
-
-    @EventHandler(priority=EventPriority.MONITOR)
-    public void onJobSkillUp(JobsSkillUpEvent event) {
-        if(event.isCancelled())
-            return;
-        
-        Player player = plugin.getServer().getPlayer(event.getPlayer().getName());
-        
-        // set new title
-        event.getJobProgression().setTitle(event.getNewTitle());
-        
-        //broadcast
-        if(plugin.getJobsConfiguration().isBroadcastingSkillups()){
-            String message = plugin.getMessageConfig().getMessage("skill-up-broadcast");
-            message = message.replace("%playername%", event.getPlayer().getName());
-            if(event.getNewTitle() != null){
-                message = message.replace("%titlecolour%", event.getNewTitle().getChatColor().toString());
-                message = message.replace("%titlename%", event.getNewTitle().getName());
-            }
-            message = message.replace("%jobcolour%", event.getJobProgression().getJob().getChatColour().toString());
-            message = message.replace("%jobname%", event.getJobProgression().getJob().getName());
-            for(String line: message.split("\n")){
-                plugin.getServer().broadcastMessage(line);
-            }
-        } else if(player != null) {
-            String message = plugin.getMessageConfig().getMessage("skill-up-no-broadcast");
-            if(event.getNewTitle() != null){
-                message = message.replace("%titlecolour%", event.getNewTitle().getChatColor().toString());
-                message = message.replace("%titlename%", event.getNewTitle().getName());
-            }
-            message = message.replace("%jobcolour%", event.getJobProgression().getJob().getChatColour().toString());
-            message = message.replace("%jobname%", event.getJobProgression().getJob().getName());
-            for(String line: message.split("\n")){
-                player.sendMessage(line);
-            }
-        }
-        event.getJobProgression().setTitle(event.getNewTitle());
-        event.getPlayer().reloadHonorific();
     }
 
     @EventHandler(priority=EventPriority.MONITOR)
