@@ -29,10 +29,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType.SlotType;
+import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
-
 
 public class JobsCraftPaymentListener implements Listener{
 	
@@ -43,9 +45,17 @@ public class JobsCraftPaymentListener implements Listener{
 	}
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-	public void onInventoryCraft(CraftItemEvent event) {
+	public void onInventoryCraft(InventoryClickEvent event) {
 		// make sure plugin is enabled
 	    if(!plugin.isEnabled()) return;
+        Inventory inv = event.getInventory();
+        
+        if (!(inv instanceof CraftingInventory) || !event.getSlotType().equals(SlotType.RESULT))
+            return;
+        
+        Recipe recipe = ((CraftingInventory) inv).getRecipe();
+
+        System.out.println("CRAFT");
 	    
         // restricted area multiplier
         List<HumanEntity> viewers = event.getViewers();
@@ -61,7 +71,7 @@ public class JobsCraftPaymentListener implements Listener{
         
         if (player == null)
             return;
-        
+        System.out.println("CRAFT");
         // check if in creative
         if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
             return;
@@ -70,8 +80,6 @@ public class JobsCraftPaymentListener implements Listener{
             return;
         
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
-        
-        Recipe recipe = event.getRecipe();
         
         ItemStack stack = recipe.getResult();
 		plugin.getJobsManager().getJobsPlayer(player.getName()).crafted(stack, multiplier);
