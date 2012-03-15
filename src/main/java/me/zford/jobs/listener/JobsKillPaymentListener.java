@@ -47,27 +47,27 @@ import org.bukkit.event.entity.EntityDeathEvent;
  *
  */
 public class JobsKillPaymentListener implements Listener {
-	private Jobs plugin;
-	private Set<LivingEntity> mobSpawnerCreatures = Collections.newSetFromMap(new WeakHashMap<LivingEntity, Boolean>());
-	
-	public JobsKillPaymentListener(Jobs plugin) {
-		this.plugin = plugin;
-	}
-	
-	/**
-	 * Function that gets called whenever an entity gets killed
-	 * 
-	 * Must make sure that the entity is getting damaged by another entity first
-	 * and that this damager is either a player or a player's wolf.
-	 * 
-	 * Then it pays the killer
-	 */
+    private Jobs plugin;
+    private Set<LivingEntity> mobSpawnerCreatures = Collections.newSetFromMap(new WeakHashMap<LivingEntity, Boolean>());
+    
+    public JobsKillPaymentListener(Jobs plugin) {
+        this.plugin = plugin;
+    }
+    
+    /**
+     * Function that gets called whenever an entity gets killed
+     * 
+     * Must make sure that the entity is getting damaged by another entity first
+     * and that this damager is either a player or a player's wolf.
+     * 
+     * Then it pays the killer
+     */
     @EventHandler(priority=EventPriority.MONITOR)
-	public void onEntityDeath(EntityDeathEvent event)
-	{
-	    // Entity that died must be living
-	    if(!(event.getEntity() instanceof LivingEntity))
-	        return;
+    public void onEntityDeath(EntityDeathEvent event)
+    {
+        // Entity that died must be living
+        if(!(event.getEntity() instanceof LivingEntity))
+            return;
         LivingEntity lVictim = (LivingEntity)event.getEntity();
         
         // mob spawner, no payment or experience
@@ -112,21 +112,21 @@ public class JobsKillPaymentListener implements Listener {
             }
         }
     }
-	
-	/**
-	 * Track creatures that are spawned from a mob spawner
-	 * 
-	 * These creatures shouldn't payout if the configuration is set
-	 */
+    
+    /**
+     * Track creatures that are spawned from a mob spawner
+     * 
+     * These creatures shouldn't payout if the configuration is set
+     */
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-	public void onCreatureSpawn(CreatureSpawnEvent event) {
-	    if(!(event.getEntity() instanceof LivingEntity))
-	        return;
-	    if(!event.getSpawnReason().equals(SpawnReason.SPAWNER))
-	        return;
-	    if(plugin.getJobsConfiguration().payNearSpawner())
-	        return;
-	    LivingEntity creature = (LivingEntity)event.getEntity();
-	    mobSpawnerCreatures.add(creature);
-	}
+    public void onCreatureSpawn(CreatureSpawnEvent event) {
+        if(!(event.getEntity() instanceof LivingEntity))
+            return;
+        if(!event.getSpawnReason().equals(SpawnReason.SPAWNER))
+            return;
+        if(plugin.getJobsConfiguration().payNearSpawner())
+            return;
+        LivingEntity creature = (LivingEntity)event.getEntity();
+        mobSpawnerCreatures.add(creature);
+    }
 }

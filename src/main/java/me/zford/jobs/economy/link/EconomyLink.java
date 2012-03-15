@@ -26,10 +26,10 @@ package me.zford.jobs.economy.link;
  *
  */
 public interface EconomyLink {
-	/**
-	 * Pay the player
-	 * @param player - player to be paid
-	 * @param amount - amount to be paid
-	 */
-	public void pay(String playername, double amount);
+    /**
+     * Pay the player
+     * @param player - player to be paid
+     * @param amount - amount to be paid
+     */
+    public void pay(String playername, double amount);
 }

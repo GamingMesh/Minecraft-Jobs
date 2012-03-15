@@ -20,5 +20,5 @@
 package me.zford.jobs.config.container;
 
 public enum DisplayMethod{
-	FULL, JOB, TITLE, NONE, SHORT_FULL, SHORT_JOB, SHORT_TITLE
+    FULL, JOB, TITLE, NONE, SHORT_FULL, SHORT_JOB, SHORT_TITLE
 }

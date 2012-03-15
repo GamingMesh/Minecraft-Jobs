@@ -43,30 +43,30 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.material.MaterialData;
 
 public class JobConfig {
-	// all of the possible jobs
-	private LinkedHashMap<String, Job> jobs = new LinkedHashMap<String, Job>();
-	// used slots for each job
-	private WeakHashMap<Job, Integer> usedSlots = new WeakHashMap<Job, Integer>();
-	
-	private Jobs plugin;
-	public JobConfig(Jobs plugin) {
-	    this.plugin = plugin;
-	}
-	
-	public void reload() {
+    // all of the possible jobs
+    private LinkedHashMap<String, Job> jobs = new LinkedHashMap<String, Job>();
+    // used slots for each job
+    private WeakHashMap<Job, Integer> usedSlots = new WeakHashMap<Job, Integer>();
+    
+    private Jobs plugin;
+    public JobConfig(Jobs plugin) {
+        this.plugin = plugin;
+    }
+    
+    public void reload() {
         // job settings
         loadJobSettings();
         // get slots
         loadSlots();
-	}
-	
-	/**
-	 * Method to load the jobs configuration
-	 * 
-	 * loads from Jobs/jobConfig.yml
-	 */
-	private void loadJobSettings(){
-	    File f = new File(plugin.getDataFolder(), "jobConfig.yml");
+    }
+    
+    /**
+     * Method to load the jobs configuration
+     * 
+     * loads from Jobs/jobConfig.yml
+     */
+    private void loadJobSettings(){
+        File f = new File(plugin.getDataFolder(), "jobConfig.yml");
         this.jobs.clear();
         if (!f.exists()) {
             try {
@@ -379,7 +379,7 @@ public class JobConfig {
         } catch (IOException e) {
             e.printStackTrace();
         }
-	}
+    }
     
     /**
      * Load the slots available
@@ -390,46 +390,46 @@ public class JobConfig {
             usedSlots.put(temp, plugin.getJobsConfiguration().getJobsDAO().getSlotsTaken(temp));
         }
     }
-	
-	/**
-	 * Function to return the job information that matches the jobName given
-	 * @param jobName - the ame of the job given
-	 * @return the job that matches the name
-	 */
-	public Job getJob(String jobName){
-		return jobs.get(jobName.toLowerCase());
-	}
-	
-	/**
-	 * Get all the jobs loaded in the plugin
-	 * @return a collection of the jobs
-	 */
-	public Collection<Job> getJobs() {
-		return Collections.unmodifiableCollection(jobs.values());
-	}
-	
-	/**
-	 * Function to get the number of slots used on the server for this job
-	 * @param job - the job
-	 * @return the number of slots
-	 */
-	public int getUsedSlots(Job job){
-		return usedSlots.get(job);
-	}
-	
-	/**
-	 * Function to increase the number of used slots for a job
-	 * @param job - the job someone is taking
-	 */
-	public void takeSlot(Job job){
-		usedSlots.put(job, usedSlots.get(job)+1);
-	}
-	
-	/**
-	 * Function to decrease the number of used slots for a job
-	 * @param job - the job someone is leaving
-	 */
-	public void leaveSlot(Job job){
-		usedSlots.put(job, usedSlots.get(job)-1);
-	}
+    
+    /**
+     * Function to return the job information that matches the jobName given
+     * @param jobName - the ame of the job given
+     * @return the job that matches the name
+     */
+    public Job getJob(String jobName){
+        return jobs.get(jobName.toLowerCase());
+    }
+    
+    /**
+     * Get all the jobs loaded in the plugin
+     * @return a collection of the jobs
+     */
+    public Collection<Job> getJobs() {
+        return Collections.unmodifiableCollection(jobs.values());
+    }
+    
+    /**
+     * Function to get the number of slots used on the server for this job
+     * @param job - the job
+     * @return the number of slots
+     */
+    public int getUsedSlots(Job job){
+        return usedSlots.get(job);
+    }
+    
+    /**
+     * Function to increase the number of used slots for a job
+     * @param job - the job someone is taking
+     */
+    public void takeSlot(Job job){
+        usedSlots.put(job, usedSlots.get(job)+1);
+    }
+    
+    /**
+     * Function to decrease the number of used slots for a job
+     * @param job - the job someone is leaving
+     */
+    public void leaveSlot(Job job){
+        usedSlots.put(job, usedSlots.get(job)-1);
+    }
 }

@@ -40,116 +40,116 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Jobs extends JavaPlugin {	
+public class Jobs extends JavaPlugin {    
     private MessageConfig messageConfig;
     private JobsConfiguration jobsConfiguration;
     private JobConfig jobConfig;
     private BufferedPayment economy;
     private JobsManager manager;
 
-	/**
-	 * Method called when you disable the plugin
-	 */
-	public void onDisable() {
-		// kill all scheduled tasks associated to this.
-		getServer().getScheduler().cancelTasks(this);
+    /**
+     * Method called when you disable the plugin
+     */
+    public void onDisable() {
+        // kill all scheduled tasks associated to this.
+        getServer().getScheduler().cancelTasks(this);
         
         manager.saveAll();
         
-		if (getJobsConfiguration().getJobsDAO() != null) {
-			getJobsConfiguration().getJobsDAO().closeConnections();
-		}
-		
-		getServer().getLogger().info("["+getDescription().getName()+"] has been disabled succesfully.");
-	}
+        if (getJobsConfiguration().getJobsDAO() != null) {
+            getJobsConfiguration().getJobsDAO().closeConnections();
+        }
+        
+        getServer().getLogger().info("["+getDescription().getName()+"] has been disabled succesfully.");
+    }
 
-	/**
-	 * Method called when the plugin is enabled
-	 */
-	public void onEnable() {
-	    jobsConfiguration = new JobsConfiguration(this);
-	    jobConfig = new JobConfig(this);
-	    manager = new JobsManager(this);
-		JobsCommands commands = new JobsCommands(this);
-		this.getCommand("jobs").setExecutor(commands);
-		
-		messageConfig = new MessageConfig(this);
-		
-		reloadConfigurations();
-		
-		if(!this.isEnabled())
-		    return;
-		
-		if (!loadVault()) {
-		    getLogger().severe("["+getDescription().getName()+"] Could not load Vault!");
-		    setEnabled(false);
-		    return;
-		}
-		
-		// set the system to auto save
-		if(getJobsConfiguration().getSavePeriod() > 0) {
-			getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
-				public void run(){
-					manager.saveAll();
-				}
-			}, 20*60*getJobsConfiguration().getSavePeriod(), 20*60*getJobsConfiguration().getSavePeriod());
-		}
-		
-		// schedule payouts to buffered payments
-		getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
-		    public void run() {
-		        economy.payAll();
-		    }
-		}, 100, 100);
-		
-		// register the listeners
-		getServer().getPluginManager().registerEvents(new JobsBlockPaymentListener(this), this);
+    /**
+     * Method called when the plugin is enabled
+     */
+    public void onEnable() {
+        jobsConfiguration = new JobsConfiguration(this);
+        jobConfig = new JobConfig(this);
+        manager = new JobsManager(this);
+        JobsCommands commands = new JobsCommands(this);
+        this.getCommand("jobs").setExecutor(commands);
+        
+        messageConfig = new MessageConfig(this);
+        
+        reloadConfigurations();
+        
+        if(!this.isEnabled())
+            return;
+        
+        if (!loadVault()) {
+            getLogger().severe("["+getDescription().getName()+"] Could not load Vault!");
+            setEnabled(false);
+            return;
+        }
+        
+        // set the system to auto save
+        if(getJobsConfiguration().getSavePeriod() > 0) {
+            getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
+                public void run(){
+                    manager.saveAll();
+                }
+            }, 20*60*getJobsConfiguration().getSavePeriod(), 20*60*getJobsConfiguration().getSavePeriod());
+        }
+        
+        // schedule payouts to buffered payments
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
+            public void run() {
+                economy.payAll();
+            }
+        }, 100, 100);
+        
+        // register the listeners
+        getServer().getPluginManager().registerEvents(new JobsBlockPaymentListener(this), this);
         getServer().getPluginManager().registerEvents(new JobsKillPaymentListener(this), this);
         getServer().getPluginManager().registerEvents(new JobsFishPaymentListener(this), this);
-		getServer().getPluginManager().registerEvents(new JobsPlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new JobsPlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new JobsCraftPaymentListener(this), this);
 
-		
-		// add all online players
-		for (Player online: getServer().getOnlinePlayers()){
-			manager.addPlayer(online.getName());
-		}
-		
-		// register permissions
-		reRegisterPermissions();
-		
-		// all loaded properly.
-		getServer().getLogger().info("["+getDescription().getName()+"] has been enabled succesfully.");
-	}
-	
-	/**
-	 * Loads vault and sets as default economy
-	 */
-	private boolean loadVault() {
-	    Plugin test = getServer().getPluginManager().getPlugin("Vault");
-	    if (test == null)
-	        return false;
-	    
-	    VaultLink link = new VaultLink(this);
-	    economy = new BufferedPayment(link);
+        
+        // add all online players
+        for (Player online: getServer().getOnlinePlayers()){
+            manager.addPlayer(online.getName());
+        }
+        
+        // register permissions
+        reRegisterPermissions();
+        
+        // all loaded properly.
+        getServer().getLogger().info("["+getDescription().getName()+"] has been enabled succesfully.");
+    }
+    
+    /**
+     * Loads vault and sets as default economy
+     */
+    private boolean loadVault() {
+        Plugin test = getServer().getPluginManager().getPlugin("Vault");
+        if (test == null)
+            return false;
+        
+        VaultLink link = new VaultLink(this);
+        economy = new BufferedPayment(link);
         
         getLogger().info("["+getDescription().getName()+"] Successfully linked with Vault.");
-	    return true;
-	}
-	/**
-	 * Retrieves the economy hook
-	 * @return - buffered payment hook
-	 */
-	public BufferedPayment getEconomy() {
-	    return economy;
-	}
-	
-	/**
-	 * Disable the plugin
-	 */
-	public void disablePlugin(){
-	    setEnabled(false);
-	}
+        return true;
+    }
+    /**
+     * Retrieves the economy hook
+     * @return - buffered payment hook
+     */
+    public BufferedPayment getEconomy() {
+        return economy;
+    }
+    
+    /**
+     * Disable the plugin
+     */
+    public void disablePlugin(){
+        setEnabled(false);
+    }
     
     /**
      * Returns the jobs configuration
@@ -164,33 +164,33 @@ public class Jobs extends JavaPlugin {
     public JobConfig getJobConfig() {
         return jobConfig;
     }
-	
-	/**
-	 * Get the message configuration data
-	 * @return - the message configuration
-	 */
-	public MessageConfig getMessageConfig() {
-	    return messageConfig;
-	}
-	
-	/**
-	 * Returns jobs manager
-	 */
-	public JobsManager getJobsManager() {
-	    return manager;
-	}
-	
-	/**
-	 * Reloads all configuration files
-	 */
-	public void reloadConfigurations() {
-	    if (!getDataFolder().exists()) {
-	        getDataFolder().mkdirs();
-	    }
-	    getMessageConfig().reload();
-	    jobsConfiguration.reload();
-	    getJobConfig().reload();
-	}
+    
+    /**
+     * Get the message configuration data
+     * @return - the message configuration
+     */
+    public MessageConfig getMessageConfig() {
+        return messageConfig;
+    }
+    
+    /**
+     * Returns jobs manager
+     */
+    public JobsManager getJobsManager() {
+        return manager;
+    }
+    
+    /**
+     * Reloads all configuration files
+     */
+    public void reloadConfigurations() {
+        if (!getDataFolder().exists()) {
+            getDataFolder().mkdirs();
+        }
+        getMessageConfig().reload();
+        jobsConfiguration.reload();
+        getJobConfig().reload();
+    }
     
     /**
      * Check World permissions

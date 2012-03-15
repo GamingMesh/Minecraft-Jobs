@@ -37,24 +37,24 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 
 public class JobsCraftPaymentListener implements Listener{
-	
-	private Jobs plugin;
-	
-	public JobsCraftPaymentListener(Jobs plugin){
-		this.plugin = plugin;
-	}
+    
+    private Jobs plugin;
+    
+    public JobsCraftPaymentListener(Jobs plugin){
+        this.plugin = plugin;
+    }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-	public void onInventoryCraft(InventoryClickEvent event) {
-		// make sure plugin is enabled
-	    if(!plugin.isEnabled()) return;
+    public void onInventoryCraft(InventoryClickEvent event) {
+        // make sure plugin is enabled
+        if(!plugin.isEnabled()) return;
         Inventory inv = event.getInventory();
         
         if (!(inv instanceof CraftingInventory) || !event.getSlotType().equals(SlotType.RESULT))
             return;
         
         Recipe recipe = ((CraftingInventory) inv).getRecipe();
-	    
+        
         // restricted area multiplier
         List<HumanEntity> viewers = event.getViewers();
         if (viewers.size() == 0)
@@ -80,6 +80,6 @@ public class JobsCraftPaymentListener implements Listener{
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         
         ItemStack stack = recipe.getResult();
-		plugin.getJobsManager().getJobsPlayer(player.getName()).crafted(stack, multiplier);
-	}
+        plugin.getJobsManager().getJobsPlayer(player.getName()).crafted(stack, multiplier);
+    }
 }

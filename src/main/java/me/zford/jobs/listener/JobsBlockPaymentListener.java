@@ -30,16 +30,16 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
 public class JobsBlockPaymentListener implements Listener {
-	private Jobs plugin;
-	
-	public JobsBlockPaymentListener(Jobs plugin){
-		this.plugin = plugin;
-	}
-	
-	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-	public void onBlockBreak(BlockBreakEvent event) {
-	    // make sure plugin is enabled
-	    if(!plugin.isEnabled()) return;
+    private Jobs plugin;
+    
+    public JobsBlockPaymentListener(Jobs plugin){
+        this.plugin = plugin;
+    }
+    
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+    public void onBlockBreak(BlockBreakEvent event) {
+        // make sure plugin is enabled
+        if(!plugin.isEnabled()) return;
         
         Player player = event.getPlayer();
         
@@ -50,13 +50,13 @@ public class JobsBlockPaymentListener implements Listener {
         // restricted area multiplier
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
         
-		if(plugin.hasWorldPermission(player, player.getWorld())) {
-			plugin.getJobsManager().getJobsPlayer(player.getName()).broke(event.getBlock(), multiplier);			
-		}
-	}
+        if(plugin.hasWorldPermission(player, player.getWorld())) {
+            plugin.getJobsManager().getJobsPlayer(player.getName()).broke(event.getBlock(), multiplier);            
+        }
+    }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-	public void onBlockPlace(BlockPlaceEvent event) {
+    public void onBlockPlace(BlockPlaceEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
         
@@ -73,7 +73,7 @@ public class JobsBlockPaymentListener implements Listener {
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
         
         if(plugin.hasWorldPermission(player, player.getWorld())) {
-			plugin.getJobsManager().getJobsPlayer(player.getName()).placed(event.getBlock(), multiplier);
-		}
-	}
+            plugin.getJobsManager().getJobsPlayer(player.getName()).placed(event.getBlock(), multiplier);
+        }
+    }
 }

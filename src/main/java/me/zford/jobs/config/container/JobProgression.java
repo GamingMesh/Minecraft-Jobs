@@ -33,122 +33,122 @@ import me.zford.jobs.Jobs;
  *
  */
 public class JobProgression {
-	private Job job;
-	private Title title;
-	private double experience;
-	private int maxExperience;
-	private int level;
-	private Jobs plugin;
-	
-	public JobProgression(Jobs plugin, Job job, double experience, int level, JobsPlayer info){
-	    this.plugin = plugin;
-		this.job = job;
-		this.experience = experience;
-		this.level = level;
-		HashMap<String, Double> param = new HashMap<String, Double>();
-		param.put("joblevel", (double) level);
-		param.put("numjobs", (double) info.getJobs().size());
-		maxExperience = (int)job.getMaxExp(param);
-		title = this.plugin.getJobsConfiguration().getTitleForLevel(level);
-	}
-	
-	/**
-	 * Add experience (does not cause a level up event
-	 * @param exp - experience to be added
-	 */
-	public void addExp(double exp){
-		experience += exp;
-	}
-	
-	/**
-	 * Can the job level up?
-	 * @return true if the job can level up
-	 * @return false if the job cannot
-	 */
-	public boolean canLevelUp(){
-		if (experience >= maxExperience){
-			return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * Return the job
-	 * @return the job
-	 */
-	public Job getJob() {
-		return job;
-	}
+    private Job job;
+    private Title title;
+    private double experience;
+    private int maxExperience;
+    private int level;
+    private Jobs plugin;
+    
+    public JobProgression(Jobs plugin, Job job, double experience, int level, JobsPlayer info){
+        this.plugin = plugin;
+        this.job = job;
+        this.experience = experience;
+        this.level = level;
+        HashMap<String, Double> param = new HashMap<String, Double>();
+        param.put("joblevel", (double) level);
+        param.put("numjobs", (double) info.getJobs().size());
+        maxExperience = (int)job.getMaxExp(param);
+        title = this.plugin.getJobsConfiguration().getTitleForLevel(level);
+    }
+    
+    /**
+     * Add experience (does not cause a level up event
+     * @param exp - experience to be added
+     */
+    public void addExp(double exp){
+        experience += exp;
+    }
+    
+    /**
+     * Can the job level up?
+     * @return true if the job can level up
+     * @return false if the job cannot
+     */
+    public boolean canLevelUp(){
+        if (experience >= maxExperience){
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Return the job
+     * @return the job
+     */
+    public Job getJob() {
+        return job;
+    }
 
-	/**
-	 * Set the job
-	 * @param job - the new job to be set
-	 */
-	public void setJob(Job job) {
-		this.job = job;
-	}
+    /**
+     * Set the job
+     * @param job - the new job to be set
+     */
+    public void setJob(Job job) {
+        this.job = job;
+    }
 
-	/**
-	 * Get the experience in this job
-	 * @return the experiece in this job
-	 */
-	public double getExperience() {
-		return experience;
-	}
+    /**
+     * Get the experience in this job
+     * @return the experiece in this job
+     */
+    public double getExperience() {
+        return experience;
+    }
 
-	/**
-	 * Set the experience for this job
-	 * @param experience - the experience in this job
-	 */
-	public void setExperience(double experience) {
-		this.experience = experience;
-	}
+    /**
+     * Set the experience for this job
+     * @param experience - the experience in this job
+     */
+    public void setExperience(double experience) {
+        this.experience = experience;
+    }
 
-	/**
-	 * Get the maximum experience for this level
-	 * @return the experience needed to level up
-	 */
-	public int getMaxExperience() {
-		return maxExperience;
-	}
+    /**
+     * Get the maximum experience for this level
+     * @return the experience needed to level up
+     */
+    public int getMaxExperience() {
+        return maxExperience;
+    }
 
-	/**
-	 * Set the experience needed to level up (Does not trigger levelup events)
-	 * @param maxExperience - the new experience needed to level up
-	 */
-	public void setMaxExperience(int maxExperience) {
-		this.maxExperience = maxExperience;
-	}
+    /**
+     * Set the experience needed to level up (Does not trigger levelup events)
+     * @param maxExperience - the new experience needed to level up
+     */
+    public void setMaxExperience(int maxExperience) {
+        this.maxExperience = maxExperience;
+    }
 
-	/**
-	 * Get the current level of this job
-	 * @return the level of this job
-	 */
-	public int getLevel() {
-		return level;
-	}
+    /**
+     * Get the current level of this job
+     * @return the level of this job
+     */
+    public int getLevel() {
+        return level;
+    }
 
-	/**
-	 * Set the level of this job
-	 * @param level - the new level for this job
-	 */
-	public void setLevel(int level) {
-		this.level = level;
-	}
+    /**
+     * Set the level of this job
+     * @param level - the new level for this job
+     */
+    public void setLevel(int level) {
+        this.level = level;
+    }
 
-	/**
-	 * Set a current title
-	 * @param title - the new title
-	 */
-	public void setTitle(Title title) {
-		this.title = title;
-	}
+    /**
+     * Set a current title
+     * @param title - the new title
+     */
+    public void setTitle(Title title) {
+        this.title = title;
+    }
 
-	/**
-	 * Get the title
-	 * @return the current title
-	 */
-	public Title getTitle() {
-		return title;
-	}
+    /**
+     * Get the title
+     * @return the current title
+     */
+    public Title getTitle() {
+        return title;
+    }
 }

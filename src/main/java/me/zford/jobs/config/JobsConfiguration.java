@@ -49,34 +49,34 @@ import org.bukkit.entity.Player;
 
 public class JobsConfiguration {
     private YamlConfiguration generalConfig;
-	// all of the possible titles
-	private List<Title> titles = new ArrayList<Title>();
-	// data access object being used.
-	private JobsDAO dao;
-	
-	private ArrayList<RestrictedArea> restrictedAreas = new ArrayList<RestrictedArea>();
-	
-	private Jobs plugin;
-	
-	public JobsConfiguration(Jobs plugin) {
-	    this.plugin = plugin;
-	}
-	
-	public void reload() {
+    // all of the possible titles
+    private List<Title> titles = new ArrayList<Title>();
+    // data access object being used.
+    private JobsDAO dao;
+    
+    private ArrayList<RestrictedArea> restrictedAreas = new ArrayList<RestrictedArea>();
+    
+    private Jobs plugin;
+    
+    public JobsConfiguration(Jobs plugin) {
+        this.plugin = plugin;
+    }
+    
+    public void reload() {
         // general settings
         loadGeneralSettings();
         // title settings
         loadTitleSettings();
         // restricted areas
         loadRestrictedAreaSettings();
-	}
+    }
 
-	/**
-	 * Method to load the general configuration
-	 * 
-	 * loads from Jobs/generalConfig.yml
-	 */
-	private void loadGeneralSettings(){
+    /**
+     * Method to load the general configuration
+     * 
+     * loads from Jobs/generalConfig.yml
+     */
+    private void loadGeneralSettings(){
         File f = new File(plugin.getDataFolder(), "generalConfig.yml");
         
         if(!f.exists()) {
@@ -189,9 +189,9 @@ public class JobsConfiguration {
         } else if(storageMethod.equalsIgnoreCase("sqlite")) {
             this.dao = new JobsDAOSQLite(plugin);
         } else {
-			plugin.getLogger().severe("[Jobs] - Invalid storage method!  Disabling jobs!");
+            plugin.getLogger().severe("[Jobs] - Invalid storage method!  Disabling jobs!");
             plugin.disablePlugin();
-		}
+        }
         
         // save-period
         if(generalConfig.getInt("save-period") <= 0) {
@@ -218,20 +218,20 @@ public class JobsConfiguration {
         } catch (IOException e) {
             e.printStackTrace();
         }
-	}
-	
-	private void copySetting(Configuration reader, Configuration writer, String path) {
-	    writer.set(path, reader.get(path));
-	}
-	
-	/**
-	 * Method to load the title configuration
-	 * 
-	 * loads from Jobs/titleConfig.yml
-	 */
-	private void loadTitleSettings(){
-	    this.titles.clear();
-	    File f = new File(plugin.getDataFolder(), "titleConfig.yml");
+    }
+    
+    private void copySetting(Configuration reader, Configuration writer, String path) {
+        writer.set(path, reader.get(path));
+    }
+    
+    /**
+     * Method to load the title configuration
+     * 
+     * loads from Jobs/titleConfig.yml
+     */
+    private void loadTitleSettings(){
+        this.titles.clear();
+        File f = new File(plugin.getDataFolder(), "titleConfig.yml");
         if(!f.exists()) {
             try {
                 f.createNewFile();
@@ -331,8 +331,8 @@ public class JobsConfiguration {
         } catch (IOException e) {
             e.printStackTrace();
         }
-	}
-	
+    }
+    
 
     /**
      * Method to load the restricted areas configuration
@@ -457,31 +457,31 @@ public class JobsConfiguration {
             e.printStackTrace();
         }
     }
-	
-	/**
-	 * Get how often in minutes to save job information
-	 * @return how often in minutes to save job information
-	 */
-	public int getSavePeriod(){
-		return generalConfig.getInt("save-period");
-	}
+    
+    /**
+     * Get how often in minutes to save job information
+     * @return how often in minutes to save job information
+     */
+    public int getSavePeriod(){
+        return generalConfig.getInt("save-period");
+    }
 
-	/**
-	 * Get the Data Access Object for the plugin
-	 * @return the DAO of the plugin
-	 */
-	public JobsDAO getJobsDAO(){
-		return dao;
-	}
-	
-	/**
-	 * Function that tells if the system is set to broadcast on skill up
-	 * @return true - broadcast on skill up
-	 * @return false - do not broadcast on skill up
-	 */
-	public boolean isBroadcastingSkillups(){
-		return generalConfig.getBoolean("broadcast-on-skill-up");
-	}
+    /**
+     * Get the Data Access Object for the plugin
+     * @return the DAO of the plugin
+     */
+    public JobsDAO getJobsDAO(){
+        return dao;
+    }
+    
+    /**
+     * Function that tells if the system is set to broadcast on skill up
+     * @return true - broadcast on skill up
+     * @return false - do not broadcast on skill up
+     */
+    public boolean isBroadcastingSkillups(){
+        return generalConfig.getBoolean("broadcast-on-skill-up");
+    }
     
     /**
      * Function that tells if the system is set to broadcast on level up
@@ -500,52 +500,52 @@ public class JobsConfiguration {
     public boolean payInCreative() {
         return generalConfig.getBoolean("enable-pay-creative");
     }
-	
-	/**
-	 * Function to return the title for a given level
-	 * @return the correct title
-	 * @return null if no title matches
-	 */
-	public Title getTitleForLevel(int level) {
-		Title title = null;
-		for (Title t: titles) {
-			if (title == null) {
-				if (t.getLevelReq() <= level) {
-					title = t;
-				}
-			} else {
-				if (t.getLevelReq() <= level && t.getLevelReq() > title.getLevelReq()) {
-					title = t;
-				}
-			}
-		}
-		return title;
-	}
-	
-	/**
-	 * Function to return the maximum number of jobs a player can join
-	 * @return
-	 */
-	public int getMaxJobs() {
-	    return generalConfig.getInt("max-jobs");
-	}
-	
-	/**
-	 * Function to check if you get paid near a spawner is enabled
-	 * @return true - you get paid
-	 * @return false - you don't get paid
-	 */
-	public boolean payNearSpawner() {
-	    return generalConfig.getBoolean("enable-pay-near-spawner");
-	}
-	
+    
+    /**
+     * Function to return the title for a given level
+     * @return the correct title
+     * @return null if no title matches
+     */
+    public Title getTitleForLevel(int level) {
+        Title title = null;
+        for (Title t: titles) {
+            if (title == null) {
+                if (t.getLevelReq() <= level) {
+                    title = t;
+                }
+            } else {
+                if (t.getLevelReq() <= level && t.getLevelReq() > title.getLevelReq()) {
+                    title = t;
+                }
+            }
+        }
+        return title;
+    }
+    
+    /**
+     * Function to return the maximum number of jobs a player can join
+     * @return
+     */
+    public int getMaxJobs() {
+        return generalConfig.getInt("max-jobs");
+    }
+    
+    /**
+     * Function to check if you get paid near a spawner is enabled
+     * @return true - you get paid
+     * @return false - you don't get paid
+     */
+    public boolean payNearSpawner() {
+        return generalConfig.getBoolean("enable-pay-near-spawner");
+    }
+    
    /**
      * Function to get the restricted areas on the server
      * @return restricted areas on the server
      */
-	public List<RestrictedArea> getRestrictedAreas() {
-	    return this.restrictedAreas;
-	}
+    public List<RestrictedArea> getRestrictedAreas() {
+        return this.restrictedAreas;
+    }
     
     /**
      * Gets the area multiplier for the player

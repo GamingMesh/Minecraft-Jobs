@@ -32,26 +32,26 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 
 public class JobsPlayerListener implements Listener {
-	// hook to the main plugin
-	private Jobs plugin;
-	
-	public JobsPlayerListener(Jobs plugin) {
-		this.plugin = plugin;
-	}
+    // hook to the main plugin
+    private Jobs plugin;
+    
+    public JobsPlayerListener(Jobs plugin) {
+        this.plugin = plugin;
+    }
 
     @EventHandler(priority=EventPriority.MONITOR)
-	public void onPlayerJoin(PlayerJoinEvent event) {
+    public void onPlayerJoin(PlayerJoinEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-		plugin.getJobsManager().addPlayer(event.getPlayer().getName());
-	}
+        plugin.getJobsManager().addPlayer(event.getPlayer().getName());
+    }
 
     @EventHandler(priority=EventPriority.MONITOR)
-	public void onPlayerQuit(PlayerQuitEvent event) {
+    public void onPlayerQuit(PlayerQuitEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-		plugin.getJobsManager().removePlayer(event.getPlayer().getName());
-	}
+        plugin.getJobsManager().removePlayer(event.getPlayer().getName());
+    }
     
     @EventHandler(priority=EventPriority.NORMAL, ignoreCancelled=true)
     public void onPlayerChat(PlayerChatEvent event) {
