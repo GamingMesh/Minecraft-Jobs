@@ -23,7 +23,6 @@ import java.util.HashMap;
 
 import me.zford.jobs.Jobs;
 import me.zford.jobs.config.container.JobProgression;
-import me.zford.jobs.config.container.JobsPlayer;
 import me.zford.jobs.event.JobsJoinEvent;
 import me.zford.jobs.event.JobsLeaveEvent;
 import me.zford.jobs.event.JobsLevelUpEvent;
@@ -167,11 +166,8 @@ public class JobsJobListener implements Listener {
                         player.sendMessage(line);
                     }
                 }
-                if(!(event.getPlayer() instanceof JobsPlayer)){
-                    // if it's a real player
-                    event.getPlayer().reloadHonorific();
-                    event.getPlayer().reloadMaxExperience();
-                }
+                event.getPlayer().reloadHonorific();
+                event.getPlayer().reloadMaxExperience();
             } else if(player != null) {
                 if(event.getPlayer().isInJob(event.getNewJob())){
                     // already in job message

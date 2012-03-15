@@ -65,12 +65,6 @@ public class Jobs extends JavaPlugin{
 	public void onDisable() {
 		// kill all scheduled tasks associated to this.
 		getServer().getScheduler().cancelTasks(this);
-
-        
-        for(JobsPlayer player: players.values()){
-            // wipe the honorific
-            player.removeHonorific();
-        }
         
 		// save all
 		if(getJobsConfiguration().getJobsDAO() != null){

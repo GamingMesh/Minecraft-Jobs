@@ -184,8 +184,6 @@ public class JobsCommands implements CommandExecutor {
                     try {
                         if(plugin.isEnabled()) {
                             for(Player player : plugin.getServer().getOnlinePlayers()) {
-                                JobsPlayer jPlayer = plugin.getJobsPlayer(player.getName());
-                                jPlayer.removeHonorific();
                                 plugin.removePlayer(player.getName());
                             }
                             plugin.reloadConfigurations();

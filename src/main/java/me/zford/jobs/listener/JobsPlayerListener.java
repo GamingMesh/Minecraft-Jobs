@@ -21,10 +21,13 @@ package me.zford.jobs.listener;
 
 
 import me.zford.jobs.Jobs;
+import me.zford.jobs.config.container.JobsPlayer;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -50,4 +53,21 @@ public class JobsPlayerListener implements Listener {
         if(!plugin.isEnabled()) return;
 		plugin.removePlayer(event.getPlayer().getName());
 	}
+    
+    @EventHandler(priority=EventPriority.NORMAL, ignoreCancelled=true)
+    public void onPlayerChat(PlayerChatEvent event) {
+        if (!plugin.isEnabled()) return;
+        
+        Player player = event.getPlayer();
+        JobsPlayer jPlayer = plugin.getJobsPlayer(player.getName());
+        
+        if (jPlayer == null) return;
+        
+        String format = event.getFormat();
+        String honorific = jPlayer.getDisplayHonorific();
+        if (!honorific.isEmpty()) {
+            format = format.replace("%1$s", honorific+ " %1$s");
+            event.setFormat(format);
+        }
+    }
 }

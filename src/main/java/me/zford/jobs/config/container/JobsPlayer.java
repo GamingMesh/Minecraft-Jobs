@@ -37,7 +37,6 @@ import me.zford.jobs.event.JobsSkillUpEvent;
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 
@@ -49,7 +48,7 @@ public class JobsPlayer {
 	// progression of the player in each job
 	private LinkedHashMap<Job, JobProgression> progression = new LinkedHashMap<Job, JobProgression>();
 	// display honorific
-	private String honorific = null;
+	private String honorific;
 		
 	/**
 	 * Constructor.
@@ -340,62 +339,7 @@ public class JobsPlayer {
 	}
 	
 	public String getDisplayHonorific() {
-		StringBuilder builder = new StringBuilder();
-		int numJobs = progression.size();
-	    boolean gotTitle = false;
-		for (JobProgression prog: progression.values()) {
-		    DisplayMethod method = prog.getJob().getDisplayMethod();
-		    
-		    if (method.equals(DisplayMethod.NONE))
-		        continue;
-            
-            if (gotTitle) {
-                builder.append(" ");
-                gotTitle = false;
-            }
-            
-            if (numJobs == 1) {
-                if (method.equals(DisplayMethod.FULL) || method.equals(DisplayMethod.TITLE)) {
-                    if (prog.getTitle() != null) {
-                        builder.append(prog.getTitle().getChatColor() + prog.getTitle().getName() + ChatColor.WHITE);
-                        gotTitle = true;
-                    }
-                }
-                
-                if(method.equals(DisplayMethod.FULL) || method.equals(DisplayMethod.JOB)) {
-                    if (gotTitle) {
-                        builder.append(" ");
-                    }
-                    builder.append(prog.getJob().getChatColour() + prog.getJob().getName() + ChatColor.WHITE);
-                    gotTitle = true;
-                }
-            }
-            
-			if (numJobs > 1 && (method.equals(DisplayMethod.FULL) || method.equals(DisplayMethod.TITLE)) ||
-			        method.equals(DisplayMethod.SHORT_FULL) ||
-			        method.equals(DisplayMethod.SHORT_TITLE)) {
-				// add title to honorific
-				if (prog.getTitle() != null) {
-				    builder.append(prog.getTitle().getChatColor() + prog.getTitle().getShortName() + ChatColor.WHITE);
-				    gotTitle = true;
-				}
-			}
-			
-			if (numJobs > 1 && (method.equals(DisplayMethod.FULL) || method.equals(DisplayMethod.JOB)) ||
-			        method.equals(DisplayMethod.SHORT_FULL) || 
-			        method.equals(DisplayMethod.SHORT_JOB)) {
-			    builder.append(prog.getJob().getChatColour() + prog.getJob().getShortName() + ChatColor.WHITE);
-			    gotTitle = true;
-			}
-		}
-		
-		String honorific = builder.toString().trim();
-		
-		if (honorific.isEmpty()) {
-			return null;
-		} else {
-			return honorific;
-		}
+	    return honorific;
 	}
 	
 	/**
@@ -438,37 +382,57 @@ public class JobsPlayer {
 	 * Function that reloads your honorific
 	 */
 	public void reloadHonorific() {
-		String newHonorific = getDisplayHonorific();
-        Player player = plugin.getServer().getPlayer(playername);
-        if(player == null)
-            return;
-		
-		if (newHonorific == null && honorific != null) {
-			// strip the current honorific.
-		    player.setDisplayName(player.getDisplayName().replaceFirst(honorific + " ", ""));
-		} else if (newHonorific != null && honorific != null) {
-			// replace the honorific
-		    player.setDisplayName(player.getDisplayName().replaceFirst(honorific, newHonorific));
-		} else if (newHonorific != null && honorific == null) {
-			// new honorific
-		    player.setDisplayName((newHonorific + " " + player.getDisplayName()));
-		}
-		// set the new honorific
-		honorific = newHonorific;
-	}
-	
-	/**
-     * Function that removes your honorific
-     */
-    public void removeHonorific() {
-        Player player = plugin.getServer().getPlayer(playername);
-        if(player == null)
-            return;
-        if (honorific != null) {
-            player.setDisplayName(player.getDisplayName().replaceFirst(honorific + " ", ""));
+        StringBuilder builder = new StringBuilder();
+        int numJobs = progression.size();
+        boolean gotTitle = false;
+        for (JobProgression prog: progression.values()) {
+            DisplayMethod method = prog.getJob().getDisplayMethod();
+            
+            if (method.equals(DisplayMethod.NONE))
+                continue;
+            
+            if (gotTitle) {
+                builder.append(" ");
+                gotTitle = false;
+            }
+            
+            if (numJobs == 1) {
+                if (method.equals(DisplayMethod.FULL) || method.equals(DisplayMethod.TITLE)) {
+                    if (prog.getTitle() != null) {
+                        builder.append(prog.getTitle().getChatColor() + prog.getTitle().getName() + ChatColor.WHITE);
+                        gotTitle = true;
+                    }
+                }
+                
+                if(method.equals(DisplayMethod.FULL) || method.equals(DisplayMethod.JOB)) {
+                    if (gotTitle) {
+                        builder.append(" ");
+                    }
+                    builder.append(prog.getJob().getChatColour() + prog.getJob().getName() + ChatColor.WHITE);
+                    gotTitle = true;
+                }
+            }
+            
+            if (numJobs > 1 && (method.equals(DisplayMethod.FULL) || method.equals(DisplayMethod.TITLE)) ||
+                    method.equals(DisplayMethod.SHORT_FULL) ||
+                    method.equals(DisplayMethod.SHORT_TITLE)) {
+                // add title to honorific
+                if (prog.getTitle() != null) {
+                    builder.append(prog.getTitle().getChatColor() + prog.getTitle().getShortName() + ChatColor.WHITE);
+                    gotTitle = true;
+                }
+            }
+            
+            if (numJobs > 1 && (method.equals(DisplayMethod.FULL) || method.equals(DisplayMethod.JOB)) ||
+                    method.equals(DisplayMethod.SHORT_FULL) || 
+                    method.equals(DisplayMethod.SHORT_JOB)) {
+                builder.append(prog.getJob().getChatColour() + prog.getJob().getShortName() + ChatColor.WHITE);
+                gotTitle = true;
+            }
         }
-        honorific = null;
-    }
+        
+        honorific = builder.toString().trim();
+	}
 	
 	/**
 	 * Function to reload all of the maximum experiences
