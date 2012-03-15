@@ -542,10 +542,9 @@ public class JobsCommands implements CommandExecutor {
         if (type.equalsIgnoreCase("break") || showAllTypes == 1) {
             // break
             HashMap<String, JobsMaterialInfo> jobBreakInfo = job.getBreakInfo();
-            if(jobBreakInfo != null){
+            if (jobBreakInfo != null && !jobBreakInfo.isEmpty()) {
                 message += jobInfoBreakMessage(player, job, jobBreakInfo);
-            }
-            else if(showAllTypes == 0) {
+            } else if (showAllTypes == 0) {
                 String myMessage = plugin.getMessageConfig().getMessage("break-none");
                 myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
                 myMessage = myMessage.replace("%jobname%", job.getName());
@@ -556,10 +555,9 @@ public class JobsCommands implements CommandExecutor {
             // place
             HashMap<String, JobsMaterialInfo> jobPlaceInfo = job.getPlaceInfo();
             
-            if(jobPlaceInfo != null){
+            if (jobPlaceInfo != null && !jobPlaceInfo.isEmpty()) {
                 message += jobInfoPlaceMessage(player, job, jobPlaceInfo);
-            }
-            else if(showAllTypes == 0) {
+            } else if (showAllTypes == 0) {
                 String myMessage = plugin.getMessageConfig().getMessage("place-none");
                 myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
                 myMessage = myMessage.replace("%jobname%", job.getName());
@@ -570,10 +568,9 @@ public class JobsCommands implements CommandExecutor {
             // kill
             HashMap<String, JobsLivingEntityInfo> jobKillInfo = job.getKillInfo();
             
-            if(jobKillInfo != null){
+            if (jobKillInfo != null && !jobKillInfo.isEmpty()) {
                 message += jobInfoKillMessage(player, job, jobKillInfo);
-            }
-            else if(showAllTypes == 0) {
+            } else if (showAllTypes == 0) {
                 String myMessage = plugin.getMessageConfig().getMessage("kill-none");
                 myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
                 myMessage = myMessage.replace("%jobname%", job.getName());
@@ -585,10 +582,9 @@ public class JobsCommands implements CommandExecutor {
             // fish
             HashMap<String, JobsMaterialInfo> jobFishInfo = job.getFishInfo();
             
-            if(jobFishInfo != null){
+            if (jobFishInfo != null && !jobFishInfo.isEmpty()) {
                 message += jobInfoFishMessage(player, job, jobFishInfo);
-            }
-            else if(showAllTypes == 0) {
+            } else if (showAllTypes == 0) {
                 String myMessage = plugin.getMessageConfig().getMessage("fish-none");
                 myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
                 myMessage = myMessage.replace("%jobname%", job.getName());
@@ -600,10 +596,9 @@ public class JobsCommands implements CommandExecutor {
             // craft
             HashMap<String, JobsMaterialInfo> jobCraftInfo = job.getCraftInfo();
             
-            if(jobCraftInfo != null){
+            if (jobCraftInfo != null && !jobCraftInfo.isEmpty()) {
                 message += jobInfoCraftMessage(player, job, jobCraftInfo);
-            }
-            else if(showAllTypes == 0) {
+            } else if(showAllTypes == 0) {
                 String myMessage = plugin.getMessageConfig().getMessage("craft-none");
                 myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
                 myMessage = myMessage.replace("%jobname%", job.getName());
