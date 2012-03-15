@@ -34,6 +34,7 @@ import me.zford.jobs.listener.JobsPlayerListener;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permissible;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
@@ -189,33 +190,26 @@ public class Jobs extends JavaPlugin {
 	    jobsConfiguration.reload();
 	    getJobConfig().reload();
 	}
-	
-    /**
-     * Check permissions
-     */
-    public boolean hasPermission(Player player, String node) {
-        return player.hasPermission(node);
-    }
     
     /**
      * Check World permissions
      */
-    public boolean hasWorldPermission(Player player, World world) {
-        if (!player.hasPermission("jobs.use")) {
+    public boolean hasWorldPermission(Permissible permissable, World world) {
+        if (!permissable.hasPermission("jobs.use")) {
             return false;
         } else {
-            return player.hasPermission("jobs.world."+world.getName().toLowerCase());
+            return permissable.hasPermission("jobs.world."+world.getName().toLowerCase());
         }
     }
     
     /**
      * Check Job joining permission
      */
-    public boolean hasJobPermission(Player player, Job job) {
-        if (!player.hasPermission("jobs.use")) {
+    public boolean hasJobPermission(Permissible permissable, Job job) {
+        if (!permissable.hasPermission("jobs.use")) {
             return false;
         } else {
-            return player.hasPermission("jobs.join."+job.getName().toLowerCase());
+            return permissable.hasPermission("jobs.join."+job.getName().toLowerCase());
         }
     }
     

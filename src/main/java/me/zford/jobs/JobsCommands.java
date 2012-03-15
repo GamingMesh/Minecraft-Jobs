@@ -37,7 +37,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 
@@ -103,403 +102,394 @@ public class JobsCommands implements CommandExecutor {
                 return true;
             }
         }
-        if(sender instanceof ConsoleCommandSender || sender instanceof Player){
-            // stats
-            if(args.length >= 1 && args[0].equalsIgnoreCase("stats")){
-                JobsPlayer jPlayer = null;
-                if(args.length >= 2) {
-                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.stats")) {
-                        jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
-                    } else {
-                        sender.sendMessage(ChatColor.RED + "There was an error in your command");
-                        return true;
-                    }
-                } else if(sender instanceof Player) {
-                    jPlayer = plugin.getJobsManager().getJobsPlayer(((Player)sender).getName());
-                }
-                
-                if(jPlayer == null) {
+        // stats
+        if(args.length >= 1 && args[0].equalsIgnoreCase("stats")){
+            JobsPlayer jPlayer = null;
+            if(args.length >= 2) {
+                if(sender.hasPermission("jobs.admin.stats")) {
+                    jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
+                } else {
                     sender.sendMessage(ChatColor.RED + "There was an error in your command");
                     return true;
-                } else if(jPlayer.getJobsProgression().size() == 0){
-                    sendMessageByLine(sender, plugin.getMessageConfig().getMessage("stats-no-job"));
-                    return true;
-                } else {
-                    for(JobProgression jobProg: jPlayer.getJobsProgression()){
-                        sendMessageByLine(sender, jobStatsMessage(jobProg));
+                }
+            } else if(sender instanceof Player) {
+                jPlayer = plugin.getJobsManager().getJobsPlayer(((Player)sender).getName());
+            }
+            
+            if(jPlayer == null) {
+                sender.sendMessage(ChatColor.RED + "There was an error in your command");
+                return true;
+            } else if(jPlayer.getJobsProgression().size() == 0){
+                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("stats-no-job"));
+                return true;
+            } else {
+                for(JobProgression jobProg: jPlayer.getJobsProgression()){
+                    sendMessageByLine(sender, jobStatsMessage(jobProg));
+                }
+                return true;
+            }
+        }
+        // browse
+        else if(args.length >= 1 && args[0].equalsIgnoreCase("browse")) {
+            ArrayList<String> jobs = new ArrayList<String>();
+            for(Job job: plugin.getJobConfig().getJobs()){
+                if (plugin.hasJobPermission(sender, job)) {
+                    if(!job.getName().equalsIgnoreCase("None")) {
+                        if(job.getMaxLevel() == null){
+                            jobs.add(job.getChatColour() + job.getName());
+                        }
+                        else{
+                            jobs.add(job.getChatColour() + job.getName() + ChatColor.WHITE + " - max lvl: " + job.getMaxLevel());
+                        }
                     }
-                    return true;
                 }
             }
-            // browse
-            else if(args.length >= 1 && args[0].equalsIgnoreCase("browse")){
-                ArrayList<String> jobs = new ArrayList<String>();
-                for(Job job: plugin.getJobConfig().getJobs()){
-                    if(sender instanceof ConsoleCommandSender || plugin.hasJobPermission((Player) sender, job)) {
-                        if(!job.getName().equalsIgnoreCase("None")) {
-                            if(job.getMaxLevel() == null){
-                                jobs.add(job.getChatColour() + job.getName());
+            if(jobs.size() == 0){
+                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("browse-no-jobs"));
+                
+            }
+            else{
+                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("browse-jobs-header"));
+                
+                for(String job : jobs) {
+                    sender.sendMessage("    "+job);
+                }
+                
+                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("browse-jobs-footer"));
+            }
+            return true;
+        }
+        
+        // admin commands
+        else if(args.length >= 2 && args[0].equalsIgnoreCase("admininfo")){
+            if (sender.hasPermission("jobs.admin.info")) {
+                String message = "";
+                message += "----------------\n";
+                JobsPlayer player = plugin.getJobsManager().getJobsPlayer(args[1]);
+                for(JobProgression jobProg: player.getJobsProgression()){
+                    Job job = jobProg.getJob();
+                    message += jobStatsMessage(jobProg);
+                    message += jobInfoMessage(player, job, "");
+                    message += "----------------\n";
+                }
+                sendMessageByLine(sender, message);
+            }
+            return true;
+        }
+        
+        if(args.length == 1 && args[0].equalsIgnoreCase("reload")) {
+            if (sender.hasPermission("jobs.admin.reload")) {
+                try {
+                    if(plugin.isEnabled()) {
+                        for(Player player : plugin.getServer().getOnlinePlayers()) {
+                            plugin.getJobsManager().removePlayer(player.getName());
+                        }
+                        plugin.reloadConfigurations();
+                        for(Player player : plugin.getServer().getOnlinePlayers()) {
+                            plugin.getJobsManager().addPlayer(player.getName());
+                        }
+                        plugin.reRegisterPermissions();
+                        sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
+                    }
+                } catch (Exception e) {
+                    sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+                }
+                return true;
+            }
+        }
+        if(args.length == 3){
+            if(args[0].equalsIgnoreCase("fire")) {
+                if (sender.hasPermission("jobs.admin.fire")) {
+                    JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
+                    Player player = plugin.getServer().getPlayer(args[1]);
+                    Job job = plugin.getJobConfig().getJob(args[2]);
+                    if(jPlayer != null && job != null){
+                        try{
+                            // check if player already has the job
+                            if(jPlayer.isInJob(job)){
+                                plugin.getServer().getPluginManager().callEvent(new JobsLeaveEvent(jPlayer, job));
+                                if(player != null) {
+                                    String message = plugin.getMessageConfig().getMessage("fire-target");
+                                    message = message.replace("%jobcolour%", job.getChatColour().toString());
+                                    message = message.replace("%jobname%", job.getName());
+                                    sendMessageByLine(player, message);
+                                }
+                                
+                                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
                             }
                             else{
-                                jobs.add(job.getChatColour() + job.getName() + ChatColor.WHITE + " - max lvl: " + job.getMaxLevel());
+                                String message = plugin.getMessageConfig().getMessage("fire-target-no-job");
+                                message = message.replace("%jobcolour%", job.getChatColour().toString());
+                                message = message.replace("%jobname%", job.getName());
+                                sendMessageByLine(sender, message);
                             }
                         }
-                    }
-                }
-                if(jobs.size() == 0){
-                    sendMessageByLine(sender, plugin.getMessageConfig().getMessage("browse-no-jobs"));
-                    
-                }
-                else{
-                    sendMessageByLine(sender, plugin.getMessageConfig().getMessage("browse-jobs-header"));
-                    
-                    for(String job : jobs) {
-                        sender.sendMessage("    "+job);
-                    }
-                    
-                    sendMessageByLine(sender, plugin.getMessageConfig().getMessage("browse-jobs-footer"));
-                }
-                return true;
-            }
-            
-            // admin commands
-            else if(args.length >= 2 && args[0].equalsIgnoreCase("admininfo")){
-                if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.info")) {
-                    String message = "";
-                    message += "----------------\n";
-                    JobsPlayer player = plugin.getJobsManager().getJobsPlayer(args[1]);
-                    for(JobProgression jobProg: player.getJobsProgression()){
-                        Job job = jobProg.getJob();
-                        message += jobStatsMessage(jobProg);
-                        message += jobInfoMessage(player, job, "");
-                        message += "----------------\n";
-                    }
-                    sendMessageByLine(sender, message);
-                }
-                return true;
-            }
-            
-            if(args.length == 1 && args[0].equalsIgnoreCase("reload")) {
-                if(sender instanceof ConsoleCommandSender || sender instanceof Player && plugin.hasPermission((Player) sender, "jobs.admin.reload")) {
-                    try {
-                        if(plugin.isEnabled()) {
-                            for(Player player : plugin.getServer().getOnlinePlayers()) {
-                                plugin.getJobsManager().removePlayer(player.getName());
-                            }
-                            plugin.reloadConfigurations();
-                            for(Player player : plugin.getServer().getOnlinePlayers()) {
-                                plugin.getJobsManager().addPlayer(player.getName());
-                            }
-                            plugin.reRegisterPermissions();
-                            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
-                        }
-                    } catch (Exception e) {
-                        sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
-                    }
-                    return true;
-                }
-            }
-            if(args.length == 3){
-                if(args[0].equalsIgnoreCase("fire")){
-                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.fire")) {
-                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
-                        Player player = plugin.getServer().getPlayer(args[1]);
-                        Job job = plugin.getJobConfig().getJob(args[2]);
-                        if(jPlayer != null && job != null){
-                            try{
-                                // check if player already has the job
-                                if(jPlayer.isInJob(job)){
-                                    plugin.getServer().getPluginManager().callEvent(new JobsLeaveEvent(jPlayer, job));
-                                    if(player != null) {
-                                        String message = plugin.getMessageConfig().getMessage("fire-target");
-                                        message = message.replace("%jobcolour%", job.getChatColour().toString());
-                                        message = message.replace("%jobname%", job.getName());
-                                        sendMessageByLine(player, message);
-                                    }
-                                    
-                                    sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
-                                }
-                                else{
-                                    String message = plugin.getMessageConfig().getMessage("fire-target-no-job");
-                                    message = message.replace("%jobcolour%", job.getChatColour().toString());
-                                    message = message.replace("%jobname%", job.getName());
-                                    sendMessageByLine(sender, message);
-                                }
-                            }
-                            catch (Exception e){
-                                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
-                            }
-                        }
-                    }
-                    return true;
-                }
-                else if(args[0].equalsIgnoreCase("employ")){
-                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.employ."+args[2])) {
-                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
-                        Player player = plugin.getServer().getPlayer(args[1]);
-                        Job job = plugin.getJobConfig().getJob(args[2]);
-                        if(jPlayer != null && job != null){
-                            try{
-                                // check if player already has the job
-                                if(!jPlayer.isInJob(job)){
-                                    plugin.getServer().getPluginManager().callEvent(new JobsJoinEvent(jPlayer, job));
-                                    if(player != null) {
-                                        String message = plugin.getMessageConfig().getMessage("employ-target");
-                                        message = message.replace("%jobcolour%", job.getChatColour().toString());
-                                        message = message.replace("%jobname%", job.getName());
-                                        sendMessageByLine(player, message);
-                                    }
-                                    sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
-                                }
-                            }
-                            catch (Exception e){
-                                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
-                            }
+                        catch (Exception e){
+                            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
                         }
                     }
                 }
                 return true;
             }
-            else if(args.length == 4){
-                if(args[0].equalsIgnoreCase("promote")){
-                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.promote")) {
-                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
-                        Player player = plugin.getServer().getPlayer(args[1]);
-                        Job job = plugin.getJobConfig().getJob(args[2]);
-                        if(jPlayer != null && job != null){
-                            try{
-                                // check if player already has the job
-                                if(jPlayer.isInJob(job)){
-                                    Integer levelsGained = Integer.parseInt(args[3]);
-                                    if (jPlayer.getJobsProgression(job).getJob().getMaxLevel() != null &&
-                                            levelsGained + jPlayer.getJobsProgression(job).getLevel() > jPlayer.getJobsProgression(job).getJob().getMaxLevel()){
-                                        levelsGained = jPlayer.getJobsProgression(job).getJob().getMaxLevel() - jPlayer.getJobsProgression(job).getLevel();
-                                    }
-                                    jPlayer.getJobsProgression(job).setLevel(jPlayer.getJobsProgression(job).getLevel() + levelsGained);
-                                    
-                                    jPlayer.reloadMaxExperience();
-                                    jPlayer.checkLevels();
-                                    
-                                    if(player != null) {
-                                        String message = plugin.getMessageConfig().getMessage("promote-target");
-                                        message = message.replace("%jobcolour%", job.getChatColour().toString());
-                                        message = message.replace("%jobname%", job.getName());
-                                        message = message.replace("%levelsgained%", levelsGained.toString());
-                                        sendMessageByLine(player, message);
-                                    }
-                                    sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
-                                }
-                                plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
-                            }
-                            catch (Exception e){
-                                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
-                            }
-                        }
-                    }
-                    return true;
-                }
-                else if(args[0].equalsIgnoreCase("demote")){
-                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.demote")) {
-                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
-                        Player player = plugin.getServer().getPlayer(args[1]);
-                        Job job = plugin.getJobConfig().getJob(args[2]);
-                        if(jPlayer != null && job != null){
-                            try{
-                                // check if player already has the job
-                                if(jPlayer.isInJob(job)){
-                                    Integer levelsLost = Integer.parseInt(args[3]);
-                                    if (jPlayer.getJobsProgression(job).getLevel() - levelsLost < 1){
-                                        levelsLost = jPlayer.getJobsProgression(job).getLevel() - 1;
-                                    }
-                                    jPlayer.getJobsProgression(job).setLevel(jPlayer.getJobsProgression(job).getLevel() - levelsLost);
-                                    
-                                    jPlayer.reloadMaxExperience();
-                                    jPlayer.checkLevels();
-                                    
-                                    if(player != null) {
-                                        String message = plugin.getMessageConfig().getMessage("demote-target");
-                                        message = message.replace("%jobcolour%", job.getChatColour().toString());
-                                        message = message.replace("%jobname%", job.getName());
-                                        message = message.replace("%levelslost%", levelsLost.toString());
-                                        sendMessageByLine(player, message);
-                                    }
-                                    sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
-                                }
-
-                                plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
-                            }
-                            catch (Exception e){
-                                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
-                            }
-                        }
-                    }
-                    return true;
-                }
-                else if(args[0].equalsIgnoreCase("grantxp")){
-                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.grantxp")) {
-                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
-                        Player player = plugin.getServer().getPlayer(args[1]);
-                        Job job = plugin.getJobConfig().getJob(args[2]);
-                        if(jPlayer != null && job != null){
-                            Double expGained;
-                            try{
-                                expGained = Double.parseDouble(args[3]);
-                            }
-                            catch (ClassCastException ex){
-                                expGained = (double) Integer.parseInt(args[3]);
-                            }
-                            catch(Exception e){
-                                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
-                                return true;
-                            }
+            else if(args[0].equalsIgnoreCase("employ")){
+                if (sender.hasPermission("jobs.admin.employ."+args[2])) {
+                    JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
+                    Player player = plugin.getServer().getPlayer(args[1]);
+                    Job job = plugin.getJobConfig().getJob(args[2]);
+                    if(jPlayer != null && job != null){
+                        try{
                             // check if player already has the job
-                            if(jPlayer.isInJob(job)){
-                                jPlayer.getJobsProgression(job).setExperience(jPlayer.getJobsProgression(job).getExperience() + expGained);
-                                    jPlayer.reloadMaxExperience();
-                                    jPlayer.checkLevels();
+                            if(!jPlayer.isInJob(job)){
+                                plugin.getServer().getPluginManager().callEvent(new JobsJoinEvent(jPlayer, job));
                                 if(player != null) {
-                                    String message = plugin.getMessageConfig().getMessage("grantxp-target");
+                                    String message = plugin.getMessageConfig().getMessage("employ-target");
                                     message = message.replace("%jobcolour%", job.getChatColour().toString());
                                     message = message.replace("%jobname%", job.getName());
-                                    message = message.replace("%expgained%", args[3]);
                                     sendMessageByLine(player, message);
                                 }
                                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
                             }
-                            plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
+                        }
+                        catch (Exception e){
+                            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
                         }
                     }
-                    return true;
                 }
-                else if(args[0].equalsIgnoreCase("removexp")){
-                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.removexp")) {
-                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
-                        Player player = plugin.getServer().getPlayer(args[1]);
-                        Job job = plugin.getJobConfig().getJob(args[2]);
-                        if(jPlayer != null && job != null){
-                            Double expLost;
-                            try{
-                                expLost = Double.parseDouble(args[3]);
-                            }
-                            catch (ClassCastException ex){
-                                expLost = (double) Integer.parseInt(args[3]);
-                            }
-                            catch(Exception e){
-                                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
-                                return true;
-                            }
+            }
+            return true;
+        }
+        else if(args.length == 4){
+            if(args[0].equalsIgnoreCase("promote")){
+                if (sender.hasPermission("jobs.admin.promote")) {
+                    JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
+                    Player player = plugin.getServer().getPlayer(args[1]);
+                    Job job = plugin.getJobConfig().getJob(args[2]);
+                    if(jPlayer != null && job != null){
+                        try{
                             // check if player already has the job
                             if(jPlayer.isInJob(job)){
-                                jPlayer.getJobsProgression(job).setExperience(jPlayer.getJobsProgression(job).getExperience() - expLost);
+                                Integer levelsGained = Integer.parseInt(args[3]);
+                                if (jPlayer.getJobsProgression(job).getJob().getMaxLevel() != null &&
+                                        levelsGained + jPlayer.getJobsProgression(job).getLevel() > jPlayer.getJobsProgression(job).getJob().getMaxLevel()){
+                                    levelsGained = jPlayer.getJobsProgression(job).getJob().getMaxLevel() - jPlayer.getJobsProgression(job).getLevel();
+                                }
+                                jPlayer.getJobsProgression(job).setLevel(jPlayer.getJobsProgression(job).getLevel() + levelsGained);
+                                
+                                jPlayer.reloadMaxExperience();
+                                jPlayer.checkLevels();
                                 
                                 if(player != null) {
-                                    String message = plugin.getMessageConfig().getMessage("removexp-target");
+                                    String message = plugin.getMessageConfig().getMessage("promote-target");
                                     message = message.replace("%jobcolour%", job.getChatColour().toString());
                                     message = message.replace("%jobname%", job.getName());
-                                    message = message.replace("%explost%", args[3]);
+                                    message = message.replace("%levelsgained%", levelsGained.toString());
                                     sendMessageByLine(player, message);
                                 }
                                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
                             }
                             plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
                         }
-                    }
-                    return true;
-                }
-                else if(args[0].equalsIgnoreCase("transfer")){
-                    if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.transfer")) {
-                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
-                        Player player = plugin.getServer().getPlayer(args[1]);
-                        Job oldjob = plugin.getJobConfig().getJob(args[2]);
-                        Job newjob = plugin.getJobConfig().getJob(args[3]);
-                        if(jPlayer != null && oldjob != null & newjob != null){
-                            try{
-                                if(jPlayer.isInJob(oldjob) && !jPlayer.isInJob(newjob)){
-                                    jPlayer.transferJob(oldjob, newjob);
-                                    if(newjob.getMaxLevel() != null && jPlayer.getJobsProgression(newjob).getLevel() > newjob.getMaxLevel()){
-                                        jPlayer.getJobsProgression(newjob).setLevel(newjob.getMaxLevel());
-                                    }
-                                    jPlayer.reloadMaxExperience();
-                                    jPlayer.reloadHonorific();
-                                    jPlayer.checkLevels();
-                                    // quit old job
-                                    plugin.getJobsConfiguration().getJobsDAO().quitJob(jPlayer, oldjob);
-                                    // join new job
-                                    plugin.getJobsConfiguration().getJobsDAO().joinJob(jPlayer, newjob);
-                                    // save data
-                                    plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
-                                    if(player != null) {
-                                        String message = plugin.getMessageConfig().getMessage("transfer-target");
-                                        message = message.replace("%oldjobcolour%", oldjob.getChatColour().toString());
-                                        message = message.replace("%oldjobname%", oldjob.getName());
-                                        message = message.replace("%newjobcolour%", newjob.getChatColour().toString());
-                                        message = message.replace("%newjobname%", newjob.getName());
-                                        sendMessageByLine(player, message);
-                                    }
-                                    sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
-                                }
-                            }
-                            catch (Exception e){
-                                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
-                            }
+                        catch (Exception e){
+                            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
                         }
                     }
-                    return true;
                 }
+                return true;
             }
-            if(args.length > 0){
-                sender.sendMessage(ChatColor.RED + "There was an error in your command");
+            else if(args[0].equalsIgnoreCase("demote")){
+                if (sender.hasPermission("jobs.admin.demote")) {
+                    JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
+                    Player player = plugin.getServer().getPlayer(args[1]);
+                    Job job = plugin.getJobConfig().getJob(args[2]);
+                    if(jPlayer != null && job != null){
+                        try{
+                            // check if player already has the job
+                            if(jPlayer.isInJob(job)){
+                                Integer levelsLost = Integer.parseInt(args[3]);
+                                if (jPlayer.getJobsProgression(job).getLevel() - levelsLost < 1){
+                                    levelsLost = jPlayer.getJobsProgression(job).getLevel() - 1;
+                                }
+                                jPlayer.getJobsProgression(job).setLevel(jPlayer.getJobsProgression(job).getLevel() - levelsLost);
+                                
+                                jPlayer.reloadMaxExperience();
+                                jPlayer.checkLevels();
+                                
+                                if(player != null) {
+                                    String message = plugin.getMessageConfig().getMessage("demote-target");
+                                    message = message.replace("%jobcolour%", job.getChatColour().toString());
+                                    message = message.replace("%jobname%", job.getName());
+                                    message = message.replace("%levelslost%", levelsLost.toString());
+                                    sendMessageByLine(player, message);
+                                }
+                                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
+                            }
+
+                            plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
+                        }
+                        catch (Exception e){
+                            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+                        }
+                    }
+                }
+                return true;
             }
-            
+            else if(args[0].equalsIgnoreCase("grantxp")){
+                if (sender.hasPermission("jobs.admin.grantxp")) {
+                    JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
+                    Player player = plugin.getServer().getPlayer(args[1]);
+                    Job job = plugin.getJobConfig().getJob(args[2]);
+                    if(jPlayer != null && job != null){
+                        Double expGained;
+                        try{
+                            expGained = Double.parseDouble(args[3]);
+                        }
+                        catch (ClassCastException ex){
+                            expGained = (double) Integer.parseInt(args[3]);
+                        }
+                        catch(Exception e){
+                            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+                            return true;
+                        }
+                        // check if player already has the job
+                        if(jPlayer.isInJob(job)){
+                            jPlayer.getJobsProgression(job).setExperience(jPlayer.getJobsProgression(job).getExperience() + expGained);
+                                jPlayer.reloadMaxExperience();
+                                jPlayer.checkLevels();
+                            if(player != null) {
+                                String message = plugin.getMessageConfig().getMessage("grantxp-target");
+                                message = message.replace("%jobcolour%", job.getChatColour().toString());
+                                message = message.replace("%jobname%", job.getName());
+                                message = message.replace("%expgained%", args[3]);
+                                sendMessageByLine(player, message);
+                            }
+                            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
+                        }
+                        plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
+                    }
+                }
+                return true;
+            }
+            else if(args[0].equalsIgnoreCase("removexp")){
+                if (sender.hasPermission("jobs.admin.removexp")) {
+                    JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
+                    Player player = plugin.getServer().getPlayer(args[1]);
+                    Job job = plugin.getJobConfig().getJob(args[2]);
+                    if(jPlayer != null && job != null){
+                        Double expLost;
+                        try{
+                            expLost = Double.parseDouble(args[3]);
+                        }
+                        catch (ClassCastException ex){
+                            expLost = (double) Integer.parseInt(args[3]);
+                        }
+                        catch(Exception e){
+                            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+                            return true;
+                        }
+                        // check if player already has the job
+                        if(jPlayer.isInJob(job)){
+                            jPlayer.getJobsProgression(job).setExperience(jPlayer.getJobsProgression(job).getExperience() - expLost);
+                            
+                            if(player != null) {
+                                String message = plugin.getMessageConfig().getMessage("removexp-target");
+                                message = message.replace("%jobcolour%", job.getChatColour().toString());
+                                message = message.replace("%jobname%", job.getName());
+                                message = message.replace("%explost%", args[3]);
+                                sendMessageByLine(player, message);
+                            }
+                            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
+                        }
+                        plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
+                    }
+                }
+                return true;
+            }
+            else if(args[0].equalsIgnoreCase("transfer")){
+                if (sender.hasPermission("jobs.admin.transfer")) {
+                    JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
+                    Player player = plugin.getServer().getPlayer(args[1]);
+                    Job oldjob = plugin.getJobConfig().getJob(args[2]);
+                    Job newjob = plugin.getJobConfig().getJob(args[3]);
+                    if(jPlayer != null && oldjob != null & newjob != null){
+                        try{
+                            if(jPlayer.isInJob(oldjob) && !jPlayer.isInJob(newjob)){
+                                jPlayer.transferJob(oldjob, newjob);
+                                if(newjob.getMaxLevel() != null && jPlayer.getJobsProgression(newjob).getLevel() > newjob.getMaxLevel()){
+                                    jPlayer.getJobsProgression(newjob).setLevel(newjob.getMaxLevel());
+                                }
+                                jPlayer.reloadMaxExperience();
+                                jPlayer.reloadHonorific();
+                                jPlayer.checkLevels();
+                                // quit old job
+                                plugin.getJobsConfiguration().getJobsDAO().quitJob(jPlayer, oldjob);
+                                // join new job
+                                plugin.getJobsConfiguration().getJobsDAO().joinJob(jPlayer, newjob);
+                                // save data
+                                plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
+                                if(player != null) {
+                                    String message = plugin.getMessageConfig().getMessage("transfer-target");
+                                    message = message.replace("%oldjobcolour%", oldjob.getChatColour().toString());
+                                    message = message.replace("%oldjobname%", oldjob.getName());
+                                    message = message.replace("%newjobcolour%", newjob.getChatColour().toString());
+                                    message = message.replace("%newjobname%", newjob.getName());
+                                    sendMessageByLine(player, message);
+                                }
+                                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
+                            }
+                        }
+                        catch (Exception e){
+                            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+                        }
+                    }
+                }
+                return true;
+            }
             // jobs-browse
             sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-browse"));
             
-            if(sender instanceof Player){
+            if (sender instanceof Player) {
                 // jobs-join
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-join"));
-                
                 //jobs-leave
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-leave"));
-                
                 //jobs-stats
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-stats"));
-                
                 //jobs-info
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-info"));
             }
             //jobs-admin-info
-            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.info")) {
+            if (sender.hasPermission("jobs.admin.info")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-info"));
             }
             //jobs-admin-fire
-            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.fire")) {
+            if (sender.hasPermission("jobs.admin.fire")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-fire"));
             }
             //jobs-admin-employ
-            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.employ")) {
+            if (sender.hasPermission("jobs.admin.employ")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-employ"));
             }
             //jobs-admin-promote
-            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.promote")) {
+            if (sender.hasPermission("jobs.admin.promote")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-promote"));
             }
             //jobs-admin-demote
-            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.demote")) {
+            if (sender.hasPermission("jobs.admin.demote")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-demote"));
             }
             //jobs-admin-grantxp
-            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.grantxp")) {
+            if (sender.hasPermission("jobs.admin.grantxp")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-grantxp"));
             }
             //jobs-admin-removexp
-            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.removexp")) {
+            if (sender.hasPermission("jobs.admin.removexp")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-removexp"));
             }
             //jobs-admin-transfer
-            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.transfer")) {
+            if (sender.hasPermission("jobs.admin.transfer")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-transfer"));
             }
-            if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.reload")) {
+            if (sender.hasPermission("jobs.admin.reload")) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("jobs-admin-reload"));
             }
         }
