@@ -3,7 +3,7 @@ description: Job plugin for bukkit
 main: me.zford.jobs.Jobs
 version: ${project.version}
 author: phrstbrn
-depend: [Vault]
+softdepend: [Vault]
 commands:
     Jobs:
         description: Jobs

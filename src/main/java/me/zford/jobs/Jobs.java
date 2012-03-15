@@ -60,7 +60,7 @@ public class Jobs extends JavaPlugin {
             getJobsConfiguration().getJobsDAO().closeConnections();
         }
         
-        getServer().getLogger().info("["+getDescription().getName()+"] has been disabled succesfully.");
+        getLogger().info("Plugin has been disabled succesfully.");
     }
 
     /**
@@ -81,7 +81,12 @@ public class Jobs extends JavaPlugin {
             return;
         
         if (!loadVault()) {
-            getLogger().severe("["+getDescription().getName()+"] Could not load Vault!");
+            getServer().getLogger().severe("==================== Jobs ====================");
+            getServer().getLogger().severe("Vault is required by this plugin to operate!");
+            getServer().getLogger().severe("Please install Vault first!");
+            getServer().getLogger().severe("You can find the latest version here:");
+            getServer().getLogger().severe("http://dev.bukkit.org/server-mods/vault/");
+            getServer().getLogger().severe("==============================================");
             setEnabled(false);
             return;
         }
@@ -119,7 +124,7 @@ public class Jobs extends JavaPlugin {
         reRegisterPermissions();
         
         // all loaded properly.
-        getServer().getLogger().info("["+getDescription().getName()+"] has been enabled succesfully.");
+        getLogger().info("Plugin has been enabled succesfully.");
     }
     
     /**
