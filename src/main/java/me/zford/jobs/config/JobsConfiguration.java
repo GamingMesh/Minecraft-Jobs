@@ -445,6 +445,10 @@ public class JobsConfiguration {
                         break;
                     }
                 }
+                if (pointWorld == null) {
+                    plugin.getLogger().severe("[Jobs] Unknown world "+worldName+", skipping area!");
+                    continue;
+                }
                 Location point1 = new Location(pointWorld,
                         conf.getDouble("restrictedareas."+areaKey+".point1.x", 0.0),
                         conf.getDouble("restrictedareas."+areaKey+".point1.y", 0.0),
