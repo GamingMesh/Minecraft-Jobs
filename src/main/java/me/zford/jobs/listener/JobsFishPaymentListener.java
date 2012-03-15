@@ -62,7 +62,7 @@ public class JobsFishPaymentListener implements Listener {
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         
         if(event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
-            plugin.getJobsPlayer(player.getName()).fished((Item)event.getCaught(), multiplier);
+            plugin.getJobsManager().getJobsPlayer(player.getName()).fished((Item)event.getCaught(), multiplier);
         }
     }
 }

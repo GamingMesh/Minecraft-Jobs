@@ -49,6 +49,8 @@ public class JobsPlayer {
 	private LinkedHashMap<Job, JobProgression> progression = new LinkedHashMap<Job, JobProgression>();
 	// display honorific
 	private String honorific;
+	// dao
+	JobsDAO dao;
 		
 	/**
 	 * Constructor.
@@ -59,9 +61,9 @@ public class JobsPlayer {
 	 */
 	public JobsPlayer(Jobs plugin, String playername, JobsDAO dao) {
 	    this.plugin = plugin;
-		// set player link
 		this.playername = playername;
-		// for all jobs players have
+		this.dao = dao;
+        // for all jobs players have
 		List<JobsDAOData> list = dao.getAllJobs(this);
 		if (list != null) {
 			for (JobsDAOData jobdata: list) {
@@ -445,5 +447,12 @@ public class JobsPlayer {
 			prog.setMaxExperience((int)prog.getJob().getMaxExp(param));
 			param.remove("joblevel");
 		}
+	}
+	
+	/**
+	 * Saves data
+	 */
+	public void save() {
+	    dao.save(this);
 	}
 }

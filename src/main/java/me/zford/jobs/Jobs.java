@@ -19,13 +19,10 @@
 
 package me.zford.jobs;
 
-import java.util.HashMap;
-
 import me.zford.jobs.config.JobConfig;
 import me.zford.jobs.config.JobsConfiguration;
 import me.zford.jobs.config.MessageConfig;
 import me.zford.jobs.config.container.Job;
-import me.zford.jobs.config.container.JobsPlayer;
 import me.zford.jobs.economy.BufferedPayment;
 import me.zford.jobs.economy.link.VaultLink;
 import me.zford.jobs.listener.JobsBlockPaymentListener;
@@ -43,21 +40,12 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-
-/**
- * Jobs main class
- * @author Alex
- * @author Zak Ford <zak.j.ford@gmail.com>
- */
-public class Jobs extends JavaPlugin{
-	
-	private HashMap<String, JobsPlayer> players = null;
-	
+public class Jobs extends JavaPlugin {	
     private MessageConfig messageConfig;
-    
     private JobsConfiguration jobsConfiguration;
     private JobConfig jobConfig;
     private BufferedPayment economy;
+    private JobsManager manager;
 
 	/**
 	 * Method called when you disable the plugin
@@ -66,15 +54,13 @@ public class Jobs extends JavaPlugin{
 		// kill all scheduled tasks associated to this.
 		getServer().getScheduler().cancelTasks(this);
         
-		// save all
-		if(getJobsConfiguration().getJobsDAO() != null){
-			saveAll();
+        manager.saveAll();
+        
+		if (getJobsConfiguration().getJobsDAO() != null) {
 			getJobsConfiguration().getJobsDAO().closeConnections();
 		}
 		
 		getServer().getLogger().info("["+getDescription().getName()+"] has been disabled succesfully.");
-		// wipe the hashMap
-		players.clear();
 	}
 
 	/**
@@ -83,8 +69,7 @@ public class Jobs extends JavaPlugin{
 	public void onEnable() {
 	    jobsConfiguration = new JobsConfiguration(this);
 	    jobConfig = new JobConfig(this);
-	    
-		players = new HashMap<String, JobsPlayer>();
+	    manager = new JobsManager(this);
 		JobsCommands commands = new JobsCommands(this);
 		this.getCommand("jobs").setExecutor(commands);
 		
@@ -105,7 +90,7 @@ public class Jobs extends JavaPlugin{
 		if(getJobsConfiguration().getSavePeriod() > 0) {
 			getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
 				public void run(){
-					saveAll();
+					manager.saveAll();
 				}
 			}, 20*60*getJobsConfiguration().getSavePeriod(), 20*60*getJobsConfiguration().getSavePeriod());
 		}
@@ -127,8 +112,8 @@ public class Jobs extends JavaPlugin{
 
 		
 		// add all online players
-		for(Player online: getServer().getOnlinePlayers()){
-			addPlayer(online.getName());
+		for (Player online: getServer().getOnlinePlayers()){
+			manager.addPlayer(online.getName());
 		}
 		
 		// register permissions
@@ -161,55 +146,6 @@ public class Jobs extends JavaPlugin{
 	}
 	
 	/**
-	 * Add a player to the plugin to me managed.
-	 * @param playername
-	 */
-	public void addPlayer(String playername) {
-		players.put(playername, new JobsPlayer(this, playername, getJobsConfiguration().getJobsDAO()));
-	}
-	
-	/**
-	 * Remove a player from the plugin.
-	 * @param playername
-	 */
-	public void removePlayer(String playername){
-	    if(players.containsKey(playername)) {
-    		save(playername);
-    		players.remove(playername);
-	    }
-	}
-	
-	/**
-	 * Save all the information of all of the players in the game
-	 */
-	public void saveAll() {
-		for(String playername : players.keySet()){
-			save(playername);
-		}
-	}
-	
-	/**
-	 * Save the information for the specific player
-	 * @param player - the player who's data is getting saved
-	 */
-	private void save(String playername) {
-	    JobsPlayer player = players.get(playername);
-	    getJobsConfiguration().getJobsDAO().save(player);
-	}
-	
-	/**
-	 * Get the player job info for specific player
-	 * @param player - the player who's job you're getting
-	 * @return the player job info of the player
-	 */
-	public JobsPlayer getJobsPlayer(String playername) {
-		JobsPlayer player = players.get(playername);
-		if(player != null)
-		    return player;
-		return new JobsPlayer(this, playername, getJobsConfiguration().getJobsDAO());
-	}
-	
-	/**
 	 * Disable the plugin
 	 */
 	public void disablePlugin(){
@@ -236,6 +172,13 @@ public class Jobs extends JavaPlugin{
 	 */
 	public MessageConfig getMessageConfig() {
 	    return messageConfig;
+	}
+	
+	/**
+	 * Returns jobs manager
+	 */
+	public JobsManager getJobsManager() {
+	    return manager;
 	}
 	
 	/**
@@ -276,6 +219,9 @@ public class Jobs extends JavaPlugin{
         }
     }
     
+    /**
+     * Re-Register Permissions
+     */
     public void reRegisterPermissions() {
         PluginManager pm = getServer().getPluginManager();
         for (World world : getServer().getWorlds()) {

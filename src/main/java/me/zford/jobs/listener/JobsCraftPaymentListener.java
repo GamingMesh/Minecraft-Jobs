@@ -77,6 +77,6 @@ public class JobsCraftPaymentListener implements Listener{
         Recipe recipe = event.getRecipe();
         
         ItemStack stack = recipe.getResult();
-		plugin.getJobsPlayer(player.getName()).crafted(stack, multiplier);
+		plugin.getJobsManager().getJobsPlayer(player.getName()).crafted(stack, multiplier);
 	}
 }

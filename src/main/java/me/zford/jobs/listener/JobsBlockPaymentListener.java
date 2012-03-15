@@ -54,7 +54,7 @@ public class JobsBlockPaymentListener implements Listener {
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
         
 		if(plugin.hasWorldPermission(player, player.getWorld())) {
-			plugin.getJobsPlayer(player.getName()).broke(event.getBlock(), multiplier);			
+			plugin.getJobsManager().getJobsPlayer(player.getName()).broke(event.getBlock(), multiplier);			
 		}
 	}
 
@@ -78,7 +78,7 @@ public class JobsBlockPaymentListener implements Listener {
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
         
         if(plugin.hasWorldPermission(player, player.getWorld())) {
-			plugin.getJobsPlayer(player.getName()).placed(event.getBlock(), multiplier);
+			plugin.getJobsManager().getJobsPlayer(player.getName()).placed(event.getBlock(), multiplier);
 		}
 	}
 }

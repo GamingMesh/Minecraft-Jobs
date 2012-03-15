@@ -53,7 +53,7 @@ public class JobsCommands implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player) {
             Player pSender = (Player)sender;
-            JobsPlayer jPlayer = plugin.getJobsPlayer(pSender.getName());
+            JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(pSender.getName());
             // player only commands
             // join
             if(args.length == 2 && args[0].equalsIgnoreCase("join")){
@@ -109,13 +109,13 @@ public class JobsCommands implements CommandExecutor {
                 JobsPlayer jPlayer = null;
                 if(args.length >= 2) {
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.stats")) {
-                        jPlayer = plugin.getJobsPlayer(args[1]);
+                        jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
                     } else {
                         sender.sendMessage(ChatColor.RED + "There was an error in your command");
                         return true;
                     }
                 } else if(sender instanceof Player) {
-                    jPlayer = plugin.getJobsPlayer(((Player)sender).getName());
+                    jPlayer = plugin.getJobsManager().getJobsPlayer(((Player)sender).getName());
                 }
                 
                 if(jPlayer == null) {
@@ -167,7 +167,7 @@ public class JobsCommands implements CommandExecutor {
                 if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.info")) {
                     String message = "";
                     message += "----------------\n";
-                    JobsPlayer player = plugin.getJobsPlayer(args[1]);
+                    JobsPlayer player = plugin.getJobsManager().getJobsPlayer(args[1]);
                     for(JobProgression jobProg: player.getJobsProgression()){
                         Job job = jobProg.getJob();
                         message += jobStatsMessage(jobProg);
@@ -184,11 +184,11 @@ public class JobsCommands implements CommandExecutor {
                     try {
                         if(plugin.isEnabled()) {
                             for(Player player : plugin.getServer().getOnlinePlayers()) {
-                                plugin.removePlayer(player.getName());
+                                plugin.getJobsManager().removePlayer(player.getName());
                             }
                             plugin.reloadConfigurations();
                             for(Player player : plugin.getServer().getOnlinePlayers()) {
-                                plugin.addPlayer(player.getName());
+                                plugin.getJobsManager().addPlayer(player.getName());
                             }
                             plugin.reRegisterPermissions();
                             sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
@@ -202,7 +202,7 @@ public class JobsCommands implements CommandExecutor {
             if(args.length == 3){
                 if(args[0].equalsIgnoreCase("fire")){
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.fire")) {
-                        JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
+                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job job = plugin.getJobConfig().getJob(args[2]);
                         if(jPlayer != null && job != null){
@@ -235,7 +235,7 @@ public class JobsCommands implements CommandExecutor {
                 }
                 else if(args[0].equalsIgnoreCase("employ")){
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.employ."+args[2])) {
-                        JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
+                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job job = plugin.getJobConfig().getJob(args[2]);
                         if(jPlayer != null && job != null){
@@ -263,7 +263,7 @@ public class JobsCommands implements CommandExecutor {
             else if(args.length == 4){
                 if(args[0].equalsIgnoreCase("promote")){
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.promote")) {
-                        JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
+                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job job = plugin.getJobConfig().getJob(args[2]);
                         if(jPlayer != null && job != null){
@@ -300,7 +300,7 @@ public class JobsCommands implements CommandExecutor {
                 }
                 else if(args[0].equalsIgnoreCase("demote")){
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.demote")) {
-                        JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
+                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job job = plugin.getJobConfig().getJob(args[2]);
                         if(jPlayer != null && job != null){
@@ -337,7 +337,7 @@ public class JobsCommands implements CommandExecutor {
                 }
                 else if(args[0].equalsIgnoreCase("grantxp")){
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.grantxp")) {
-                        JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
+                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job job = plugin.getJobConfig().getJob(args[2]);
                         if(jPlayer != null && job != null){
@@ -373,7 +373,7 @@ public class JobsCommands implements CommandExecutor {
                 }
                 else if(args[0].equalsIgnoreCase("removexp")){
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.removexp")) {
-                        JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
+                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job job = plugin.getJobConfig().getJob(args[2]);
                         if(jPlayer != null && job != null){
@@ -408,7 +408,7 @@ public class JobsCommands implements CommandExecutor {
                 }
                 else if(args[0].equalsIgnoreCase("transfer")){
                     if(sender instanceof ConsoleCommandSender || plugin.hasPermission((Player) sender, "jobs.admin.transfer")) {
-                        JobsPlayer jPlayer = plugin.getJobsPlayer(args[1]);
+                        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(args[1]);
                         Player player = plugin.getServer().getPlayer(args[1]);
                         Job oldjob = plugin.getJobConfig().getJob(args[2]);
                         Job newjob = plugin.getJobConfig().getJob(args[3]);

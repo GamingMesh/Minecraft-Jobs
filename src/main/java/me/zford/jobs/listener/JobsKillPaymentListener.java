@@ -100,11 +100,11 @@ public class JobsKillPaymentListener implements Listener {
                 // restricted area multiplier
                 double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(pDamager);
                 // pay
-                JobsPlayer jDamager = plugin.getJobsPlayer(pDamager.getName());
+                JobsPlayer jDamager = plugin.getJobsManager().getJobsPlayer(pDamager.getName());
                 jDamager.killed(lVictim.getClass().toString().replace("class ", "").trim(), multiplier);
                 // pay for jobs
                 if(lVictim instanceof Player){
-                    JobsPlayer jVictim = plugin.getJobsPlayer(((Player)lVictim).getName());
+                    JobsPlayer jVictim = plugin.getJobsManager().getJobsPlayer(((Player)lVictim).getName());
                     if(jVictim!=null && jVictim.getJobs()!= null){
                         for(Job temp: jVictim.getJobs()){
                             jDamager.killed((lVictim.getClass().toString().replace("class ", "")+":"+temp.getName()).trim(), multiplier);
