@@ -372,7 +372,12 @@ public class JobConfig {
                 }
             }
             
-            this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobFishInfo, jobCraftInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots));
+            boolean isHidden = false;
+            if (jobKey.equalsIgnoreCase("none")) {
+                isHidden = true;
+            }
+            
+            this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobFishInfo, jobCraftInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots, isHidden));
         }
 	}
     

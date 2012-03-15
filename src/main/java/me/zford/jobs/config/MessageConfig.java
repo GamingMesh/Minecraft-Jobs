@@ -62,7 +62,7 @@ public class MessageConfig {
         JOBS_LEAVE("ChatColor.YELLOW/jobs leave <jobname>ChatColor.WHITE - leave the selected job."),
         JOBS_STATS("ChatColor.YELLOW/jobs statsChatColor.WHITE - show the level you are in each job you are part of."),
         JOBS_INFO("ChatColor.YELLOW/jobs info <jobname> <break, place, kill, fish, craft>ChatColor.WHITE - show how much each job is getting paid and for what."),
-        JOBS_ADMIN_INFO("ChatColor.YELLOW/jobs admininfo <playername>ChatColor.WHITE - shows the level of each job and experience gains for the player."),
+        JOBS_ADMIN_INFO("ChatColor.YELLOW/jobs admininfo <playername> <jobname> <break, place, kill, fish, craft>ChatColor.WHITE - shows the level of each job and experience gains for the player."),
         JOBS_ADMIN_FIRE("ChatColor.YELLOW/jobs fire <playername> <job>ChatColor.WHITE - fire the player from the job."),
         JOBS_ADMIN_EMPLOY("ChatColor.YELLOW/jobs employ <playername> <job>ChatColor.WHITE - employ the player to the job."),
         JOBS_ADMIN_PROMOTE("ChatColor.YELLOW/jobs promote <playername> <job> <levels>ChatColor.WHITE - promote the player X levels in a job."),

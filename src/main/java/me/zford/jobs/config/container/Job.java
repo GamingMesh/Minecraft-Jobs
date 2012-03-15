@@ -39,7 +39,6 @@ import org.bukkit.inventory.ItemStack;
  *
  */
 public class Job {
-	
 	// payment for breaking a block
 	private HashMap<String, JobsMaterialInfo> jobBreakInfo;
 	// payment for crafting
@@ -68,6 +67,8 @@ public class Job {
 	private Integer maxLevel;
 	// max number of people allowed with this job on the server.
 	private Integer maxSlots;
+	// is hidden job
+	private boolean isHidden;
 
 	/**
 	 * Constructor
@@ -99,7 +100,8 @@ public class Job {
 			Parser expEquation,
 			DisplayMethod displayMethod,
 			Integer maxLevel,
-			Integer maxSlots){
+			Integer maxSlots,
+			boolean isHidden) {
 		this.jobBreakInfo = jobBreakInfo;
 		this.jobPlaceInfo = jobPlaceInfo;
 		this.jobCraftInfo = jobCreateInfo;
@@ -114,6 +116,7 @@ public class Job {
 		this.displayMethod = displayMethod;
 		this.maxLevel = maxLevel;
 		this.maxSlots = maxSlots;
+		this.isHidden = isHidden;
 	}
 	
 	/**
@@ -489,5 +492,9 @@ public class Job {
      */
     public HashMap<String, JobsMaterialInfo> getCraftInfo(){
         return jobCraftInfo;
+    }
+    
+    public boolean isHidden() {
+        return isHidden;
     }
 }
