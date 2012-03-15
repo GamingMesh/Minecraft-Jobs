@@ -184,6 +184,9 @@ public class Jobs extends JavaPlugin {
 	 * Reloads all configuration files
 	 */
 	public void reloadConfigurations() {
+	    if (!getDataFolder().exists()) {
+	        getDataFolder().mkdirs();
+	    }
 	    getMessageConfig().reload();
 	    jobsConfiguration.reload();
 	    getJobConfig().reload();
