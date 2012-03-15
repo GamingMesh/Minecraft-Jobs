@@ -73,15 +73,22 @@ public class JobConfig {
 	 */
 	private void loadJobSettings(){
 	    File f = new File(plugin.getDataFolder(), "jobConfig.yml");
-        YamlConfiguration conf;
         this.jobs.clear();
-        if(!f.exists()) {
-            // disable plugin
-            System.err.println("[Jobs] - configuration file jobConfig.yml does not exist.  Disabling jobs !");
-            plugin.disablePlugin();
-            return;
+        if (!f.exists()) {
+            try {
+                f.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        conf = new YamlConfiguration();
+        YamlConfiguration conf = new YamlConfiguration();
+        conf.options().header(new StringBuilder()
+            .append("Jobs configuration.").append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("Stores information about each job.").append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("For example configurations, visit http://dev.bukkit.org/server-mods/jobs/.").append(System.getProperty("line.separator"))
+            .toString());
         try {
             conf.load(f);
         } catch (FileNotFoundException e) {
@@ -92,113 +99,85 @@ public class JobConfig {
             e.printStackTrace();
         }
         ConfigurationSection jobSection = conf.getConfigurationSection("Jobs");
-        if(jobSection == null) {
-            // no jobs
-            System.err.println("[Jobs] - No jobs detected. Disabling Jobs!");
-            plugin.disablePlugin();
-            return;
+        if (jobSection == null) {
+            jobSection = conf.createSection("Jobs");
         }
         for(String jobKey : jobSection.getKeys(false)) {
             String jobName = conf.getString("Jobs."+jobKey+".fullname");
-            if(jobName == null) {
-                System.err.println("[Jobs] - Job " + jobKey + " has an invalid fullname property. Disabling jobs !");
-                plugin.disablePlugin();
-                return;
+            if (jobName == null) {
+                plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid fullname property. Skipping job!");
+                continue;
             }
             
-            Integer maxLevel = conf.getInt("Jobs."+jobKey+".max-level", -1);
-            if(maxLevel.intValue() == -1) {
+            Integer maxLevel = conf.getInt("Jobs."+jobKey+".max-level", 0);
+            if (maxLevel.intValue() <= 0) {
                 maxLevel = null;
-                System.out.println("[Jobs] - Job " + jobKey + " is missing the max-level property. defaulting to no limits !");
             }
 
-            Integer maxSlots = conf.getInt("Jobs."+jobKey+".slots", -1);
-            if(maxSlots.intValue() == -1) {
+            Integer maxSlots = conf.getInt("Jobs."+jobKey+".slots", 0);
+            if (maxSlots.intValue() <= 0) {
                 maxSlots = null;
-                System.out.println("[Jobs] - Job " + jobKey + " is missing the slots property. defaulting to no limits !");
             }
 
             String jobShortName = conf.getString("Jobs."+jobKey+".shortname");
-            if(jobShortName == null) {
-                System.err.println("[Jobs] - Job " + jobKey + " is missing the shortname property. Disabling jobs !");
-                plugin.disablePlugin();
-                return;
+            if (jobShortName == null) {
+                plugin.getLogger().severe("[Jobs] - Job " + jobKey + " is missing the shortname property.  Skipping job!");
+                continue;
             }
 
-            ChatColor jobColour = ChatColor.valueOf(conf.getString("Jobs."+jobKey+".ChatColour", "").toUpperCase());
-            if(jobColour == null) {
-                System.err.println("[Jobs] - Job " + jobKey + " is missing the ChatColour property. Disabling jobs !");
-                plugin.disablePlugin();
-                return;
+            ChatColor jobColour;
+            try {
+                jobColour = ChatColor.valueOf(conf.getString("Jobs."+jobKey+".ChatColour", "").toUpperCase());
+            } catch (IllegalArgumentException e) {
+                plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid ChatColour property.  Skipping job!");
+                continue;
             }
-            String disp = conf.getString("Jobs."+jobKey+".chat-display", "").toLowerCase();
+            String disp = conf.getString("Jobs."+jobKey+".chat-display", "");
             DisplayMethod displayMethod;
-            if(disp.equals("full")){
-                // full
+            if (disp.equalsIgnoreCase("full")) {
                 displayMethod = DisplayMethod.FULL;
-            }
-            else if(disp.equals("job")){
-                // job only
+            } else if(disp.equalsIgnoreCase("job")) {
                 displayMethod = DisplayMethod.JOB;
-            }
-            else if(disp.equals("title")){
-                // title only
+            } else if(disp.equalsIgnoreCase("title")) {
                 displayMethod = DisplayMethod.TITLE;
-            }
-            else if(disp.equals("none")){
-                // none
+            } else if(disp.equalsIgnoreCase("none")) {
                 displayMethod = DisplayMethod.NONE;
-            }
-            else if(disp.equals("shortfull")){
-                // none
+            } else if(disp.equalsIgnoreCase("shortfull")) {
                 displayMethod = DisplayMethod.SHORT_FULL;
-            }
-            else if(disp.equals("shortjob")){
-                // none
+            } else if(disp.equalsIgnoreCase("shortjob")) {
                 displayMethod = DisplayMethod.SHORT_JOB;
-            }
-            else if(disp.equals("shorttitle")){
-                // none
+            } else if(disp.equalsIgnoreCase("shorttitle")) {
                 displayMethod = DisplayMethod.SHORT_TITLE;
-            }
-            else {
-                // error
-                System.err.println("[Jobs] - Job " + jobKey + " has an invalid chat-display property. Disabling jobs !");
-                plugin.disablePlugin();
-                return;
+            } else {
+                plugin.getLogger().warning("[Jobs] - Job " + jobKey + " has an invalid chat-display property. Defaulting to None!");
+                displayMethod = DisplayMethod.NONE;
             }
             
             Parser maxExpEquation;
             String maxExpEquationInput = conf.getString("Jobs."+jobKey+".leveling-progression-equation");
             try {
                 maxExpEquation = new Parser(maxExpEquationInput);
-            }
-            catch(Exception e){
-                System.err.println("[Jobs] - Job " + jobKey + " has an invalid leveling-progression-equation property. Disabling jobs !");
-                plugin.disablePlugin();
-                return;
+            } catch(Exception e) {
+                plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid leveling-progression-equation property. Skipping job!");
+                continue;
             }
             
             Parser incomeEquation;
             String incomeEquationInput = conf.getString("Jobs."+jobKey+".income-progression-equation");
             try {
                 incomeEquation = new Parser(incomeEquationInput);
-            }
-            catch(Exception e){
-                System.err.println("[Jobs] - Job " + jobKey + " has an invalid income-progression-equation property. Disabling jobs !");
-                plugin.disablePlugin();
-                return;
+            } catch(Exception e) {
+                plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid income-progression-equation property. Skipping job!");
+                continue;
             }
             
             Parser expEquation;
             String expEquationInput = conf.getString("Jobs."+jobKey+".experience-progression-equation");
-            try{
+            try {
                 expEquation = new Parser(expEquationInput);
-            }
-            catch(Exception e){
-                System.err.println("[Jobs] - Job " + jobKey + " has an invalid experience-progression-equation property. Disabling jobs !");
-                plugin.disablePlugin();
-                return;
+            } catch(Exception e) {
+                plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid experience-progression-equation property. Skipping job!");
+                continue;
             }
             
             // items
@@ -207,23 +186,29 @@ public class JobConfig {
             ConfigurationSection breakSection = conf.getConfigurationSection("Jobs."+jobKey+".Break");
             HashMap<String, JobsMaterialInfo> jobBreakInfo = new HashMap<String, JobsMaterialInfo>();
             if(breakSection != null) {
-                for(String breakKey : breakSection.getKeys(false)) {
+                for (String breakKey : breakSection.getKeys(false)) {
                     String materialType = breakKey.toUpperCase();
                     String subType = "";
-                    Material material;
-                    if(materialType.contains("-")) {
+                    
+                    if (materialType.contains("-")) {
                         // uses subType
-                        subType = ":"+materialType.split("-")[1];
+                        subType = ":" + materialType.split("-")[1];
                         materialType = materialType.split("-")[0];
                     }
-                    try {
-                        material = Material.matchMaterial(materialType);
+                    Material material = Material.matchMaterial(materialType);
+                    if (material == null) {
+                        // try integer method
+                        Integer matId = null;
+                        try {
+                            matId = Integer.decode(materialType);
+                        } catch (NumberFormatException e) {}
+                        if (matId != null) {
+                            material = Material.getMaterial(matId);
+                        }
                     }
-                    catch(IllegalArgumentException e) {
-                        material = null;
-                    }
-                    if(material == null) {
-                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + breakKey + " Break material type property. Skipping!");
+                    
+                    if (material == null) {
+                        plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid " + breakKey + " Break material type property. Skipping!");
                         continue;
                     }
                     MaterialData materialData = new MaterialData(material);
@@ -242,20 +227,26 @@ public class JobConfig {
                 for(String placeKey : placeSection.getKeys(false)) {
                     String materialType = placeKey.toUpperCase();
                     String subType = "";
-                    Material material;
-                    if(materialType.contains("-")) {
+                    
+                    if (materialType.contains("-")) {
                         // uses subType
-                        subType = ":"+materialType.split("-")[1];
+                        subType = ":" + materialType.split("-")[1];
                         materialType = materialType.split("-")[0];
                     }
-                    try {
-                        material = Material.matchMaterial(materialType);
+                    Material material = Material.matchMaterial(materialType);
+                    if (material == null) {
+                        // try integer method
+                        Integer matId = null;
+                        try {
+                            matId = Integer.decode(materialType);
+                        } catch (NumberFormatException e) {}
+                        if (matId != null) {
+                            material = Material.getMaterial(matId);
+                        }
                     }
-                    catch(IllegalArgumentException e) {
-                        material = null;
-                    }
+                    
                     if(material == null) {
-                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + placeKey + " Place material type property. Skipping!");
+                        plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid " + placeKey + " Place material type property. Skipping!");
                         continue;
                     }
                     MaterialData materialData = new MaterialData(material);
@@ -274,20 +265,26 @@ public class JobConfig {
                 for(String craftKey : craftSection.getKeys(false)) {
                     String materialType = craftKey.toUpperCase();
                     String subType = "";
-                    Material material;
-                    if(materialType.contains("-")) {
+                    
+                    if (materialType.contains("-")) {
                         // uses subType
-                        subType = ":"+materialType.split("-")[1];
+                        subType = ":" + materialType.split("-")[1];
                         materialType = materialType.split("-")[0];
                     }
-                    try {
-                        material = Material.matchMaterial(materialType);
+                    Material material = Material.matchMaterial(materialType);
+                    if (material == null) {
+                        // try integer method
+                        Integer matId = null;
+                        try {
+                            matId = Integer.decode(materialType);
+                        } catch (NumberFormatException e) {}
+                        if (matId != null) {
+                            material = Material.getMaterial(matId);
+                        }
                     }
-                    catch(IllegalArgumentException e) {
-                        material = null;
-                    }
+                    
                     if(material == null) {
-                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + craftKey + " Craft material type property. Skipping!");
+                        plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid " + craftKey + " Craft material type property. Skipping!");
                         continue;
                     }
                     MaterialData materialData = new MaterialData(material);
@@ -309,7 +306,7 @@ public class JobConfig {
                     try {
                         victim = Class.forName("org.bukkit.craftbukkit.entity.Craft"+killKey);
                     } catch (ClassNotFoundException e) {
-                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + killKey + " Kill entity type property. Skipping!");
+                        plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid " + killKey + " Kill entity type property. Skipping!");
                         continue;
                     }
                     
@@ -327,22 +324,27 @@ public class JobConfig {
                 for(String fishKey : fishSection.getKeys(false)) {
                     String materialType = fishKey.toUpperCase();
                     String subType = "";
-                    Material material;
-                    if(materialType.contains("-")) {
+                    
+                    if (materialType.contains("-")) {
                         // uses subType
-                        subType = ":"+materialType.split("-")[1];
+                        subType = ":" + materialType.split("-")[1];
                         materialType = materialType.split("-")[0];
                     }
-                    try {
-                        material = Material.matchMaterial(materialType);
+                    Material material = Material.matchMaterial(materialType);
+                    if (material == null) {
+                        // try integer method
+                        Integer matId = null;
+                        try {
+                            matId = Integer.decode(materialType);
+                        } catch (NumberFormatException e) {}
+                        if (matId != null) {
+                            material = Material.getMaterial(matId);
+                        }
                     }
-                    catch(IllegalArgumentException e) {
-                        material = null;
-                    }
+                    
                     if(material == null) {
-                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + fishKey + " Fish material type property. Disabling jobs!");
-                        plugin.disablePlugin();
-                        return;
+                        plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid " + fishKey + " Fish material type property. Skipping!");
+                        continue;
                     }
                     MaterialData materialData = new MaterialData(material);
                     
@@ -365,9 +367,8 @@ public class JobConfig {
                     try {
                         jobKillInfo.put(("org.bukkit.craftbukkit.entity.CraftPlayer:"+entityType).trim(), new JobsLivingEntityInfo(Class.forName("org.bukkit.craftbukkit.entity.CraftPlayer"), experience, income));
                     } catch (ClassNotFoundException e) {
-                        System.err.println("[Jobs] - Job " + jobKey + " has an invalid " + customKillKey + " custom-kill entity type property. Disabling jobs!");
-                        plugin.disablePlugin();
-                        return;
+                        plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid " + customKillKey + " custom-kill entity type property. Skipping!");
+                        continue;
                     }
                 }
             }
@@ -378,6 +379,11 @@ public class JobConfig {
             }
             
             this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobFishInfo, jobCraftInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots, isHidden));
+        }
+        try {
+            conf.save(f);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 	}
     
