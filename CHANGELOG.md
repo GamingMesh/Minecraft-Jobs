@@ -1,5 +1,17 @@
 # Jobs plugin change log summary
 
+## 2.7.0
+* Vault now required for Economy support
+* Added crafting support without Spout
+* Simplified permissions for joining jobs
+* Simplified permissions for disabling in worlds
+* Configuration errors are handled more gracefully
+* Modified all configs to auto create if they don't exist
+* Added SQLite database type
+* Added toggle to disable in Creative mode
+* Changed behavior of chat honorifics
+* Removed Stats support
+
 ## 2.6.3
 * Updated to Bukkit 1.1 Event System
 * Updated off old Bukkit Configuration System
