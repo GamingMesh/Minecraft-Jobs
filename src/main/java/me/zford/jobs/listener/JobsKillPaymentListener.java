@@ -120,10 +120,8 @@ public class JobsKillPaymentListener implements Listener {
 	 * 
 	 * These creatures shouldn't payout if the configuration is set
 	 */
-    @EventHandler(priority=EventPriority.MONITOR)
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
-	    if(event.isCancelled())
-	        return;
 	    if(!(event.getEntity() instanceof LivingEntity))
 	        return;
 	    if(!event.getSpawnReason().equals(SpawnReason.SPAWNER))

@@ -37,12 +37,10 @@ public class JobsBlockPaymentListener implements Listener {
 		this.plugin = plugin;
 	}
 	
-	@EventHandler(priority=EventPriority.MONITOR)
-	public void onBlockBreak(BlockBreakEvent event){
+	@EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+	public void onBlockBreak(BlockBreakEvent event) {
 	    // make sure plugin is enabled
 	    if(!plugin.isEnabled()) return;
-        // make sure event is not canceled
-        if(event.isCancelled()) return;
         
         Player player = event.getPlayer();
         
@@ -58,12 +56,10 @@ public class JobsBlockPaymentListener implements Listener {
 		}
 	}
 
-    @EventHandler(priority=EventPriority.MONITOR)
-	public void onBlockPlace(BlockPlaceEvent event){
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+	public void onBlockPlace(BlockPlaceEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-        // make sure event is not canceled
-        if(event.isCancelled()) return;
         
         // check to make sure you can build
         if(!event.canBuild()) return;

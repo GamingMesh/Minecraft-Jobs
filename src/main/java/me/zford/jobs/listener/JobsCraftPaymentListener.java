@@ -42,13 +42,10 @@ public class JobsCraftPaymentListener implements Listener{
 		this.plugin = plugin;
 	}
 
-    @EventHandler(priority=EventPriority.MONITOR)
-	public void onInventoryCraft(CraftItemEvent event){
-		
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+	public void onInventoryCraft(CraftItemEvent event) {
 		// make sure plugin is enabled
 	    if(!plugin.isEnabled()) return;
-        // make sure event is not canceled
-        if(event.isCancelled()) return;
 	    
         // restricted area multiplier
         List<HumanEntity> viewers = event.getViewers();

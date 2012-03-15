@@ -44,9 +44,8 @@ public class JobsFishPaymentListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler(priority=EventPriority.MONITOR)
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
     public void onPlayerFish(PlayerFishEvent event) {
-        if (event.isCancelled()) return;
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
         
