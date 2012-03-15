@@ -31,7 +31,7 @@ public class JobsConnectionPool {
     private String password;
     public JobsConnectionPool(String driver, String url, String username, String password) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
         this.pooledConnections = new LinkedList<JobsConnection>();
-        Class.forName(driver).newInstance();
+        Class.forName(driver);
         this.url = url;
         this.username = username;
         this.password = password;

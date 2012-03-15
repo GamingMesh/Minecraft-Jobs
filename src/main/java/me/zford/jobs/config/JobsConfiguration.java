@@ -34,6 +34,7 @@ import me.zford.jobs.config.container.Title;
 import me.zford.jobs.dao.JobsDAO;
 import me.zford.jobs.dao.JobsDAOH2;
 import me.zford.jobs.dao.JobsDAOMySQL;
+import me.zford.jobs.dao.JobsDAOSQLite;
 import me.zford.jobs.util.ClassPathHack;
 import me.zford.jobs.util.FileDownloader;
 
@@ -116,8 +117,8 @@ public class JobsConfiguration {
         
         writer.options().header(header.toString());
 
-        writer.addComment("storage-method", "storage method, can be MySQL, h2");
-        generalConfig.addDefault("storage-method", "h2");
+        writer.addComment("storage-method", "storage method, can be MySQL, sqlite, h2");
+        generalConfig.addDefault("storage-method", "sqlite");
         
         writer.addComment("mysql-username", "Requires Mysql.");
         generalConfig.addDefault("mysql-username", "root");        
@@ -195,6 +196,8 @@ public class JobsConfiguration {
                 if (plugin.isEnabled())
                     this.dao = new JobsDAOH2(plugin);
             }
+        } else if(storageMethod.equalsIgnoreCase("sqlite")) {
+            this.dao = new JobsDAOSQLite(plugin);
         } else {
 			plugin.getLogger().severe("[Jobs] - Invalid storage method!  Disabling jobs!");
             plugin.disablePlugin();

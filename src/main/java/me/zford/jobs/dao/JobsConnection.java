@@ -42,7 +42,11 @@ public class JobsConnection {
     }
     
     public synchronized boolean isValid(int timeout) throws SQLException {
-        return conn.isValid(timeout);
+        try {
+            return conn.isValid(timeout);
+        } catch (AbstractMethodError e) {
+            return true;
+        }
     }
     
     public synchronized void close() {
