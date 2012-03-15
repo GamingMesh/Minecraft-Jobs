@@ -26,8 +26,8 @@ import me.zford.jobs.Jobs;
 
 public class JobsDAOMySQL extends JobsDAO {
     
-    public JobsDAOMySQL(Jobs plugin, String url, String dbName, String username, String password, String prefix) {
-        super(plugin, "com.mysql.jdbc.Driver", url+dbName, username, password, prefix);
+    public JobsDAOMySQL(Jobs plugin, String url, String username, String password, String prefix) {
+        super(plugin, "com.mysql.jdbc.Driver", url, username, password, prefix);
         setUp();
     }
     

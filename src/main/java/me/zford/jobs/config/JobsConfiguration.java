@@ -113,7 +113,7 @@ public class JobsConfiguration {
         writer.addComment("mysql-username", "Requires Mysql.");
         generalConfig.addDefault("mysql-username", "root");        
         generalConfig.addDefault("mysql-password", "");
-        generalConfig.addDefault("mysql-url", "jdbc:mysql://localhost:3306/");
+        generalConfig.addDefault("mysql-url", "jdbc:mysql://localhost:3306/minecraft");
         generalConfig.addDefault("mysql-table-prefix", "");
         
         writer.addComment("save-period", 
@@ -158,11 +158,10 @@ public class JobsConfiguration {
                 plugin.disablePlugin();
             }
             String password = generalConfig.getString("mysql-password");
-            String dbName = generalConfig.getString("mysql-database");
             String url = generalConfig.getString("mysql-url");
             String prefix = generalConfig.getString("mysql-table-prefix");
             if (plugin.isEnabled())
-                this.dao = new JobsDAOMySQL(plugin, url, dbName, username, password, prefix);
+                this.dao = new JobsDAOMySQL(plugin, url, username, password, prefix);
         } else if(storageMethod.equalsIgnoreCase("h2")) {
             File h2jar = new File(plugin.getDataFolder(), "h2.jar");
             if (!h2jar.exists()) {
