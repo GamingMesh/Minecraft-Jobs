@@ -207,7 +207,7 @@ public class JobsCommands implements CommandExecutor {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
             } catch (Exception e) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
-                plugin.getLogger().severe("[Jobs] There was an error when performing a reload: "+e.getStackTrace());
+                plugin.getLogger().severe("There was an error when performing a reload: "+e.getStackTrace());
             }
             return true;
         }

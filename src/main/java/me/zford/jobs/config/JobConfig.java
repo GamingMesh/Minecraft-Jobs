@@ -99,7 +99,7 @@ public class JobConfig {
         for(String jobKey : jobSection.getKeys(false)) {
             String jobName = conf.getString("Jobs."+jobKey+".fullname");
             if (jobName == null) {
-                plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid fullname property. Skipping job!");
+                plugin.getLogger().severe("Job " + jobKey + " has an invalid fullname property. Skipping job!");
                 continue;
             }
             
@@ -115,7 +115,7 @@ public class JobConfig {
 
             String jobShortName = conf.getString("Jobs."+jobKey+".shortname");
             if (jobShortName == null) {
-                plugin.getLogger().severe("[Jobs] - Job " + jobKey + " is missing the shortname property.  Skipping job!");
+                plugin.getLogger().severe("Job " + jobKey + " is missing the shortname property.  Skipping job!");
                 continue;
             }
 
@@ -123,7 +123,7 @@ public class JobConfig {
             try {
                 jobColour = ChatColor.valueOf(conf.getString("Jobs."+jobKey+".ChatColour", "").toUpperCase());
             } catch (IllegalArgumentException e) {
-                plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid ChatColour property.  Skipping job!");
+                plugin.getLogger().severe("Job " + jobKey + " has an invalid ChatColour property.  Skipping job!");
                 continue;
             }
             String disp = conf.getString("Jobs."+jobKey+".chat-display", "");
@@ -143,7 +143,7 @@ public class JobConfig {
             } else if(disp.equalsIgnoreCase("shorttitle")) {
                 displayMethod = DisplayMethod.SHORT_TITLE;
             } else {
-                plugin.getLogger().warning("[Jobs] - Job " + jobKey + " has an invalid chat-display property. Defaulting to None!");
+                plugin.getLogger().warning("Job " + jobKey + " has an invalid chat-display property. Defaulting to None!");
                 displayMethod = DisplayMethod.NONE;
             }
             
@@ -152,7 +152,7 @@ public class JobConfig {
             try {
                 maxExpEquation = new Parser(maxExpEquationInput);
             } catch(Exception e) {
-                plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid leveling-progression-equation property. Skipping job!");
+                plugin.getLogger().severe("Job " + jobKey + " has an invalid leveling-progression-equation property. Skipping job!");
                 continue;
             }
             
@@ -161,7 +161,7 @@ public class JobConfig {
             try {
                 incomeEquation = new Parser(incomeEquationInput);
             } catch(Exception e) {
-                plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid income-progression-equation property. Skipping job!");
+                plugin.getLogger().severe("Job " + jobKey + " has an invalid income-progression-equation property. Skipping job!");
                 continue;
             }
             
@@ -170,7 +170,7 @@ public class JobConfig {
             try {
                 expEquation = new Parser(expEquationInput);
             } catch(Exception e) {
-                plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid experience-progression-equation property. Skipping job!");
+                plugin.getLogger().severe("Job " + jobKey + " has an invalid experience-progression-equation property. Skipping job!");
                 continue;
             }
             
@@ -202,7 +202,7 @@ public class JobConfig {
                     }
                     
                     if (material == null) {
-                        plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid " + breakKey + " Break material type property. Skipping!");
+                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + breakKey + " Break material type property. Skipping!");
                         continue;
                     }
                     MaterialData materialData = new MaterialData(material);
@@ -240,7 +240,7 @@ public class JobConfig {
                     }
                     
                     if(material == null) {
-                        plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid " + placeKey + " Place material type property. Skipping!");
+                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + placeKey + " Place material type property. Skipping!");
                         continue;
                     }
                     MaterialData materialData = new MaterialData(material);
@@ -278,7 +278,7 @@ public class JobConfig {
                     }
                     
                     if(material == null) {
-                        plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid " + craftKey + " Craft material type property. Skipping!");
+                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + craftKey + " Craft material type property. Skipping!");
                         continue;
                     }
                     MaterialData materialData = new MaterialData(material);
@@ -300,7 +300,7 @@ public class JobConfig {
                     try {
                         victim = Class.forName("org.bukkit.craftbukkit.entity.Craft"+killKey);
                     } catch (ClassNotFoundException e) {
-                        plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid " + killKey + " Kill entity type property. Skipping!");
+                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + killKey + " Kill entity type property. Skipping!");
                         continue;
                     }
                     
@@ -337,7 +337,7 @@ public class JobConfig {
                     }
                     
                     if(material == null) {
-                        plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid " + fishKey + " Fish material type property. Skipping!");
+                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + fishKey + " Fish material type property. Skipping!");
                         continue;
                     }
                     MaterialData materialData = new MaterialData(material);
@@ -361,7 +361,7 @@ public class JobConfig {
                     try {
                         jobKillInfo.put(("org.bukkit.craftbukkit.entity.CraftPlayer:"+entityType).trim(), new JobsLivingEntityInfo(Class.forName("org.bukkit.craftbukkit.entity.CraftPlayer"), experience, income));
                     } catch (ClassNotFoundException e) {
-                        plugin.getLogger().severe("[Jobs] - Job " + jobKey + " has an invalid " + customKillKey + " custom-kill entity type property. Skipping!");
+                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + customKillKey + " custom-kill entity type property. Skipping!");
                         continue;
                     }
                 }

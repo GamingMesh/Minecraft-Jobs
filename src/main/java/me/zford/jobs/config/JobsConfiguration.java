@@ -154,7 +154,7 @@ public class JobsConfiguration {
         if(storageMethod.equalsIgnoreCase("mysql")) {
             String username = generalConfig.getString("mysql-username");
             if(username == null) {
-                plugin.getLogger().severe("[Jobs] - mysql-username property invalid or missing");
+                plugin.getLogger().severe("mysql-username property invalid or missing");
                 plugin.disablePlugin();
             }
             String password = generalConfig.getString("mysql-password");
@@ -171,7 +171,7 @@ public class JobsConfiguration {
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
-                    plugin.getLogger().severe("[Jobs] Could not download database library.  Disabling jobs!");
+                    plugin.getLogger().severe("Could not download database library.  Disabling jobs!");
                     plugin.disablePlugin();
                 }
             }
@@ -179,7 +179,7 @@ public class JobsConfiguration {
                 try {
                     ClassPathHack.addFile(h2jar);
                 } catch (IOException e) {
-                    plugin.getLogger().severe("[Jobs] Could not load database library.  Disabling jobs!");
+                    plugin.getLogger().severe("Could not load database library.  Disabling jobs!");
                     plugin.disablePlugin();
                 }
                 if (plugin.isEnabled())
@@ -188,13 +188,13 @@ public class JobsConfiguration {
         } else if(storageMethod.equalsIgnoreCase("sqlite")) {
             this.dao = new JobsDAOSQLite(plugin);
         } else {
-            plugin.getLogger().severe("[Jobs] - Invalid storage method!  Disabling jobs!");
+            plugin.getLogger().severe("Invalid storage method!  Disabling jobs!");
             plugin.disablePlugin();
         }
         
         // save-period
         if(generalConfig.getInt("save-period") <= 0) {
-            plugin.getLogger().info("[Jobs] - Invalid save-period property! Defaulting to 10!");
+            plugin.getLogger().info("Invalid save-period property! Defaulting to 10!");
             generalConfig.set("save-period", 10);
         }
         
@@ -301,25 +301,25 @@ public class JobsConfiguration {
             try {
                 colour = ChatColor.valueOf(conf.getString("Titles."+titleKey+".ChatColour", "").toUpperCase());
             } catch (IllegalArgumentException e) {
-                plugin.getLogger().severe("[Jobs] - Title " + titleKey + "has an invalid ChatColour property. Skipping!");
+                plugin.getLogger().severe("Title " + titleKey + "has an invalid ChatColour property. Skipping!");
                 continue;
             }
             int levelReq = conf.getInt("Titles."+titleKey+".levelReq", -1);
             
             if (titleName == null) {
-                plugin.getLogger().severe("[Jobs] - Title " + titleKey + " has an invalid Name property. Skipping!");
+                plugin.getLogger().severe("Title " + titleKey + " has an invalid Name property. Skipping!");
                 continue;
             }
             if (titleShortName == null) {
-                plugin.getLogger().severe("[Jobs] - Title " + titleKey + " has an invalid ShortName property. Skipping!");
+                plugin.getLogger().severe("Title " + titleKey + " has an invalid ShortName property. Skipping!");
                 continue;
             }
             if (colour == null) {
-                plugin.getLogger().severe("[Jobs] - Title " + titleKey + " has an invalid ChatColour property. Skipping!");
+                plugin.getLogger().severe("Title " + titleKey + " has an invalid ChatColour property. Skipping!");
                 continue;
             }
             if (levelReq <= -1) {
-                plugin.getLogger().severe("[Jobs] - Title " + titleKey + " has an invalid levelReq property. Skipping!");
+                plugin.getLogger().severe("Title " + titleKey + " has an invalid levelReq property. Skipping!");
                 continue;
             }
             
@@ -435,7 +435,7 @@ public class JobsConfiguration {
                     }
                 }
                 if (pointWorld == null) {
-                    plugin.getLogger().severe("[Jobs] Unknown world "+worldName+", skipping area!");
+                    plugin.getLogger().severe("Unknown world "+worldName+", skipping area!");
                     continue;
                 }
                 Location point1 = new Location(pointWorld,
