@@ -539,7 +539,7 @@ public class JobsCommands implements CommandExecutor {
             showAllTypes = 0;
         }
         
-        if(type.equalsIgnoreCase("break") || showAllTypes == 1){
+        if (type.equalsIgnoreCase("break") || showAllTypes == 1) {
             // break
             HashMap<String, JobsMaterialInfo> jobBreakInfo = job.getBreakInfo();
             if(jobBreakInfo != null){
@@ -552,7 +552,7 @@ public class JobsCommands implements CommandExecutor {
                 message += myMessage;
             }
         }
-        if(type.equalsIgnoreCase("place") || showAllTypes == 1){
+        if (type.equalsIgnoreCase("place") || showAllTypes == 1) {
             // place
             HashMap<String, JobsMaterialInfo> jobPlaceInfo = job.getPlaceInfo();
             
@@ -566,7 +566,7 @@ public class JobsCommands implements CommandExecutor {
                 message += myMessage;
             }
         }
-        if(type.equalsIgnoreCase("kill") || showAllTypes == 1){
+        if (type.equalsIgnoreCase("kill") || showAllTypes == 1) {
             // kill
             HashMap<String, JobsLivingEntityInfo> jobKillInfo = job.getKillInfo();
             
@@ -581,7 +581,7 @@ public class JobsCommands implements CommandExecutor {
             }
         }
         
-        if(type.equalsIgnoreCase("fish") || showAllTypes == 1){
+        if (type.equalsIgnoreCase("fish") || showAllTypes == 1) {
             // fish
             HashMap<String, JobsMaterialInfo> jobFishInfo = job.getFishInfo();
             
@@ -596,20 +596,18 @@ public class JobsCommands implements CommandExecutor {
             }
         }
         
-        if(plugin.getServer().getPluginManager().getPlugin("Spout") != null){
-            if(type.equalsIgnoreCase("craft") || showAllTypes == 1){
-                // craft
-                HashMap<String, JobsMaterialInfo> jobCraftInfo = job.getCraftInfo();
-                
-                if(jobCraftInfo != null){
-                    message += jobInfoCraftMessage(player, job, jobCraftInfo);
-                }
-                else if(showAllTypes == 0) {
-                    String myMessage = plugin.getMessageConfig().getMessage("craft-none");
-                    myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
-                    myMessage = myMessage.replace("%jobname%", job.getName());
-                    message += myMessage;
-                }
+        if (type.equalsIgnoreCase("craft") || showAllTypes == 1) {
+            // craft
+            HashMap<String, JobsMaterialInfo> jobCraftInfo = job.getCraftInfo();
+            
+            if(jobCraftInfo != null){
+                message += jobInfoCraftMessage(player, job, jobCraftInfo);
+            }
+            else if(showAllTypes == 0) {
+                String myMessage = plugin.getMessageConfig().getMessage("craft-none");
+                myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
+                myMessage = myMessage.replace("%jobname%", job.getName());
+                message += myMessage;
             }
         }
         return message;
