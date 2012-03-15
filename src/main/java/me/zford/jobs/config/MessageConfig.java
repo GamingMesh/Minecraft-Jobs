@@ -29,15 +29,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-
-/**
- * Message configuration class.
- * 
- * Message configuration data for jobs plugin
- * @author Zak Ford <zak.j.ford@gmail.com>
- *
- */
-
 public class MessageConfig {
     
     private enum JobsMessageEnum {

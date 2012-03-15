@@ -19,8 +19,7 @@
 
 package me.zford.jobs.config.container;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.Map;
 
 import me.zford.jobs.resources.jfep.Parser;
 
@@ -80,8 +79,8 @@ public class JobsMaterialInfo{
 	 * @return the money given
 	 * @return null if it isn't the block
 	 */
-	public Double getMoneyFromMaterial(Parser equation, HashMap<String, Double> parameters) {
-		for(Entry<String, Double> temp: parameters.entrySet()){
+	public Double getMoneyFromMaterial(Parser equation, Map<String, Double> parameters) {
+		for (Map.Entry<String, Double> temp: parameters.entrySet()) {
 			equation.setVariable(temp.getKey(), temp.getValue());
 		}
 		equation.setVariable("baseincome", moneyGiven);
@@ -96,8 +95,8 @@ public class JobsMaterialInfo{
 	 * @return the experience given
 	 * @return null if it isn't the block
 	 */
-	public Double getXPFromMaterial(Parser equation, HashMap<String, Double> parameters) {
-		for(Entry<String, Double> temp: parameters.entrySet()){
+	public Double getXPFromMaterial(Parser equation, Map<String, Double> parameters) {
+		for (Map.Entry<String, Double> temp: parameters.entrySet()) {
 			equation.setVariable(temp.getKey(), temp.getValue());
 		}
 		equation.setVariable("baseexperience", xpGiven);

@@ -23,7 +23,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.WeakHashMap;
 
 import me.zford.jobs.Jobs;
 import me.zford.jobs.config.container.DisplayMethod;
@@ -39,20 +42,11 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.material.MaterialData;
 
-
-/**
- * Configuration class.
- * 
- * Holds all the configuration information for the jobs plugin
- * @author Alex
- * @author Zak Ford <zak.j.ford@gmail.com>
- *
- */
 public class JobConfig {
 	// all of the possible jobs
-	private HashMap<String, Job> jobs = new HashMap<String, Job>();
+	private LinkedHashMap<String, Job> jobs = new LinkedHashMap<String, Job>();
 	// used slots for each job
-	private HashMap<Job, Integer> usedSlots = new HashMap<Job, Integer>();
+	private WeakHashMap<Job, Integer> usedSlots = new WeakHashMap<Job, Integer>();
 	
 	private Jobs plugin;
 	public JobConfig(Jobs plugin) {
@@ -410,8 +404,8 @@ public class JobConfig {
 	 * Get all the jobs loaded in the plugin
 	 * @return a collection of the jobs
 	 */
-	public Collection<Job> getJobs(){
-		return jobs.values();
+	public Collection<Job> getJobs() {
+		return Collections.unmodifiableCollection(jobs.values());
 	}
 	
 	/**

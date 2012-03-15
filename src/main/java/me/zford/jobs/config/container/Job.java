@@ -19,8 +19,8 @@
 
 package me.zford.jobs.config.container;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.Collections;
+import java.util.Map;
 
 import me.zford.jobs.resources.jfep.Parser;
 
@@ -30,25 +30,17 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.inventory.ItemStack;
 
-
-/**
- * Job Class that will hold the information about a job.
- * Each job object will map to a job in the configuration.
- * 
- * @author Alex
- *
- */
 public class Job {
 	// payment for breaking a block
-	private HashMap<String, JobsMaterialInfo> jobBreakInfo;
+	private Map<String, JobsMaterialInfo> jobBreakInfo;
 	// payment for crafting
-	private HashMap<String, JobsMaterialInfo> jobCraftInfo;
+	private Map<String, JobsMaterialInfo> jobCraftInfo;
 	// payment for placing a block
-	private HashMap<String, JobsMaterialInfo> jobPlaceInfo;
+	private Map<String, JobsMaterialInfo> jobPlaceInfo;
 	// payment for killing a living entity
-	private HashMap<String, JobsLivingEntityInfo> jobKillInfo;
+	private Map<String, JobsLivingEntityInfo> jobKillInfo;
     // payment for killing a living entity
-    private HashMap<String, JobsMaterialInfo> jobFishInfo;
+    private Map<String, JobsMaterialInfo> jobFishInfo;
 	// job name
 	private String jobName;
 	// job short name (for use in multiple jobs)
@@ -87,11 +79,11 @@ public class Job {
 	 * @param maxLevel - the maximum level allowed (null for no max level)
 	 * @param maxSlots - the maximum number of people allowed to have this job at one time (null for no limits)
 	 */
-	public Job(HashMap<String, JobsMaterialInfo> jobBreakInfo, 
-			HashMap<String, JobsMaterialInfo> jobPlaceInfo, 
-			HashMap<String, JobsLivingEntityInfo> jobKillInfo,
-		    HashMap<String, JobsMaterialInfo> jobFishInfo,
-		    HashMap<String, JobsMaterialInfo> jobCreateInfo,
+	public Job(Map<String, JobsMaterialInfo> jobBreakInfo, 
+	        Map<String, JobsMaterialInfo> jobPlaceInfo, 
+			Map<String, JobsLivingEntityInfo> jobKillInfo,
+			Map<String, JobsMaterialInfo> jobFishInfo,
+			Map<String, JobsMaterialInfo> jobCreateInfo,
 			String jobName,
 			String jobShortName,
 			ChatColor jobColour,
@@ -125,7 +117,7 @@ public class Job {
 	 * @param param - parameters for the customisable equation
 	 * @return the income received for killing the LivingEntity
 	 */
-	public Double getKillIncome(String mob, HashMap<String, Double> param){
+	public Double getKillIncome(String mob, Map<String, Double> param) {
 		if(jobKillInfo.containsKey(mob)){
 			return jobKillInfo.get(mob).getMoneyFromKill(incomeEquation, mob, param);
 		}
@@ -138,7 +130,7 @@ public class Job {
 	 * @param param - parameters for the customisable equation
 	 * @return the exp received for killing the LivingEntity
 	 */
-	public Double getKillExp(String mob, HashMap<String, Double> param){
+	public Double getKillExp(String mob, Map<String, Double> param) {
 		if(jobKillInfo.containsKey(mob)){
 			return jobKillInfo.get(mob).getXPFromKill(expEquation, mob, param);
 		}
@@ -152,7 +144,7 @@ public class Job {
 	 * @return the income received for placing the block
 	 * @return null if job has no payment for this type of block
 	 */
-	public Double getPlaceIncome(Block block, HashMap<String, Double> param){
+	public Double getPlaceIncome(Block block, Map<String, Double> param) {
         return this.getBlockActionIncome(block, param, this.jobPlaceInfo);
 	}
 	
@@ -163,7 +155,7 @@ public class Job {
 	 * @return the exp received for placing the block
 	 * @return null if job has no payment for this type of block
 	 */
-	public Double getPlaceExp(Block block, HashMap<String, Double> param){
+	public Double getPlaceExp(Block block, Map<String, Double> param) {
         return this.getBlockActionExp(block, param, this.jobPlaceInfo);
 	}
 	
@@ -174,7 +166,7 @@ public class Job {
 	 * @return the income received for breaking the block
 	 * @return null if job has no payment for this type of block
 	 */
-	public Double getBreakIncome(Block block, HashMap<String, Double> param){
+	public Double getBreakIncome(Block block, Map<String, Double> param){
         return this.getBlockActionIncome(block, param, this.jobBreakInfo);
 	}
 	
@@ -185,7 +177,7 @@ public class Job {
 	 * @return the exp received for breaking the block
 	 * @return null if job has no payment for this type of block
 	 */
-	public Double getBreakExp(Block block, HashMap<String, Double> param){
+	public Double getBreakExp(Block block, Map<String, Double> param){
         return this.getBlockActionExp(block, param, this.jobBreakInfo);
 	}
 	
@@ -196,7 +188,7 @@ public class Job {
 	 * @return the income received for crafting the item
 	 * @return null if job has no payment for this type of block
 	 */
-	public Double getCraftIncome(ItemStack items, HashMap<String, Double> param){
+	public Double getCraftIncome(ItemStack items, Map<String, Double> param){
         return this.getItemActionIncome(items, param, this.jobCraftInfo);
 	}
 	
@@ -207,7 +199,7 @@ public class Job {
 	 * @return the income received for crafting the item
 	 * @return null if job has no payment for this type of block
 	 */
-	public Double getCraftExp(ItemStack items, HashMap<String, Double> param){
+	public Double getCraftExp(ItemStack items, Map<String, Double> param){
         return this.getItemActionExp(items, param, this.jobCraftInfo);
 	}
 	
@@ -218,7 +210,7 @@ public class Job {
      * @return the income received for fishing the item
      * @return null if job has no payment for this type of action
      */
-	public Double getFishIncome(Item item, HashMap<String, Double> param) {
+	public Double getFishIncome(Item item, Map<String, Double> param) {
 	    String materialKey = item.getItemStack().getType().toString();
         // try simple
         if(this.jobFishInfo.containsKey(materialKey)){
@@ -240,7 +232,7 @@ public class Job {
      * @return the income received for fishing the item
      * @return null if job has no payment for this type of action
      */
-    public Double getFishExp(Item item, HashMap<String, Double> param) {
+    public Double getFishExp(Item item, Map<String, Double> param) {
         String materialKey = item.getItemStack().getType().toString();
         // try simple
         if(this.jobFishInfo.containsKey(materialKey)){
@@ -263,7 +255,7 @@ public class Job {
      * @return the income received for performing the action
      * @return null if job has no payment for this type of action
      */
-    private Double getBlockActionIncome(Block block, HashMap<String, Double> param, HashMap<String, JobsMaterialInfo> info) {
+    private Double getBlockActionIncome(Block block, Map<String, Double> param, Map<String, JobsMaterialInfo> info) {
         String blockKey = block.getType().toString();
         
         // Normalize GLOWING_REDSTONE_ORE to REDSTONE_ORE
@@ -291,7 +283,7 @@ public class Job {
      * @return the exp received for performing the action
      * @return null if job has no payment for this type of action
      */
-    private Double getBlockActionExp(Block block, HashMap<String, Double> param, HashMap<String, JobsMaterialInfo> info) {
+    private Double getBlockActionExp(Block block, Map<String, Double> param, Map<String, JobsMaterialInfo> info) {
         String blockKey = block.getType().toString();
         
         // Normalize GLOWING_REDSTONE_ORE to REDSTONE_ORE
@@ -319,7 +311,7 @@ public class Job {
      * @return the income received for performing the action
      * @return null if job has no payment for this type of action
      */
-    private Double getItemActionIncome(ItemStack item, HashMap<String, Double> param, HashMap<String, JobsMaterialInfo> info) {
+    private Double getItemActionIncome(ItemStack item, Map<String, Double> param, Map<String, JobsMaterialInfo> info) {
         String blockKey = item.getType().toString();
         if(blockKey == null)
             return null;
@@ -347,7 +339,7 @@ public class Job {
      * @return the exp received for performing the action
      * @return null if job has no payment for this type of action
      */
-    private Double getItemActionExp(ItemStack item, HashMap<String, Double> param, HashMap<String, JobsMaterialInfo> info) {
+    private Double getItemActionExp(ItemStack item, Map<String, Double> param, Map<String, JobsMaterialInfo> info) {
         String blockKey = item.getType().toString();
         if(blockKey == null)
             return null;
@@ -421,8 +413,8 @@ public class Job {
 	 * @param level - current level
 	 * @return the correct max exp for this level
 	 */
-	public double getMaxExp(HashMap<String, Double> param){
-		for(Entry<String, Double> temp: param.entrySet()){
+	public double getMaxExp(Map<String, Double> param) {
+		for (Map.Entry<String, Double> temp: param.entrySet()) {
 			maxExpEquation.setVariable(temp.getKey(), temp.getValue());
 		}
 		return maxExpEquation.getValue();		
@@ -458,40 +450,40 @@ public class Job {
 	 * Get the payout information about breaking blocks
 	 * @return the map of breaking blocks and its payment
 	 */
-	public HashMap<String, JobsMaterialInfo> getBreakInfo(){
-		return jobBreakInfo;
+	public Map<String, JobsMaterialInfo> getBreakInfo() {
+		return Collections.unmodifiableMap(jobBreakInfo);
 	}
 	
 	/**
 	 * Get the payout information about placing blocks
 	 * @return the map of placing blocks and its payment
 	 */
-	public HashMap<String, JobsMaterialInfo> getPlaceInfo(){
-		return jobPlaceInfo;
+	public Map<String, JobsMaterialInfo> getPlaceInfo() {
+		return Collections.unmodifiableMap(jobPlaceInfo);
 	}
 	
 	/**
 	 * Get the payout information about killing entities
 	 * @return the map of killing entities and its payment
 	 */
-	public HashMap<String, JobsLivingEntityInfo> getKillInfo(){
-		return jobKillInfo;
+	public Map<String, JobsLivingEntityInfo> getKillInfo() {
+		return Collections.unmodifiableMap(jobKillInfo);
 	}
 	
 	/**
 	 * Get the payout information for fishing
 	 * @return the map of fishing and its payment
 	 */
-	public HashMap<String, JobsMaterialInfo> getFishInfo(){
-	    return jobFishInfo;
+	public Map<String, JobsMaterialInfo> getFishInfo() {
+	    return Collections.unmodifiableMap(jobFishInfo);
 	}
     
     /**
      * Get the payout information for crafting
      * @return the map of fishing and its payment
      */
-    public HashMap<String, JobsMaterialInfo> getCraftInfo(){
-        return jobCraftInfo;
+    public Map<String, JobsMaterialInfo> getCraftInfo() {
+        return Collections.unmodifiableMap(jobCraftInfo);
     }
     
     public boolean isHidden() {

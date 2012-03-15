@@ -21,8 +21,7 @@ package me.zford.jobs;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.Map;
 
 import me.zford.jobs.config.container.Job;
 import me.zford.jobs.config.container.JobProgression;
@@ -541,7 +540,7 @@ public class JobsCommands implements CommandExecutor {
         
         if (type.equalsIgnoreCase("break") || showAllTypes == 1) {
             // break
-            HashMap<String, JobsMaterialInfo> jobBreakInfo = job.getBreakInfo();
+            Map<String, JobsMaterialInfo> jobBreakInfo = job.getBreakInfo();
             if (jobBreakInfo != null && !jobBreakInfo.isEmpty()) {
                 message += jobInfoBreakMessage(player, job, jobBreakInfo);
             } else if (showAllTypes == 0) {
@@ -553,7 +552,7 @@ public class JobsCommands implements CommandExecutor {
         }
         if (type.equalsIgnoreCase("place") || showAllTypes == 1) {
             // place
-            HashMap<String, JobsMaterialInfo> jobPlaceInfo = job.getPlaceInfo();
+            Map<String, JobsMaterialInfo> jobPlaceInfo = job.getPlaceInfo();
             
             if (jobPlaceInfo != null && !jobPlaceInfo.isEmpty()) {
                 message += jobInfoPlaceMessage(player, job, jobPlaceInfo);
@@ -566,7 +565,7 @@ public class JobsCommands implements CommandExecutor {
         }
         if (type.equalsIgnoreCase("kill") || showAllTypes == 1) {
             // kill
-            HashMap<String, JobsLivingEntityInfo> jobKillInfo = job.getKillInfo();
+            Map<String, JobsLivingEntityInfo> jobKillInfo = job.getKillInfo();
             
             if (jobKillInfo != null && !jobKillInfo.isEmpty()) {
                 message += jobInfoKillMessage(player, job, jobKillInfo);
@@ -580,7 +579,7 @@ public class JobsCommands implements CommandExecutor {
         
         if (type.equalsIgnoreCase("fish") || showAllTypes == 1) {
             // fish
-            HashMap<String, JobsMaterialInfo> jobFishInfo = job.getFishInfo();
+            Map<String, JobsMaterialInfo> jobFishInfo = job.getFishInfo();
             
             if (jobFishInfo != null && !jobFishInfo.isEmpty()) {
                 message += jobInfoFishMessage(player, job, jobFishInfo);
@@ -594,7 +593,7 @@ public class JobsCommands implements CommandExecutor {
         
         if (type.equalsIgnoreCase("craft") || showAllTypes == 1) {
             // craft
-            HashMap<String, JobsMaterialInfo> jobCraftInfo = job.getCraftInfo();
+            Map<String, JobsMaterialInfo> jobCraftInfo = job.getCraftInfo();
             
             if (jobCraftInfo != null && !jobCraftInfo.isEmpty()) {
                 message += jobInfoCraftMessage(player, job, jobCraftInfo);
@@ -615,7 +614,7 @@ public class JobsCommands implements CommandExecutor {
      * @param jobBreakInfo - the information to display
      * @return the message
      */
-    private String jobInfoBreakMessage(JobsPlayer player, Job job, HashMap<String, JobsMaterialInfo> jobBreakInfo) {
+    private String jobInfoBreakMessage(JobsPlayer player, Job job, Map<String, JobsMaterialInfo> jobBreakInfo) {
         
         String message = "";
         message += plugin.getMessageConfig().getMessage("break-header")+"\n";
@@ -634,7 +633,7 @@ public class JobsCommands implements CommandExecutor {
         }
         expEquation.setVariable("numjobs", player.getJobs().size());
         incomeEquation.setVariable("numjobs", player.getJobs().size());
-        for(Entry<String, JobsMaterialInfo> temp: jobBreakInfo.entrySet()){
+        for (Map.Entry<String, JobsMaterialInfo> temp: jobBreakInfo.entrySet()) {
             expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
             String myMessage;
@@ -665,7 +664,7 @@ public class JobsCommands implements CommandExecutor {
      * @param jobPlaceInfo - the information to display
      * @return the message
      */ 
-    private String jobInfoPlaceMessage(JobsPlayer player, Job job, HashMap<String, JobsMaterialInfo> jobPlaceInfo) {
+    private String jobInfoPlaceMessage(JobsPlayer player, Job job, Map<String, JobsMaterialInfo> jobPlaceInfo) {
         
         String message = "";
         message += plugin.getMessageConfig().getMessage("place-header")+"\n";
@@ -684,7 +683,7 @@ public class JobsCommands implements CommandExecutor {
         }
         expEquation.setVariable("numjobs", player.getJobs().size());
         incomeEquation.setVariable("numjobs", player.getJobs().size());
-        for(Entry<String, JobsMaterialInfo> temp: jobPlaceInfo.entrySet()){
+        for (Map.Entry<String, JobsMaterialInfo> temp: jobPlaceInfo.entrySet()) {
             expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
             String myMessage;
@@ -715,7 +714,7 @@ public class JobsCommands implements CommandExecutor {
      * @param jobKillInfo - the information to display
      * @return the message
      */
-    private String jobInfoKillMessage(JobsPlayer player, Job job, HashMap<String, JobsLivingEntityInfo> jobKillInfo) {
+    private String jobInfoKillMessage(JobsPlayer player, Job job, Map<String, JobsLivingEntityInfo> jobKillInfo) {
         
         String message = "";
         message += plugin.getMessageConfig().getMessage("kill-header")+"\n";
@@ -734,7 +733,7 @@ public class JobsCommands implements CommandExecutor {
         }
         expEquation.setVariable("numjobs", player.getJobs().size());
         incomeEquation.setVariable("numjobs", player.getJobs().size());
-        for(Entry<String, JobsLivingEntityInfo> temp: jobKillInfo.entrySet()){
+        for (Map.Entry<String, JobsLivingEntityInfo> temp: jobKillInfo.entrySet()) {
             expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
             String myMessage;
@@ -765,7 +764,7 @@ public class JobsCommands implements CommandExecutor {
      * @param jobFishInfo - the information to display
      * @return the message
      */ 
-    private String jobInfoFishMessage(JobsPlayer player, Job job, HashMap<String, JobsMaterialInfo> jobFishInfo) {
+    private String jobInfoFishMessage(JobsPlayer player, Job job, Map<String, JobsMaterialInfo> jobFishInfo) {
         
         String message = "";
         message += plugin.getMessageConfig().getMessage("fish-header")+"\n";
@@ -784,7 +783,7 @@ public class JobsCommands implements CommandExecutor {
         }
         expEquation.setVariable("numjobs", player.getJobs().size());
         incomeEquation.setVariable("numjobs", player.getJobs().size());
-        for(Entry<String, JobsMaterialInfo> temp: jobFishInfo.entrySet()){
+        for (Map.Entry<String, JobsMaterialInfo> temp: jobFishInfo.entrySet()) {
             expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
             String myMessage;
@@ -812,10 +811,10 @@ public class JobsCommands implements CommandExecutor {
      * Displays info about fishing
      * @param player - the player of the job
      * @param job - the job we are displaying info about
-     * @param jobFishInfo - the information to display
+     * @param jobCraftInfo - the information to display
      * @return the message
      */ 
-    private String jobInfoCraftMessage(JobsPlayer player, Job job, HashMap<String, JobsMaterialInfo> jobFishInfo) {
+    private String jobInfoCraftMessage(JobsPlayer player, Job job, Map<String, JobsMaterialInfo> jobCraftInfo) {
         
         String message = "";
         message += plugin.getMessageConfig().getMessage("craft-header")+"\n";
@@ -834,7 +833,7 @@ public class JobsCommands implements CommandExecutor {
         }
         expEquation.setVariable("numjobs", player.getJobs().size());
         incomeEquation.setVariable("numjobs", player.getJobs().size());
-        for(Entry<String, JobsMaterialInfo> temp: jobFishInfo.entrySet()){
+        for (Map.Entry<String, JobsMaterialInfo> temp: jobCraftInfo.entrySet()) {
             expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
             incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
             String myMessage;

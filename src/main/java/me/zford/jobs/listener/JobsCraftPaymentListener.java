@@ -54,8 +54,6 @@ public class JobsCraftPaymentListener implements Listener{
             return;
         
         Recipe recipe = ((CraftingInventory) inv).getRecipe();
-
-        System.out.println("CRAFT");
 	    
         // restricted area multiplier
         List<HumanEntity> viewers = event.getViewers();
@@ -71,7 +69,7 @@ public class JobsCraftPaymentListener implements Listener{
         
         if (player == null)
             return;
-        System.out.println("CRAFT");
+        
         // check if in creative
         if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
             return;

@@ -29,7 +29,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-
 public class JobsBlockPaymentListener implements Listener {
 	private Jobs plugin;
 	

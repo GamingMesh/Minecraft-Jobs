@@ -40,7 +40,6 @@ import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
-
 /**
  * Plugin that monitors when things get killed by you and then pays you
  * 
@@ -49,11 +48,10 @@ import org.bukkit.event.entity.EntityDeathEvent;
  */
 public class JobsKillPaymentListener implements Listener {
 	private Jobs plugin;
-	private Set<LivingEntity> mobSpawnerCreatures;
+	private Set<LivingEntity> mobSpawnerCreatures = Collections.newSetFromMap(new WeakHashMap<LivingEntity, Boolean>());
 	
 	public JobsKillPaymentListener(Jobs plugin) {
 		this.plugin = plugin;
-		this.mobSpawnerCreatures = Collections.newSetFromMap(new WeakHashMap<LivingEntity, Boolean>());
 	}
 	
 	/**

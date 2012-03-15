@@ -24,13 +24,6 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 import me.zford.jobs.Jobs;
 import net.milkbowl.vault.economy.Economy;
 
-
-
-/**
- * Class that interfaces with Vault and does the payment
- * @author phrstbrn
- *
- */
 public class VaultLink implements EconomyLink {
     
     private Jobs plugin;

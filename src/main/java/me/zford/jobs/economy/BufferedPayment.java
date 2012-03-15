@@ -1,19 +1,17 @@
 package me.zford.jobs.economy;
 
 import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.Map;
 
 import me.zford.jobs.config.container.JobsPlayer;
 import me.zford.jobs.economy.link.EconomyLink;
 
-
 public class BufferedPayment {
     
-    private HashMap<String, Double> payments;
+    private HashMap<String, Double> payments = new HashMap<String, Double>();
     private EconomyLink economy;
     public BufferedPayment(EconomyLink economy) {
         this.economy = economy;
-        payments = new HashMap<String, Double>();
     }
 
     /**
@@ -38,7 +36,7 @@ public class BufferedPayment {
         if (payments.isEmpty())
             return;
         if (economy != null) {
-            for (Entry<String, Double> entry : payments.entrySet()) {
+            for (Map.Entry<String, Double> entry : payments.entrySet()) {
                 String playername = entry.getKey();
                 double total = entry.getValue();
                 economy.pay(playername, total);

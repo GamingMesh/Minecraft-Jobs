@@ -19,7 +19,6 @@
 
 package me.zford.jobs.listener;
 
-
 import me.zford.jobs.Jobs;
 import me.zford.jobs.config.container.JobsPlayer;
 

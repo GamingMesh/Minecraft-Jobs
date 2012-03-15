@@ -27,7 +27,6 @@ import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
 
-
 import me.zford.jobs.Jobs;
 import me.zford.jobs.config.container.RestrictedArea;
 import me.zford.jobs.config.container.Title;
@@ -48,15 +47,6 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
-
-/**
- * Configuration class.
- * 
- * Holds all the configuration information for the jobs plugin
- * @author Alex
- * @author Zak Ford <zak.j.ford@gmail.com>
- *
- */
 public class JobsConfiguration {
     private YamlConfiguration generalConfig;
 	// all of the possible titles

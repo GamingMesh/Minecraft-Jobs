@@ -24,9 +24,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
 import java.util.Set;
-
 
 import me.zford.jobs.Jobs;
 import me.zford.jobs.dao.JobsDAO;
@@ -37,7 +36,6 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-
 
 public class JobsPlayer {
     // jobs plugin
@@ -96,7 +94,7 @@ public class JobsPlayer {
 		HashMap<String, Double> param = new HashMap<String, Double>();
 		// add the number of jobs to the parameter list
 		param.put("numjobs", (double)progression.size());
-		for(Entry<Job, JobProgression> entry: progression.entrySet()) {
+		for (Map.Entry<Job, JobProgression> entry: progression.entrySet()) {
 			// add the current level to the parameter list
 			param.put("joblevel", (double)entry.getValue().getLevel());
 			// get the income and give it
@@ -137,7 +135,7 @@ public class JobsPlayer {
 		HashMap<String, Double> param = new HashMap<String, Double>();
 		// add the number of jobs to the parameter list
 		param.put("numjobs", (double)progression.size());
-		for(Entry<Job, JobProgression> entry: progression.entrySet()) {
+		for (Map.Entry<Job, JobProgression> entry: progression.entrySet()) {
 			// add the current level to the parameter list
 			param.put("joblevel", (double)entry.getValue().getLevel());
 			// get the income and give it
@@ -178,7 +176,7 @@ public class JobsPlayer {
 		HashMap<String, Double> param = new HashMap<String, Double>();
 		// add the number of jobs to the parameter list
 		param.put("numjobs", (double)progression.size());
-		for(Entry<Job, JobProgression> entry: progression.entrySet()) {
+		for (Map.Entry<Job, JobProgression> entry: progression.entrySet()) {
 			// add the current level to the parameter list
 			param.put("joblevel", (double)entry.getValue().getLevel());
 			// get the income and give it
@@ -218,7 +216,7 @@ public class JobsPlayer {
 	public void fished(Item item, double multiplier) {
 	    HashMap<String, Double> param = new HashMap<String, Double>();
 	    param.put("numjobs", (double)progression.size());
-	    for(Entry<Job, JobProgression> entry: progression.entrySet()) {
+	    for (Map.Entry<Job, JobProgression> entry: progression.entrySet()) {
             // add the current level to the parameter list
             param.put("joblevel", (double)entry.getValue().getLevel());
             // get the income and give it
@@ -259,7 +257,7 @@ public class JobsPlayer {
 		HashMap<String, Double> param = new HashMap<String, Double>();
 		// add the number of jobs to the parameter list
 		param.put("numjobs", (double)progression.size());
-		for(Entry<Job, JobProgression> entry: progression.entrySet()) {
+		for (Map.Entry<Job, JobProgression> entry: progression.entrySet()) {
 			// add the current level to the parameter list
 			param.put("joblevel", (double)entry.getValue().getLevel());
 			// get the income and give it
