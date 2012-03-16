@@ -304,7 +304,7 @@ Jobs:
                 income: 4.0
                 experience: 4.0
         Place:
-            SEEDS:
+            CROPS-0:
                 income: 3.0
                 experience: 3.0
             SUGAR_CANE_BLOCK:
