@@ -197,6 +197,8 @@ public class JobsCommands implements CommandExecutor {
             }
             try {
                 for(Player player : plugin.getServer().getOnlinePlayers()) {
+                    JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(player.getName());
+                    jPlayer.removePermissions();
                     plugin.getJobsManager().removePlayer(player.getName());
                 }
                 plugin.reloadConfigurations();
@@ -296,14 +298,7 @@ public class JobsCommands implements CommandExecutor {
                 // check if player already has the job
                 if (jPlayer.isInJob(job)) {
                     Integer levelsGained = Integer.parseInt(args[3]);
-                    if (jPlayer.getJobsProgression(job).getJob().getMaxLevel() != null &&
-                            levelsGained + jPlayer.getJobsProgression(job).getLevel() > jPlayer.getJobsProgression(job).getJob().getMaxLevel()) {
-                        levelsGained = jPlayer.getJobsProgression(job).getJob().getMaxLevel() - jPlayer.getJobsProgression(job).getLevel();
-                    }
-                    jPlayer.getJobsProgression(job).setLevel(jPlayer.getJobsProgression(job).getLevel() + levelsGained);
-                    
-                    jPlayer.reloadMaxExperience();
-                    jPlayer.checkLevels();
+                    jPlayer.promoteJob(job, levelsGained);
                     
                     if(player != null) {
                         String message = plugin.getMessageConfig().getMessage("promote-target");
@@ -336,13 +331,7 @@ public class JobsCommands implements CommandExecutor {
                 // check if player already has the job
                 if (jPlayer.isInJob(job)) {
                     Integer levelsLost = Integer.parseInt(args[3]);
-                    if (jPlayer.getJobsProgression(job).getLevel() - levelsLost < 1) {
-                        levelsLost = jPlayer.getJobsProgression(job).getLevel() - 1;
-                    }
-                    jPlayer.getJobsProgression(job).setLevel(jPlayer.getJobsProgression(job).getLevel() - levelsLost);
-                    
-                    jPlayer.reloadMaxExperience();
-                    jPlayer.checkLevels();
+                    jPlayer.demoteJob(job, levelsLost);
                     
                     if (player != null) {
                         String message = plugin.getMessageConfig().getMessage("demote-target");
@@ -379,11 +368,13 @@ public class JobsCommands implements CommandExecutor {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
                 return true;
             }
+            if (expGained <= 0) {
+                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+                return true;
+            }
             // check if player already has the job
             if(jPlayer.isInJob(job)) {
-                jPlayer.getJobsProgression(job).setExperience(jPlayer.getJobsProgression(job).getExperience() + expGained);
-                    jPlayer.reloadMaxExperience();
-                    jPlayer.checkLevels();
+                jPlayer.addExperience(job, expGained);
                 if (player != null) {
                     String message = plugin.getMessageConfig().getMessage("grantxp-target");
                     message = message.replace("%jobcolour%", job.getChatColour().toString());
@@ -415,10 +406,13 @@ public class JobsCommands implements CommandExecutor {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
                 return true;
             }
+            if (expLost <= 0) {
+                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+                return true;
+            }
             // check if player already has the job
             if (jPlayer.isInJob(job)) {
-                jPlayer.getJobsProgression(job).setExperience(jPlayer.getJobsProgression(job).getExperience() - expLost);
-                
+                jPlayer.addExperience(job, -expLost);
                 if(player != null) {
                     String message = plugin.getMessageConfig().getMessage("removexp-target");
                     message = message.replace("%jobcolour%", job.getChatColour().toString());

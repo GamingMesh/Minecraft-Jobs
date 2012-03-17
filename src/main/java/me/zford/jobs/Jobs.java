@@ -23,6 +23,7 @@ import me.zford.jobs.config.JobConfig;
 import me.zford.jobs.config.JobsConfiguration;
 import me.zford.jobs.config.MessageConfig;
 import me.zford.jobs.config.container.Job;
+import me.zford.jobs.config.container.JobsPlayer;
 import me.zford.jobs.economy.BufferedPayment;
 import me.zford.jobs.economy.link.VaultLink;
 import me.zford.jobs.listener.JobsBlockPaymentListener;
@@ -50,7 +51,12 @@ public class Jobs extends JavaPlugin {
     /**
      * Method called when you disable the plugin
      */
-    public void onDisable() {
+    public void onDisable() {        
+        // remove all permissions for online players
+        for (Player online: getServer().getOnlinePlayers()) {
+            JobsPlayer jPlayer = manager.getJobsPlayer(online.getName());
+            jPlayer.removePermissions();
+        }
         // kill all scheduled tasks associated to this.
         getServer().getScheduler().cancelTasks(this);
         
@@ -113,7 +119,6 @@ public class Jobs extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new JobsFishPaymentListener(this), this);
         getServer().getPluginManager().registerEvents(new JobsPlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new JobsCraftPaymentListener(this), this);
-
         
         // add all online players
         for (Player online: getServer().getOnlinePlayers()){

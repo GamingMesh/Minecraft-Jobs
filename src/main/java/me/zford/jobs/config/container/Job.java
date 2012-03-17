@@ -20,6 +20,7 @@
 package me.zford.jobs.config.container;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import me.zford.jobs.resources.jfep.Parser;
@@ -41,6 +42,8 @@ public class Job {
     private Map<String, JobsLivingEntityInfo> jobKillInfo;
     // payment for killing a living entity
     private Map<String, JobsMaterialInfo> jobFishInfo;
+    // permissions
+    private List<JobPermission> jobPermissions;
     // job name
     private String jobName;
     // job short name (for use in multiple jobs)
@@ -84,6 +87,7 @@ public class Job {
             Map<String, JobsLivingEntityInfo> jobKillInfo,
             Map<String, JobsMaterialInfo> jobFishInfo,
             Map<String, JobsMaterialInfo> jobCreateInfo,
+            List<JobPermission> jobPermissions,
             String jobName,
             String jobShortName,
             ChatColor jobColour,
@@ -99,6 +103,7 @@ public class Job {
         this.jobCraftInfo = jobCreateInfo;
         this.jobKillInfo = jobKillInfo;
         this.jobFishInfo = jobFishInfo;
+        this.jobPermissions = jobPermissions;
         this.jobName = jobName;
         this.jobShortName = jobShortName;
         this.jobColour = jobColour;
@@ -484,6 +489,14 @@ public class Job {
      */
     public Map<String, JobsMaterialInfo> getCraftInfo() {
         return Collections.unmodifiableMap(jobCraftInfo);
+    }
+    
+    /**
+     * Get the permission nodes for this job
+     * @return Permissions for this job
+     */
+    public List<JobPermission> getPermissions() {
+        return Collections.unmodifiableList(jobPermissions);
     }
     
     public boolean isHidden() {

@@ -22,6 +22,7 @@ package me.zford.jobs.config;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import java.util.WeakHashMap;
 import me.zford.jobs.Jobs;
 import me.zford.jobs.config.container.DisplayMethod;
 import me.zford.jobs.config.container.Job;
+import me.zford.jobs.config.container.JobPermission;
 import me.zford.jobs.config.container.JobsLivingEntityInfo;
 import me.zford.jobs.config.container.JobsMaterialInfo;
 import me.zford.jobs.resources.jfep.Parser;
@@ -76,6 +78,7 @@ public class JobConfig {
             }
         }
         YamlConfiguration conf = new YamlConfiguration();
+        conf.options().pathSeparator('/');
         conf.options().header(new StringBuilder()
             .append("Jobs configuration.").append(System.getProperty("line.separator"))
             .append(System.getProperty("line.separator"))
@@ -92,28 +95,29 @@ public class JobConfig {
         } catch (InvalidConfigurationException e) {
             e.printStackTrace();
         }
-        ConfigurationSection jobSection = conf.getConfigurationSection("Jobs");
-        if (jobSection == null) {
-            jobSection = conf.createSection("Jobs");
+        ConfigurationSection jobsSection = conf.getConfigurationSection("Jobs");
+        if (jobsSection == null) {
+            jobsSection = conf.createSection("Jobs");
         }
-        for(String jobKey : jobSection.getKeys(false)) {
-            String jobName = conf.getString("Jobs."+jobKey+".fullname");
+        for (String jobKey : jobsSection.getKeys(false)) {
+            ConfigurationSection jobSection = jobsSection.getConfigurationSection(jobKey);
+            String jobName = jobSection.getString("fullname");
             if (jobName == null) {
                 plugin.getLogger().severe("Job " + jobKey + " has an invalid fullname property. Skipping job!");
                 continue;
             }
             
-            Integer maxLevel = conf.getInt("Jobs."+jobKey+".max-level", 0);
+            Integer maxLevel = jobSection.getInt("max-level", 0);
             if (maxLevel.intValue() <= 0) {
                 maxLevel = null;
             }
 
-            Integer maxSlots = conf.getInt("Jobs."+jobKey+".slots", 0);
+            Integer maxSlots = jobSection.getInt("slots", 0);
             if (maxSlots.intValue() <= 0) {
                 maxSlots = null;
             }
 
-            String jobShortName = conf.getString("Jobs."+jobKey+".shortname");
+            String jobShortName = jobSection.getString("shortname");
             if (jobShortName == null) {
                 plugin.getLogger().severe("Job " + jobKey + " is missing the shortname property.  Skipping job!");
                 continue;
@@ -121,12 +125,12 @@ public class JobConfig {
 
             ChatColor jobColour;
             try {
-                jobColour = ChatColor.valueOf(conf.getString("Jobs."+jobKey+".ChatColour", "").toUpperCase());
+                jobColour = ChatColor.valueOf(jobSection.getString("ChatColour", "").toUpperCase());
             } catch (IllegalArgumentException e) {
                 plugin.getLogger().severe("Job " + jobKey + " has an invalid ChatColour property.  Skipping job!");
                 continue;
             }
-            String disp = conf.getString("Jobs."+jobKey+".chat-display", "");
+            String disp = jobSection.getString("chat-display", "");
             DisplayMethod displayMethod;
             if (disp.equalsIgnoreCase("full")) {
                 displayMethod = DisplayMethod.FULL;
@@ -148,7 +152,7 @@ public class JobConfig {
             }
             
             Parser maxExpEquation;
-            String maxExpEquationInput = conf.getString("Jobs."+jobKey+".leveling-progression-equation");
+            String maxExpEquationInput = jobSection.getString("leveling-progression-equation");
             try {
                 maxExpEquation = new Parser(maxExpEquationInput);
             } catch(Exception e) {
@@ -157,7 +161,7 @@ public class JobConfig {
             }
             
             Parser incomeEquation;
-            String incomeEquationInput = conf.getString("Jobs."+jobKey+".income-progression-equation");
+            String incomeEquationInput = jobSection.getString("income-progression-equation");
             try {
                 incomeEquation = new Parser(incomeEquationInput);
             } catch(Exception e) {
@@ -166,7 +170,7 @@ public class JobConfig {
             }
             
             Parser expEquation;
-            String expEquationInput = conf.getString("Jobs."+jobKey+".experience-progression-equation");
+            String expEquationInput = jobSection.getString("experience-progression-equation");
             try {
                 expEquation = new Parser(expEquationInput);
             } catch(Exception e) {
@@ -177,10 +181,11 @@ public class JobConfig {
             // items
             
             // break
-            ConfigurationSection breakSection = conf.getConfigurationSection("Jobs."+jobKey+".Break");
+            ConfigurationSection breakSection = jobSection.getConfigurationSection("Break");
             HashMap<String, JobsMaterialInfo> jobBreakInfo = new HashMap<String, JobsMaterialInfo>();
-            if(breakSection != null) {
+            if (breakSection != null) {
                 for (String breakKey : breakSection.getKeys(false)) {
+                    ConfigurationSection breakItem = breakSection.getConfigurationSection(breakKey);
                     String materialType = breakKey.toUpperCase();
                     String subType = "";
                     
@@ -207,18 +212,19 @@ public class JobConfig {
                     }
                     MaterialData materialData = new MaterialData(material);
                     
-                    Double income = conf.getDouble("Jobs."+jobKey+".Break."+breakKey+".income", 0.0);
-                    Double experience = conf.getDouble("Jobs."+jobKey+".Break."+breakKey+".experience", 0.0);
+                    Double income = breakItem.getDouble("income", 0.0);
+                    Double experience = breakItem.getDouble("experience", 0.0);
                     
                     jobBreakInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
                 }
             }
             
             // place
-            ConfigurationSection placeSection = conf.getConfigurationSection("Jobs."+jobKey+".Place");
+            ConfigurationSection placeSection = jobSection.getConfigurationSection("Place");
             HashMap<String, JobsMaterialInfo> jobPlaceInfo = new HashMap<String, JobsMaterialInfo>();
-            if(placeSection != null) {
-                for(String placeKey : placeSection.getKeys(false)) {
+            if (placeSection != null) {
+                for (String placeKey : placeSection.getKeys(false)) {
+                    ConfigurationSection placeItem = placeSection.getConfigurationSection(placeKey);
                     String materialType = placeKey.toUpperCase();
                     String subType = "";
                     
@@ -245,18 +251,19 @@ public class JobConfig {
                     }
                     MaterialData materialData = new MaterialData(material);
                     
-                    Double income = conf.getDouble("Jobs."+jobKey+".Place."+placeKey+".income", 0.0);
-                    Double experience = conf.getDouble("Jobs."+jobKey+".Place."+placeKey+".experience", 0.0);
+                    Double income = placeItem.getDouble("income", 0.0);
+                    Double experience = placeItem.getDouble("experience", 0.0);
                     
                     jobPlaceInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
                 }
             }
             
             // craft
-            ConfigurationSection craftSection = conf.getConfigurationSection("Jobs."+jobKey+".Craft");
+            ConfigurationSection craftSection = jobSection.getConfigurationSection("Craft");
             HashMap<String, JobsMaterialInfo> jobCraftInfo = new HashMap<String, JobsMaterialInfo>();
-            if(craftSection != null) {
-                for(String craftKey : craftSection.getKeys(false)) {
+            if (craftSection != null) {
+                for (String craftKey : craftSection.getKeys(false)) {
+                    ConfigurationSection craftItem = craftSection.getConfigurationSection(craftKey);
                     String materialType = craftKey.toUpperCase();
                     String subType = "";
                     
@@ -283,20 +290,20 @@ public class JobConfig {
                     }
                     MaterialData materialData = new MaterialData(material);
                     
-                    Double income = conf.getDouble("Jobs."+jobKey+".Craft."+craftKey+".income", 0.0);
-                    Double experience = conf.getDouble("Jobs."+jobKey+".Craft."+craftKey+".experience", 0.0);
+                    Double income = craftItem.getDouble("income", 0.0);
+                    Double experience = craftItem.getDouble("experience", 0.0);
                     
                     jobCraftInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
                 }
             }
             
             // kill
-            ConfigurationSection killSection = conf.getConfigurationSection("Jobs."+jobKey+".Kill");
+            ConfigurationSection killSection = jobSection.getConfigurationSection("Kill");
             HashMap<String, JobsLivingEntityInfo> jobKillInfo = new HashMap<String, JobsLivingEntityInfo>();
-            if(killSection != null) {
-                for(String killKey : killSection.getKeys(false)) {
-                    @SuppressWarnings("rawtypes")
-                    Class victim;
+            if (killSection != null) {
+                for (String killKey : killSection.getKeys(false)) {
+                    ConfigurationSection killItem = killSection.getConfigurationSection(killKey);
+                    Class<?> victim;
                     try {
                         victim = Class.forName("org.bukkit.craftbukkit.entity.Craft"+killKey);
                     } catch (ClassNotFoundException e) {
@@ -304,18 +311,19 @@ public class JobConfig {
                         continue;
                     }
                     
-                    Double income = conf.getDouble("Jobs."+jobKey+".Kill."+killKey+".income", 0.0);
-                    Double experience = conf.getDouble("Jobs."+jobKey+".Kill."+killKey+".experience", 0.0);
+                    Double income = killItem.getDouble("income", 0.0);
+                    Double experience = killItem.getDouble("experience", 0.0);
                     
                     jobKillInfo.put(("org.bukkit.craftbukkit.entity.Craft"+killKey).trim(), new JobsLivingEntityInfo(victim, experience, income));
                 }
             }
             
             // fish
-            ConfigurationSection fishSection = conf.getConfigurationSection("Jobs."+jobKey+".Fish");
+            ConfigurationSection fishSection = jobSection.getConfigurationSection("Fish");
             HashMap<String, JobsMaterialInfo> jobFishInfo = new HashMap<String, JobsMaterialInfo>();
-            if(fishSection != null) {
-                for(String fishKey : fishSection.getKeys(false)) {
+            if (fishSection != null) {
+                for (String fishKey : fishSection.getKeys(false)) {
+                    ConfigurationSection fishItem = fishSection.getConfigurationSection(fishKey);
                     String materialType = fishKey.toUpperCase();
                     String subType = "";
                     
@@ -342,21 +350,22 @@ public class JobConfig {
                     }
                     MaterialData materialData = new MaterialData(material);
                     
-                    Double income = conf.getDouble("Jobs."+jobKey+".Fish."+fishKey+".income", 0.0);
-                    Double experience = conf.getDouble("Jobs."+jobKey+".Fish."+fishKey+".experience", 0.0);
+                    Double income = fishItem.getDouble("income", 0.0);
+                    Double experience = fishItem.getDouble("experience", 0.0);
                     
                     jobFishInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
                 }
             }
             
             // custom-kill
-            ConfigurationSection customKillSection = conf.getConfigurationSection("Jobs."+jobKey+".custom-kill");
-            if(customKillSection != null) {
-                for(String customKillKey : customKillSection.getKeys(false)) {
+            ConfigurationSection customKillSection = jobSection.getConfigurationSection("custom-kill");
+            if (customKillSection != null) {
+                for (String customKillKey : customKillSection.getKeys(false)) {
+                    ConfigurationSection customKillItem = customKillSection.getConfigurationSection(customKillKey);
                     String entityType = customKillKey.toString();
                     
-                    Double income = conf.getDouble("Jobs."+jobKey+".custom-kill."+customKillKey+".income", 0.0);
-                    Double experience = conf.getDouble("Jobs."+jobKey+".custom-kill."+customKillKey+".experience", 0.0);
+                    Double income = customKillItem.getDouble("income", 0.0);
+                    Double experience = customKillItem.getDouble("experience", 0.0);
                     
                     try {
                         jobKillInfo.put(("org.bukkit.craftbukkit.entity.CraftPlayer:"+entityType).trim(), new JobsLivingEntityInfo(Class.forName("org.bukkit.craftbukkit.entity.CraftPlayer"), experience, income));
@@ -367,12 +376,30 @@ public class JobConfig {
                 }
             }
             
+            // Permissions
+            ArrayList<JobPermission> jobPermissions = new ArrayList<JobPermission>();
+            ConfigurationSection permissionsSection = jobSection.getConfigurationSection("permissions");
+            if(permissionsSection != null) {
+                for(String permissionKey : permissionsSection.getKeys(false)) {
+                    ConfigurationSection permissionSection = permissionsSection.getConfigurationSection(permissionKey);
+                    
+                    String node = permissionKey.toLowerCase();
+                    if (permissionSection == null) {
+                        plugin.getLogger().severe("Job " + jobKey + " has an invalid permission key" + permissionKey + "!");
+                        continue;
+                    }
+                    boolean value = permissionSection.getBoolean("value", true);
+                    int levelRequirement = permissionSection.getInt("level", 0);
+                    jobPermissions.add(new JobPermission(node, value, levelRequirement));
+                }
+            }
+            
             boolean isHidden = false;
             if (jobKey.equalsIgnoreCase("none")) {
                 isHidden = true;
             }
             
-            this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobFishInfo, jobCraftInfo, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots, isHidden));
+            this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobFishInfo, jobCraftInfo, jobPermissions, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots, isHidden));
         }
         try {
             conf.save(f);

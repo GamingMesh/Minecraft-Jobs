@@ -36,6 +36,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.permissions.PermissionAttachment;
 
 public class JobsPlayer {
     // jobs plugin
@@ -46,6 +47,8 @@ public class JobsPlayer {
     private LinkedHashMap<Job, JobProgression> progression = new LinkedHashMap<Job, JobProgression>();
     // display honorific
     private String honorific;
+    // permission attachment
+    private PermissionAttachment attachment;
     // dao
     JobsDAO dao;
         
@@ -80,6 +83,7 @@ public class JobsPlayer {
         }
         reloadMaxExperience();
         reloadHonorific();
+        recalculatePermissions();
     }
     
     /**
@@ -321,88 +325,95 @@ public class JobsPlayer {
     /**
      * Function called to update the levels and make sure experience < maxExperience
      */
-    public void checkLevels() {
+    private void checkLevels() {
         Player player = plugin.getServer().getPlayer(getName());
-        boolean hasLevelUp = false;
-        for (JobProgression prog : progression.values()) {
-            if (!prog.canLevelUp())
-                continue;
-            Job job = prog.getJob();
-            if (job.getMaxLevel() != null && prog.getLevel() >= job.getMaxLevel()) {
-                prog.setExperience(0.0);
-                String message = plugin.getMessageConfig().getMessage("at-max-level");
-                if (player != null) {
-                    for(String line: message.split("\n")){
+        boolean leveledUp = false;
+        boolean levelChanged = false;
+        do {
+            levelChanged = false;
+            for (JobProgression prog : progression.values()) {
+                if (!prog.canLevelUp())
+                    continue;
+                Job job = prog.getJob();
+                if (job.getMaxLevel() != null && prog.getLevel() >= job.getMaxLevel()) {
+                    prog.setExperience(0.0);
+                    String message = plugin.getMessageConfig().getMessage("at-max-level");
+                    if (player != null) {
+                        for(String line: message.split("\n")){
+                            player.sendMessage(line);
+                        }
+                    }
+                    continue;
+                }
+                leveledUp = true;
+                levelChanged = true;
+                // increase the level
+                prog.setLevel(prog.getLevel()+1);
+                // decrease the current exp
+                prog.setExperience(prog.getExperience()-prog.getMaxExperience());
+                // recalculate the maxexp 
+                HashMap<String, Double> param = new HashMap<String, Double>();
+                param.put("numjobs", (double) getJobs().size());
+                param.put("joblevel", (double) prog.getLevel());
+                prog.setMaxExperience((int) job.getMaxExp(param));
+                
+                String message;
+                if(plugin.getJobsConfiguration().isBroadcastingLevelups()) {
+                    message = plugin.getMessageConfig().getMessage("level-up-broadcast");
+                } else {
+                    message = plugin.getMessageConfig().getMessage("level-up-no-broadcast");
+                }
+                message = message.replace("%jobname%", job.getName());
+                message = message.replace("%jobcolour%", job.getChatColour().toString());
+                if(prog.getTitle() != null){
+                    message = message.replace("%titlename%", prog.getTitle().getName());
+                    message = message.replace("%titlecolour%", prog.getTitle().getChatColor().toString());
+                }
+                message = message.replace("%playername%", getName());
+                if (player == null) {
+                    message = message.replace("%playerdisplayname%", getName());
+                } else {
+                    message = message.replace("%playerdisplayname%", player.getDisplayName());
+                }
+                message = message.replace("%joblevel%", ""+prog.getLevel());
+                for (String line: message.split("\n")) {
+                    if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
+                        plugin.getServer().broadcastMessage(line);
+                    } else if (player != null) {
                         player.sendMessage(line);
                     }
                 }
-                continue;
-            }
-            hasLevelUp = true;
-            // increase the level
-            prog.setLevel(prog.getLevel()+1);
-            // decrease the current exp
-            prog.setExperience(prog.getExperience()-prog.getMaxExperience());
-            // recalculate the maxexp 
-            HashMap<String, Double> param = new HashMap<String, Double>();
-            param.put("numjobs", (double) getJobs().size());
-            param.put("joblevel", (double) prog.getLevel());
-            prog.setMaxExperience((int) job.getMaxExp(param));
-            
-            String message;
-            if(plugin.getJobsConfiguration().isBroadcastingLevelups()) {
-                message = plugin.getMessageConfig().getMessage("level-up-broadcast");
-            } else {
-                message = plugin.getMessageConfig().getMessage("level-up-no-broadcast");
-            }
-            message = message.replace("%jobname%", job.getName());
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            if(prog.getTitle() != null){
-                message = message.replace("%titlename%", prog.getTitle().getName());
-                message = message.replace("%titlecolour%", prog.getTitle().getChatColor().toString());
-            }
-            message = message.replace("%playername%", getName());
-            if (player == null) {
-                message = message.replace("%playerdisplayname%", getName());
-            } else {
-                message = message.replace("%playerdisplayname%", player.getDisplayName());
-            }
-            message = message.replace("%joblevel%", ""+prog.getLevel());
-            for (String line: message.split("\n")) {
-                if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
-                    plugin.getServer().broadcastMessage(line);
-                } else if (player != null) {
-                    player.sendMessage(line);
+                
+                Title levelTitle = plugin.getJobsConfiguration().getTitleForLevel(prog.getLevel());
+                if (levelTitle == null || levelTitle.equals(prog.getTitle()))
+                    continue;
+                
+                // user would skill up
+                if (plugin.getJobsConfiguration().isBroadcastingSkillups()) {
+                    message = plugin.getMessageConfig().getMessage("skill-up-broadcast");
+                } else {
+                    message = plugin.getMessageConfig().getMessage("skill-up-no-broadcast");
                 }
-            }
-            
-            Title levelTitle = plugin.getJobsConfiguration().getTitleForLevel(prog.getLevel());
-            if (levelTitle == null || levelTitle.equals(prog.getTitle()))
-                continue;
-            
-            // user would skill up
-            if (plugin.getJobsConfiguration().isBroadcastingSkillups()) {
-                message = plugin.getMessageConfig().getMessage("skill-up-broadcast");
-            } else {
-                message = plugin.getMessageConfig().getMessage("skill-up-no-broadcast");
-            }
-            message = message.replace("%playername%", getName());
-            message = message.replace("%titlecolour%", levelTitle.getChatColor().toString());
-            message = message.replace("%titlename%", levelTitle.getName());
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            message = message.replace("%jobname%", job.getName());
-            for (String line: message.split("\n")) {
-                if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
-                    plugin.getServer().broadcastMessage(line);
-                } else if (player != null) {
-                    player.sendMessage(line);
+                message = message.replace("%playername%", getName());
+                message = message.replace("%titlecolour%", levelTitle.getChatColor().toString());
+                message = message.replace("%titlename%", levelTitle.getName());
+                message = message.replace("%jobcolour%", job.getChatColour().toString());
+                message = message.replace("%jobname%", job.getName());
+                for (String line: message.split("\n")) {
+                    if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
+                        plugin.getServer().broadcastMessage(line);
+                    } else if (player != null) {
+                        player.sendMessage(line);
+                    }
                 }
+                prog.setTitle(levelTitle);
             }
-            prog.setTitle(levelTitle);
+        } while (levelChanged);
+        
+        if (leveledUp) {
             reloadHonorific();
+            recalculatePermissions();
         }
-        if (hasLevelUp)
-            checkLevels();
     }
     
     public String getDisplayHonorific() {
@@ -417,6 +428,9 @@ public class JobsPlayer {
         if (!progression.containsKey(job)) {
             progression.put(job, new JobProgression(plugin, job, 0.0, 1, this));
             dao.joinJob(this, job);
+            reloadMaxExperience();
+            reloadHonorific();
+            recalculatePermissions();
         }
     }
     
@@ -428,7 +442,78 @@ public class JobsPlayer {
         JobProgression prog = progression.remove(job);
         if (prog != null) {
             dao.quitJob(this, job);
+            reloadMaxExperience();
+            reloadHonorific();
+            recalculatePermissions();
         }
+    }
+    
+    /**
+     * Promotes player in job
+     * @param job - the job being promoted
+     * @param levels - number of levels to promote
+     */
+    public void promoteJob(Job job, int levels) {
+        JobProgression prog = progression.get(job);
+        if (prog == null)
+            return;
+        if (levels <= 0)
+            return;
+        int newLevel = prog.getLevel() + levels;
+        Integer maxLevel = job.getMaxLevel();
+        if (maxLevel != null && newLevel > maxLevel) {
+            newLevel = maxLevel.intValue();
+        }
+        setLevel(job, newLevel);
+    }
+    
+    /**
+     * Demotes player in job
+     * @param job - the job being deomoted
+     * @param levels - number of levels to demote
+     */
+    public void demoteJob(Job job, int levels) {
+        JobProgression prog = progression.get(job);
+        if (prog == null)
+            return;
+        if (levels <= 0)
+            return;
+        int newLevel = prog.getLevel() - levels;
+        if (newLevel < 1) {
+            newLevel = 1;
+        }
+        setLevel(job, newLevel);
+    }
+    
+    /**
+     * Sets player to a specific level
+     * @param job - the job
+     * @param level - the level
+     */
+    private void setLevel(Job job, int level) {
+        JobProgression prog = progression.get(job);
+        if (prog == null)
+            return;
+
+        if (level != prog.getLevel()) {
+            prog.setLevel(level);
+            reloadMaxExperience();
+            reloadHonorific();
+            recalculatePermissions();
+        }
+    }
+    
+    /**
+     * Sets player to a specific level
+     * @param job - the job
+     * @param experience - the experience
+     */
+    public void addExperience(Job job, double experience) {
+        JobProgression prog = progression.get(job);
+        if (prog == null)
+            return;
+        prog.addExp(experience);
+        checkLevels();
     }
     
     /**
@@ -449,6 +534,7 @@ public class JobsPlayer {
                 reloadMaxExperience();
                 reloadHonorific();
                 checkLevels();
+                recalculatePermissions();
                 save();
             }
         }
@@ -467,7 +553,7 @@ public class JobsPlayer {
     /**
      * Function that reloads your honorific
      */
-    public void reloadHonorific() {
+    private void reloadHonorific() {
         StringBuilder builder = new StringBuilder();
         int numJobs = progression.size();
         boolean gotTitle = false;
@@ -523,13 +609,73 @@ public class JobsPlayer {
     /**
      * Function to reload all of the maximum experiences
      */
-    public void reloadMaxExperience() {
+    private void reloadMaxExperience() {
         HashMap<String, Double> param = new HashMap<String, Double>();
         param.put("numjobs", (double) progression.size());
         for (JobProgression prog: progression.values()) {
             param.put("joblevel", (double) prog.getLevel());
             prog.setMaxExperience((int)prog.getJob().getMaxExp(param));
             param.remove("joblevel");
+        }
+    }
+    
+    /**
+     * Function to recalculate permissions
+     */
+    private void recalculatePermissions() {
+        Player player = plugin.getServer().getPlayer(playername);
+        if (player == null)
+            return;
+        
+        boolean changed = false;
+        if (this.attachment != null) {
+            player.removeAttachment(attachment);
+            this.attachment = null;
+            changed = true;
+        }
+        
+        if (progression.size() == 0) {
+            Job job = plugin.getJobConfig().getJob("None");
+            if (job != null) {
+                for (JobPermission perm : job.getPermissions()) {
+                    if (perm.getLevelRequirement() <= 0) {
+                        if (this.attachment == null) {
+                            this.attachment = player.addAttachment(plugin);
+                            changed = true;
+                        }
+                        attachment.setPermission(perm.getNode(), perm.getValue());
+                    }
+                }
+            }
+        } else {
+            for (JobProgression prog : progression.values()) {
+                for (JobPermission perm : prog.getJob().getPermissions()) {
+                    if (prog.getLevel() >= perm.getLevelRequirement()) {
+                        if (this.attachment == null) {
+                            this.attachment = player.addAttachment(plugin);
+                            changed = true;
+                        }
+                        attachment.setPermission(perm.getNode(), perm.getValue());
+                    }
+                }
+            }
+        }
+        if (changed)
+            player.recalculatePermissions();
+    }
+    
+    /**
+     * Function to remove all permissions
+     */
+    public void removePermissions() {
+        Player player = plugin.getServer().getPlayer(playername);
+        if (player == null)
+            return;
+        
+        if (this.attachment != null) {
+            player.removeAttachment(attachment);
+            player.recalculatePermissions();
+            this.attachment = null;
         }
     }
     

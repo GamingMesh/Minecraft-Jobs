@@ -74,8 +74,6 @@ public class JobsManager {
                 player.sendMessage(line);
             }
         }
-        jPlayer.reloadHonorific();
-        jPlayer.reloadMaxExperience();
     }
     
     public void leaveJob(JobsPlayer jPlayer, Job job) {
@@ -93,7 +91,5 @@ public class JobsManager {
                 player.sendMessage(line);
             }
         }
-        jPlayer.reloadHonorific();
-        jPlayer.reloadMaxExperience();
     }
 }
