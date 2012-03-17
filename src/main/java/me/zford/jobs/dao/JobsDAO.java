@@ -84,6 +84,7 @@ public abstract class JobsDAO {
                 }
                 jobs.add(new JobsDAOData(res.getString(3), res.getInt(1), res.getInt(2)));
             }
+            prest.close();
             conn.close();
         }
         catch(SQLException e){
@@ -154,6 +155,7 @@ public abstract class JobsDAO {
                 prest.setString(4, temp.getJob().getName());
                 prest.executeUpdate();
             }
+            prest.close();
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -177,6 +179,7 @@ public abstract class JobsDAO {
             if(res.next()){
                 slot = res.getInt(1);
             }
+            prest.close();
             conn.close();
         }
         catch(SQLException e){
