@@ -1,5 +1,10 @@
 # Jobs plugin change log summary
 
+## 2.7.2
+* Missing vault errors are handled more gracefully
+* Fixed database locking issues with SQLite
+* Jobs can grant permissions to users
+
 ## 2.7.1
 * Removed empty sections on /jobs info
 * Fixed broken MySQL
