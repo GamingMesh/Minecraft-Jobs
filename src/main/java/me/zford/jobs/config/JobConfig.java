@@ -20,7 +20,6 @@
 package me.zford.jobs.config;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,7 +39,6 @@ import me.zford.jobs.resources.jfep.Parser;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.material.MaterialData;
 
@@ -74,7 +72,8 @@ public class JobConfig {
             try {
                 f.createNewFile();
             } catch (IOException e) {
-                e.printStackTrace();
+                plugin.getLogger().severe("Unable to create jobConfig.yml!  No jobs were loaded!");
+                return;
             }
         }
         YamlConfiguration conf = new YamlConfiguration();
@@ -88,12 +87,14 @@ public class JobConfig {
             .toString());
         try {
             conf.load(f);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidConfigurationException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            plugin.getServer().getLogger().severe("==================== Jobs ====================");
+            plugin.getServer().getLogger().severe("Unable to load jobConfig.yml!");
+            plugin.getServer().getLogger().severe("Check your config for formatting issues!");
+            plugin.getServer().getLogger().severe("No jobs were loaded!");
+            plugin.getServer().getLogger().severe("Error: "+e.getMessage());
+            plugin.getServer().getLogger().severe("==============================================");
+            return;
         }
         ConfigurationSection jobsSection = conf.getConfigurationSection("Jobs");
         if (jobsSection == null) {
