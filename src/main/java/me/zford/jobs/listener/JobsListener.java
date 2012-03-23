@@ -22,6 +22,7 @@ package me.zford.jobs.listener;
 import me.zford.jobs.Jobs;
 import me.zford.jobs.config.container.JobsPlayer;
 
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -29,6 +30,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.plugin.PluginManager;
 
 public class JobsListener implements Listener {
     // hook to the main plugin
@@ -67,5 +72,13 @@ public class JobsListener implements Listener {
             format = format.replace("%1$s", honorific+ " %1$s");
             event.setFormat(format);
         }
+    }
+    
+    @EventHandler(priority=EventPriority.MONITOR)
+    public void onWorldLoad(WorldLoadEvent event) {
+        World world = event.getWorld();
+        PluginManager pm = plugin.getServer().getPluginManager();
+        if (pm.getPermission("jobs.world."+world.getName().toLowerCase()) == null)
+            pm.addPermission(new Permission("jobs.world."+world.getName().toLowerCase(), PermissionDefault.TRUE));
     }
 }
