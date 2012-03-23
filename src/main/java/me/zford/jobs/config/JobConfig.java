@@ -156,6 +156,10 @@ public class JobConfig {
             String maxExpEquationInput = jobSection.getString("leveling-progression-equation");
             try {
                 maxExpEquation = new Parser(maxExpEquationInput);
+                // test equation
+                maxExpEquation.setVariable("numjobs", 1);
+                maxExpEquation.setVariable("joblevel", 1);
+                maxExpEquation.getValue();
             } catch(Exception e) {
                 plugin.getLogger().severe("Job " + jobKey + " has an invalid leveling-progression-equation property. Skipping job!");
                 continue;
@@ -165,6 +169,11 @@ public class JobConfig {
             String incomeEquationInput = jobSection.getString("income-progression-equation");
             try {
                 incomeEquation = new Parser(incomeEquationInput);
+                // test equation
+                incomeEquation.setVariable("numjobs", 1);
+                incomeEquation.setVariable("joblevel", 1);
+                incomeEquation.setVariable("baseincome", 1);
+                incomeEquation.getValue();
             } catch(Exception e) {
                 plugin.getLogger().severe("Job " + jobKey + " has an invalid income-progression-equation property. Skipping job!");
                 continue;
@@ -174,6 +183,11 @@ public class JobConfig {
             String expEquationInput = jobSection.getString("experience-progression-equation");
             try {
                 expEquation = new Parser(expEquationInput);
+                // test equation
+                expEquation.setVariable("numjobs", 1);
+                expEquation.setVariable("joblevel", 1);
+                expEquation.setVariable("baseexperience", 1);
+                expEquation.getValue();
             } catch(Exception e) {
                 plugin.getLogger().severe("Job " + jobKey + " has an invalid experience-progression-equation property. Skipping job!");
                 continue;
