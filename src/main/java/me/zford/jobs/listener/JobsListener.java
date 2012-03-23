@@ -30,12 +30,11 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-
-public class JobsPlayerListener implements Listener {
+public class JobsListener implements Listener {
     // hook to the main plugin
     private Jobs plugin;
     
-    public JobsPlayerListener(Jobs plugin) {
+    public JobsListener(Jobs plugin) {
         this.plugin = plugin;
     }
 

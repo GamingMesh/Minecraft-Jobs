@@ -26,11 +26,8 @@ import me.zford.jobs.config.container.Job;
 import me.zford.jobs.config.container.JobsPlayer;
 import me.zford.jobs.economy.BufferedPayment;
 import me.zford.jobs.economy.link.VaultLink;
-import me.zford.jobs.listener.JobsBlockPaymentListener;
-import me.zford.jobs.listener.JobsCraftPaymentListener;
-import me.zford.jobs.listener.JobsFishPaymentListener;
-import me.zford.jobs.listener.JobsKillPaymentListener;
-import me.zford.jobs.listener.JobsPlayerListener;
+import me.zford.jobs.listener.JobsListener;
+import me.zford.jobs.listener.JobsPaymentListener;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -114,11 +111,8 @@ public class Jobs extends JavaPlugin {
         }, 100, 100);
         
         // register the listeners
-        getServer().getPluginManager().registerEvents(new JobsBlockPaymentListener(this), this);
-        getServer().getPluginManager().registerEvents(new JobsKillPaymentListener(this), this);
-        getServer().getPluginManager().registerEvents(new JobsFishPaymentListener(this), this);
-        getServer().getPluginManager().registerEvents(new JobsPlayerListener(this), this);
-        getServer().getPluginManager().registerEvents(new JobsCraftPaymentListener(this), this);
+        getServer().getPluginManager().registerEvents(new JobsListener(this), this);
+        getServer().getPluginManager().registerEvents(new JobsPaymentListener(this), this);
         
         // add all online players
         for (Player online: getServer().getOnlinePlayers()){

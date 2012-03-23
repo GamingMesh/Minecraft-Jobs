@@ -18,7 +18,7 @@
   <dependencies>
     <dependency>
       <groupId>org.bukkit</groupId>
-      <artifactId>craftbukkit</artifactId>
+      <artifactId>bukkit</artifactId>
       <version>1.2.3-R0.2</version>
     </dependency>
     <dependency>
