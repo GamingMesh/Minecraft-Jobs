@@ -1,5 +1,9 @@
 # Jobs plugin change log summary
 
+## 2.7.3
+* jobConfig.yml should no longer disapper if there are syntax errors
+* Permissions should now register correctly on world load
+
 ## 2.7.2
 * Missing vault errors are handled more gracefully
 * Fixed database locking issues with SQLite
