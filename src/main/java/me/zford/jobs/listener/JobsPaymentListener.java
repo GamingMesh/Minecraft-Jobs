@@ -133,6 +133,9 @@ public class JobsPaymentListener implements Listener {
         
         Recipe recipe = ((CraftingInventory) inv).getRecipe();
         
+        if (recipe == null)
+            return;
+        
         // restricted area multiplier
         List<HumanEntity> viewers = event.getViewers();
         if (viewers.size() == 0)
