@@ -39,6 +39,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockCanBuildEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -71,6 +72,12 @@ public class JobsPaymentListener implements Listener {
         if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
             return;
         
+	if (plugin.getJobsManager().getJobsPlayer(player.getName()).blockBreakIsRestricted(event.getBlock()).booleanValue())
+ {
+	    event.setCancelled(true);
+	    return;
+	}
+
         // restricted area multiplier
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
         
@@ -93,6 +100,11 @@ public class JobsPaymentListener implements Listener {
         if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
             return;
         
+	if (plugin.getJobsManager().getJobsPlayer(player.getName()).blockPlaceIsRestricted(event.getBlock()).booleanValue()) {
+	    event.setCancelled(true);
+	    return;
+	}
+
         // restricted area multiplier
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
         
@@ -114,10 +126,15 @@ public class JobsPaymentListener implements Listener {
         
         if (!plugin.hasWorldPermission(player, player.getWorld())) return;
         
+
         // restricted area multiplier
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         
         if(event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
+	    if (plugin.getJobsManager().getJobsPlayer(player.getName()).fishIsRestricted((Item) event.getCaught()).booleanValue()) {
+		event.setCancelled(true);
+		return;
+	    }
             plugin.getJobsManager().getJobsPlayer(player.getName()).fished((Item)event.getCaught(), multiplier);
         }
     }
@@ -154,14 +171,65 @@ public class JobsPaymentListener implements Listener {
         
         if (!plugin.hasWorldPermission(player, player.getWorld()))
             return;
+
+	ItemStack stack = recipe.getResult();
         
+	if (plugin.getJobsManager().getJobsPlayer(player.getName()).craftIsRestricted(stack).booleanValue()) {
+	    event.setCancelled(true);
+	    return;
+	}
+
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         
-        ItemStack stack = recipe.getResult();
         plugin.getJobsManager().getJobsPlayer(player.getName()).crafted(stack, multiplier);
     }
     
     @EventHandler(priority=EventPriority.MONITOR)
+    public void onEntityDamage(EntityDamageByEntityEvent event) {
+	if (!(event.getEntity() instanceof LivingEntity))
+	    return;
+	LivingEntity lVictim = (LivingEntity) event.getEntity();
+
+	if (!plugin.isEnabled())
+	    return;
+
+	Player pDamager = null;
+	if (event.getDamager() instanceof Player) {
+	    pDamager = (Player) event.getDamager();
+	} else if (event.getDamager() instanceof Projectile && ((Projectile) event.getDamager()).getShooter() instanceof Player) {
+	    pDamager = (Player) ((Projectile) event.getDamager()).getShooter();
+	} else if (event.getDamager() instanceof Tameable) {
+	    Tameable t = (Tameable) event.getDamager();
+	    if (t.isTamed() && t.getOwner() instanceof Player) {
+		pDamager = (Player) t.getOwner();
+	    }
+	}
+	if (pDamager != null) {
+	    // check if in creative
+	    if (pDamager.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+		return;
+
+	    if (plugin.getJobsManager().getJobsPlayer(pDamager.getName()).attackIsRestricted(lVictim.getClass().toString().replace("class ", "").trim())
+		    .booleanValue()) {
+		event.setCancelled(true);
+		return;
+	    }
+	    if (lVictim instanceof Player) {
+		JobsPlayer jVictim = plugin.getJobsManager().getJobsPlayer(((Player) lVictim).getName());
+		if (jVictim != null && jVictim.getJobs() != null) {
+		    for (Job temp : jVictim.getJobs()) {
+			if (plugin.getJobsManager().getJobsPlayer(pDamager.getName())
+				.attackIsRestricted((lVictim.getClass().toString().replace("class ", "") + ":" + temp.getName()).trim()).booleanValue()) {
+			    event.setCancelled(true);
+			    return;
+			}
+		    }
+		}
+	    }
+	}
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onEntityDeath(EntityDeathEvent event) {
         // Entity that died must be living
         if(!(event.getEntity() instanceof LivingEntity))

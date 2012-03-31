@@ -26,6 +26,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import me.zford.jobs.Jobs;
 import me.zford.jobs.dao.JobsDAO;
@@ -85,7 +86,122 @@ public class JobsPlayer {
         reloadHonorific();
         recalculatePermissions();
     }
-    
+
+    public Boolean blockBreakIsRestricted(Block block) {
+	Double maxValue = null;
+	Double currentValue;
+	for (Map.Entry<Job, JobProgression> entry : progression.entrySet()) {
+	    currentValue = entry.getKey().getBreakRestrictionLevel(block);
+	    if (maxValue == null)
+		maxValue = currentValue;
+	    else if (currentValue != null) {
+		if (Math.abs(maxValue.doubleValue()) < Math.abs(currentValue.doubleValue()))
+		    maxValue = currentValue;
+	    }
+	}
+	if (this.progression.size() == 0) {
+	    Job jobNone = plugin.getJobConfig().getJob("None");
+	    if (jobNone != null) {
+		maxValue = jobNone.getBreakRestrictionLevel(block);
+	    }
+	}
+	if (maxValue != null)
+	    return maxValue.doubleValue() < 0;
+	return Boolean.FALSE;
+    }
+
+    public Boolean blockPlaceIsRestricted(Block block) {
+	Double maxValue = null;
+	Double currentValue;
+	for (Map.Entry<Job, JobProgression> entry : progression.entrySet()) {
+	    currentValue = entry.getKey().getPlaceRestrictionLevel(block);
+	    if (maxValue == null)
+		maxValue = currentValue;
+	    else if (currentValue != null) {
+		if (Math.abs(maxValue.doubleValue()) < Math.abs(currentValue.doubleValue()))
+		    maxValue = currentValue;
+	    }
+	}
+	if (this.progression.size() == 0) {
+	    Job jobNone = plugin.getJobConfig().getJob("None");
+	    if (jobNone != null) {
+		maxValue = jobNone.getPlaceRestrictionLevel(block);
+	    }
+	}
+	if (maxValue != null)
+	    return maxValue.doubleValue() < 0;
+	return Boolean.FALSE;
+    }
+
+    public Boolean attackIsRestricted(String victim) {
+	Double maxValue = null;
+	Double currentValue;
+	for (Map.Entry<Job, JobProgression> entry : progression.entrySet()) {
+	    currentValue = entry.getKey().getKillRestrictionLevel(victim);
+	    if (maxValue == null)
+		maxValue = currentValue;
+	    else if (currentValue != null) {
+		if (Math.abs(maxValue.doubleValue()) < Math.abs(currentValue.doubleValue()))
+		    maxValue = currentValue;
+	    }
+	}
+	if (this.progression.size() == 0) {
+	    Job jobNone = plugin.getJobConfig().getJob("None");
+	    if (jobNone != null) {
+		maxValue = jobNone.getKillRestrictionLevel(victim);
+	    }
+	}
+	if (maxValue != null)
+	    return maxValue.doubleValue() < 0;
+	return Boolean.FALSE;
+    }
+
+    public Boolean fishIsRestricted(Item item) {
+	Double maxValue = null;
+	Double currentValue;
+	for (Map.Entry<Job, JobProgression> entry : progression.entrySet()) {
+	    currentValue = entry.getKey().getFishRestrictionLevel(item);
+	    if (maxValue == null)
+		maxValue = currentValue;
+	    else if (currentValue != null) {
+		if (Math.abs(maxValue.doubleValue()) < Math.abs(currentValue.doubleValue()))
+		    maxValue = currentValue;
+	    }
+	}
+	if (this.progression.size() == 0) {
+	    Job jobNone = plugin.getJobConfig().getJob("None");
+	    if (jobNone != null) {
+		maxValue = jobNone.getFishRestrictionLevel(item);
+	    }
+	}
+	if (maxValue != null)
+	    return maxValue.doubleValue() < 0;
+	return Boolean.FALSE;
+    }
+
+    public Boolean craftIsRestricted(ItemStack items) {
+	Double maxValue = null;
+	Double currentValue;
+	for (Map.Entry<Job, JobProgression> entry : progression.entrySet()) {
+	    currentValue = entry.getKey().getCraftRestrictionLevel(items);
+	    if (maxValue == null)
+		maxValue = currentValue;
+	    else if (currentValue != null) {
+		if (Math.abs(maxValue.doubleValue()) < Math.abs(currentValue.doubleValue()))
+		    maxValue = currentValue;
+	    }
+	}
+	if (this.progression.size() == 0) {
+	    Job jobNone = plugin.getJobConfig().getJob("None");
+	    if (jobNone != null) {
+		maxValue = jobNone.getCraftRestrictionLevel(items);
+	    }
+	}
+	if (maxValue != null)
+	    return maxValue.doubleValue() < 0;
+	return Boolean.FALSE;
+    }
+
     /**
      * Broke a block.
      * 
