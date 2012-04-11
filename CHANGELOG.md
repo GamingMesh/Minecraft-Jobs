@@ -1,5 +1,9 @@
 # Jobs plugin change log summary
 
+## 2.7.4
+* messageConfig.yml should no longer disapper if there are syntax errors
+* Test equations during configuration loading stage to prevent errors with buggy formula
+
 ## 2.7.3
 * jobConfig.yml should no longer disapper if there are syntax errors
 * Permissions should now register correctly on world load
