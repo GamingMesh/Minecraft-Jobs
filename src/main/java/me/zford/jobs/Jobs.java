@@ -39,7 +39,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class Jobs extends JavaPlugin {    
-    private MessageConfig messageConfig;
+    private MessageConfig messageConfig = new MessageConfig(this);
     private JobsConfiguration jobsConfiguration;
     private JobConfig jobConfig;
     private BufferedPayment economy;
@@ -75,8 +75,6 @@ public class Jobs extends JavaPlugin {
         manager = new JobsManager(this);
         JobsCommands commands = new JobsCommands(this);
         this.getCommand("jobs").setExecutor(commands);
-        
-        messageConfig = new MessageConfig(this);
         
         reloadConfigurations();
         

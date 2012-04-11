@@ -20,13 +20,11 @@
 package me.zford.jobs.config;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import me.zford.jobs.Jobs;
 
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class MessageConfig {
@@ -113,21 +111,21 @@ public class MessageConfig {
         }
     }
     
-    private File file;
-    private YamlConfiguration config;
+    private YamlConfiguration config = new YamlConfiguration();
+    private Jobs plugin;
     
     /**
      * Constructor
      */
     public MessageConfig(Jobs plugin) {
-        file = new File(plugin.getDataFolder(), "messageConfig.yml");
-        config = new YamlConfiguration();
+        this.plugin = plugin;
     }
     
     /**
      * Reloads the config
      */
     public void reload() {
+        File file = new File(plugin.getDataFolder(), "messageConfig.yml");
         if(!file.exists()) {
             try {
                 file.createNewFile();
@@ -135,14 +133,17 @@ public class MessageConfig {
                 e.printStackTrace();
             }
         }
+        boolean loaded = false;
         try {
             config.load(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidConfigurationException e) {
-            e.printStackTrace();
+            loaded = true;
+        } catch (Exception e) {
+            plugin.getServer().getLogger().severe("==================== Jobs ====================");
+            plugin.getServer().getLogger().severe("Unable to load messageConfig.yml!");
+            plugin.getServer().getLogger().severe("Check your config for formatting issues!");
+            plugin.getServer().getLogger().severe("Default messages were loaded instead!");
+            plugin.getServer().getLogger().severe("Error: "+e.getMessage());
+            plugin.getServer().getLogger().severe("==============================================");
         }
         StringBuilder header = new StringBuilder()
             .append("Configuration file for the messages").append(System.getProperty("line.separator"))
@@ -176,10 +177,12 @@ public class MessageConfig {
                 config.set(key, message.getMessage());
             }
         }
-        try {
-            config.save(file);
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (loaded) {
+            try {
+                config.save(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
     
