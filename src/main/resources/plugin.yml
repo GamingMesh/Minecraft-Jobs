@@ -5,9 +5,9 @@ version: ${project.version}
 author: phrstbrn
 softdepend: [Vault]
 commands:
-    Jobs:
-        description: Jobs
-        usage: /jobs
+  jobs:
+    description: Jobs
+    usage: /jobs
 permissions:
   jobs.*:
     description: Grants access to all Jobs commands
