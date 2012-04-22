@@ -29,6 +29,7 @@ import me.zford.jobs.config.container.Job;
 import me.zford.jobs.config.container.JobsPlayer;
 
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -50,6 +51,7 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
 
 public class JobsPaymentListener implements Listener {
@@ -151,17 +153,45 @@ public class JobsPaymentListener implements Listener {
         if (player == null)
             return;
         
-        // check if in creative
-        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+        ItemStack resultStack = recipe.getResult();
+        
+        if (resultStack == null)
             return;
         
         if (!plugin.hasWorldPermission(player, player.getWorld()))
             return;
         
-        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        // check if in creative
+        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+            return;
         
-        ItemStack stack = recipe.getResult();
-        plugin.getJobsManager().getJobsPlayer(player.getName()).crafted(stack, multiplier);
+        if (event.isShiftClick()) {
+            // check for full inventory
+            PlayerInventory pInv = player.getInventory();
+            boolean isFull = true;
+            for (ItemStack stack : pInv.getContents()) {
+                if (stack == null || stack.getType().equals(Material.AIR)) {
+                    isFull = false;
+                    break;
+                }
+            }
+            if (isFull)
+                return;
+        } else {
+            // check item on cursor
+            ItemStack cursor = player.getItemOnCursor();
+            if (cursor != null && !cursor.getType().equals(Material.AIR)) {
+                // don't craft if it's a different item
+                if (!cursor.getType().equals(resultStack.getType()))
+                    return;
+                // check if stack is full
+                if (cursor.getAmount() >= cursor.getMaxStackSize())
+                    return;
+            }
+        }
+        
+        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        plugin.getJobsManager().getJobsPlayer(player.getName()).crafted(resultStack, multiplier);
     }
     
     @EventHandler(priority=EventPriority.MONITOR)
