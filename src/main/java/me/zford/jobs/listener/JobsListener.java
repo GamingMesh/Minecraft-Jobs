@@ -61,17 +61,27 @@ public class JobsListener implements Listener {
     public void onPlayerChat(PlayerChatEvent event) {
         if (!plugin.isEnabled()) return;
         
-        Player player = event.getPlayer();
-        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(player.getName());
-        
-        if (jPlayer == null) return;
+        if (!plugin.getJobsConfiguration().getModifyChat())
+            return;
         
         String format = event.getFormat();
-        String honorific = jPlayer.getDisplayHonorific();
-        if (!honorific.isEmpty()) {
-            format = format.replace("%1$s", honorific+ " %1$s");
-            event.setFormat(format);
-        }
+        format = format.replace("%1$s", "{jobs} %1$s");
+        event.setFormat(format);
+    }
+    
+    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
+    public void onPlayerChatHighest(PlayerChatEvent event) {
+        if (!plugin.isEnabled()) return;
+        
+        Player player = event.getPlayer();
+        JobsPlayer jPlayer = plugin.getJobsManager().getJobsPlayer(player.getName());
+        String honorific = "";
+        if (jPlayer != null)
+            honorific = jPlayer.getDisplayHonorific();
+        
+        String format = event.getFormat();
+        format = format.replace("{jobs}", honorific);
+        event.setFormat(format);
     }
     
     @EventHandler(priority=EventPriority.MONITOR)

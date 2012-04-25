@@ -48,7 +48,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 public class JobsConfiguration {
-    private YamlConfiguration generalConfig;
+    private YamlConfiguration config;
     // all of the possible titles
     private List<Title> titles = new ArrayList<Title>();
     // data access object being used.
@@ -87,7 +87,7 @@ public class JobsConfiguration {
             }
         }
         
-        generalConfig = new YamlConfiguration();
+        config = new YamlConfiguration();
         CommentedYamlConfiguration writer = new CommentedYamlConfiguration();
         StringBuilder header = new StringBuilder();
         header.append("General configuration.");
@@ -103,45 +103,48 @@ public class JobsConfiguration {
         header.append("any one time.");
         header.append(System.getProperty("line.separator"));
         
-        generalConfig.options().copyDefaults(true);
+        config.options().copyDefaults(true);
         
         writer.options().header(header.toString());
 
         writer.addComment("storage-method", "storage method, can be MySQL, sqlite, h2");
-        generalConfig.addDefault("storage-method", "sqlite");
+        config.addDefault("storage-method", "sqlite");
         
         writer.addComment("mysql-username", "Requires Mysql.");
-        generalConfig.addDefault("mysql-username", "root");        
-        generalConfig.addDefault("mysql-password", "");
-        generalConfig.addDefault("mysql-url", "jdbc:mysql://localhost:3306/minecraft");
-        generalConfig.addDefault("mysql-table-prefix", "");
+        config.addDefault("mysql-username", "root");        
+        config.addDefault("mysql-password", "");
+        config.addDefault("mysql-url", "jdbc:mysql://localhost:3306/minecraft");
+        config.addDefault("mysql-table-prefix", "");
         
         writer.addComment("save-period", 
                 "How often in minutes you want it to save, 0 disables periodic saving and",
                 "the system will only save on logout"
         );
-        generalConfig.addDefault("save-period", 10);
+        config.addDefault("save-period", 10);
         
         writer.addComment("broadcast-on-skill-up", "Do all players get a message when somone goes up a skill level?");
-        generalConfig.addDefault("broadcast-on-skill-up", false);
+        config.addDefault("broadcast-on-skill-up", false);
         
         writer.addComment("broadcast-on-level-up", "Do all players get a message when somone goes up a level?");
-        generalConfig.addDefault("broadcast-on-level-up", false);
+        config.addDefault("broadcast-on-level-up", false);
         
         writer.addComment("max-jobs",
                 "Maximum number of jobs a player can join.",
                 "Use 0 for no maximum"
         );
-        generalConfig.addDefault("max-jobs", 3);
+        config.addDefault("max-jobs", 3);
         
         writer.addComment("enable-pay-near-spawner", "option to allow payment to be made when killing mobs from a spawner");
-        generalConfig.addDefault("enable-pay-near-spawner", false);
+        config.addDefault("enable-pay-near-spawner", false);
         
         writer.addComment("enable-pay-creative", "option to allow payment to be made in creative mode");
-        generalConfig.addDefault("enable-pay-creative", false);
+        config.addDefault("enable-pay-creative", false);
+        
+        writer.addComment("modify-chat", "Modifys chat to add chat titles.  If you're using a chat manager, you may add the tag {jobs} to your chat format and disable this.");
+        config.addDefault("modify-chat", true);
         
         try {
-            generalConfig.load(f);
+            config.load(f);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -150,16 +153,16 @@ public class JobsConfiguration {
             e.printStackTrace();
         }
         
-        String storageMethod = generalConfig.getString("storage-method");
+        String storageMethod = config.getString("storage-method");
         if(storageMethod.equalsIgnoreCase("mysql")) {
-            String username = generalConfig.getString("mysql-username");
+            String username = config.getString("mysql-username");
             if(username == null) {
                 plugin.getLogger().severe("mysql-username property invalid or missing");
                 plugin.disablePlugin();
             }
-            String password = generalConfig.getString("mysql-password");
-            String url = generalConfig.getString("mysql-url");
-            String prefix = generalConfig.getString("mysql-table-prefix");
+            String password = config.getString("mysql-password");
+            String url = config.getString("mysql-url");
+            String prefix = config.getString("mysql-table-prefix");
             if (plugin.isEnabled())
                 this.dao = new JobsDAOMySQL(plugin, url, username, password, prefix);
         } else if(storageMethod.equalsIgnoreCase("h2")) {
@@ -193,23 +196,24 @@ public class JobsConfiguration {
         }
         
         // save-period
-        if(generalConfig.getInt("save-period") <= 0) {
+        if(config.getInt("save-period") <= 0) {
             plugin.getLogger().info("Invalid save-period property! Defaulting to 10!");
-            generalConfig.set("save-period", 10);
+            config.set("save-period", 10);
         }
         
         // Make sure we're only copying settings we care about
-        copySetting(generalConfig, writer, "storage-method");
-        copySetting(generalConfig, writer, "mysql-username");
-        copySetting(generalConfig, writer, "mysql-password");
-        copySetting(generalConfig, writer, "mysql-url");
-        copySetting(generalConfig, writer, "mysql-table-prefix");
-        copySetting(generalConfig, writer, "save-period");
-        copySetting(generalConfig, writer, "broadcast-on-skill-up");
-        copySetting(generalConfig, writer, "broadcast-on-level-up");
-        copySetting(generalConfig, writer, "max-jobs");
-        copySetting(generalConfig, writer, "enable-pay-near-spawner");
-        copySetting(generalConfig, writer, "enable-pay-creative");
+        copySetting(config, writer, "storage-method");
+        copySetting(config, writer, "mysql-username");
+        copySetting(config, writer, "mysql-password");
+        copySetting(config, writer, "mysql-url");
+        copySetting(config, writer, "mysql-table-prefix");
+        copySetting(config, writer, "save-period");
+        copySetting(config, writer, "broadcast-on-skill-up");
+        copySetting(config, writer, "broadcast-on-level-up");
+        copySetting(config, writer, "max-jobs");
+        copySetting(config, writer, "enable-pay-near-spawner");
+        copySetting(config, writer, "enable-pay-creative");
+        copySetting(config, writer, "modify-chat");
         
         // Write back config
         try {
@@ -462,7 +466,7 @@ public class JobsConfiguration {
      * @return how often in minutes to save job information
      */
     public int getSavePeriod(){
-        return generalConfig.getInt("save-period");
+        return config.getInt("save-period");
     }
 
     /**
@@ -479,7 +483,7 @@ public class JobsConfiguration {
      * @return false - do not broadcast on skill up
      */
     public boolean isBroadcastingSkillups(){
-        return generalConfig.getBoolean("broadcast-on-skill-up");
+        return config.getBoolean("broadcast-on-skill-up");
     }
     
     /**
@@ -488,7 +492,7 @@ public class JobsConfiguration {
      * @return false - do not broadcast on level up
      */
     public boolean isBroadcastingLevelups(){
-        return generalConfig.getBoolean("broadcast-on-level-up");
+        return config.getBoolean("broadcast-on-level-up");
     }
     
     /**
@@ -497,7 +501,7 @@ public class JobsConfiguration {
      * @return false - do not pay in creative
      */
     public boolean payInCreative() {
-        return generalConfig.getBoolean("enable-pay-creative");
+        return config.getBoolean("enable-pay-creative");
     }
     
     /**
@@ -526,7 +530,7 @@ public class JobsConfiguration {
      * @return
      */
     public int getMaxJobs() {
-        return generalConfig.getInt("max-jobs");
+        return config.getInt("max-jobs");
     }
     
     /**
@@ -535,7 +539,7 @@ public class JobsConfiguration {
      * @return false - you don't get paid
      */
     public boolean payNearSpawner() {
-        return generalConfig.getBoolean("enable-pay-near-spawner");
+        return config.getBoolean("enable-pay-near-spawner");
     }
     
    /**
@@ -557,5 +561,9 @@ public class JobsConfiguration {
                 return area.getMultiplier();
         }
         return 1.0;
+    }
+    
+    public boolean getModifyChat() {
+        return config.getBoolean("modify-chat");
     }
 }
