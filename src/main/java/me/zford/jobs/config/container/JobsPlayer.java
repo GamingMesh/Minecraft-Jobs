@@ -65,7 +65,7 @@ public class JobsPlayer {
         this.dao = dao;
         // for all jobs players have
         List<JobsDAOData> list = dao.getAllJobs(this);
-        if (list != null) {
+        if (list != null && !list.isEmpty()) {
             for (JobsDAOData jobdata: list) {
                 if (plugin.getJobConfig().getJob(jobdata.getJobName()) != null) {
                     // add the job
