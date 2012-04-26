@@ -312,6 +312,45 @@ public class JobConfig {
                 }
             }
             
+            // smelt
+            ConfigurationSection smeltSection = jobSection.getConfigurationSection("Smelt");
+            HashMap<String, JobsMaterialInfo> jobSmeltInfo = new HashMap<String, JobsMaterialInfo>();
+            if (craftSection != null) {
+                for (String smeltKey : smeltSection.getKeys(false)) {
+                    ConfigurationSection smeltItem = smeltSection.getConfigurationSection(smeltKey);
+                    String materialType = smeltKey.toUpperCase();
+                    String subType = "";
+                    
+                    if (materialType.contains("-")) {
+                        // uses subType
+                        subType = ":" + materialType.split("-")[1];
+                        materialType = materialType.split("-")[0];
+                    }
+                    Material material = Material.matchMaterial(materialType);
+                    if (material == null) {
+                        // try integer method
+                        Integer matId = null;
+                        try {
+                            matId = Integer.decode(materialType);
+                        } catch (NumberFormatException e) {}
+                        if (matId != null) {
+                            material = Material.getMaterial(matId);
+                        }
+                    }
+                    
+                    if(material == null) {
+                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + smeltKey + " Smelt material type property. Skipping!");
+                        continue;
+                    }
+                    MaterialData materialData = new MaterialData(material);
+                    
+                    Double income = smeltItem.getDouble("income", 0.0);
+                    Double experience = smeltItem.getDouble("experience", 0.0);
+                    
+                    jobSmeltInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
+                }
+            }
+            
             // kill
             ConfigurationSection killSection = jobSection.getConfigurationSection("Kill");
             HashMap<String, JobsLivingEntityInfo> jobKillInfo = new HashMap<String, JobsLivingEntityInfo>();
@@ -414,7 +453,7 @@ public class JobConfig {
                 isHidden = true;
             }
             
-            this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobFishInfo, jobCraftInfo, jobPermissions, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots, isHidden));
+            this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobFishInfo, jobCraftInfo, jobSmeltInfo, jobPermissions, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots, isHidden));
         }
         try {
             conf.save(f);

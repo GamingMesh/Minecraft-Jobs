@@ -30,6 +30,7 @@ import me.zford.jobs.config.container.JobsPlayer;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -45,18 +46,23 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerFishEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 
 public class JobsPaymentListener implements Listener {
     private Jobs plugin;
     private Set<LivingEntity> mobSpawnerCreatures = Collections.newSetFromMap(new WeakHashMap<LivingEntity, Boolean>());
+    private final String furnaceOwner = "jobsFurnaceOwner";
     
     public JobsPaymentListener(Jobs plugin){
         this.plugin = plugin;
@@ -64,6 +70,11 @@ public class JobsPaymentListener implements Listener {
     
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
     public void onBlockBreak(BlockBreakEvent event) {
+        // remove furnace metadata for broken block
+        Block block = event.getBlock();
+        if (block.getType().equals(Material.FURNACE) && block.hasMetadata(furnaceOwner))
+            block.removeMetadata(furnaceOwner, plugin);
+        
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
         
@@ -74,15 +85,16 @@ public class JobsPaymentListener implements Listener {
             return;
         
         // restricted area multiplier
-        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
+        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         
         if(plugin.hasWorldPermission(player, player.getWorld())) {
-            plugin.getJobsManager().getJobsPlayer(player.getName()).broke(event.getBlock(), multiplier);            
+            plugin.getJobsManager().getJobsPlayer(player.getName()).broke(block, multiplier);            
         }
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
     public void onBlockPlace(BlockPlaceEvent event) {
+        Block block = event.getBlock();
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
         
@@ -96,10 +108,10 @@ public class JobsPaymentListener implements Listener {
             return;
         
         // restricted area multiplier
-        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(event.getPlayer());
+        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         
         if(plugin.hasWorldPermission(player, player.getWorld())) {
-            plugin.getJobsManager().getJobsPlayer(player.getName()).placed(event.getBlock(), multiplier);
+            plugin.getJobsManager().getJobsPlayer(player.getName()).placed(block, multiplier);
         }
     }
 
@@ -194,6 +206,27 @@ public class JobsPaymentListener implements Listener {
         plugin.getJobsManager().getJobsPlayer(player.getName()).crafted(resultStack, multiplier);
     }
     
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+    public void onFurnaceSmelt(FurnaceSmeltEvent event) {
+        if (!plugin.isEnabled())
+            return;
+        Block block = event.getBlock();
+        if (!block.hasMetadata(furnaceOwner))
+            return;
+        List<MetadataValue> data = block.getMetadata(furnaceOwner);
+        if (data.isEmpty())
+            return;
+        
+        // only care about first
+        MetadataValue value = data.get(0);
+        String playerName = value.asString();
+        Player player = plugin.getServer().getPlayerExact(playerName);
+        if (player == null || !player.isOnline())
+            return;
+        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        plugin.getJobsManager().getJobsPlayer(player.getName()).smelted(event.getResult(), multiplier);
+    }
+    
     @EventHandler(priority=EventPriority.MONITOR)
     public void onEntityDeath(EntityDeathEvent event) {
         // Entity that died must be living
@@ -254,5 +287,21 @@ public class JobsPaymentListener implements Listener {
             return;
         LivingEntity creature = (LivingEntity)event.getEntity();
         mobSpawnerCreatures.add(creature);
+    }
+    
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        if (!plugin.isEnabled())
+            return;
+        
+        Block block = event.getClickedBlock();
+        
+        if (!block.getType().equals(Material.FURNACE))
+            return;
+        
+        if (block.hasMetadata(furnaceOwner))
+            block.removeMetadata(furnaceOwner, plugin);
+        
+        block.setMetadata(furnaceOwner, new FixedMetadataValue(plugin, event.getPlayer().getName()));
     }
 }

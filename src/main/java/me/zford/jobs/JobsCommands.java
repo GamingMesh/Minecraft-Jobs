@@ -598,6 +598,20 @@ public class JobsCommands implements CommandExecutor {
                 message += myMessage;
             }
         }
+        
+        if (type.equalsIgnoreCase("smelt") || showAllTypes == 1) {
+            // craft
+            Map<String, JobsMaterialInfo> jobSmeltInfo = job.getSmeltInfo();
+            
+            if (jobSmeltInfo != null && !jobSmeltInfo.isEmpty()) {
+                message += jobInfoSmeltMessage(player, job, jobSmeltInfo);
+            } else if(showAllTypes == 0) {
+                String myMessage = plugin.getMessageConfig().getMessage("smelt-none");
+                myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
+                myMessage = myMessage.replace("%jobname%", job.getName());
+                message += myMessage;
+            }
+        }
         return message;
     }
     
@@ -836,6 +850,56 @@ public class JobsCommands implements CommandExecutor {
             }
             else {
                 myMessage = plugin.getMessageConfig().getMessage("craft-info-no-sub");
+            }
+            if(temp.getKey().contains(":")){
+                myMessage = myMessage.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());
+                myMessage = myMessage.replace("%subitem%", temp.getKey().split(":")[1]);
+            }
+            else{
+                myMessage = myMessage.replace("%item%", temp.getKey().replace("_", " ").toLowerCase());
+            }
+            myMessage = myMessage.replace("%income%", format.format(incomeEquation.getValue()));
+            myMessage = myMessage.replace("%experience%", format.format(expEquation.getValue()));
+            message += myMessage + "\n";
+        }
+        return message;
+    }
+    
+    /**
+     * Displays info about fishing
+     * @param player - the player of the job
+     * @param job - the job we are displaying info about
+     * @param jobCraftInfo - the information to display
+     * @return the message
+     */ 
+    private String jobInfoSmeltMessage(JobsPlayer player, Job job, Map<String, JobsMaterialInfo> jobSmeltInfo) {
+        
+        String message = "";
+        message += plugin.getMessageConfig().getMessage("smelt-header")+"\n";
+
+        DecimalFormat format = new DecimalFormat("#.##");
+        JobProgression prog = player.getJobsProgression(job);
+        Parser expEquation = job.getExpEquation();
+        Parser incomeEquation = job.getIncomeEquation();
+        if(prog != null){
+            expEquation.setVariable("joblevel", prog.getLevel());
+            incomeEquation.setVariable("joblevel", prog.getLevel());
+        }
+        else {
+            expEquation.setVariable("joblevel", 1);
+            incomeEquation.setVariable("joblevel", 1);
+        }
+        expEquation.setVariable("numjobs", player.getJobs().size());
+        incomeEquation.setVariable("numjobs", player.getJobs().size());
+        for (Map.Entry<String, JobsMaterialInfo> temp: jobSmeltInfo.entrySet()) {
+            expEquation.setVariable("baseexperience", temp.getValue().getXpGiven());
+            incomeEquation.setVariable("baseincome", temp.getValue().getMoneyGiven());
+            String myMessage;
+            if(temp.getKey().contains(":")){
+                myMessage = plugin.getMessageConfig().getMessage("smelt-info-sub");
+            }
+            else {
+                myMessage = plugin.getMessageConfig().getMessage("smelt-info-no-sub");
             }
             if(temp.getKey().contains(":")){
                 myMessage = myMessage.replace("%item%", temp.getKey().split(":")[0].replace("_", " ").toLowerCase());

@@ -291,6 +291,47 @@ public class JobsPlayer {
     }
     
     /**
+     * smelted an item.
+     * 
+     * Give correct experience and income
+     * 
+     * @param items - the items smelted
+     * @param multipler - the payment/xp multiplier
+     */
+    public void smelted(ItemStack items, double multiplier) {
+        HashMap<String, Double> param = new HashMap<String, Double>();
+        // add the number of jobs to the parameter list
+        param.put("numjobs", (double)progression.size());
+        for (Map.Entry<Job, JobProgression> entry: progression.entrySet()) {
+            // add the current level to the parameter list
+            param.put("joblevel", (double)entry.getValue().getLevel());
+            // get the income and give it
+            Double income = entry.getKey().getSmeltIncome(items, param);
+            if(income != null) {
+                Double exp = entry.getKey().getSmeltExp(items, param);
+                // give income
+                plugin.getEconomy().pay(this, income*multiplier);
+                entry.getValue().addExp(exp*multiplier);
+                checkLevels();
+            }
+            param.remove("joblevel");
+        }
+        // no job
+        if(this.progression.size() == 0) {
+            Job jobNone = plugin.getJobConfig().getJob("None");
+            if(jobNone != null) {
+                param.put("joblevel", 1.0);
+                Double income = jobNone.getCraftIncome(items, param);
+                if(income != null) {
+                    // give income
+                    plugin.getEconomy().pay(this, income*multiplier);
+                }
+                param.remove("joblevel");
+            }
+        }
+    }
+    
+    /**
      * Get the list of jobs
      * @return the list of jobs
      */

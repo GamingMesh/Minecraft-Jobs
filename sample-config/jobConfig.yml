@@ -437,6 +437,13 @@ Jobs:
             DIAMOND_SWORD:
                 income: 4.0
                 experience: 4.0
+        Smelt:
+            IRON_INGOT:
+                income: 2.0
+                experience: 2.0
+            GOLD_INGOT:
+                income: 2.0
+                experience: 2.0
 
     None:
         fullname: None

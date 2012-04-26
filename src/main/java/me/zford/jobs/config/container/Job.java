@@ -40,8 +40,10 @@ public class Job {
     private Map<String, JobsMaterialInfo> jobPlaceInfo;
     // payment for killing a living entity
     private Map<String, JobsLivingEntityInfo> jobKillInfo;
-    // payment for killing a living entity
+    // payment for fishing
     private Map<String, JobsMaterialInfo> jobFishInfo;
+    // payment for smelting
+    private Map<String, JobsMaterialInfo> jobSmeltInfo;
     // permissions
     private List<JobPermission> jobPermissions;
     // job name
@@ -70,7 +72,7 @@ public class Job {
      * @param jobBreakInfo - information about base rewards for breaking a block
      * @param jobPlaceInfo - information about base rewards for placing a block
      * @param jobKillInfo - information about base rewards for killing a LivingEntity
-     * @param jobCreateInfo - information about base rewards for creating an item
+     * @param jobCraftInfo - information about base rewards for crafting an item
      * @param jobKillCustomInfo - information about base rewards for killing a custom jobs class
      * @param jobName - the name of the job
      * @param jobShortName - the shortened version of the name of the job.
@@ -86,7 +88,8 @@ public class Job {
             Map<String, JobsMaterialInfo> jobPlaceInfo, 
             Map<String, JobsLivingEntityInfo> jobKillInfo,
             Map<String, JobsMaterialInfo> jobFishInfo,
-            Map<String, JobsMaterialInfo> jobCreateInfo,
+            Map<String, JobsMaterialInfo> jobCraftInfo,
+            Map<String, JobsMaterialInfo> jobSmeltInfo,
             List<JobPermission> jobPermissions,
             String jobName,
             String jobShortName,
@@ -100,7 +103,8 @@ public class Job {
             boolean isHidden) {
         this.jobBreakInfo = jobBreakInfo;
         this.jobPlaceInfo = jobPlaceInfo;
-        this.jobCraftInfo = jobCreateInfo;
+        this.jobCraftInfo = jobCraftInfo;
+        this.jobSmeltInfo = jobSmeltInfo;
         this.jobKillInfo = jobKillInfo;
         this.jobFishInfo = jobFishInfo;
         this.jobPermissions = jobPermissions;
@@ -206,6 +210,28 @@ public class Job {
      */
     public Double getCraftExp(ItemStack items, Map<String, Double> param){
         return this.getItemActionExp(items, param, this.jobCraftInfo);
+    }
+    
+    /**
+     * Function to get the income for smelting an item
+     * @param items - the items
+     * @param param - parameters for the customisable equation
+     * @return the income received for crafting the item
+     * @return null if job has no payment for this type of block
+     */
+    public Double getSmeltIncome(ItemStack items, Map<String, Double> param){
+        return this.getItemActionIncome(items, param, this.jobSmeltInfo);
+    }
+    
+    /**
+     * Function to get the exp for smelting an item
+     * @param items - the items
+     * @param param - parameters for the customisable equation
+     * @return the income received for crafting the item
+     * @return null if job has no payment for this type of block
+     */
+    public Double getSmeltExp(ItemStack items, Map<String, Double> param){
+        return this.getItemActionExp(items, param, this.jobSmeltInfo);
     }
     
     /**
@@ -485,10 +511,18 @@ public class Job {
     
     /**
      * Get the payout information for crafting
-     * @return the map of fishing and its payment
+     * @return the map of crafting and its payment
      */
     public Map<String, JobsMaterialInfo> getCraftInfo() {
         return Collections.unmodifiableMap(jobCraftInfo);
+    }
+    
+    /**
+     * Get the payout information for smelting
+     * @return the map of smelting and its payment
+     */
+    public Map<String, JobsMaterialInfo> getSmeltInfo() {
+        return Collections.unmodifiableMap(jobSmeltInfo);
     }
     
     /**
