@@ -1,5 +1,10 @@
 # Jobs plugin change log summary
 
+## 2.8.0
+* Crafting should no longer grant XP when crafting fails
+* Added support for 3rd party chat plugins
+* Added smelting
+
 ## 2.7.4
 * messageConfig.yml should no longer disapper if there are syntax errors
 * Test equations during configuration loading stage to prevent errors with buggy formula
