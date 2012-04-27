@@ -315,7 +315,7 @@ public class JobConfig {
             // smelt
             ConfigurationSection smeltSection = jobSection.getConfigurationSection("Smelt");
             HashMap<String, JobsMaterialInfo> jobSmeltInfo = new HashMap<String, JobsMaterialInfo>();
-            if (craftSection != null) {
+            if (smeltSection != null) {
                 for (String smeltKey : smeltSection.getKeys(false)) {
                     ConfigurationSection smeltItem = smeltSection.getConfigurationSection(smeltKey);
                     String materialType = smeltKey.toUpperCase();
