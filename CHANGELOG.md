@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.8.1
+* Fixed NPE fix with smelting configuration
+
 ## 2.8.0
 * Crafting should no longer grant XP when crafting fails
 * Added support for 3rd party chat plugins
