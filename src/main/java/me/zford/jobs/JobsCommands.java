@@ -527,9 +527,14 @@ public class JobsCommands implements CommandExecutor {
         
         String message = "";
         
+        String[] jobTypes = { "break", "place", "kill", "fish", "craft", "smelt" };
+        
         int showAllTypes = 1;
-        if(type.equalsIgnoreCase("break") || type.equalsIgnoreCase("place") || type.equalsIgnoreCase("kill") || type.equalsIgnoreCase("fish") || type.equalsIgnoreCase("craft")) {
-            showAllTypes = 0;
+        for (String jobType : jobTypes) {
+            if (jobType.equalsIgnoreCase(type)) {
+                showAllTypes = 0;
+                break;
+            }
         }
         
         if (type.equalsIgnoreCase("break") || showAllTypes == 1) {
