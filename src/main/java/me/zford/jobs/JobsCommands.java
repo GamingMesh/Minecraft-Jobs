@@ -525,19 +525,25 @@ public class JobsCommands implements CommandExecutor {
             return plugin.getMessageConfig().getMessage("error-no-job");
         }
         
+        if (type == null) {
+            type = "";
+        } else {
+            type = type.toLowerCase();
+        }
+        
         String message = "";
         
         String[] jobTypes = { "break", "place", "kill", "fish", "craft", "smelt" };
         
         int showAllTypes = 1;
         for (String jobType : jobTypes) {
-            if (jobType.equalsIgnoreCase(type)) {
+            if (type.startsWith(jobType)) {
                 showAllTypes = 0;
                 break;
             }
         }
         
-        if (type.equalsIgnoreCase("break") || showAllTypes == 1) {
+        if (type.startsWith("break") || showAllTypes == 1) {
             // break
             Map<String, JobsMaterialInfo> jobBreakInfo = job.getBreakInfo();
             if (jobBreakInfo != null && !jobBreakInfo.isEmpty()) {
@@ -549,7 +555,7 @@ public class JobsCommands implements CommandExecutor {
                 message += myMessage;
             }
         }
-        if (type.equalsIgnoreCase("place") || showAllTypes == 1) {
+        if (type.startsWith("place") || showAllTypes == 1) {
             // place
             Map<String, JobsMaterialInfo> jobPlaceInfo = job.getPlaceInfo();
             
@@ -562,7 +568,7 @@ public class JobsCommands implements CommandExecutor {
                 message += myMessage;
             }
         }
-        if (type.equalsIgnoreCase("kill") || showAllTypes == 1) {
+        if (type.startsWith("kill") || showAllTypes == 1) {
             // kill
             Map<String, JobsLivingEntityInfo> jobKillInfo = job.getKillInfo();
             
@@ -576,7 +582,7 @@ public class JobsCommands implements CommandExecutor {
             }
         }
         
-        if (type.equalsIgnoreCase("fish") || showAllTypes == 1) {
+        if (type.startsWith("fish") || showAllTypes == 1) {
             // fish
             Map<String, JobsMaterialInfo> jobFishInfo = job.getFishInfo();
             
@@ -590,7 +596,7 @@ public class JobsCommands implements CommandExecutor {
             }
         }
         
-        if (type.equalsIgnoreCase("craft") || showAllTypes == 1) {
+        if (type.startsWith("craft") || showAllTypes == 1) {
             // craft
             Map<String, JobsMaterialInfo> jobCraftInfo = job.getCraftInfo();
             
@@ -604,7 +610,7 @@ public class JobsCommands implements CommandExecutor {
             }
         }
         
-        if (type.equalsIgnoreCase("smelt") || showAllTypes == 1) {
+        if (type.startsWith("smelt") || showAllTypes == 1) {
             // craft
             Map<String, JobsMaterialInfo> jobSmeltInfo = job.getSmeltInfo();
             
