@@ -131,23 +131,8 @@ public class JobConfig {
                 plugin.getLogger().severe("Job " + jobKey + " has an invalid ChatColour property.  Skipping job!");
                 continue;
             }
-            String disp = jobSection.getString("chat-display", "");
-            DisplayMethod displayMethod;
-            if (disp.equalsIgnoreCase("full")) {
-                displayMethod = DisplayMethod.FULL;
-            } else if(disp.equalsIgnoreCase("job")) {
-                displayMethod = DisplayMethod.JOB;
-            } else if(disp.equalsIgnoreCase("title")) {
-                displayMethod = DisplayMethod.TITLE;
-            } else if(disp.equalsIgnoreCase("none")) {
-                displayMethod = DisplayMethod.NONE;
-            } else if(disp.equalsIgnoreCase("shortfull")) {
-                displayMethod = DisplayMethod.SHORT_FULL;
-            } else if(disp.equalsIgnoreCase("shortjob")) {
-                displayMethod = DisplayMethod.SHORT_JOB;
-            } else if(disp.equalsIgnoreCase("shorttitle")) {
-                displayMethod = DisplayMethod.SHORT_TITLE;
-            } else {
+            DisplayMethod displayMethod = DisplayMethod.matchMethod(jobSection.getString("chat-display", ""));
+            if (displayMethod == null) {
                 plugin.getLogger().warning("Job " + jobKey + " has an invalid chat-display property. Defaulting to None!");
                 displayMethod = DisplayMethod.NONE;
             }

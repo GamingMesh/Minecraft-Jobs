@@ -19,6 +19,29 @@
 
 package me.zford.jobs.config.container;
 
-public enum DisplayMethod{
-    FULL, JOB, TITLE, NONE, SHORT_FULL, SHORT_JOB, SHORT_TITLE
+public enum DisplayMethod {
+    FULL("full"),
+    JOB("job"),
+    TITLE("title"),
+    NONE("none"),
+    SHORT_FULL("shortfull"),
+    SHORT_JOB("shortjob"),
+    SHORT_TITLE("shortitle");
+    
+    private String name;
+    private DisplayMethod(String name) {
+        this.name = name;
+    }
+    
+    public String getName() {
+        return name;
+    }
+    
+    public static DisplayMethod matchMethod(String name) {
+        for (DisplayMethod method : DisplayMethod.values()) {
+            if (method.getName().equalsIgnoreCase(name))
+                return method;
+        }
+        return null;
+    }
 }
