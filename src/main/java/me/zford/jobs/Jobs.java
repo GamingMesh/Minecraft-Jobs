@@ -27,6 +27,8 @@ import me.zford.jobs.config.container.JobsPlayer;
 import me.zford.jobs.economy.BufferedPayment;
 import me.zford.jobs.listener.JobsListener;
 import me.zford.jobs.listener.JobsPaymentListener;
+import me.zford.jobs.tasks.BufferedPaymentTask;
+import me.zford.jobs.tasks.DatabaseSaveTask;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -92,20 +94,12 @@ public class Jobs extends JavaPlugin {
         }
         
         // set the system to auto save
-        if(getJobsConfiguration().getSavePeriod() > 0) {
-            getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
-                public void run(){
-                    manager.saveAll();
-                }
-            }, 20*60*getJobsConfiguration().getSavePeriod(), 20*60*getJobsConfiguration().getSavePeriod());
+        if (getJobsConfiguration().getSavePeriod() > 0) {
+            getServer().getScheduler().scheduleSyncRepeatingTask(this, new DatabaseSaveTask(manager), 20*60*getJobsConfiguration().getSavePeriod(), 20*60*getJobsConfiguration().getSavePeriod());
         }
         
         // schedule payouts to buffered payments
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable(){
-            public void run() {
-                economy.payAll();
-            }
-        }, 100, 100);
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, new BufferedPaymentTask(economy), 100, 100);
         
         // register the listeners
         getServer().getPluginManager().registerEvents(new JobsListener(this), this);
