@@ -25,7 +25,6 @@ import me.zford.jobs.config.MessageConfig;
 import me.zford.jobs.config.container.Job;
 import me.zford.jobs.config.container.JobsPlayer;
 import me.zford.jobs.economy.BufferedPayment;
-import me.zford.jobs.economy.link.VaultLink;
 import me.zford.jobs.listener.JobsListener;
 import me.zford.jobs.listener.JobsPaymentListener;
 
@@ -132,8 +131,7 @@ public class Jobs extends JavaPlugin {
         if (test == null)
             return false;
         
-        VaultLink link = new VaultLink(this);
-        economy = new BufferedPayment(link);
+        economy = new BufferedPayment(this);
         
         getLogger().info("["+getDescription().getName()+"] Successfully linked with Vault.");
         return true;
