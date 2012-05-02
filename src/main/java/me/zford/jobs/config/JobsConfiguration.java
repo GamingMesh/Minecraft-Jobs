@@ -34,7 +34,7 @@ import me.zford.jobs.dao.JobsDAO;
 import me.zford.jobs.dao.JobsDAOH2;
 import me.zford.jobs.dao.JobsDAOMySQL;
 import me.zford.jobs.dao.JobsDAOSQLite;
-import me.zford.jobs.util.ClassPathHack;
+import me.zford.jobs.util.JobsClassLoader;
 import me.zford.jobs.util.FileDownloader;
 
 import org.bukkit.Bukkit;
@@ -58,8 +58,11 @@ public class JobsConfiguration {
     
     private Jobs plugin;
     
+    private JobsClassLoader classLoader;
+    
     public JobsConfiguration(Jobs plugin) {
         this.plugin = plugin;
+        this.classLoader = new JobsClassLoader(plugin);
     }
     
     public void reload() {
@@ -180,7 +183,7 @@ public class JobsConfiguration {
             }
             if (plugin.isEnabled()) {
                 try {
-                    ClassPathHack.addFile(h2jar);
+                    classLoader.addFile(h2jar);
                 } catch (IOException e) {
                     plugin.getLogger().severe("Could not load database library.  Disabling jobs!");
                     plugin.disablePlugin();
