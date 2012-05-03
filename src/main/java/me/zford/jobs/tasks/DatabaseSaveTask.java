@@ -1,12 +1,12 @@
 package me.zford.jobs.tasks;
 
-import me.zford.jobs.JobsManager;
+import me.zford.jobs.PlayerManager;
 
 public class DatabaseSaveTask implements Runnable {
     
-    private JobsManager manager;
+    private PlayerManager manager;
     
-    public DatabaseSaveTask(JobsManager manager) {
+    public DatabaseSaveTask(PlayerManager manager) {
         this.manager = manager;
     }
 

@@ -47,7 +47,7 @@ public class JobProgression {
         this.level = level;
         HashMap<String, Double> param = new HashMap<String, Double>();
         param.put("joblevel", (double) level);
-        param.put("numjobs", (double) info.getJobs().size());
+        param.put("numjobs", (double) info.getJobProgression().size());
         maxExperience = (int)job.getMaxExp(param);
         title = this.plugin.getJobsConfiguration().getTitleForLevel(level);
     }

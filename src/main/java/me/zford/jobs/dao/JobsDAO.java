@@ -148,7 +148,7 @@ public abstract class JobsDAO {
             return;
         try {
             PreparedStatement prest = conn.prepareStatement(sql);
-            for (JobProgression temp: player.getJobsProgression()) {
+            for (JobProgression temp: player.getJobProgression()) {
                 prest.setInt(1, (int)temp.getExperience());
                 prest.setInt(2, temp.getLevel());
                 prest.setString(3, player.getName());

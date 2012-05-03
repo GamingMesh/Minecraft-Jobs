@@ -19,23 +19,16 @@
 
 package me.zford.jobs.config.container;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import me.zford.jobs.Jobs;
-import me.zford.jobs.dao.JobsDAO;
 import me.zford.jobs.dao.container.JobsDAOData;
 
 import org.bukkit.ChatColor;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.permissions.PermissionAttachment;
 
 public class JobsPlayer {
@@ -44,13 +37,11 @@ public class JobsPlayer {
     // the player the object belongs to
     private String playername;
     // progression of the player in each job
-    private LinkedHashMap<Job, JobProgression> progression = new LinkedHashMap<Job, JobProgression>();
+    private ArrayList<JobProgression> progression = new ArrayList<JobProgression>();
     // display honorific
     private String honorific;
     // permission attachment
     private PermissionAttachment attachment;
-    // dao
-    JobsDAO dao;
         
     /**
      * Constructor.
@@ -59,25 +50,24 @@ public class JobsPlayer {
      * @param playername - the player this represents
      * @param dao - the data access object
      */
-    public JobsPlayer(Jobs plugin, String playername, JobsDAO dao) {
+    public JobsPlayer(Jobs plugin, String playername) {
         this.plugin = plugin;
         this.playername = playername;
-        this.dao = dao;
-        // for all jobs players have
-        List<JobsDAOData> list = dao.getAllJobs(this);
-        if (list != null && !list.isEmpty()) {
-            for (JobsDAOData jobdata: list) {
-                if (plugin.getJobConfig().getJob(jobdata.getJobName()) != null) {
-                    // add the job
-                    Job job = plugin.getJobConfig().getJob(jobdata.getJobName());
-                    if (job != null) {
-                        // create the progression object
-                        JobProgression jobProgression = new JobProgression(plugin, job, jobdata.getExperience(), jobdata.getLevel(), this);
-                        // calculate the max level
-                        
-                        // add the progression level.
-                        progression.put(job, jobProgression);
-                    }
+    }
+    
+    public void loadDAOData(List<JobsDAOData> list) {
+        progression.clear();
+        for (JobsDAOData jobdata: list) {
+            if (plugin.getJobConfig().getJob(jobdata.getJobName()) != null) {
+                // add the job
+                Job job = plugin.getJobConfig().getJob(jobdata.getJobName());
+                if (job != null) {
+                    // create the progression object
+                    JobProgression jobProgression = new JobProgression(plugin, job, jobdata.getExperience(), jobdata.getLevel(), this);
+                    // calculate the max level
+                    
+                    // add the progression level.
+                    progression.add(jobProgression);
                 }
             }
         }
@@ -87,272 +77,23 @@ public class JobsPlayer {
     }
     
     /**
-     * Broke a block.
-     * 
-     * Give correct experience and income
-     * 
-     * @param block - the block broken
-     * @param multiplier - the payment/xp multiplier
-     */
-    public void broke(Block block, double multiplier) {
-        HashMap<String, Double> param = new HashMap<String, Double>();
-        // add the number of jobs to the parameter list
-        param.put("numjobs", (double)progression.size());
-        for (Map.Entry<Job, JobProgression> entry: progression.entrySet()) {
-            // add the current level to the parameter list
-            param.put("joblevel", (double)entry.getValue().getLevel());
-            // get the income and give it
-            Double income = entry.getKey().getBreakIncome(block, param);
-            if(income != null) {
-                Double exp = entry.getKey().getBreakExp(block, param);
-                // give income
-                plugin.getEconomy().pay(this, income*multiplier);
-                entry.getValue().addExp(exp*multiplier);
-                checkLevels();
-            }
-            param.remove("joblevel");
-        }
-        // no job
-        if(this.progression.size() == 0) {
-            Job jobNone = plugin.getJobConfig().getJob("None");
-            if(jobNone != null) {
-                param.put("joblevel", 1.0);
-                Double income = jobNone.getBreakIncome(block, param);
-                if(income != null) {
-                    // give income
-                    plugin.getEconomy().pay(this, income*multiplier);
-                }
-                param.remove("joblevel");
-            }
-        }
-    }
-    
-    /**
-     * Placed a block.
-     * 
-     * Give correct experience and income
-     * 
-     * @param block - the block placed
-     * @param multiplier - the payment/xp multiplier
-     */
-    public void placed(Block block, double multiplier) {
-        HashMap<String, Double> param = new HashMap<String, Double>();
-        // add the number of jobs to the parameter list
-        param.put("numjobs", (double)progression.size());
-        for (Map.Entry<Job, JobProgression> entry: progression.entrySet()) {
-            // add the current level to the parameter list
-            param.put("joblevel", (double)entry.getValue().getLevel());
-            // get the income and give it
-            Double income = entry.getKey().getPlaceIncome(block, param);
-            if(income != null) {
-                Double exp = entry.getKey().getPlaceExp(block, param);
-                // give income
-                plugin.getEconomy().pay(this, income*multiplier);
-                entry.getValue().addExp(exp*multiplier);
-                checkLevels();
-            }
-            param.remove("joblevel");
-        }
-        // no job
-        if(this.progression.size() == 0) {
-            Job jobNone = plugin.getJobConfig().getJob("None");
-            if(jobNone != null) {
-                param.put("joblevel", 1.0);
-                Double income = jobNone.getPlaceIncome(block, param);
-                if(income != null) {
-                    // give income
-                    plugin.getEconomy().pay(this, income*multiplier);
-                }
-                param.remove("joblevel");
-            }
-        }
-    }
-    
-    /**
-     * Killed a living entity or owned wolf killed living entity.
-     * 
-     * Give correct experience and income
-     * 
-     * @param victim - the mob killed
-     * @param multiplier - the payment/xp multiplier
-     */
-    public void killed(String victim, double multiplier) {
-        HashMap<String, Double> param = new HashMap<String, Double>();
-        // add the number of jobs to the parameter list
-        param.put("numjobs", (double)progression.size());
-        for (Map.Entry<Job, JobProgression> entry: progression.entrySet()) {
-            // add the current level to the parameter list
-            param.put("joblevel", (double)entry.getValue().getLevel());
-            // get the income and give it
-            Double income = entry.getKey().getKillIncome(victim, param);
-            if(income != null) {
-                Double exp = entry.getKey().getKillExp(victim, param);
-                // give income
-                plugin.getEconomy().pay(this, income*multiplier);
-                entry.getValue().addExp(exp*multiplier);
-                checkLevels();    
-            }
-            param.remove("joblevel");
-        }
-        // no job
-        if(this.progression.size() == 0) {
-            Job jobNone = plugin.getJobConfig().getJob("None");
-            if(jobNone != null) {
-                param.put("joblevel", 1.0);
-                Double income = jobNone.getKillIncome(victim, param);
-                if(income != null) {
-                    // give income
-                    plugin.getEconomy().pay(this, income*multiplier);
-                }
-                param.remove("joblevel");
-            }
-        }
-    }
-    
-    /**
-     * Fished an item
-     * 
-     * Give correct experience and income
-     * 
-     * @param item - the item fished
-     * @param multiplier - the payment/xp multiplier
-     */
-    public void fished(Item item, double multiplier) {
-        HashMap<String, Double> param = new HashMap<String, Double>();
-        param.put("numjobs", (double)progression.size());
-        for (Map.Entry<Job, JobProgression> entry: progression.entrySet()) {
-            // add the current level to the parameter list
-            param.put("joblevel", (double)entry.getValue().getLevel());
-            // get the income and give it
-            Double income = entry.getKey().getFishIncome(item, param);
-            if(income != null) {
-                Double exp = entry.getKey().getFishExp(item, param);
-                // give income
-                plugin.getEconomy().pay(this, income*multiplier);
-                entry.getValue().addExp(exp*multiplier);
-                checkLevels();
-            }
-            param.remove("joblevel");
-        }
-        // no job
-        if(this.progression.size() == 0) {
-            Job jobNone = plugin.getJobConfig().getJob("None");
-            if(jobNone != null) {
-                param.put("joblevel", 1.0);
-                Double income = jobNone.getFishIncome(item, param);
-                if(income != null) {
-                    // give income
-                    plugin.getEconomy().pay(this, income*multiplier);
-                }
-                param.remove("joblevel");
-            }
-        }
-    }
-    
-    /**
-     * crafted an item.
-     * 
-     * Give correct experience and income
-     * 
-     * @param items - the items crafted
-     * @param multipler - the payment/xp multiplier
-     */
-    public void crafted(ItemStack items, double multiplier) {
-        HashMap<String, Double> param = new HashMap<String, Double>();
-        // add the number of jobs to the parameter list
-        param.put("numjobs", (double)progression.size());
-        for (Map.Entry<Job, JobProgression> entry: progression.entrySet()) {
-            // add the current level to the parameter list
-            param.put("joblevel", (double)entry.getValue().getLevel());
-            // get the income and give it
-            Double income = entry.getKey().getCraftIncome(items, param);
-            if(income != null) {
-                Double exp = entry.getKey().getCraftExp(items, param);
-                // give income
-                plugin.getEconomy().pay(this, income*multiplier);
-                entry.getValue().addExp(exp*multiplier);
-                checkLevels();
-            }
-            param.remove("joblevel");
-        }
-        // no job
-        if(this.progression.size() == 0) {
-            Job jobNone = plugin.getJobConfig().getJob("None");
-            if(jobNone != null) {
-                param.put("joblevel", 1.0);
-                Double income = jobNone.getCraftIncome(items, param);
-                if(income != null) {
-                    // give income
-                    plugin.getEconomy().pay(this, income*multiplier);
-                }
-                param.remove("joblevel");
-            }
-        }
-    }
-    
-    /**
-     * smelted an item.
-     * 
-     * Give correct experience and income
-     * 
-     * @param items - the items smelted
-     * @param multipler - the payment/xp multiplier
-     */
-    public void smelted(ItemStack items, double multiplier) {
-        HashMap<String, Double> param = new HashMap<String, Double>();
-        // add the number of jobs to the parameter list
-        param.put("numjobs", (double)progression.size());
-        for (Map.Entry<Job, JobProgression> entry: progression.entrySet()) {
-            // add the current level to the parameter list
-            param.put("joblevel", (double)entry.getValue().getLevel());
-            // get the income and give it
-            Double income = entry.getKey().getSmeltIncome(items, param);
-            if(income != null) {
-                Double exp = entry.getKey().getSmeltExp(items, param);
-                // give income
-                plugin.getEconomy().pay(this, income*multiplier);
-                entry.getValue().addExp(exp*multiplier);
-                checkLevels();
-            }
-            param.remove("joblevel");
-        }
-        // no job
-        if(this.progression.size() == 0) {
-            Job jobNone = plugin.getJobConfig().getJob("None");
-            if(jobNone != null) {
-                param.put("joblevel", 1.0);
-                Double income = jobNone.getCraftIncome(items, param);
-                if(income != null) {
-                    // give income
-                    plugin.getEconomy().pay(this, income*multiplier);
-                }
-                param.remove("joblevel");
-            }
-        }
-    }
-    
-    /**
-     * Get the list of jobs
-     * @return the list of jobs
-     */
-    public Set<Job> getJobs() {
-        return Collections.unmodifiableSet(progression.keySet());
-    }
-    
-    /**
      * Get the list of job progressions
      * @return the list of job progressions
      */
-    public Collection<JobProgression> getJobsProgression() {
-        return Collections.unmodifiableCollection(progression.values());
+    public List<JobProgression> getJobProgression() {
+        return Collections.unmodifiableList(progression);
     }
     
     /**
      * Get the job progression with the certain job
      * @return the job progression
      */
-    public JobProgression getJobsProgression(Job job) {
-        return progression.get(job);
+    public JobProgression getJobProgression(Job job) {
+        for (JobProgression prog : progression) {
+            if (prog.getJob().equals(job))
+                return prog;
+        }
+        return null;
     }
     
     /**
@@ -366,13 +107,13 @@ public class JobsPlayer {
     /**
      * Function called to update the levels and make sure experience < maxExperience
      */
-    private void checkLevels() {
+    public void checkLevels() {
         Player player = plugin.getServer().getPlayer(getName());
         boolean leveledUp = false;
         boolean levelChanged = false;
         do {
             levelChanged = false;
-            for (JobProgression prog : progression.values()) {
+            for (JobProgression prog : progression) {
                 if (!prog.canLevelUp())
                     continue;
                 Job job = prog.getJob();
@@ -394,7 +135,7 @@ public class JobsPlayer {
                 prog.setExperience(prog.getExperience()-prog.getMaxExperience());
                 // recalculate the maxexp 
                 HashMap<String, Double> param = new HashMap<String, Double>();
-                param.put("numjobs", (double) getJobs().size());
+                param.put("numjobs", (double) getJobProgression().size());
                 param.put("joblevel", (double) prog.getLevel());
                 prog.setMaxExperience((int) job.getMaxExp(param));
                 
@@ -465,28 +206,30 @@ public class JobsPlayer {
      * Player joins a job
      * @param job - the job joined
      */
-    public void joinJob(Job job) {
-        if (!progression.containsKey(job)) {
-            progression.put(job, new JobProgression(plugin, job, 0.0, 1, this));
-            dao.joinJob(this, job);
+    public boolean joinJob(Job job) {
+        if (!isInJob(job)) {
+            progression.add(new JobProgression(plugin, job, 0.0, 1, this));
             reloadMaxExperience();
             reloadHonorific();
             recalculatePermissions();
+            return true;
         }
+        return false;
     }
     
     /**
      * Player leaves a job
      * @param job - the job left
      */
-    public void leaveJob(Job job) {
-        JobProgression prog = progression.remove(job);
+    public boolean leaveJob(Job job) {
+        JobProgression prog = getJobProgression(job);
         if (prog != null) {
-            dao.quitJob(this, job);
             reloadMaxExperience();
             reloadHonorific();
             recalculatePermissions();
+            return true;
         }
+        return false;
     }
     
     /**
@@ -495,7 +238,7 @@ public class JobsPlayer {
      * @param levels - number of levels to promote
      */
     public void promoteJob(Job job, int levels) {
-        JobProgression prog = progression.get(job);
+        JobProgression prog = getJobProgression(job);
         if (prog == null)
             return;
         if (levels <= 0)
@@ -514,7 +257,7 @@ public class JobsPlayer {
      * @param levels - number of levels to demote
      */
     public void demoteJob(Job job, int levels) {
-        JobProgression prog = progression.get(job);
+        JobProgression prog = getJobProgression(job);
         if (prog == null)
             return;
         if (levels <= 0)
@@ -532,7 +275,7 @@ public class JobsPlayer {
      * @param level - the level
      */
     private void setLevel(Job job, int level) {
-        JobProgression prog = progression.get(job);
+        JobProgression prog = getJobProgression(job);
         if (prog == null)
             return;
 
@@ -550,7 +293,7 @@ public class JobsPlayer {
      * @param experience - the experience
      */
     public void addExperience(Job job, double experience) {
-        JobProgression prog = progression.get(job);
+        JobProgression prog = getJobProgression(job);
         if (prog == null)
             return;
         prog.addExp(experience);
@@ -559,16 +302,16 @@ public class JobsPlayer {
     
     /**
      * Player leaves a job
-     * @param job - the job left
+     * @param oldjob - the old job
+     * @param newjob - the new job
      */
-    public void transferJob(Job oldjob, Job newjob) {
-        if (!progression.containsKey(newjob)) {
-            JobProgression prog = progression.remove(oldjob);
-            if (prog != null) {
+    public boolean transferJob(Job oldjob, Job newjob) {
+        if (!isInJob(newjob)) {
+            for (JobProgression prog : progression) {
+                if (!prog.getJob().equals(oldjob))
+                    continue;
+                
                 prog.setJob(newjob);
-                progression.put(newjob, prog);
-                dao.quitJob(this, oldjob);
-                dao.joinJob(this, newjob);
                 if (newjob.getMaxLevel() != null && prog.getLevel() > newjob.getMaxLevel()) {
                     prog.setLevel(newjob.getMaxLevel());
                 }
@@ -576,9 +319,10 @@ public class JobsPlayer {
                 reloadHonorific();
                 checkLevels();
                 recalculatePermissions();
-                save();
+                return true;
             }
         }
+        return false;
     }
     
     /**
@@ -588,7 +332,11 @@ public class JobsPlayer {
      * @return false - they are not in the job
      */
     public boolean isInJob(Job job) {
-        return progression.containsKey(job);
+        for (JobProgression prog : progression) {
+            if (prog.getJob().equals(job))
+                return true;
+        }
+        return false;
     }
     
     /**
@@ -598,7 +346,7 @@ public class JobsPlayer {
         StringBuilder builder = new StringBuilder();
         int numJobs = progression.size();
         boolean gotTitle = false;
-        for (JobProgression prog: progression.values()) {
+        for (JobProgression prog: progression) {
             DisplayMethod method = prog.getJob().getDisplayMethod();
             
             if (method.equals(DisplayMethod.NONE))
@@ -653,7 +401,7 @@ public class JobsPlayer {
     private void reloadMaxExperience() {
         HashMap<String, Double> param = new HashMap<String, Double>();
         param.put("numjobs", (double) progression.size());
-        for (JobProgression prog: progression.values()) {
+        for (JobProgression prog: progression) {
             param.put("joblevel", (double) prog.getLevel());
             prog.setMaxExperience((int)prog.getJob().getMaxExp(param));
             param.remove("joblevel");
@@ -689,7 +437,7 @@ public class JobsPlayer {
                 }
             }
         } else {
-            for (JobProgression prog : progression.values()) {
+            for (JobProgression prog : progression) {
                 for (JobPermission perm : prog.getJob().getPermissions()) {
                     if (prog.getLevel() >= perm.getLevelRequirement()) {
                         if (this.attachment == null) {
@@ -718,12 +466,5 @@ public class JobsPlayer {
             player.recalculatePermissions();
             this.attachment = null;
         }
-    }
-    
-    /**
-     * Saves data
-     */
-    public void save() {
-        dao.save(this);
     }
 }

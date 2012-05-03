@@ -41,10 +41,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class Jobs extends JavaPlugin {    
     private MessageConfig messageConfig = new MessageConfig(this);
-    private JobsConfiguration jobsConfiguration;
-    private JobConfig jobConfig;
+    private JobsConfiguration jobsConfiguration = new JobsConfiguration(this);
+    private JobConfig jobConfig = new JobConfig(this);
+    private PlayerManager pManager = new PlayerManager(this);
+    private JobManager jManager = new JobManager(this);
     private BufferedPayment economy;
-    private JobsManager manager;
 
     /**
      * Method called when you disable the plugin
@@ -52,13 +53,13 @@ public class Jobs extends JavaPlugin {
     public void onDisable() {        
         // remove all permissions for online players
         for (Player online: getServer().getOnlinePlayers()) {
-            JobsPlayer jPlayer = manager.getJobsPlayer(online.getName());
+            JobsPlayer jPlayer = pManager.getJobsPlayer(online.getName());
             jPlayer.removePermissions();
         }
         // kill all scheduled tasks associated to this.
         getServer().getScheduler().cancelTasks(this);
         
-        manager.saveAll();
+        pManager.saveAll();
         
         if (getJobsConfiguration().getJobsDAO() != null) {
             getJobsConfiguration().getJobsDAO().closeConnections();
@@ -71,9 +72,6 @@ public class Jobs extends JavaPlugin {
      * Method called when the plugin is enabled
      */
     public void onEnable() {
-        jobsConfiguration = new JobsConfiguration(this);
-        jobConfig = new JobConfig(this);
-        manager = new JobsManager(this);
         JobsCommands commands = new JobsCommands(this);
         this.getCommand("jobs").setExecutor(commands);
         
@@ -95,7 +93,7 @@ public class Jobs extends JavaPlugin {
         
         // set the system to auto save
         if (getJobsConfiguration().getSavePeriod() > 0) {
-            getServer().getScheduler().scheduleSyncRepeatingTask(this, new DatabaseSaveTask(manager), 20*60*getJobsConfiguration().getSavePeriod(), 20*60*getJobsConfiguration().getSavePeriod());
+            getServer().getScheduler().scheduleSyncRepeatingTask(this, new DatabaseSaveTask(pManager), 20*60*getJobsConfiguration().getSavePeriod(), 20*60*getJobsConfiguration().getSavePeriod());
         }
         
         // schedule payouts to buffered payments
@@ -107,7 +105,7 @@ public class Jobs extends JavaPlugin {
         
         // add all online players
         for (Player online: getServer().getOnlinePlayers()){
-            manager.addPlayer(online.getName());
+            pManager.addPlayer(online.getName());
         }
         
         // register permissions
@@ -168,10 +166,17 @@ public class Jobs extends JavaPlugin {
     }
     
     /**
+     * Returns player manager
+     */
+    public PlayerManager getPlayerManager() {
+        return pManager;
+    }
+    
+    /**
      * Returns jobs manager
      */
-    public JobsManager getJobsManager() {
-        return manager;
+    public JobManager getJobsManager() {
+        return jManager;
     }
     
     /**

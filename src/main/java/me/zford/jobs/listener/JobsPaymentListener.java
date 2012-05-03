@@ -25,7 +25,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import me.zford.jobs.Jobs;
-import me.zford.jobs.config.container.Job;
+import me.zford.jobs.config.container.JobProgression;
 import me.zford.jobs.config.container.JobsPlayer;
 
 import org.bukkit.GameMode;
@@ -87,8 +87,9 @@ public class JobsPaymentListener implements Listener {
         // restricted area multiplier
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         
-        if(plugin.hasWorldPermission(player, player.getWorld())) {
-            plugin.getJobsManager().getJobsPlayer(player.getName()).broke(block, multiplier);            
+        if (plugin.hasWorldPermission(player, player.getWorld())) {
+            JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+            plugin.getJobsManager().broke(jPlayer, block, multiplier);
         }
     }
 
@@ -110,8 +111,9 @@ public class JobsPaymentListener implements Listener {
         // restricted area multiplier
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         
-        if(plugin.hasWorldPermission(player, player.getWorld())) {
-            plugin.getJobsManager().getJobsPlayer(player.getName()).placed(block, multiplier);
+        if (plugin.hasWorldPermission(player, player.getWorld())) {
+            JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+            plugin.getJobsManager().placed(jPlayer, block, multiplier);
         }
     }
 
@@ -131,8 +133,9 @@ public class JobsPaymentListener implements Listener {
         // restricted area multiplier
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         
-        if(event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
-            plugin.getJobsManager().getJobsPlayer(player.getName()).fished((Item)event.getCaught(), multiplier);
+        if (event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
+            JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+            plugin.getJobsManager().fished(jPlayer, (Item) event.getCaught(), multiplier);
         }
     }
 
@@ -203,7 +206,8 @@ public class JobsPaymentListener implements Listener {
         }
         
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
-        plugin.getJobsManager().getJobsPlayer(player.getName()).crafted(resultStack, multiplier);
+        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        plugin.getJobsManager().crafted(jPlayer, resultStack, multiplier);
     }
     
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
@@ -224,7 +228,8 @@ public class JobsPaymentListener implements Listener {
         if (player == null || !player.isOnline())
             return;
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
-        plugin.getJobsManager().getJobsPlayer(player.getName()).smelted(event.getResult(), multiplier);
+        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        plugin.getJobsManager().smelted(jPlayer, event.getResult(), multiplier);
     }
     
     @EventHandler(priority=EventPriority.MONITOR)
@@ -262,14 +267,14 @@ public class JobsPaymentListener implements Listener {
                 // restricted area multiplier
                 double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(pDamager);
                 // pay
-                JobsPlayer jDamager = plugin.getJobsManager().getJobsPlayer(pDamager.getName());
-                jDamager.killed(lVictim.getClass().toString().replace("class ", "").trim(), multiplier);
+                JobsPlayer jDamager = plugin.getPlayerManager().getJobsPlayer(pDamager.getName());
+                plugin.getJobsManager().killed(jDamager, lVictim.getClass().toString().replace("class ", "").trim(), multiplier);
                 // pay for jobs
                 if(lVictim instanceof Player){
-                    JobsPlayer jVictim = plugin.getJobsManager().getJobsPlayer(((Player)lVictim).getName());
-                    if(jVictim!=null && jVictim.getJobs()!= null){
-                        for(Job temp: jVictim.getJobs()){
-                            jDamager.killed((lVictim.getClass().toString().replace("class ", "")+":"+temp.getName()).trim(), multiplier);
+                    JobsPlayer jVictim = plugin.getPlayerManager().getJobsPlayer(((Player)lVictim).getName());
+                    if (jVictim!=null) {
+                        for (JobProgression prog : jVictim.getJobProgression()) {
+                            plugin.getJobsManager().killed(jDamager, (lVictim.getClass().toString().replace("class ", "")+":"+prog.getJob().getName()).trim(), multiplier);
                         }
                     }
                 }
