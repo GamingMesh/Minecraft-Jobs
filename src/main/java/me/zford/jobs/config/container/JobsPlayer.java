@@ -126,6 +126,7 @@ public class JobsPlayer {
      */
     public boolean leaveJob(Job job) {
         JobProgression prog = getJobProgression(job);
+        progression.remove(prog);
         if (prog != null) {
             reloadHonorific();
             recalculatePermissions();
