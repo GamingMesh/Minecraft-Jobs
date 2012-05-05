@@ -20,30 +20,19 @@
 package me.zford.jobs.config.container;
 
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import me.zford.jobs.actions.ActionInfo;
+import me.zford.jobs.actions.ActionType;
 import me.zford.jobs.resources.jfep.Parser;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.ItemStack;
 
 public class Job {
-    // payment for breaking a block
-    private List<JobInfo> jobBreakInfo;
-    // payment for crafting
-    private List<JobInfo> jobCraftInfo;
-    // payment for placing a block
-    private List<JobInfo> jobPlaceInfo;
-    // payment for killing a living entity
-    private List<JobInfo> jobKillInfo;
-    // payment for fishing
-    private List<JobInfo> jobFishInfo;
-    // payment for smelting
-    private List<JobInfo> jobSmeltInfo;
+    // job info
+    private EnumMap<ActionType, List<JobInfo>> jobInfo = new EnumMap<ActionType, List<JobInfo>>(ActionType.class);
     // permissions
     private List<JobPermission> jobPermissions;
     // job name
@@ -54,18 +43,12 @@ public class Job {
     private ChatColor jobColour;
     // job leveling equation
     private Parser maxExpEquation;
-    // job income equation
-    private Parser incomeEquation;
-    // exp per block equation
-    private Parser expEquation;
     // display method
     private DisplayMethod displayMethod;
     // max level
     private int maxLevel;
     // max number of people allowed with this job on the server.
     private Integer maxSlots;
-    // is hidden job
-    private boolean isHidden;
 
     /**
      * Constructor
@@ -84,252 +67,72 @@ public class Job {
      * @param maxLevel - the maximum level allowed (null for no max level)
      * @param maxSlots - the maximum number of people allowed to have this job at one time (null for no limits)
      */
-    public Job(List<JobInfo> jobBreakInfo, 
-            List<JobInfo> jobPlaceInfo, 
-            List<JobInfo> jobKillInfo,
-            List<JobInfo> jobFishInfo,
-            List<JobInfo> jobCraftInfo,
-            List<JobInfo> jobSmeltInfo,
-            List<JobPermission> jobPermissions,
+    public Job(List<JobPermission> jobPermissions,
             String jobName,
             String jobShortName,
             ChatColor jobColour,
             Parser maxExpEquation,
-            Parser incomeEquation,
-            Parser expEquation,
             DisplayMethod displayMethod,
             int maxLevel,
-            Integer maxSlots,
-            boolean isHidden) {
-        this.jobBreakInfo = jobBreakInfo;
-        this.jobPlaceInfo = jobPlaceInfo;
-        this.jobCraftInfo = jobCraftInfo;
-        this.jobSmeltInfo = jobSmeltInfo;
-        this.jobKillInfo = jobKillInfo;
-        this.jobFishInfo = jobFishInfo;
+            Integer maxSlots) {
         this.jobPermissions = jobPermissions;
         this.jobName = jobName;
         this.jobShortName = jobShortName;
         this.jobColour = jobColour;
         this.maxExpEquation = maxExpEquation;
-        this.incomeEquation = incomeEquation;
-        this.expEquation = expEquation;
         this.displayMethod = displayMethod;
         this.maxLevel = maxLevel;
         this.maxSlots = maxSlots;
-        this.isHidden = isHidden;
     }
     
     /**
-     * Function to get the income for killing a LivingEntity
-     * @param mob - the creature
+     * Sets job info for action type
+     * @param type - The action type
+     * @param info - the job info
+     */
+    public void setJobInfo(ActionType type, List<JobInfo> info) {
+        jobInfo.put(type, info);
+    }
+    
+    /**
+     * Gets the job info for the particular type
+     * @param type - The action type
+     * @return Job info list
+     */
+    
+    public List<JobInfo> getJobInfo(ActionType type) {
+        return Collections.unmodifiableList(jobInfo.get(type));
+    }
+    
+    /**
+     * Function to get the income for an action
+     * @param action - The action info
      * @param level - players job level
-     * @param numjobs - number of jobs of the player
-     * @return the income received for killing the LivingEntity
+     * @param numjobs - number of jobs for the player
+     * @return the income received for performing action
      */
-    public Double getKillIncome(EntityType type, int level, int numjobs) {
-        for (JobInfo info : jobKillInfo) {
-            if (type.toString().equals(info.getName()))
+    
+    public Double getIncome(ActionInfo action, int level, int numjobs) {
+        List<JobInfo> jobInfo = getJobInfo(action.getType());
+        for (JobInfo info : jobInfo) {
+            if (info.getName().equals(action.getName()) || info.getName().equals(action.getNameWithSub()))
                 return info.getIncome(level, numjobs);
         }
         return null;
     }
     
     /**
-     * Function to get the exp for killing a LivingEntity
-     * @param mob - the creature
-     * @param param - parameters for the customisable equation
-     * @return the exp received for killing the LivingEntity
+     * Function to get the income for an action
+     * @param action - The action info
+     * @param level - players job level
+     * @param numjobs - number of jobs for the player
+     * @return the income received for performing action
      */
-    public Double getKillExp(EntityType type, int level, int numjobs) {
-        for (JobInfo info : jobKillInfo) {
-            if (type.toString().equals(info.getName()))
-                return info.getExperience(level, numjobs);
-        }
-        return null;
-    }
     
-    /**
-     * Function to get the income for placing a block
-     * @param block - the block
-     * @param param - parameters for the customisable equation
-     * @return the income received for placing the block
-     * @return null if job has no payment for this type of block
-     */
-    public Double getPlaceIncome(Block block, int level, int numjobs) {
-        return this.getBlockActionIncome(block, level, numjobs, this.jobPlaceInfo);
-    }
-    
-    /**
-     * Function to get the exp for placing a block
-     * @param block - the block
-     * @param param - parameters for the customisable equation
-     * @return the exp received for placing the block
-     * @return null if job has no payment for this type of block
-     */
-    public Double getPlaceExp(Block block, int level, int numjobs) {
-        return this.getBlockActionExp(block, level, numjobs, this.jobPlaceInfo);
-    }
-    
-    /**
-     * Function to get the income for breaking a block
-     * @param block - the block
-     * @param param - parameters for the customisable equation
-     * @return the income received for breaking the block
-     * @return null if job has no payment for this type of block
-     */
-    public Double getBreakIncome(Block block, int level, int numjobs) {
-        return this.getBlockActionIncome(block, level, numjobs, this.jobBreakInfo);
-    }
-    
-    /**
-     * Function to get the exp for breaking a block
-     * @param block - the block
-     * @param param - parameters for the customisable equation
-     * @return the exp received for breaking the block
-     * @return null if job has no payment for this type of block
-     */
-    public Double getBreakExp(Block block, int level, int numjobs) {
-        return this.getBlockActionExp(block, level, numjobs, this.jobBreakInfo);
-    }
-    
-    /**
-     * Function to get the income for crafting an item
-     * @param items - the items
-     * @param param - parameters for the customisable equation
-     * @return the income received for crafting the item
-     * @return null if job has no payment for this type of block
-     */
-    public Double getCraftIncome(ItemStack items, int level, int numjobs) {
-        return this.getItemActionIncome(items, level, numjobs, this.jobCraftInfo);
-    }
-    
-    /**
-     * Function to get the exp for crafting an item
-     * @param items - the items
-     * @param param - parameters for the customisable equation
-     * @return the income received for crafting the item
-     * @return null if job has no payment for this type of block
-     */
-    public Double getCraftExp(ItemStack items, int level, int numjobs) {
-        return this.getItemActionExp(items, level, numjobs, this.jobCraftInfo);
-    }
-    
-    /**
-     * Function to get the income for smelting an item
-     * @param items - the items
-     * @param param - parameters for the customisable equation
-     * @return the income received for crafting the item
-     * @return null if job has no payment for this type of block
-     */
-    public Double getSmeltIncome(ItemStack items, int level, int numjobs) {
-        return this.getItemActionIncome(items, level, numjobs, this.jobSmeltInfo);
-    }
-    
-    /**
-     * Function to get the exp for smelting an item
-     * @param items - the items
-     * @param param - parameters for the customisable equation
-     * @return the income received for crafting the item
-     * @return null if job has no payment for this type of block
-     */
-    public Double getSmeltExp(ItemStack items, int level, int numjobs) {
-        return this.getItemActionExp(items, level, numjobs, this.jobSmeltInfo);
-    }
-    
-    /**
-     * Function to get the income for fishing an item
-     * @param item - the item
-     * @param param - parameters for the customisable equation
-     * @return the income received for fishing the item
-     * @return null if job has no payment for this type of action
-     */
-    public Double getFishIncome(ItemStack items, int level, int numjobs) {
-        return this.getItemActionIncome(items, level, numjobs, this.jobFishInfo);
-    }
-    
-    /**
-     * Function to get the income for fishing an item
-     * @param item - the item
-     * @param param - parameters for the customisable equation
-     * @return the income received for fishing the item
-     * @return null if job has no payment for this type of action
-     */
-    public Double getFishExp(ItemStack items, int level, int numjobs) {
-        return this.getItemActionExp(items, level, numjobs, this.jobFishInfo);
-    }
-    
-    /**
-     * Function to get the income for performing the action
-     * @param block - the block
-     * @param param - parameters for the customisable equation
-     * @param info - info for performing the action
-     * @return the income received for performing the action
-     * @return null if job has no payment for this type of action
-     */
-    private Double getBlockActionIncome(Block block, int level, int numjobs, List<JobInfo> jobInfo) {
-        String blockKey = block.getType().toString();        
-        // Normalize GLOWING_REDSTONE_ORE to REDSTONE_ORE
-        if(block.getType().equals(Material.GLOWING_REDSTONE_ORE)) {
-            blockKey = Material.REDSTONE_ORE.toString();
-        }
+    public Double getExperience(ActionInfo action, int level, int numjobs) {
+        List<JobInfo> jobInfo = getJobInfo(action.getType());
         for (JobInfo info : jobInfo) {
-            if (blockKey.equals(info.getName()) || info.getName().equals(blockKey+":"+block.getData()))
-                return info.getIncome(level, numjobs);
-        }
-        return null;
-    }
-
-    /**
-     * Function to get the exp for performing the action
-     * @param block - the block
-     * @param param - parameters for the customisable equation
-     * @param info - info for performing the action
-     * @return the exp received for performing the action
-     * @return null if job has no payment for this type of action
-     */
-    private Double getBlockActionExp(Block block, int level, int numjobs, List<JobInfo> jobInfo) {
-        String blockKey = block.getType().toString();        
-        // Normalize GLOWING_REDSTONE_ORE to REDSTONE_ORE
-        if(block.getType().equals(Material.GLOWING_REDSTONE_ORE)) {
-            blockKey = Material.REDSTONE_ORE.toString();
-        }
-        for (JobInfo info : jobInfo) {
-            if (blockKey.equals(info.getName()) || info.getName().equals(blockKey+":"+block.getData()))
-                return info.getExperience(level, numjobs);
-        }
-        return null;
-    }
-    
-    /**
-     * Function to get the income for performing the action
-     * @param block - the block
-     * @param param - parameters for the customisable equation
-     * @param info - info for performing the action
-     * @return the income received for performing the action
-     * @return null if job has no payment for this type of action
-     */
-    private Double getItemActionIncome(ItemStack item, int level, int numjobs, List<JobInfo> jobInfo) {
-        String itemKey = item.getType().toString();
-        for (JobInfo info : jobInfo) {
-            if (itemKey.equals(info.getName()) || info.getName().equals(itemKey+":"+item.getData()))
-                return info.getIncome(level, numjobs);
-        }
-        return null;
-    }
-
-    /**
-     * Function to get the exp for performing the action
-     * @param block - the block
-     * @param param - parameters for the customisable equation
-     * @param info - info for performing the action
-     * @return the exp received for performing the action
-     * @return null if job has no payment for this type of action
-     */
-    private Double getItemActionExp(ItemStack item, int level, int numjobs, List<JobInfo> jobInfo) {
-        String itemKey = item.getType().toString();
-        for (JobInfo info : jobInfo) {
-            if (itemKey.equals(info.getName()) || info.getName().equals(itemKey+":"+item.getData()))
+            if (info.getName().equals(action.getName()) || info.getName().equals(action.getNameWithSub()))
                 return info.getExperience(level, numjobs);
         }
         return null;
@@ -365,22 +168,6 @@ public class Job {
      */
     public Parser getMaxExpEquation(){
         return maxExpEquation;
-    }
-    
-    /**
-     * Get the IncomeEquation of the job
-     * @return the IncomeEquation of the job
-     */
-    public Parser getIncomeEquation(){
-        return incomeEquation;
-    }
-    
-    /**
-     * Get the ExpEquation of the job
-     * @return the ExpEquation of the job
-     */
-    public Parser getExpEquation(){
-        return expEquation;
     }
     
     /**
@@ -422,62 +209,10 @@ public class Job {
     }
     
     /**
-     * Get the payout information about breaking blocks
-     * @return the map of breaking blocks and its payment
-     */
-    public List<JobInfo> getBreakInfo() {
-        return Collections.unmodifiableList(jobBreakInfo);
-    }
-    
-    /**
-     * Get the payout information about placing blocks
-     * @return the map of placing blocks and its payment
-     */
-    public List<JobInfo> getPlaceInfo() {
-        return Collections.unmodifiableList(jobPlaceInfo);
-    }
-    
-    /**
-     * Get the payout information about killing entities
-     * @return the map of killing entities and its payment
-     */
-    public List<JobInfo> getKillInfo() {
-        return Collections.unmodifiableList(jobKillInfo);
-    }
-    
-    /**
-     * Get the payout information for fishing
-     * @return the map of fishing and its payment
-     */
-    public List<JobInfo> getFishInfo() {
-        return Collections.unmodifiableList(jobFishInfo);
-    }
-    
-    /**
-     * Get the payout information for crafting
-     * @return the map of crafting and its payment
-     */
-    public List<JobInfo> getCraftInfo() {
-        return Collections.unmodifiableList(jobCraftInfo);
-    }
-    
-    /**
-     * Get the payout information for smelting
-     * @return the map of smelting and its payment
-     */
-    public List<JobInfo> getSmeltInfo() {
-        return Collections.unmodifiableList(jobSmeltInfo);
-    }
-    
-    /**
      * Get the permission nodes for this job
      * @return Permissions for this job
      */
     public List<JobPermission> getPermissions() {
         return Collections.unmodifiableList(jobPermissions);
-    }
-    
-    public boolean isHidden() {
-        return isHidden;
     }
 }

@@ -22,12 +22,12 @@ package me.zford.jobs.config;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.WeakHashMap;
 
 import me.zford.jobs.Jobs;
+import me.zford.jobs.actions.ActionType;
 import me.zford.jobs.config.container.DisplayMethod;
 import me.zford.jobs.config.container.Job;
 import me.zford.jobs.config.container.JobInfo;
@@ -42,9 +42,12 @@ import org.bukkit.entity.EntityType;
 
 public class JobConfig {
     // all of the possible jobs
-    private LinkedHashMap<String, Job> jobs = new LinkedHashMap<String, Job>();
+    private ArrayList<Job> jobs = new ArrayList<Job>();
+    // the "none" job
+    private Job noneJob = null;
     // used slots for each job
     private WeakHashMap<Job, Integer> usedSlots = new WeakHashMap<Job, Integer>();
+    
     
     private Jobs plugin;
     public JobConfig(Jobs plugin) {
@@ -66,6 +69,7 @@ public class JobConfig {
     private void loadJobSettings(){
         File f = new File(plugin.getDataFolder(), "jobConfig.yml");
         this.jobs.clear();
+        this.noneJob = null;
         if (!f.exists()) {
             try {
                 f.createNewFile();
@@ -404,12 +408,20 @@ public class JobConfig {
                 }
             }
             
-            boolean isHidden = false;
-            if (jobKey.equalsIgnoreCase("none")) {
-                isHidden = true;
-            }
+            Job job = new Job(jobPermissions, jobName, jobShortName, jobColour, maxExpEquation, displayMethod, maxLevel, maxSlots);
             
-            this.jobs.put(jobName.toLowerCase(), new Job(jobBreakInfo, jobPlaceInfo, jobKillInfo, jobFishInfo, jobCraftInfo, jobSmeltInfo, jobPermissions, jobName, jobShortName, jobColour, maxExpEquation, incomeEquation, expEquation, displayMethod, maxLevel, maxSlots, isHidden));
+            job.setJobInfo(ActionType.BREAK, jobBreakInfo);
+            job.setJobInfo(ActionType.PLACE, jobPlaceInfo);
+            job.setJobInfo(ActionType.KILL, jobKillInfo);
+            job.setJobInfo(ActionType.FISH, jobFishInfo);
+            job.setJobInfo(ActionType.CRAFT, jobCraftInfo);
+            job.setJobInfo(ActionType.SMELT, jobSmeltInfo);
+            
+            if (jobKey.equalsIgnoreCase("none")) {
+                this.noneJob = job;
+            } else {
+                this.jobs.add(job);
+            }
         }
         try {
             conf.save(f);
@@ -423,8 +435,8 @@ public class JobConfig {
      */
     private void loadSlots() {
         usedSlots.clear();
-        for(Job temp: jobs.values()){
-            usedSlots.put(temp, plugin.getJobsConfiguration().getJobsDAO().getSlotsTaken(temp));
+        for (Job job: jobs) {
+            usedSlots.put(job, plugin.getJobsConfiguration().getJobsDAO().getSlotsTaken(job));
         }
     }
     
@@ -433,16 +445,24 @@ public class JobConfig {
      * @param jobName - the ame of the job given
      * @return the job that matches the name
      */
-    public Job getJob(String jobName){
-        return jobs.get(jobName.toLowerCase());
+    public Job getJob(String jobName) {
+        for (Job job : jobs) {
+            if (job.getName().equalsIgnoreCase(jobName))
+                return job;
+        }
+        return null;
+    }
+    
+    public Job getNoneJob() {
+        return noneJob;
     }
     
     /**
      * Get all the jobs loaded in the plugin
      * @return a collection of the jobs
      */
-    public Collection<Job> getJobs() {
-        return Collections.unmodifiableCollection(jobs.values());
+    public List<Job> getJobs() {
+        return Collections.unmodifiableList(jobs);
     }
     
     /**

@@ -23,6 +23,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.zford.jobs.actions.ActionType;
 import me.zford.jobs.config.container.Job;
 import me.zford.jobs.config.container.JobInfo;
 import me.zford.jobs.config.container.JobProgression;
@@ -53,7 +54,7 @@ public class JobsCommands implements CommandExecutor {
             if (args.length >= 2 && args[0].equalsIgnoreCase("join")) {
                 String jobName = args[1].trim();
                 Job job = plugin.getJobConfig().getJob(jobName);
-                if (job == null || job.isHidden()) {
+                if (job == null) {
                     // job does not exist
                     sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
                     return true;
@@ -147,8 +148,6 @@ public class JobsCommands implements CommandExecutor {
             ArrayList<String> jobs = new ArrayList<String>();
             for (Job job: plugin.getJobConfig().getJobs()) {
                 if (!plugin.hasJobPermission(sender, job))
-                    continue;
-                if (job.isHidden())
                     continue;
                 
                 if (job.getMaxLevel() > 0) {
@@ -482,292 +481,59 @@ public class JobsCommands implements CommandExecutor {
             type = type.toLowerCase();
         }
         
-        String message = "";
-        
-        String[] jobTypes = { "break", "place", "kill", "fish", "craft", "smelt" };
+        StringBuilder message = new StringBuilder();
         
         int showAllTypes = 1;
-        for (String jobType : jobTypes) {
-            if (type.startsWith(jobType)) {
+        for (ActionType actionType : ActionType.values()) {
+            if (type.startsWith(actionType.getName())) {
                 showAllTypes = 0;
                 break;
             }
         }
         
+        for (ActionType actionType : ActionType.values()) {
+            if (showAllTypes == 1 || type.startsWith(actionType.getName())) {
+                List<JobInfo> info = job.getJobInfo(actionType);
+                if (info != null && !info.isEmpty()) {
+                    message.append(jobInfoMessage(player, job, actionType));
+                } else if (showAllTypes == 0) {
+                    String myMessage = plugin.getMessageConfig().getMessage(actionType.getName()+"-none");
+                    myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
+                    myMessage = myMessage.replace("%jobname%", job.getName());
+                    message.append(myMessage);
+                }
+            }
+        }
+        return message.toString();
+    }
+    
+    /**
+     * Displays info about a particular action
+     * @param player - the player of the job
+     * @param prog - the job we are displaying info about
+     * @param type - the type of action
+     * @return the message
+     */
+    private String jobInfoMessage(JobsPlayer player, Job job, ActionType type) {
+        StringBuilder message = new StringBuilder();
+        message.append(plugin.getMessageConfig().getMessage(type.getName()+"-header")).append("\n");
+        
+        DecimalFormat format = new DecimalFormat("#.##");
+        int level = 1;
+        
         JobProgression prog = player.getJobProgression(job);
-        
-        if (type.startsWith("break") || showAllTypes == 1) {
-            // break
-            List<JobInfo> jobBreakInfo = job.getBreakInfo();
-            if (jobBreakInfo != null && !jobBreakInfo.isEmpty()) {
-                message += jobInfoBreakMessage(player, prog, jobBreakInfo);
-            } else if (showAllTypes == 0) {
-                String myMessage = plugin.getMessageConfig().getMessage("break-none");
-                myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
-                myMessage = myMessage.replace("%jobname%", job.getName());
-                message += myMessage;
-            }
-        }
-        if (type.startsWith("place") || showAllTypes == 1) {
-            // place
-            List<JobInfo> jobPlaceInfo = job.getPlaceInfo();
-            
-            if (jobPlaceInfo != null && !jobPlaceInfo.isEmpty()) {
-                message += jobInfoPlaceMessage(player, prog, jobPlaceInfo);
-            } else if (showAllTypes == 0) {
-                String myMessage = plugin.getMessageConfig().getMessage("place-none");
-                myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
-                myMessage = myMessage.replace("%jobname%", job.getName());
-                message += myMessage;
-            }
-        }
-        if (type.startsWith("kill") || showAllTypes == 1) {
-            // kill
-            List<JobInfo> jobKillInfo = job.getKillInfo();
-            
-            if (jobKillInfo != null && !jobKillInfo.isEmpty()) {
-                message += jobInfoKillMessage(player, prog, jobKillInfo);
-            } else if (showAllTypes == 0) {
-                String myMessage = plugin.getMessageConfig().getMessage("kill-none");
-                myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
-                myMessage = myMessage.replace("%jobname%", job.getName());
-                message += myMessage;
-            }
-        }
-        
-        if (type.startsWith("fish") || showAllTypes == 1) {
-            // fish
-            List<JobInfo> jobFishInfo = job.getFishInfo();
-            
-            if (jobFishInfo != null && !jobFishInfo.isEmpty()) {
-                message += jobInfoFishMessage(player, prog, jobFishInfo);
-            } else if (showAllTypes == 0) {
-                String myMessage = plugin.getMessageConfig().getMessage("fish-none");
-                myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
-                myMessage = myMessage.replace("%jobname%", job.getName());
-                message += myMessage;
-            }
-        }
-        
-        if (type.startsWith("craft") || showAllTypes == 1) {
-            // craft
-            List<JobInfo> jobCraftInfo = job.getCraftInfo();
-            
-            if (jobCraftInfo != null && !jobCraftInfo.isEmpty()) {
-                message += jobInfoCraftMessage(player, prog, jobCraftInfo);
-            } else if(showAllTypes == 0) {
-                String myMessage = plugin.getMessageConfig().getMessage("craft-none");
-                myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
-                myMessage = myMessage.replace("%jobname%", job.getName());
-                message += myMessage;
-            }
-        }
-        
-        if (type.startsWith("smelt") || showAllTypes == 1) {
-            // craft
-            List<JobInfo> jobSmeltInfo = job.getSmeltInfo();
-            
-            if (jobSmeltInfo != null && !jobSmeltInfo.isEmpty()) {
-                message += jobInfoSmeltMessage(player, prog, jobSmeltInfo);
-            } else if(showAllTypes == 0) {
-                String myMessage = plugin.getMessageConfig().getMessage("smelt-none");
-                myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
-                myMessage = myMessage.replace("%jobname%", job.getName());
-                message += myMessage;
-            }
-        }
-        return message;
-    }
-    
-    /**
-     * Displays info about breaking blocks
-     * @param player - the player of the job
-     * @param prog - the job we are displaying info about
-     * @param jobBreakInfo - the information to display
-     * @return the message
-     */
-    private String jobInfoBreakMessage(JobsPlayer player, JobProgression prog, List<JobInfo> jobBreakInfo) {
-        StringBuilder message = new StringBuilder();
-        message.append(plugin.getMessageConfig().getMessage("break-header")).append("\n");
-        
-        DecimalFormat format = new DecimalFormat("#.##");
-        int level = 1;
         if (prog != null)
             level = prog.getLevel();
         int numjobs = player.getJobProgression().size();
-        for (JobInfo info: jobBreakInfo) {
+        List<JobInfo> jobInfo = job.getJobInfo(type);
+        for (JobInfo info: jobInfo) {
             String myMessage;
             if (info.getName().contains(":")){
-                myMessage = plugin.getMessageConfig().getMessage("break-info-sub");
+                myMessage = plugin.getMessageConfig().getMessage(type.getName()+"-info-sub");
                 myMessage = myMessage.replace("%item%", info.getName().split(":")[0].replace("_", " ").toLowerCase());
                 myMessage = myMessage.replace("%subitem%", info.getName().split(":")[1]);
             } else {
-                myMessage = plugin.getMessageConfig().getMessage("break-info-no-sub");
-                myMessage = myMessage.replace("%item%", info.getName().replace("_", " ").toLowerCase());
-            }
-            myMessage = myMessage.replace("%income%", format.format(info.getIncome(level, numjobs)));
-            myMessage = myMessage.replace("%experience%", format.format(info.getExperience(level, numjobs)));
-            message.append(myMessage).append("\n");
-        }
-        return message.toString();
-    }
-    
-    /**
-     * Displays info about placing blocks
-     * @param player - the player of the job
-     * @param prog - the job we are displaying info about
-     * @param jobPlaceInfo - the information to display
-     * @return the message
-     */ 
-    private String jobInfoPlaceMessage(JobsPlayer player, JobProgression prog, List<JobInfo> jobPlaceInfo) {
-        StringBuilder message = new StringBuilder();
-        message.append(plugin.getMessageConfig().getMessage("place-header")).append("\n");
-
-        DecimalFormat format = new DecimalFormat("#.##");
-        int level = 1;
-        if (prog != null)
-            level = prog.getLevel();
-        int numjobs = player.getJobProgression().size();
-        for (JobInfo info: jobPlaceInfo) {
-            String myMessage;
-            if (info.getName().contains(":")){
-                myMessage = plugin.getMessageConfig().getMessage("place-info-sub");
-                myMessage = myMessage.replace("%item%", info.getName().split(":")[0].replace("_", " ").toLowerCase());
-                myMessage = myMessage.replace("%subitem%", info.getName().split(":")[1]);
-            } else {
-                myMessage = plugin.getMessageConfig().getMessage("place-info-no-sub");
-                myMessage = myMessage.replace("%item%", info.getName().replace("_", " ").toLowerCase());
-            }
-            myMessage = myMessage.replace("%income%", format.format(info.getIncome(level, numjobs)));
-            myMessage = myMessage.replace("%experience%", format.format(info.getExperience(level, numjobs)));
-            message.append(myMessage).append("\n");
-        }
-        return message.toString();
-    }
-    
-    /**
-     * Displays info about killing entities
-     * @param player - the player of the job
-     * @param prog - the job we are displaying info about
-     * @param jobKillInfo - the information to display
-     * @return the message
-     */
-    private String jobInfoKillMessage(JobsPlayer player, JobProgression prog, List<JobInfo> jobKillInfo) {
-        StringBuilder message = new StringBuilder();
-        message.append(plugin.getMessageConfig().getMessage("kill-header")).append("\n");
-        
-        DecimalFormat format = new DecimalFormat("#.##");
-        int level = 1;
-        if (prog != null)
-            level = prog.getLevel();
-        int numjobs = player.getJobProgression().size();
-        for (JobInfo info: jobKillInfo) {
-            String myMessage;
-            if (info.getName().contains(":")){
-                myMessage = plugin.getMessageConfig().getMessage("kill-info-sub");
-                myMessage = myMessage.replace("%item%", info.getName().split(":")[0].replace("_", " ").toLowerCase());
-                myMessage = myMessage.replace("%subitem%", info.getName().split(":")[1]);
-            } else {
-                myMessage = plugin.getMessageConfig().getMessage("kill-info-no-sub");
-                myMessage = myMessage.replace("%item%", info.getName().replace("_", " ").toLowerCase());
-            }
-            myMessage = myMessage.replace("%income%", format.format(info.getIncome(level, numjobs)));
-            myMessage = myMessage.replace("%experience%", format.format(info.getExperience(level, numjobs)));
-            message.append(myMessage).append("\n");
-        }
-        return message.toString();
-    }
-    
-    /**
-     * Displays info about fishing
-     * @param player - the player of the job
-     * @param prog - the job we are displaying info about
-     * @param jobFishInfo - the information to display
-     * @return the message
-     */ 
-    private String jobInfoFishMessage(JobsPlayer player, JobProgression prog, List<JobInfo> jobFishInfo) {
-        StringBuilder message = new StringBuilder();
-        message.append(plugin.getMessageConfig().getMessage("fish-header")).append("\n");
-        
-        DecimalFormat format = new DecimalFormat("#.##");
-        int level = 1;
-        if (prog != null)
-            level = prog.getLevel();
-        int numjobs = player.getJobProgression().size();
-        for (JobInfo info: jobFishInfo) {
-            String myMessage;
-            if (info.getName().contains(":")){
-                myMessage = plugin.getMessageConfig().getMessage("fish-info-sub");
-                myMessage = myMessage.replace("%item%", info.getName().split(":")[0].replace("_", " ").toLowerCase());
-                myMessage = myMessage.replace("%subitem%", info.getName().split(":")[1]);
-            } else {
-                myMessage = plugin.getMessageConfig().getMessage("fish-info-no-sub");
-                myMessage = myMessage.replace("%item%", info.getName().replace("_", " ").toLowerCase());
-            }
-            myMessage = myMessage.replace("%income%", format.format(info.getIncome(level, numjobs)));
-            myMessage = myMessage.replace("%experience%", format.format(info.getExperience(level, numjobs)));
-            message.append(myMessage).append("\n");
-        }
-        return message.toString();
-    }
-    
-    /**
-     * Displays info about fishing
-     * @param player - the player of the job
-     * @param prog - the job we are displaying info about
-     * @param jobCraftInfo - the information to display
-     * @return the message
-     */ 
-    private String jobInfoCraftMessage(JobsPlayer player, JobProgression prog, List<JobInfo> jobCraftInfo) {
-        StringBuilder message = new StringBuilder();
-        message.append(plugin.getMessageConfig().getMessage("craft-header")).append("\n");
-        
-        DecimalFormat format = new DecimalFormat("#.##");
-        int level = 1;
-        if (prog != null)
-            level = prog.getLevel();
-        int numjobs = player.getJobProgression().size();
-        for (JobInfo info: jobCraftInfo) {
-            String myMessage;
-            if (info.getName().contains(":")){
-                myMessage = plugin.getMessageConfig().getMessage("craft-info-sub");
-                myMessage = myMessage.replace("%item%", info.getName().split(":")[0].replace("_", " ").toLowerCase());
-                myMessage = myMessage.replace("%subitem%", info.getName().split(":")[1]);
-            } else {
-                myMessage = plugin.getMessageConfig().getMessage("craft-info-no-sub");
-                myMessage = myMessage.replace("%item%", info.getName().replace("_", " ").toLowerCase());
-            }
-            myMessage = myMessage.replace("%income%", format.format(info.getIncome(level, numjobs)));
-            myMessage = myMessage.replace("%experience%", format.format(info.getExperience(level, numjobs)));
-            message.append(myMessage).append("\n");
-        }
-        return message.toString();
-    }
-    
-    /**
-     * Displays info about fishing
-     * @param player - the player of the job
-     * @param prog - the job we are displaying info about
-     * @param jobCraftInfo - the information to display
-     * @return the message
-     */ 
-    private String jobInfoSmeltMessage(JobsPlayer player, JobProgression prog, List<JobInfo> jobSmeltInfo) {
-        StringBuilder message = new StringBuilder();
-        message.append(plugin.getMessageConfig().getMessage("smelt-header")).append("\n");
-        
-        DecimalFormat format = new DecimalFormat("#.##");
-        int level = 1;
-        if (prog != null)
-            level = prog.getLevel();
-        int numjobs = player.getJobProgression().size();
-        for (JobInfo info: jobSmeltInfo) {
-            String myMessage;
-            if (info.getName().contains(":")){
-                myMessage = plugin.getMessageConfig().getMessage("smelt-info-sub");
-                myMessage = myMessage.replace("%item%", info.getName().split(":")[0].replace("_", " ").toLowerCase());
-                myMessage = myMessage.replace("%subitem%", info.getName().split(":")[1]);
-            } else {
-                myMessage = plugin.getMessageConfig().getMessage("smelt-info-no-sub");
+                myMessage = plugin.getMessageConfig().getMessage(type.getName()+"-info-no-sub");
                 myMessage = myMessage.replace("%item%", info.getName().replace("_", " ").toLowerCase());
             }
             myMessage = myMessage.replace("%income%", format.format(info.getIncome(level, numjobs)));

@@ -25,6 +25,10 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import me.zford.jobs.Jobs;
+import me.zford.jobs.actions.ActionType;
+import me.zford.jobs.actions.BlockActionInfo;
+import me.zford.jobs.actions.EntityActionInfo;
+import me.zford.jobs.actions.ItemActionInfo;
 import me.zford.jobs.config.container.JobsPlayer;
 
 import org.bukkit.GameMode;
@@ -88,7 +92,7 @@ public class JobsPaymentListener implements Listener {
         
         if (plugin.hasWorldPermission(player, player.getWorld())) {
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-            plugin.getJobsManager().broke(jPlayer, block, multiplier);
+            plugin.action(jPlayer, new BlockActionInfo(block, ActionType.BREAK), multiplier);
         }
     }
 
@@ -112,7 +116,7 @@ public class JobsPaymentListener implements Listener {
         
         if (plugin.hasWorldPermission(player, player.getWorld())) {
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-            plugin.getJobsManager().placed(jPlayer, block, multiplier);
+            plugin.action(jPlayer, new BlockActionInfo(block, ActionType.PLACE), multiplier);
         }
     }
 
@@ -135,7 +139,7 @@ public class JobsPaymentListener implements Listener {
         if (event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
             ItemStack items = ((Item) event.getCaught()).getItemStack();
-            plugin.getJobsManager().fished(jPlayer, items, multiplier);
+            plugin.action(jPlayer, new ItemActionInfo(items, ActionType.FISH), multiplier);
         }
     }
 
@@ -207,7 +211,7 @@ public class JobsPaymentListener implements Listener {
         
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-        plugin.getJobsManager().crafted(jPlayer, resultStack, multiplier);
+        plugin.action(jPlayer, new ItemActionInfo(resultStack, ActionType.CRAFT), multiplier);
     }
     
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
@@ -229,7 +233,7 @@ public class JobsPaymentListener implements Listener {
             return;
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-        plugin.getJobsManager().smelted(jPlayer, event.getResult(), multiplier);
+        plugin.action(jPlayer, new ItemActionInfo(event.getResult(), ActionType.SMELT), multiplier);
     }
     
     @EventHandler(priority=EventPriority.MONITOR)
@@ -268,7 +272,7 @@ public class JobsPaymentListener implements Listener {
                 double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(pDamager);
                 // pay
                 JobsPlayer jDamager = plugin.getPlayerManager().getJobsPlayer(pDamager.getName());
-                plugin.getJobsManager().killed(jDamager, lVictim.getType(), multiplier);
+                plugin.action(jDamager, new EntityActionInfo(lVictim.getType(), ActionType.KILL), multiplier);
             }
         }
     }

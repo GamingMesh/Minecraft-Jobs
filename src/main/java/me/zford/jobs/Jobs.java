@@ -19,10 +19,14 @@
 
 package me.zford.jobs;
 
+import java.util.List;
+
+import me.zford.jobs.actions.ActionInfo;
 import me.zford.jobs.config.JobConfig;
 import me.zford.jobs.config.JobsConfiguration;
 import me.zford.jobs.config.MessageConfig;
 import me.zford.jobs.config.container.Job;
+import me.zford.jobs.config.container.JobProgression;
 import me.zford.jobs.config.container.JobsPlayer;
 import me.zford.jobs.economy.BufferedEconomy;
 import me.zford.jobs.listener.JobsListener;
@@ -44,7 +48,6 @@ public class Jobs extends JavaPlugin {
     private JobsConfiguration jobsConfiguration = new JobsConfiguration(this);
     private JobConfig jobConfig = new JobConfig(this);
     private PlayerManager pManager = new PlayerManager(this);
-    private JobManager jManager = new JobManager(this);
     private BufferedEconomy economy;
 
     /**
@@ -128,13 +131,6 @@ public class Jobs extends JavaPlugin {
         getLogger().info("["+getDescription().getName()+"] Successfully linked with Vault.");
         return true;
     }
-    /**
-     * Retrieves the economy hook
-     * @return - buffered payment hook
-     */
-    public BufferedEconomy getEconomy() {
-        return economy;
-    }
     
     /**
      * Disable the plugin
@@ -170,13 +166,6 @@ public class Jobs extends JavaPlugin {
      */
     public PlayerManager getPlayerManager() {
         return pManager;
-    }
-    
-    /**
-     * Returns jobs manager
-     */
-    public JobManager getJobsManager() {
-        return jManager;
     }
     
     /**
@@ -225,6 +214,40 @@ public class Jobs extends JavaPlugin {
         for (Job job : getJobConfig().getJobs()) {
             if (pm.getPermission("jobs.join."+job.getName().toLowerCase()) == null)
                 pm.addPermission(new Permission("jobs.join."+job.getName().toLowerCase(), PermissionDefault.TRUE));
+        }
+    }
+    
+    /**
+     * Performed an action
+     * 
+     * Give correct experience and income
+     * @param jPlayer - the player
+     * @param action - the action
+     * @param multiplier - the payment/xp multiplier
+     */
+    public void action(JobsPlayer jPlayer, ActionInfo info, double multiplier) {
+        List<JobProgression> progression = jPlayer.getJobProgression();
+        int numjobs = progression.size();
+        // no job
+        if (numjobs == 0) {
+            Job jobNone = getJobConfig().getNoneJob();
+            if (jobNone != null) {
+                Double income = jobNone.getIncome(info, 1, numjobs);
+                if (income != null)
+                    economy.pay(jPlayer, income*multiplier);
+            }
+        } else {
+            for (JobProgression prog : progression) {
+                int level = prog.getLevel();
+                Double income = prog.getJob().getIncome(info, level, numjobs);
+                if (income != null) {
+                    Double exp = prog.getJob().getExperience(info, level, numjobs);
+                    // give income
+                    economy.pay(jPlayer, income*multiplier);
+                    if (prog.addExperience(exp*multiplier))
+                        pManager.performLevelUp(jPlayer, prog.getJob());
+                }
+            }
         }
     }
 }

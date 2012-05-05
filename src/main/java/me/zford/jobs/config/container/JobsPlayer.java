@@ -298,7 +298,7 @@ public class JobsPlayer {
         }
         
         if (progression.size() == 0) {
-            Job job = plugin.getJobConfig().getJob("None");
+            Job job = plugin.getJobConfig().getNoneJob();
             if (job != null) {
                 for (JobPermission perm : job.getPermissions()) {
                     if (perm.getLevelRequirement() <= 0) {
