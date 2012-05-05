@@ -1,6 +1,5 @@
 package me.zford.jobs;
 
-import java.util.HashMap;
 import java.util.List;
 
 import me.zford.jobs.config.container.Job;
@@ -8,7 +7,7 @@ import me.zford.jobs.config.container.JobProgression;
 import me.zford.jobs.config.container.JobsPlayer;
 
 import org.bukkit.block.Block;
-import org.bukkit.entity.Item;
+import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 
 public class JobManager {
@@ -28,36 +27,27 @@ public class JobManager {
      * @param multiplier - the payment/xp multiplier
      */
     public void broke(JobsPlayer jPlayer, Block block, double multiplier) {
-        HashMap<String, Double> param = new HashMap<String, Double>();
         List<JobProgression> progression = jPlayer.getJobProgression();
-        // add the number of jobs to the parameter list
-        param.put("numjobs", (double) progression.size());
+        int numjobs = progression.size();
         // no job
-        if (progression.size() == 0) {
+        if (numjobs == 0) {
             Job jobNone = plugin.getJobConfig().getJob("None");
-            if(jobNone != null) {
-                param.put("joblevel", 1.0);
-                Double income = jobNone.getBreakIncome(block, param);
-                if(income != null) {
-                    // give income
+            if (jobNone != null) {
+                Double income = jobNone.getBreakIncome(block, 1, numjobs);
+                if (income != null)
                     plugin.getEconomy().pay(jPlayer, income*multiplier);
-                }
-                param.remove("joblevel");
             }
         } else {
             for (JobProgression prog : progression) {
-                // add the current level to the parameter list
-                param.put("joblevel", (double) prog.getLevel());
-                // get the income and give it
-                Double income = prog.getJob().getBreakIncome(block, param);
-                if(income != null) {
-                    Double exp = prog.getJob().getBreakExp(block, param);
+                int level = prog.getLevel();
+                Double income = prog.getJob().getBreakIncome(block, level, numjobs);
+                if (income != null) {
+                    Double exp = prog.getJob().getBreakExp(block, level, numjobs);
                     // give income
                     plugin.getEconomy().pay(jPlayer, income*multiplier);
                     if (prog.addExperience(exp*multiplier))
                         plugin.getPlayerManager().performLevelUp(jPlayer, prog.getJob());
                 }
-                param.remove("joblevel");
             }
         }
     }
@@ -71,36 +61,27 @@ public class JobManager {
      * @param multiplier - the payment/xp multiplier
      */
     public void placed(JobsPlayer jPlayer, Block block, double multiplier) {
-        HashMap<String, Double> param = new HashMap<String, Double>();
         List<JobProgression> progression = jPlayer.getJobProgression();
-        // add the number of jobs to the parameter list
-        param.put("numjobs", (double) progression.size());
+        int numjobs = progression.size();
         // no job
-        if (progression.size() == 0) {
+        if (numjobs == 0) {
             Job jobNone = plugin.getJobConfig().getJob("None");
-            if(jobNone != null) {
-                param.put("joblevel", 1.0);
-                Double income = jobNone.getPlaceIncome(block, param);
-                if(income != null) {
-                    // give income
+            if (jobNone != null) {
+                Double income = jobNone.getPlaceIncome(block, 1, numjobs);
+                if (income != null)
                     plugin.getEconomy().pay(jPlayer, income*multiplier);
-                }
-                param.remove("joblevel");
             }
         } else {
             for (JobProgression prog : progression) {
-                // add the current level to the parameter list
-                param.put("joblevel", (double) prog.getLevel());
-                // get the income and give it
-                Double income = prog.getJob().getPlaceIncome(block, param);
-                if(income != null) {
-                    Double exp = prog.getJob().getPlaceExp(block, param);
+                int level = prog.getLevel();
+                Double income = prog.getJob().getPlaceIncome(block, level, numjobs);
+                if (income != null) {
+                    Double exp = prog.getJob().getPlaceExp(block, level, numjobs);
                     // give income
                     plugin.getEconomy().pay(jPlayer, income*multiplier);
                     if (prog.addExperience(exp*multiplier))
                         plugin.getPlayerManager().performLevelUp(jPlayer, prog.getJob());
                 }
-                param.remove("joblevel");
             }
         }
     }
@@ -113,37 +94,28 @@ public class JobManager {
      * @param victim - the mob killed
      * @param multiplier - the payment/xp multiplier
      */
-    public void killed(JobsPlayer jPlayer, String victim, double multiplier) {
-        HashMap<String, Double> param = new HashMap<String, Double>();
+    public void killed(JobsPlayer jPlayer, EntityType type, double multiplier) {
         List<JobProgression> progression = jPlayer.getJobProgression();
-        // add the number of jobs to the parameter list
-        param.put("numjobs", (double) progression.size());
+        int numjobs = progression.size();
         // no job
-        if (progression.size() == 0) {
+        if (numjobs == 0) {
             Job jobNone = plugin.getJobConfig().getJob("None");
-            if(jobNone != null) {
-                param.put("joblevel", 1.0);
-                Double income = jobNone.getKillIncome(victim, param);
-                if(income != null) {
-                    // give income
+            if (jobNone != null) {
+                Double income = jobNone.getKillIncome(type, 1, numjobs);
+                if (income != null)
                     plugin.getEconomy().pay(jPlayer, income*multiplier);
-                }
-                param.remove("joblevel");
             }
         } else {
             for (JobProgression prog : progression) {
-                // add the current level to the parameter list
-                param.put("joblevel", (double) prog.getLevel());
-                // get the income and give it
-                Double income = prog.getJob().getKillIncome(victim, param);
-                if(income != null) {
-                    Double exp = prog.getJob().getKillExp(victim, param);
+                int level = prog.getLevel();
+                Double income = prog.getJob().getKillIncome(type, level, numjobs);
+                if (income != null) {
+                    Double exp = prog.getJob().getKillExp(type, level, numjobs);
                     // give income
                     plugin.getEconomy().pay(jPlayer, income*multiplier);
                     if (prog.addExperience(exp*multiplier))
                         plugin.getPlayerManager().performLevelUp(jPlayer, prog.getJob());
                 }
-                param.remove("joblevel");
             }
         }
     }
@@ -156,36 +128,28 @@ public class JobManager {
      * @param item - the item fished
      * @param multiplier - the payment/xp multiplier
      */
-    public void fished(JobsPlayer jPlayer, Item item, double multiplier) {
-        HashMap<String, Double> param = new HashMap<String, Double>();
+    public void fished(JobsPlayer jPlayer, ItemStack items, double multiplier) {
         List<JobProgression> progression = jPlayer.getJobProgression();
-        param.put("numjobs", (double) progression.size());
+        int numjobs = progression.size();
         // no job
-        if (progression.size() == 0) {
+        if (numjobs == 0) {
             Job jobNone = plugin.getJobConfig().getJob("None");
-            if(jobNone != null) {
-                param.put("joblevel", 1.0);
-                Double income = jobNone.getFishIncome(item, param);
-                if(income != null) {
-                    // give income
+            if (jobNone != null) {
+                Double income = jobNone.getFishIncome(items, 1, numjobs);
+                if (income != null)
                     plugin.getEconomy().pay(jPlayer, income*multiplier);
-                }
-                param.remove("joblevel");
             }
         } else {
             for (JobProgression prog : progression) {
-                // add the current level to the parameter list
-                param.put("joblevel", (double) prog.getLevel());
-                // get the income and give it
-                Double income = prog.getJob().getFishIncome(item, param);
-                if(income != null) {
-                    Double exp = prog.getJob().getFishExp(item, param);
+                int level = prog.getLevel();
+                Double income = prog.getJob().getFishIncome(items, level, numjobs);
+                if (income != null) {
+                    Double exp = prog.getJob().getFishExp(items, level, numjobs);
                     // give income
                     plugin.getEconomy().pay(jPlayer, income*multiplier);
                     if (prog.addExperience(exp*multiplier))
                         plugin.getPlayerManager().performLevelUp(jPlayer, prog.getJob());
                 }
-                param.remove("joblevel");
             }
         }
     }
@@ -199,36 +163,27 @@ public class JobManager {
      * @param multipler - the payment/xp multiplier
      */
     public void crafted(JobsPlayer jPlayer, ItemStack items, double multiplier) {
-        HashMap<String, Double> param = new HashMap<String, Double>();
         List<JobProgression> progression = jPlayer.getJobProgression();
-        // add the number of jobs to the parameter list
-        param.put("numjobs", (double) progression.size());
+        int numjobs = progression.size();
         // no job
-        if (progression.size() == 0) {
+        if (numjobs == 0) {
             Job jobNone = plugin.getJobConfig().getJob("None");
-            if(jobNone != null) {
-                param.put("joblevel", 1.0);
-                Double income = jobNone.getCraftIncome(items, param);
-                if(income != null) {
-                    // give income
+            if (jobNone != null) {
+                Double income = jobNone.getCraftIncome(items, 1, numjobs);
+                if (income != null)
                     plugin.getEconomy().pay(jPlayer, income*multiplier);
-                }
-                param.remove("joblevel");
             }
         } else {
             for (JobProgression prog : progression) {
-                // add the current level to the parameter list
-                param.put("joblevel", (double) prog.getLevel());
-                // get the income and give it
-                Double income = prog.getJob().getCraftIncome(items, param);
-                if(income != null) {
-                    Double exp = prog.getJob().getCraftExp(items, param);
+                int level = prog.getLevel();
+                Double income = prog.getJob().getCraftIncome(items, level, numjobs);
+                if (income != null) {
+                    Double exp = prog.getJob().getCraftExp(items, level, numjobs);
                     // give income
                     plugin.getEconomy().pay(jPlayer, income*multiplier);
                     if (prog.addExperience(exp*multiplier))
                         plugin.getPlayerManager().performLevelUp(jPlayer, prog.getJob());
                 }
-                param.remove("joblevel");
             }
         }
     }
@@ -242,36 +197,27 @@ public class JobManager {
      * @param multipler - the payment/xp multiplier
      */
     public void smelted(JobsPlayer jPlayer, ItemStack items, double multiplier) {
-        HashMap<String, Double> param = new HashMap<String, Double>();
         List<JobProgression> progression = jPlayer.getJobProgression();
-        // add the number of jobs to the parameter list
-        param.put("numjobs", (double) progression.size());
+        int numjobs = progression.size();
         // no job
-        if (progression.size() == 0) {
+        if (numjobs == 0) {
             Job jobNone = plugin.getJobConfig().getJob("None");
             if(jobNone != null) {
-                param.put("joblevel", 1.0);
-                Double income = jobNone.getCraftIncome(items, param);
-                if(income != null) {
-                    // give income
+                Double income = jobNone.getCraftIncome(items, 1, numjobs);
+                if (income != null)
                     plugin.getEconomy().pay(jPlayer, income*multiplier);
-                }
-                param.remove("joblevel");
             }
         } else {
             for (JobProgression prog : progression) {
-                // add the current level to the parameter list
-                param.put("joblevel", (double) prog.getLevel());
-                // get the income and give it
-                Double income = prog.getJob().getSmeltIncome(items, param);
-                if(income != null) {
-                    Double exp = prog.getJob().getSmeltExp(items, param);
+                int level = prog.getLevel();
+                Double income = prog.getJob().getSmeltIncome(items, level, numjobs);
+                if (income != null) {
+                    Double exp = prog.getJob().getSmeltExp(items, level, numjobs);
                     // give income
                     plugin.getEconomy().pay(jPlayer, income*multiplier);
                     if (prog.addExperience(exp*multiplier))
                         plugin.getPlayerManager().performLevelUp(jPlayer, prog.getJob());
                 }
-                param.remove("joblevel");
             }
         }
     }

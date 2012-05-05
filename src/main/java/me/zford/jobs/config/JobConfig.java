@@ -24,23 +24,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.WeakHashMap;
 
 import me.zford.jobs.Jobs;
 import me.zford.jobs.config.container.DisplayMethod;
 import me.zford.jobs.config.container.Job;
+import me.zford.jobs.config.container.JobInfo;
 import me.zford.jobs.config.container.JobPermission;
-import me.zford.jobs.config.container.JobsLivingEntityInfo;
-import me.zford.jobs.config.container.JobsMaterialInfo;
 import me.zford.jobs.resources.jfep.Parser;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.material.MaterialData;
+import org.bukkit.entity.EntityType;
 
 public class JobConfig {
     // all of the possible jobs
@@ -181,7 +179,7 @@ public class JobConfig {
             
             // break
             ConfigurationSection breakSection = jobSection.getConfigurationSection("Break");
-            HashMap<String, JobsMaterialInfo> jobBreakInfo = new HashMap<String, JobsMaterialInfo>();
+            ArrayList<JobInfo> jobBreakInfo = new ArrayList<JobInfo>();
             if (breakSection != null) {
                 for (String breakKey : breakSection.getKeys(false)) {
                     ConfigurationSection breakItem = breakSection.getConfigurationSection(breakKey);
@@ -209,18 +207,17 @@ public class JobConfig {
                         plugin.getLogger().severe("Job " + jobKey + " has an invalid " + breakKey + " Break material type property. Skipping!");
                         continue;
                     }
-                    MaterialData materialData = new MaterialData(material);
                     
-                    Double income = breakItem.getDouble("income", 0.0);
-                    Double experience = breakItem.getDouble("experience", 0.0);
+                    double income = breakItem.getDouble("income", 0.0);
+                    double experience = breakItem.getDouble("experience", 0.0);
                     
-                    jobBreakInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
+                    jobBreakInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
                 }
             }
             
             // place
             ConfigurationSection placeSection = jobSection.getConfigurationSection("Place");
-            HashMap<String, JobsMaterialInfo> jobPlaceInfo = new HashMap<String, JobsMaterialInfo>();
+            ArrayList<JobInfo> jobPlaceInfo = new ArrayList<JobInfo>();
             if (placeSection != null) {
                 for (String placeKey : placeSection.getKeys(false)) {
                     ConfigurationSection placeItem = placeSection.getConfigurationSection(placeKey);
@@ -248,18 +245,17 @@ public class JobConfig {
                         plugin.getLogger().severe("Job " + jobKey + " has an invalid " + placeKey + " Place material type property. Skipping!");
                         continue;
                     }
-                    MaterialData materialData = new MaterialData(material);
                     
-                    Double income = placeItem.getDouble("income", 0.0);
-                    Double experience = placeItem.getDouble("experience", 0.0);
+                    double income = placeItem.getDouble("income", 0.0);
+                    double experience = placeItem.getDouble("experience", 0.0);
                     
-                    jobPlaceInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
+                    jobPlaceInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
                 }
             }
             
             // craft
             ConfigurationSection craftSection = jobSection.getConfigurationSection("Craft");
-            HashMap<String, JobsMaterialInfo> jobCraftInfo = new HashMap<String, JobsMaterialInfo>();
+            ArrayList<JobInfo> jobCraftInfo = new ArrayList<JobInfo>();
             if (craftSection != null) {
                 for (String craftKey : craftSection.getKeys(false)) {
                     ConfigurationSection craftItem = craftSection.getConfigurationSection(craftKey);
@@ -287,18 +283,17 @@ public class JobConfig {
                         plugin.getLogger().severe("Job " + jobKey + " has an invalid " + craftKey + " Craft material type property. Skipping!");
                         continue;
                     }
-                    MaterialData materialData = new MaterialData(material);
                     
-                    Double income = craftItem.getDouble("income", 0.0);
-                    Double experience = craftItem.getDouble("experience", 0.0);
-                    
-                    jobCraftInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
+                    double income = craftItem.getDouble("income", 0.0);
+                    double experience = craftItem.getDouble("experience", 0.0);
+
+                    jobCraftInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
                 }
             }
             
             // smelt
             ConfigurationSection smeltSection = jobSection.getConfigurationSection("Smelt");
-            HashMap<String, JobsMaterialInfo> jobSmeltInfo = new HashMap<String, JobsMaterialInfo>();
+            ArrayList<JobInfo> jobSmeltInfo = new ArrayList<JobInfo>();
             if (smeltSection != null) {
                 for (String smeltKey : smeltSection.getKeys(false)) {
                     ConfigurationSection smeltItem = smeltSection.getConfigurationSection(smeltKey);
@@ -326,39 +321,36 @@ public class JobConfig {
                         plugin.getLogger().severe("Job " + jobKey + " has an invalid " + smeltKey + " Smelt material type property. Skipping!");
                         continue;
                     }
-                    MaterialData materialData = new MaterialData(material);
                     
-                    Double income = smeltItem.getDouble("income", 0.0);
-                    Double experience = smeltItem.getDouble("experience", 0.0);
+                    double income = smeltItem.getDouble("income", 0.0);
+                    double experience = smeltItem.getDouble("experience", 0.0);
                     
-                    jobSmeltInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
+                    jobSmeltInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
                 }
             }
             
             // kill
             ConfigurationSection killSection = jobSection.getConfigurationSection("Kill");
-            HashMap<String, JobsLivingEntityInfo> jobKillInfo = new HashMap<String, JobsLivingEntityInfo>();
+            ArrayList<JobInfo> jobKillInfo = new ArrayList<JobInfo>();
             if (killSection != null) {
                 for (String killKey : killSection.getKeys(false)) {
                     ConfigurationSection killItem = killSection.getConfigurationSection(killKey);
-                    Class<?> victim;
-                    try {
-                        victim = Class.forName("org.bukkit.craftbukkit.entity.Craft"+killKey);
-                    } catch (ClassNotFoundException e) {
+                    EntityType type = EntityType.fromName(killKey.toUpperCase());
+                    if (type == null) {
                         plugin.getLogger().severe("Job " + jobKey + " has an invalid " + killKey + " Kill entity type property. Skipping!");
                         continue;
                     }
                     
-                    Double income = killItem.getDouble("income", 0.0);
-                    Double experience = killItem.getDouble("experience", 0.0);
+                    double income = killItem.getDouble("income", 0.0);
+                    double experience = killItem.getDouble("experience", 0.0);
                     
-                    jobKillInfo.put(("org.bukkit.craftbukkit.entity.Craft"+killKey).trim(), new JobsLivingEntityInfo(victim, experience, income));
+                    jobKillInfo.add(new JobInfo(type.toString(), income, incomeEquation, experience, expEquation));
                 }
             }
             
             // fish
             ConfigurationSection fishSection = jobSection.getConfigurationSection("Fish");
-            HashMap<String, JobsMaterialInfo> jobFishInfo = new HashMap<String, JobsMaterialInfo>();
+            ArrayList<JobInfo> jobFishInfo = new ArrayList<JobInfo>();
             if (fishSection != null) {
                 for (String fishKey : fishSection.getKeys(false)) {
                     ConfigurationSection fishItem = fishSection.getConfigurationSection(fishKey);
@@ -386,31 +378,11 @@ public class JobConfig {
                         plugin.getLogger().severe("Job " + jobKey + " has an invalid " + fishKey + " Fish material type property. Skipping!");
                         continue;
                     }
-                    MaterialData materialData = new MaterialData(material);
                     
-                    Double income = fishItem.getDouble("income", 0.0);
-                    Double experience = fishItem.getDouble("experience", 0.0);
+                    double income = fishItem.getDouble("income", 0.0);
+                    double experience = fishItem.getDouble("experience", 0.0);
                     
-                    jobFishInfo.put(material.toString()+subType, new JobsMaterialInfo(materialData, experience, income));
-                }
-            }
-            
-            // custom-kill
-            ConfigurationSection customKillSection = jobSection.getConfigurationSection("custom-kill");
-            if (customKillSection != null) {
-                for (String customKillKey : customKillSection.getKeys(false)) {
-                    ConfigurationSection customKillItem = customKillSection.getConfigurationSection(customKillKey);
-                    String entityType = customKillKey.toString();
-                    
-                    Double income = customKillItem.getDouble("income", 0.0);
-                    Double experience = customKillItem.getDouble("experience", 0.0);
-                    
-                    try {
-                        jobKillInfo.put(("org.bukkit.craftbukkit.entity.CraftPlayer:"+entityType).trim(), new JobsLivingEntityInfo(Class.forName("org.bukkit.craftbukkit.entity.CraftPlayer"), experience, income));
-                    } catch (ClassNotFoundException e) {
-                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + customKillKey + " custom-kill entity type property. Skipping!");
-                        continue;
-                    }
+                    jobKillInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
                 }
             }
             

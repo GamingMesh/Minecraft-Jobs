@@ -25,7 +25,6 @@ import java.util.Set;
 import java.util.WeakHashMap;
 
 import me.zford.jobs.Jobs;
-import me.zford.jobs.config.container.JobProgression;
 import me.zford.jobs.config.container.JobsPlayer;
 
 import org.bukkit.GameMode;
@@ -135,7 +134,8 @@ public class JobsPaymentListener implements Listener {
         
         if (event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-            plugin.getJobsManager().fished(jPlayer, (Item) event.getCaught(), multiplier);
+            ItemStack items = ((Item) event.getCaught()).getItemStack();
+            plugin.getJobsManager().fished(jPlayer, items, multiplier);
         }
     }
 
@@ -268,16 +268,7 @@ public class JobsPaymentListener implements Listener {
                 double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(pDamager);
                 // pay
                 JobsPlayer jDamager = plugin.getPlayerManager().getJobsPlayer(pDamager.getName());
-                plugin.getJobsManager().killed(jDamager, lVictim.getClass().toString().replace("class ", "").trim(), multiplier);
-                // pay for jobs
-                if(lVictim instanceof Player){
-                    JobsPlayer jVictim = plugin.getPlayerManager().getJobsPlayer(((Player)lVictim).getName());
-                    if (jVictim!=null) {
-                        for (JobProgression prog : jVictim.getJobProgression()) {
-                            plugin.getJobsManager().killed(jDamager, (lVictim.getClass().toString().replace("class ", "")+":"+prog.getJob().getName()).trim(), multiplier);
-                        }
-                    }
-                }
+                plugin.getJobsManager().killed(jDamager, lVictim.getType(), multiplier);
             }
         }
     }
