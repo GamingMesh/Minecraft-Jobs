@@ -1,5 +1,6 @@
 package me.zford.jobs.economy;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -8,13 +9,15 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import me.zford.jobs.Jobs;
+import me.zford.jobs.config.container.BufferedPayment;
 import me.zford.jobs.config.container.JobsPlayer;
+import me.zford.jobs.tasks.BufferedPaymentTask;
 
-public class BufferedPayment {
+public class BufferedEconomy {
     
     private HashMap<String, Double> payments = new HashMap<String, Double>();
     private Jobs plugin;
-    public BufferedPayment(Jobs plugin) {
+    public BufferedEconomy(Jobs plugin) {
         this.plugin = plugin;
     }
 
@@ -43,11 +46,16 @@ public class BufferedPayment {
         if (provider != null) {
             Economy economy = provider.getProvider();
             if (economy.isEnabled()) {
+                int batchSize = plugin.getJobsConfiguration().getEconomyBatchSize();
+                ArrayList<BufferedPayment> buffered = new ArrayList<BufferedPayment>(batchSize);
                 for (Map.Entry<String, Double> entry : payments.entrySet()) {
-                    String playername = entry.getKey();
-                    double total = entry.getValue();
-                    economy.depositPlayer(playername, total);
+                    if (buffered.size() >= batchSize) {
+                        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BufferedPaymentTask(economy, buffered));
+                        buffered = new ArrayList<BufferedPayment>(batchSize);
+                    }
+                    buffered.add(new BufferedPayment(entry.getKey(), entry.getValue()));
                 }
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BufferedPaymentTask(economy, buffered));
             }
         }
         payments.clear();

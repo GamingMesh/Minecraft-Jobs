@@ -146,6 +146,9 @@ public class JobsConfiguration {
         writer.addComment("modify-chat", "Modifys chat to add chat titles.  If you're using a chat manager, you may add the tag {jobs} to your chat format and disable this.");
         config.addDefault("modify-chat", true);
         
+        writer.addComment("economy-batch-size", "Changes how how many players are paid per payment batch.  Setting this too low or too high may cause tick lag.");
+        config.addDefault("economy-batch-size", 10);
+        
         try {
             config.load(f);
         } catch (FileNotFoundException e) {
@@ -217,6 +220,7 @@ public class JobsConfiguration {
         copySetting(config, writer, "enable-pay-near-spawner");
         copySetting(config, writer, "enable-pay-creative");
         copySetting(config, writer, "modify-chat");
+        copySetting(config, writer, "economy-batch-size");
         
         // Write back config
         try {
@@ -568,5 +572,9 @@ public class JobsConfiguration {
     
     public boolean getModifyChat() {
         return config.getBoolean("modify-chat");
+    }
+    
+    public int getEconomyBatchSize() {
+        return config.getInt("economy-batch-size");
     }
 }

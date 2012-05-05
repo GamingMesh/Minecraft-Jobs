@@ -24,10 +24,10 @@ import me.zford.jobs.config.JobsConfiguration;
 import me.zford.jobs.config.MessageConfig;
 import me.zford.jobs.config.container.Job;
 import me.zford.jobs.config.container.JobsPlayer;
-import me.zford.jobs.economy.BufferedPayment;
+import me.zford.jobs.economy.BufferedEconomy;
 import me.zford.jobs.listener.JobsListener;
 import me.zford.jobs.listener.JobsPaymentListener;
-import me.zford.jobs.tasks.BufferedPaymentTask;
+import me.zford.jobs.tasks.BufferedPaymentRepeatableTask;
 import me.zford.jobs.tasks.DatabaseSaveTask;
 
 import org.bukkit.World;
@@ -45,7 +45,7 @@ public class Jobs extends JavaPlugin {
     private JobConfig jobConfig = new JobConfig(this);
     private PlayerManager pManager = new PlayerManager(this);
     private JobManager jManager = new JobManager(this);
-    private BufferedPayment economy;
+    private BufferedEconomy economy;
 
     /**
      * Method called when you disable the plugin
@@ -97,7 +97,7 @@ public class Jobs extends JavaPlugin {
         }
         
         // schedule payouts to buffered payments
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, new BufferedPaymentTask(economy), 100, 100);
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, new BufferedPaymentRepeatableTask(economy), 100, 100);
         
         // register the listeners
         getServer().getPluginManager().registerEvents(new JobsListener(this), this);
@@ -123,7 +123,7 @@ public class Jobs extends JavaPlugin {
         if (test == null)
             return false;
         
-        economy = new BufferedPayment(this);
+        economy = new BufferedEconomy(this);
         
         getLogger().info("["+getDescription().getName()+"] Successfully linked with Vault.");
         return true;
@@ -132,7 +132,7 @@ public class Jobs extends JavaPlugin {
      * Retrieves the economy hook
      * @return - buffered payment hook
      */
-    public BufferedPayment getEconomy() {
+    public BufferedEconomy getEconomy() {
         return economy;
     }
     
