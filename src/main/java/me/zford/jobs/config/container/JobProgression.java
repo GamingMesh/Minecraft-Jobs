@@ -21,43 +21,21 @@ package me.zford.jobs.config.container;
 
 import java.util.HashMap;
 
-import me.zford.jobs.Jobs;
-
-
-
-/**
- * Container class for job progression.
- * 
- * Holds the experience, maxExperience and level.
- * @author Alex
- *
- */
 public class JobProgression {
     private Job job;
+    private JobsPlayer jPlayer;
     private Title title;
     private double experience;
-    private int maxExperience;
     private int level;
-    private Jobs plugin;
+    private transient int maxExperience;
     
-    public JobProgression(Jobs plugin, Job job, double experience, int level, JobsPlayer info){
-        this.plugin = plugin;
+    public JobProgression(Job job, JobsPlayer jPlayer, int level, double experience, Title title) {
         this.job = job;
+        this.jPlayer = jPlayer;
         this.experience = experience;
         this.level = level;
-        HashMap<String, Double> param = new HashMap<String, Double>();
-        param.put("joblevel", (double) level);
-        param.put("numjobs", (double) info.getJobProgression().size());
-        maxExperience = (int)job.getMaxExp(param);
-        title = this.plugin.getJobsConfiguration().getTitleForLevel(level);
-    }
-    
-    /**
-     * Add experience (does not cause a level up event
-     * @param exp - experience to be added
-     */
-    public void addExp(double exp){
-        experience += exp;
+        this.title = title;
+        reloadMaxExperienceAndCheckLevelUp();
     }
     
     /**
@@ -65,11 +43,8 @@ public class JobProgression {
      * @return true if the job can level up
      * @return false if the job cannot
      */
-    public boolean canLevelUp(){
-        if (experience >= maxExperience){
-            return true;
-        }
-        return false;
+    public boolean canLevelUp() {
+        return experience >= maxExperience;
     }
     
     /**
@@ -86,6 +61,7 @@ public class JobProgression {
      */
     public void setJob(Job job) {
         this.job = job;
+        reloadMaxExperienceAndCheckLevelUp();
     }
 
     /**
@@ -97,11 +73,13 @@ public class JobProgression {
     }
 
     /**
-     * Set the experience for this job
+     * Adds experience for this job
      * @param experience - the experience in this job
+     * @return - job level up
      */
-    public void setExperience(double experience) {
-        this.experience = experience;
+    public boolean addExperience(double experience) {
+        this.experience += experience;
+        return checkLevelUp();
     }
 
     /**
@@ -110,14 +88,6 @@ public class JobProgression {
      */
     public int getMaxExperience() {
         return maxExperience;
-    }
-
-    /**
-     * Set the experience needed to level up (Does not trigger levelup events)
-     * @param maxExperience - the new experience needed to level up
-     */
-    public void setMaxExperience(int maxExperience) {
-        this.maxExperience = maxExperience;
     }
 
     /**
@@ -134,6 +104,7 @@ public class JobProgression {
      */
     public void setLevel(int level) {
         this.level = level;
+        reloadMaxExperienceAndCheckLevelUp();
     }
 
     /**
@@ -150,5 +121,47 @@ public class JobProgression {
      */
     public Title getTitle() {
         return title;
+    }
+    
+    /**
+     * Reloads max experience
+     */
+    private void reloadMaxExperience() {
+        HashMap<String, Double> param = new HashMap<String, Double>();
+        param.put("joblevel", (double) level);
+        param.put("numjobs", (double) jPlayer.getJobProgression().size());
+        this.maxExperience = (int) job.getMaxExp(param);
+    }
+    
+    /**
+     * Performs a level up
+     * @returns if level up was performed
+     */
+    private boolean checkLevelUp() {
+        boolean ret = false;
+        while (canLevelUp()) {
+            // Don't level up at max level
+            if (job.getMaxLevel() > 0 && level >= job.getMaxLevel())
+                break;
+            level++;
+            experience -= maxExperience;
+            ret = true;
+            reloadMaxExperience();
+        }
+        // At max level
+        if (experience > maxExperience)
+            experience = maxExperience;
+        return ret;
+    }
+    
+    /**
+     * Reloads max experience and checks for level up
+     * Do this whenever job or level changes
+     * @return if leveled up
+     */
+    
+    private boolean reloadMaxExperienceAndCheckLevelUp() {
+        reloadMaxExperience();
+        return checkLevelUp();
     }
 }

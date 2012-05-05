@@ -108,10 +108,9 @@ public class JobConfig {
                 continue;
             }
             
-            Integer maxLevel = jobSection.getInt("max-level", 0);
-            if (maxLevel.intValue() <= 0) {
-                maxLevel = null;
-            }
+            int maxLevel = jobSection.getInt("max-level", 0);
+            if (maxLevel < 0)
+                maxLevel = 0;
 
             Integer maxSlots = jobSection.getInt("slots", 0);
             if (maxSlots.intValue() <= 0) {

@@ -153,7 +153,7 @@ public class JobsCommands implements CommandExecutor {
                 if (job.isHidden())
                     continue;
                 
-                if (job.getMaxLevel() != null) {
+                if (job.getMaxLevel() > 0) {
                     jobs.add(job.getChatColour() + job.getName() + ChatColor.WHITE + " - max lvl: " + job.getMaxLevel());
                 } else {
                     jobs.add(job.getChatColour() + job.getName());

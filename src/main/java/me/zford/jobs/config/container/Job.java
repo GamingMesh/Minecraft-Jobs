@@ -61,7 +61,7 @@ public class Job {
     // display method
     private DisplayMethod displayMethod;
     // max level
-    private Integer maxLevel;
+    private int maxLevel;
     // max number of people allowed with this job on the server.
     private Integer maxSlots;
     // is hidden job
@@ -98,7 +98,7 @@ public class Job {
             Parser incomeEquation,
             Parser expEquation,
             DisplayMethod displayMethod,
-            Integer maxLevel,
+            int maxLevel,
             Integer maxSlots,
             boolean isHidden) {
         this.jobBreakInfo = jobBreakInfo;
@@ -464,7 +464,7 @@ public class Job {
      * @return the max level
      * @return null - no max level
      */
-    public Integer getMaxLevel(){
+    public int getMaxLevel() {
         return maxLevel;
     }
     

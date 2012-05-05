@@ -54,8 +54,8 @@ public class JobManager {
                     Double exp = prog.getJob().getBreakExp(block, param);
                     // give income
                     plugin.getEconomy().pay(player, income*multiplier);
-                    prog.addExp(exp*multiplier);
-                    player.checkLevels();
+                    if (prog.addExperience(exp*multiplier))
+                        player.performLevelUp(prog);
                 }
                 param.remove("joblevel");
             }
@@ -97,8 +97,8 @@ public class JobManager {
                     Double exp = prog.getJob().getPlaceExp(block, param);
                     // give income
                     plugin.getEconomy().pay(player, income*multiplier);
-                    prog.addExp(exp*multiplier);
-                    player.checkLevels();
+                    if (prog.addExperience(exp*multiplier))
+                        player.performLevelUp(prog);
                 }
                 param.remove("joblevel");
             }
@@ -140,8 +140,8 @@ public class JobManager {
                     Double exp = prog.getJob().getKillExp(victim, param);
                     // give income
                     plugin.getEconomy().pay(player, income*multiplier);
-                    prog.addExp(exp*multiplier);
-                    player.checkLevels();    
+                    if (prog.addExperience(exp*multiplier))
+                        player.performLevelUp(prog);
                 }
                 param.remove("joblevel");
             }
@@ -182,8 +182,8 @@ public class JobManager {
                     Double exp = prog.getJob().getFishExp(item, param);
                     // give income
                     plugin.getEconomy().pay(player, income*multiplier);
-                    prog.addExp(exp*multiplier);
-                    player.checkLevels();
+                    if (prog.addExperience(exp*multiplier))
+                        player.performLevelUp(prog);
                 }
                 param.remove("joblevel");
             }
@@ -225,8 +225,8 @@ public class JobManager {
                     Double exp = prog.getJob().getCraftExp(items, param);
                     // give income
                     plugin.getEconomy().pay(player, income*multiplier);
-                    prog.addExp(exp*multiplier);
-                    player.checkLevels();
+                    if (prog.addExperience(exp*multiplier))
+                        player.performLevelUp(prog);
                 }
                 param.remove("joblevel");
             }
@@ -268,8 +268,8 @@ public class JobManager {
                     Double exp = prog.getJob().getSmeltExp(items, param);
                     // give income
                     plugin.getEconomy().pay(player, income*multiplier);
-                    prog.addExp(exp*multiplier);
-                    player.checkLevels();
+                    if (prog.addExperience(exp*multiplier))
+                        player.performLevelUp(prog);
                 }
                 param.remove("joblevel");
             }
