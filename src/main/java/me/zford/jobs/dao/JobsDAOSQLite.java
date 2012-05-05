@@ -4,10 +4,10 @@ import java.io.File;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import me.zford.jobs.Jobs;
+import me.zford.jobs.bukkit.JobsPlugin;
 
 public class JobsDAOSQLite extends JobsDAO {
-    public JobsDAOSQLite(Jobs plugin) {
+    public JobsDAOSQLite(JobsPlugin plugin) {
         super(plugin, "org.sqlite.JDBC", "jdbc:sqlite:"+new File(plugin.getDataFolder(), "jobs.sqlite.db").getPath(), null, null, "");
         setUp();
     }

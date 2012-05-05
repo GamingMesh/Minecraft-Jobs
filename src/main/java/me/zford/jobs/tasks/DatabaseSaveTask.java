@@ -1,6 +1,6 @@
 package me.zford.jobs.tasks;
 
-import me.zford.jobs.PlayerManager;
+import me.zford.jobs.bukkit.PlayerManager;
 
 public class DatabaseSaveTask implements Runnable {
     

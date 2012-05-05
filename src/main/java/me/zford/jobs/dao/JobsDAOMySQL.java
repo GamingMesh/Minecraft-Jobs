@@ -22,11 +22,11 @@ package me.zford.jobs.dao;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import me.zford.jobs.Jobs;
+import me.zford.jobs.bukkit.JobsPlugin;
 
 public class JobsDAOMySQL extends JobsDAO {
     
-    public JobsDAOMySQL(Jobs plugin, String url, String username, String password, String prefix) {
+    public JobsDAOMySQL(JobsPlugin plugin, String url, String username, String password, String prefix) {
         super(plugin, "com.mysql.jdbc.Driver", url, username, password, prefix);
         setUp();
     }

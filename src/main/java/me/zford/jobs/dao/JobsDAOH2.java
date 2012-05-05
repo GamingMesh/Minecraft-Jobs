@@ -23,10 +23,10 @@ import java.io.File;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import me.zford.jobs.Jobs;
+import me.zford.jobs.bukkit.JobsPlugin;
 
 public class JobsDAOH2 extends JobsDAO {
-    public JobsDAOH2(Jobs plugin) {
+    public JobsDAOH2(JobsPlugin plugin) {
         super(plugin, "org.h2.Driver", "jdbc:h2:"+new File(plugin.getDataFolder(), "jobs").getPath(), "sa", "sa", "");
         setUp();
     }

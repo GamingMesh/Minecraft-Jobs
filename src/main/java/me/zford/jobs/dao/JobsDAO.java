@@ -25,11 +25,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.zford.jobs.Jobs;
-import me.zford.jobs.config.container.Job;
-import me.zford.jobs.config.container.JobProgression;
-import me.zford.jobs.config.container.JobsPlayer;
-import me.zford.jobs.dao.container.JobsDAOData;
+import me.zford.jobs.bukkit.JobsPlugin;
+import me.zford.jobs.container.Job;
+import me.zford.jobs.container.JobProgression;
+import me.zford.jobs.container.JobsPlayer;
 
 
 /**
@@ -42,10 +41,10 @@ import me.zford.jobs.dao.container.JobsDAOData;
 public abstract class JobsDAO {
     
     private JobsConnectionPool pool;
-    protected Jobs plugin;
+    protected JobsPlugin plugin;
     private String prefix;
     
-    public JobsDAO(Jobs plugin, String driver, String url, String username, String password, String prefix) {
+    public JobsDAO(JobsPlugin plugin, String driver, String url, String username, String password, String prefix) {
         this.plugin = plugin;
         this.prefix = prefix;
         try {
