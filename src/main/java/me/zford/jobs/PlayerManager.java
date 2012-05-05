@@ -5,7 +5,9 @@ import java.util.HashMap;
 import org.bukkit.entity.Player;
 
 import me.zford.jobs.config.container.Job;
+import me.zford.jobs.config.container.JobProgression;
 import me.zford.jobs.config.container.JobsPlayer;
+import me.zford.jobs.config.container.Title;
 import me.zford.jobs.dao.JobsDAO;
 
 public class PlayerManager {
@@ -187,7 +189,11 @@ public class PlayerManager {
      * @param experience - experience gained
      */
     public void addExperience(JobsPlayer jPlayer, Job job, double experience) {
-        jPlayer.addExperience(job, experience);
+        JobProgression prog = jPlayer.getJobProgression(job);
+        if (prog == null)
+            return;
+        if (prog.addExperience(experience))
+            performLevelUp(jPlayer, job);
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if (player != null) {
             String message = plugin.getMessageConfig().getMessage("grantxp-target");
@@ -208,7 +214,10 @@ public class PlayerManager {
      * @param experience - experience gained
      */
     public void removeExperience(JobsPlayer jPlayer, Job job, double experience) {
-        jPlayer.addExperience(job, -experience);
+        JobProgression prog = jPlayer.getJobProgression(job);
+        if (prog == null)
+            return;
+        prog.addExperience(-experience);
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if (player != null) {
             String message = plugin.getMessageConfig().getMessage("removexp-target");
@@ -220,5 +229,70 @@ public class PlayerManager {
             }
         }
         plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
+    }
+    
+    
+    /**
+     * Broadcasts level up about a player
+     * @param jPlayer
+     * @param job
+     */
+    public void performLevelUp(JobsPlayer jPlayer, Job job) {
+        Player player = plugin.getServer().getPlayer(jPlayer.getName());
+        JobProgression prog = jPlayer.getJobProgression(job);
+        if (prog == null)
+            return;
+
+        String message;
+        if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
+            message = plugin.getMessageConfig().getMessage("level-up-broadcast");
+        } else {
+            message = plugin.getMessageConfig().getMessage("level-up-no-broadcast");
+        }
+        message = message.replace("%jobname%", job.getName());
+        message = message.replace("%jobcolour%", job.getChatColour().toString());
+        if (prog.getTitle() != null) {
+            message = message.replace("%titlename%", prog.getTitle().getName());
+            message = message.replace("%titlecolour%", prog.getTitle().getChatColor().toString());
+        }
+        message = message.replace("%playername%", jPlayer.getName());
+        if (player == null) {
+            message = message.replace("%playerdisplayname%", jPlayer.getName());
+        } else {
+            message = message.replace("%playerdisplayname%", player.getDisplayName());
+        }
+        message = message.replace("%joblevel%", ""+prog.getLevel());
+        for (String line: message.split("\n")) {
+            if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
+                plugin.getServer().broadcastMessage(line);
+            } else if (player != null) {
+                player.sendMessage(line);
+            }
+        }
+        
+        Title levelTitle = plugin.getJobsConfiguration().getTitleForLevel(prog.getLevel());
+        if (levelTitle != null && !levelTitle.equals(prog.getTitle())) {        
+            // user would skill up
+            if (plugin.getJobsConfiguration().isBroadcastingSkillups()) {
+                message = plugin.getMessageConfig().getMessage("skill-up-broadcast");
+            } else {
+                message = plugin.getMessageConfig().getMessage("skill-up-no-broadcast");
+            }
+            message = message.replace("%playername%", jPlayer.getName());
+            message = message.replace("%titlecolour%", levelTitle.getChatColor().toString());
+            message = message.replace("%titlename%", levelTitle.getName());
+            message = message.replace("%jobcolour%", job.getChatColour().toString());
+            message = message.replace("%jobname%", job.getName());
+            for (String line: message.split("\n")) {
+                if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
+                    plugin.getServer().broadcastMessage(line);
+                } else if (player != null) {
+                    player.sendMessage(line);
+                }
+            }
+        }
+        prog.setTitle(levelTitle);
+        jPlayer.reloadHonorific();
+        jPlayer.recalculatePermissions();
     }
 }

@@ -102,65 +102,6 @@ public class JobsPlayer {
         return playername;
     }
     
-    /**
-     * Function called to update the levels and send appropriate broadcasts
-     */
-    public void performLevelUp(JobProgression prog) {
-        Player player = plugin.getServer().getPlayer(getName());
-        Job job = prog.getJob();
-        String message;
-        if(plugin.getJobsConfiguration().isBroadcastingLevelups()) {
-            message = plugin.getMessageConfig().getMessage("level-up-broadcast");
-        } else {
-            message = plugin.getMessageConfig().getMessage("level-up-no-broadcast");
-        }
-        message = message.replace("%jobname%", job.getName());
-        message = message.replace("%jobcolour%", job.getChatColour().toString());
-        if (prog.getTitle() != null) {
-            message = message.replace("%titlename%", prog.getTitle().getName());
-            message = message.replace("%titlecolour%", prog.getTitle().getChatColor().toString());
-        }
-        message = message.replace("%playername%", getName());
-        if (player == null) {
-            message = message.replace("%playerdisplayname%", getName());
-        } else {
-            message = message.replace("%playerdisplayname%", player.getDisplayName());
-        }
-        message = message.replace("%joblevel%", ""+prog.getLevel());
-        for (String line: message.split("\n")) {
-            if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
-                plugin.getServer().broadcastMessage(line);
-            } else if (player != null) {
-                player.sendMessage(line);
-            }
-        }
-        
-        Title levelTitle = plugin.getJobsConfiguration().getTitleForLevel(prog.getLevel());
-        if (levelTitle != null && !levelTitle.equals(prog.getTitle())) {        
-            // user would skill up
-            if (plugin.getJobsConfiguration().isBroadcastingSkillups()) {
-                message = plugin.getMessageConfig().getMessage("skill-up-broadcast");
-            } else {
-                message = plugin.getMessageConfig().getMessage("skill-up-no-broadcast");
-            }
-            message = message.replace("%playername%", getName());
-            message = message.replace("%titlecolour%", levelTitle.getChatColor().toString());
-            message = message.replace("%titlename%", levelTitle.getName());
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            message = message.replace("%jobname%", job.getName());
-            for (String line: message.split("\n")) {
-                if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
-                    plugin.getServer().broadcastMessage(line);
-                } else if (player != null) {
-                    player.sendMessage(line);
-                }
-            }
-        }
-        prog.setTitle(levelTitle);
-        reloadHonorific();
-        recalculatePermissions();
-    }
-    
     public String getDisplayHonorific() {
         return honorific;
     }
@@ -248,19 +189,6 @@ public class JobsPlayer {
     }
     
     /**
-     * Sets player to a specific level
-     * @param job - the job
-     * @param experience - the experience
-     */
-    public void addExperience(Job job, double experience) {
-        JobProgression prog = getJobProgression(job);
-        if (prog == null)
-            return;
-        if (prog.addExperience(experience))
-            performLevelUp(prog);
-    }
-    
-    /**
      * Player leaves a job
      * @param oldjob - the old job
      * @param newjob - the new job
@@ -300,7 +228,7 @@ public class JobsPlayer {
     /**
      * Function that reloads your honorific
      */
-    private void reloadHonorific() {
+    public void reloadHonorific() {
         StringBuilder builder = new StringBuilder();
         int numJobs = progression.size();
         boolean gotTitle = false;
@@ -356,7 +284,7 @@ public class JobsPlayer {
     /**
      * Function to recalculate permissions
      */
-    private void recalculatePermissions() {
+    public void recalculatePermissions() {
         Player player = plugin.getServer().getPlayer(playername);
         if (player == null)
             return;
