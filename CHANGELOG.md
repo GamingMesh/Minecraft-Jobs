@@ -1,5 +1,9 @@
 # Jobs plugin change log summary
 
+## 2.8.2
+* Allow payment batching to be configurable
+* Fixed H2 dependency conflicts
+
 ## 2.8.1
 * Fixed NPE fix with smelting configuration
 
