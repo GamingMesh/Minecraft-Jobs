@@ -1,5 +1,8 @@
 # Jobs plugin change log summary
 
+## 2.8.3
+* Fixed leaving jobs without having to logout
+
 ## 2.8.2
 * Allow payment batching to be configurable
 * Fixed H2 dependency conflicts
