@@ -57,9 +57,9 @@ public class JobsPlayer {
     public void loadDAOData(List<JobsDAOData> list) {
         progression.clear();
         for (JobsDAOData jobdata: list) {
-            if (plugin.getJobConfig().getJob(jobdata.getJobName()) != null) {
+            if (plugin.getJobsCore().getJob(jobdata.getJobName()) != null) {
                 // add the job
-                Job job = plugin.getJobConfig().getJob(jobdata.getJobName());
+                Job job = plugin.getJobsCore().getJob(jobdata.getJobName());
                 if (job != null) {
                     // create the progression object
                     JobProgression jobProgression = new JobProgression(job, this, jobdata.getLevel(), jobdata.getExperience(), plugin.getJobsConfiguration().getTitleForLevel(jobdata.getLevel()));
@@ -298,7 +298,7 @@ public class JobsPlayer {
         }
         
         if (progression.size() == 0) {
-            Job job = plugin.getJobConfig().getNoneJob();
+            Job job = plugin.getJobsCore().getNoneJob();
             if (job != null) {
                 for (JobPermission perm : job.getPermissions()) {
                     if (perm.getLevelRequirement() <= 0) {

@@ -52,7 +52,7 @@ public class JobsCommands implements CommandExecutor {
             // join
             if (args.length >= 2 && args[0].equalsIgnoreCase("join")) {
                 String jobName = args[1].trim();
-                Job job = plugin.getJobConfig().getJob(jobName);
+                Job job = plugin.getJobsCore().getJob(jobName);
                 if (job == null) {
                     // job does not exist
                     sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
@@ -74,7 +74,7 @@ public class JobsCommands implements CommandExecutor {
                     return true;
                 }
                 
-                if (job.getMaxSlots() != null && plugin.getJobConfig().getUsedSlots(job) >= job.getMaxSlots()) {
+                if (job.getMaxSlots() != null && plugin.getJobsCore().getUsedSlots(job) >= job.getMaxSlots()) {
                     String message = plugin.getMessageConfig().getMessage("join-job-failed-no-slots");
                     message = message.replace("%jobcolour%", job.getChatColour().toString());
                     message = message.replace("%jobname%", job.getName());
@@ -94,7 +94,7 @@ public class JobsCommands implements CommandExecutor {
             // leave
             else if (args.length >= 2 && args[0].equalsIgnoreCase("leave")) {
                 String jobName = args[1].trim();
-                Job job = plugin.getJobConfig().getJob(jobName);
+                Job job = plugin.getJobsCore().getJob(jobName);
                 if (job == null) {
                     sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
                     return true;
@@ -105,7 +105,7 @@ public class JobsCommands implements CommandExecutor {
             }
             // jobs info <jobname> <break, place, kill>
             else if (args.length >= 2 && args[0].equalsIgnoreCase("info")) {
-                Job job = plugin.getJobConfig().getJob(args[1]);
+                Job job = plugin.getJobsCore().getJob(args[1]);
                 String type = "";
                 if(args.length >= 3) {
                     type = args[2];
@@ -145,7 +145,7 @@ public class JobsCommands implements CommandExecutor {
         // browse
         else if (args.length >= 1 && args[0].equalsIgnoreCase("browse")) {
             ArrayList<String> jobs = new ArrayList<String>();
-            for (Job job: plugin.getJobConfig().getJobs()) {
+            for (Job job: plugin.getJobsCore().getJobs()) {
                 if (!plugin.hasJobPermission(sender, job))
                     continue;
                 
@@ -174,7 +174,7 @@ public class JobsCommands implements CommandExecutor {
                 return true;
             }
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[1]);
-            Job job = plugin.getJobConfig().getJob(args[2]);
+            Job job = plugin.getJobsCore().getJob(args[2]);
             if (job == null) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
                 return true;
@@ -216,7 +216,7 @@ public class JobsCommands implements CommandExecutor {
             }
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[1]);
             Player player = plugin.getServer().getPlayer(args[1]);
-            Job job = plugin.getJobConfig().getJob(args[2]);
+            Job job = plugin.getJobsCore().getJob(args[2]);
             if (job == null) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
                 return true;
@@ -250,7 +250,7 @@ public class JobsCommands implements CommandExecutor {
             }
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[1]);
             Player player = plugin.getServer().getPlayer(args[1]);
-            Job job = plugin.getJobConfig().getJob(args[2]);
+            Job job = plugin.getJobsCore().getJob(args[2]);
             if (job == null) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
                 return true;
@@ -284,7 +284,7 @@ public class JobsCommands implements CommandExecutor {
                 return true;
             }
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[1]);
-            Job job = plugin.getJobConfig().getJob(args[2]);
+            Job job = plugin.getJobsCore().getJob(args[2]);
             if (job == null) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
                 return true;
@@ -307,7 +307,7 @@ public class JobsCommands implements CommandExecutor {
                 return true;
             }
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[1]);
-            Job job = plugin.getJobConfig().getJob(args[2]);
+            Job job = plugin.getJobsCore().getJob(args[2]);
             if (job == null) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
                 return true;
@@ -331,7 +331,7 @@ public class JobsCommands implements CommandExecutor {
                 return true;
             }
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[1]);
-            Job job = plugin.getJobConfig().getJob(args[2]);
+            Job job = plugin.getJobsCore().getJob(args[2]);
             if (job == null) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
                 return true;
@@ -360,7 +360,7 @@ public class JobsCommands implements CommandExecutor {
                 return true;
             }
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[1]);
-            Job job = plugin.getJobConfig().getJob(args[2]);
+            Job job = plugin.getJobsCore().getJob(args[2]);
             if (job == null) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
                 return true;
@@ -389,8 +389,8 @@ public class JobsCommands implements CommandExecutor {
                 return true;
             }
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[1]);
-            Job oldjob = plugin.getJobConfig().getJob(args[2]);
-            Job newjob = plugin.getJobConfig().getJob(args[3]);
+            Job oldjob = plugin.getJobsCore().getJob(args[2]);
+            Job newjob = plugin.getJobsCore().getJob(args[3]);
             if (oldjob == null) {
                 sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
                 return true;

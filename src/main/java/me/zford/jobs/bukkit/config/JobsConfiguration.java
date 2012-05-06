@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import me.zford.jobs.bukkit.JobsPlugin;
 import me.zford.jobs.container.RestrictedArea;
 import me.zford.jobs.container.Title;
-import me.zford.jobs.dao.JobsDAO;
 import me.zford.jobs.dao.JobsDAOH2;
 import me.zford.jobs.dao.JobsDAOMySQL;
 import me.zford.jobs.dao.JobsDAOSQLite;
@@ -51,8 +50,6 @@ public class JobsConfiguration {
     private YamlConfiguration config;
     // all of the possible titles
     private List<Title> titles = new ArrayList<Title>();
-    // data access object being used.
-    private JobsDAO dao;
     
     private ArrayList<RestrictedArea> restrictedAreas = new ArrayList<RestrictedArea>();
     
@@ -170,7 +167,7 @@ public class JobsConfiguration {
             String url = config.getString("mysql-url");
             String prefix = config.getString("mysql-table-prefix");
             if (plugin.isEnabled())
-                this.dao = new JobsDAOMySQL(plugin, url, username, password, prefix);
+                plugin.getJobsCore().setDAO(new JobsDAOMySQL(plugin.getJobsCore(), url, username, password, prefix));
         } else if(storageMethod.equalsIgnoreCase("h2")) {
             File h2jar = new File(plugin.getDataFolder(), "h2.jar");
             if (!h2jar.exists()) {
@@ -192,10 +189,10 @@ public class JobsConfiguration {
                     plugin.disablePlugin();
                 }
                 if (plugin.isEnabled())
-                    this.dao = new JobsDAOH2(plugin);
+                    plugin.getJobsCore().setDAO(new JobsDAOH2(plugin.getJobsCore()));
             }
         } else if(storageMethod.equalsIgnoreCase("sqlite")) {
-            this.dao = new JobsDAOSQLite(plugin);
+            plugin.getJobsCore().setDAO(new JobsDAOSQLite(plugin.getJobsCore()));
         } else {
             plugin.getLogger().severe("Invalid storage method!  Disabling jobs!");
             plugin.disablePlugin();
@@ -468,14 +465,6 @@ public class JobsConfiguration {
      */
     public int getSavePeriod(){
         return config.getInt("save-period");
-    }
-
-    /**
-     * Get the Data Access Object for the plugin
-     * @return the DAO of the plugin
-     */
-    public JobsDAO getJobsDAO(){
-        return dao;
     }
     
     /**

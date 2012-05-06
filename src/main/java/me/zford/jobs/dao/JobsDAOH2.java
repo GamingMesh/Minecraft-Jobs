@@ -23,31 +23,27 @@ import java.io.File;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import me.zford.jobs.bukkit.JobsPlugin;
+import me.zford.jobs.Jobs;
 
 public class JobsDAOH2 extends JobsDAO {
-    public JobsDAOH2(JobsPlugin plugin) {
-        super(plugin, "org.h2.Driver", "jdbc:h2:"+new File(plugin.getDataFolder(), "jobs").getPath(), "sa", "sa", "");
+    public JobsDAOH2(Jobs core) {
+        super(core, "org.h2.Driver", "jdbc:h2:"+new File(core.getDataFolder(), "jobs").getPath(), "sa", "sa", "");
         setUp();
     }
     
     public void setUp(){
-        try{
+        try {
             JobsConnection conn = getConnection();
-            if(conn != null){
-                Statement st = conn.createStatement();
-                String table = "CREATE TABLE IF NOT EXISTS `" + getPrefix() + "jobs` (username varchar(20), experience INT, level INT, job varchar(20));";
-                st.executeUpdate(table);
-                conn.close();
+            if (conn == null) {
+                core.getPluginLogger().severe("Could not initialize database!  Could not connect to H2!");
+                return;
             }
-            else{
-                System.err.println("[Jobs] - H2 connection problem");
-                plugin.disablePlugin();
-            }
-        }
-        catch (SQLException e){
+            Statement st = conn.createStatement();
+            String table = "CREATE TABLE IF NOT EXISTS `" + getPrefix() + "jobs` (username varchar(20), experience INT, level INT, job varchar(20));";
+            st.executeUpdate(table);
+            conn.close();
+        } catch (SQLException e) {
             e.printStackTrace();
-            plugin.disablePlugin();
         }
     }
 }

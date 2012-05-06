@@ -21,6 +21,7 @@ package me.zford.jobs.bukkit;
 
 import java.util.List;
 
+import me.zford.jobs.Jobs;
 import me.zford.jobs.bukkit.config.JobConfig;
 import me.zford.jobs.bukkit.config.JobsConfiguration;
 import me.zford.jobs.bukkit.config.MessageConfig;
@@ -32,6 +33,7 @@ import me.zford.jobs.container.ActionInfo;
 import me.zford.jobs.container.Job;
 import me.zford.jobs.container.JobProgression;
 import me.zford.jobs.container.JobsPlayer;
+import me.zford.jobs.dao.JobsDAO;
 import me.zford.jobs.tasks.DatabaseSaveTask;
 
 import org.bukkit.World;
@@ -43,11 +45,12 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class JobsPlugin extends JavaPlugin {    
+public class JobsPlugin extends JavaPlugin {
+    private Jobs core;
     private MessageConfig messageConfig = new MessageConfig(this);
     private JobsConfiguration jobsConfiguration = new JobsConfiguration(this);
-    private JobConfig jobConfig = new JobConfig(this);
     private PlayerManager pManager = new PlayerManager(this);
+    private JobConfig jobConfig = new JobConfig(this);
     private BufferedEconomy economy;
 
     /**
@@ -64,8 +67,9 @@ public class JobsPlugin extends JavaPlugin {
         
         pManager.saveAll();
         
-        if (getJobsConfiguration().getJobsDAO() != null) {
-            getJobsConfiguration().getJobsDAO().closeConnections();
+        JobsDAO dao = core.getJobsDAO();
+        if (dao != null) {
+            dao.closeConnections();
         }
         
         getLogger().info("Plugin has been disabled succesfully.");
@@ -75,6 +79,7 @@ public class JobsPlugin extends JavaPlugin {
      * Method called when the plugin is enabled
      */
     public void onEnable() {
+        core = new Jobs(this);
         JobsCommands commands = new JobsCommands(this);
         this.getCommand("jobs").setExecutor(commands);
         
@@ -116,6 +121,10 @@ public class JobsPlugin extends JavaPlugin {
         
         // all loaded properly.
         getLogger().info("Plugin has been enabled succesfully.");
+    }
+    
+    public Jobs getJobsCore() {
+        return core;
     }
     
     /**
@@ -178,6 +187,7 @@ public class JobsPlugin extends JavaPlugin {
         getMessageConfig().reload();
         jobsConfiguration.reload();
         getJobConfig().reload();
+        core.reload();
     }
     
     /**
@@ -211,7 +221,7 @@ public class JobsPlugin extends JavaPlugin {
             if (pm.getPermission("jobs.world."+world.getName().toLowerCase()) == null)
                 pm.addPermission(new Permission("jobs.world."+world.getName().toLowerCase(), PermissionDefault.TRUE));
         }
-        for (Job job : getJobConfig().getJobs()) {
+        for (Job job : core.getJobs()) {
             if (pm.getPermission("jobs.join."+job.getName().toLowerCase()) == null)
                 pm.addPermission(new Permission("jobs.join."+job.getName().toLowerCase(), PermissionDefault.TRUE));
         }
@@ -230,7 +240,7 @@ public class JobsPlugin extends JavaPlugin {
         int numjobs = progression.size();
         // no job
         if (numjobs == 0) {
-            Job jobNone = getJobConfig().getNoneJob();
+            Job jobNone = core.getNoneJob();
             if (jobNone != null) {
                 Double income = jobNone.getIncome(info, 1, numjobs);
                 if (income != null)

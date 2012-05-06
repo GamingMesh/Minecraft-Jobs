@@ -22,9 +22,6 @@ package me.zford.jobs.bukkit.config;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.WeakHashMap;
 
 import me.zford.jobs.bukkit.JobsPlugin;
 import me.zford.jobs.container.ActionType;
@@ -41,14 +38,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 
 public class JobConfig {
-    // all of the possible jobs
-    private ArrayList<Job> jobs = new ArrayList<Job>();
-    // the "none" job
-    private Job noneJob = null;
-    // used slots for each job
-    private WeakHashMap<Job, Integer> usedSlots = new WeakHashMap<Job, Integer>();
-    
-    
     private JobsPlugin plugin;
     public JobConfig(JobsPlugin plugin) {
         this.plugin = plugin;
@@ -57,8 +46,6 @@ public class JobConfig {
     public void reload() {
         // job settings
         loadJobSettings();
-        // get slots
-        loadSlots();
     }
     
     /**
@@ -67,14 +54,15 @@ public class JobConfig {
      * loads from Jobs/jobConfig.yml
      */
     private void loadJobSettings(){
-        File f = new File(plugin.getDataFolder(), "jobConfig.yml");
-        this.jobs.clear();
-        this.noneJob = null;
+        File f = new File(plugin.getJobsCore().getDataFolder(), "jobConfig.yml");
+        ArrayList<Job> jobs = new ArrayList<Job>();
+        plugin.getJobsCore().setJobs(jobs);
+        plugin.getJobsCore().setNoneJob(null);
         if (!f.exists()) {
             try {
                 f.createNewFile();
             } catch (IOException e) {
-                plugin.getLogger().severe("Unable to create jobConfig.yml!  No jobs were loaded!");
+                plugin.getJobsCore().getPluginLogger().severe("Unable to create jobConfig.yml!  No jobs were loaded!");
                 return;
             }
         }
@@ -90,12 +78,12 @@ public class JobConfig {
         try {
             conf.load(f);
         } catch (Exception e) {
-            plugin.getServer().getLogger().severe("==================== Jobs ====================");
-            plugin.getServer().getLogger().severe("Unable to load jobConfig.yml!");
-            plugin.getServer().getLogger().severe("Check your config for formatting issues!");
-            plugin.getServer().getLogger().severe("No jobs were loaded!");
-            plugin.getServer().getLogger().severe("Error: "+e.getMessage());
-            plugin.getServer().getLogger().severe("==============================================");
+            plugin.getJobsCore().getServerLogger().severe("==================== Jobs ====================");
+            plugin.getJobsCore().getServerLogger().severe("Unable to load jobConfig.yml!");
+            plugin.getJobsCore().getServerLogger().severe("Check your config for formatting issues!");
+            plugin.getJobsCore().getServerLogger().severe("No jobs were loaded!");
+            plugin.getJobsCore().getServerLogger().severe("Error: "+e.getMessage());
+            plugin.getJobsCore().getServerLogger().severe("==============================================");
             return;
         }
         ConfigurationSection jobsSection = conf.getConfigurationSection("Jobs");
@@ -106,7 +94,7 @@ public class JobConfig {
             ConfigurationSection jobSection = jobsSection.getConfigurationSection(jobKey);
             String jobName = jobSection.getString("fullname");
             if (jobName == null) {
-                plugin.getLogger().severe("Job " + jobKey + " has an invalid fullname property. Skipping job!");
+                plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid fullname property. Skipping job!");
                 continue;
             }
             
@@ -121,18 +109,18 @@ public class JobConfig {
 
             String jobShortName = jobSection.getString("shortname");
             if (jobShortName == null) {
-                plugin.getLogger().severe("Job " + jobKey + " is missing the shortname property.  Skipping job!");
+                plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " is missing the shortname property.  Skipping job!");
                 continue;
             }
 
             ChatColor color = ChatColor.matchColor(jobSection.getString("ChatColour", ""));
             if (color == null) {
-                plugin.getLogger().severe("Job " + jobKey + " has an invalid ChatColour property.  Skipping job!");
+                plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid ChatColour property.  Skipping job!");
                 continue;
             }
             DisplayMethod displayMethod = DisplayMethod.matchMethod(jobSection.getString("chat-display", ""));
             if (displayMethod == null) {
-                plugin.getLogger().warning("Job " + jobKey + " has an invalid chat-display property. Defaulting to None!");
+                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid chat-display property. Defaulting to None!");
                 displayMethod = DisplayMethod.NONE;
             }
             
@@ -145,7 +133,7 @@ public class JobConfig {
                 maxExpEquation.setVariable("joblevel", 1);
                 maxExpEquation.getValue();
             } catch(Exception e) {
-                plugin.getLogger().severe("Job " + jobKey + " has an invalid leveling-progression-equation property. Skipping job!");
+                plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid leveling-progression-equation property. Skipping job!");
                 continue;
             }
             
@@ -159,7 +147,7 @@ public class JobConfig {
                 incomeEquation.setVariable("baseincome", 1);
                 incomeEquation.getValue();
             } catch(Exception e) {
-                plugin.getLogger().severe("Job " + jobKey + " has an invalid income-progression-equation property. Skipping job!");
+                plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid income-progression-equation property. Skipping job!");
                 continue;
             }
             
@@ -173,7 +161,7 @@ public class JobConfig {
                 expEquation.setVariable("baseexperience", 1);
                 expEquation.getValue();
             } catch(Exception e) {
-                plugin.getLogger().severe("Job " + jobKey + " has an invalid experience-progression-equation property. Skipping job!");
+                plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid experience-progression-equation property. Skipping job!");
                 continue;
             }
             
@@ -206,7 +194,7 @@ public class JobConfig {
                     }
                     
                     if (material == null) {
-                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + breakKey + " Break material type property. Skipping!");
+                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + breakKey + " Break material type property. Skipping!");
                         continue;
                     }
                     
@@ -244,7 +232,7 @@ public class JobConfig {
                     }
                     
                     if(material == null) {
-                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + placeKey + " Place material type property. Skipping!");
+                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + placeKey + " Place material type property. Skipping!");
                         continue;
                     }
                     
@@ -282,7 +270,7 @@ public class JobConfig {
                     }
                     
                     if(material == null) {
-                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + craftKey + " Craft material type property. Skipping!");
+                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + craftKey + " Craft material type property. Skipping!");
                         continue;
                     }
                     
@@ -320,7 +308,7 @@ public class JobConfig {
                     }
                     
                     if(material == null) {
-                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + smeltKey + " Smelt material type property. Skipping!");
+                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + smeltKey + " Smelt material type property. Skipping!");
                         continue;
                     }
                     
@@ -339,7 +327,7 @@ public class JobConfig {
                     ConfigurationSection killItem = killSection.getConfigurationSection(killKey);
                     EntityType type = EntityType.fromName(killKey.toUpperCase());
                     if (type == null) {
-                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + killKey + " Kill entity type property. Skipping!");
+                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + killKey + " Kill entity type property. Skipping!");
                         continue;
                     }
                     
@@ -377,7 +365,7 @@ public class JobConfig {
                     }
                     
                     if(material == null) {
-                        plugin.getLogger().severe("Job " + jobKey + " has an invalid " + fishKey + " Fish material type property. Skipping!");
+                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + fishKey + " Fish material type property. Skipping!");
                         continue;
                     }
                     
@@ -397,7 +385,7 @@ public class JobConfig {
                     
                     String node = permissionKey.toLowerCase();
                     if (permissionSection == null) {
-                        plugin.getLogger().severe("Job " + jobKey + " has an invalid permission key" + permissionKey + "!");
+                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid permission key" + permissionKey + "!");
                         continue;
                     }
                     boolean value = permissionSection.getBoolean("value", true);
@@ -416,9 +404,9 @@ public class JobConfig {
             job.setJobInfo(ActionType.SMELT, jobSmeltInfo);
             
             if (jobKey.equalsIgnoreCase("none")) {
-                this.noneJob = job;
+                plugin.getJobsCore().setNoneJob(job);
             } else {
-                this.jobs.add(job);
+                jobs.add(job);
             }
         }
         try {
@@ -426,65 +414,5 @@ public class JobConfig {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-    
-    /**
-     * Load the slots available
-     */
-    private void loadSlots() {
-        usedSlots.clear();
-        for (Job job: jobs) {
-            usedSlots.put(job, plugin.getJobsConfiguration().getJobsDAO().getSlotsTaken(job));
-        }
-    }
-    
-    /**
-     * Function to return the job information that matches the jobName given
-     * @param jobName - the ame of the job given
-     * @return the job that matches the name
-     */
-    public Job getJob(String jobName) {
-        for (Job job : jobs) {
-            if (job.getName().equalsIgnoreCase(jobName))
-                return job;
-        }
-        return null;
-    }
-    
-    public Job getNoneJob() {
-        return noneJob;
-    }
-    
-    /**
-     * Get all the jobs loaded in the plugin
-     * @return a collection of the jobs
-     */
-    public List<Job> getJobs() {
-        return Collections.unmodifiableList(jobs);
-    }
-    
-    /**
-     * Function to get the number of slots used on the server for this job
-     * @param job - the job
-     * @return the number of slots
-     */
-    public int getUsedSlots(Job job){
-        return usedSlots.get(job);
-    }
-    
-    /**
-     * Function to increase the number of used slots for a job
-     * @param job - the job someone is taking
-     */
-    public void takeSlot(Job job){
-        usedSlots.put(job, usedSlots.get(job)+1);
-    }
-    
-    /**
-     * Function to decrease the number of used slots for a job
-     * @param job - the job someone is leaving
-     */
-    public void leaveSlot(Job job){
-        usedSlots.put(job, usedSlots.get(job)-1);
     }
 }

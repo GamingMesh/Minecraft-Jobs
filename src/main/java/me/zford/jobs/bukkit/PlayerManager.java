@@ -23,7 +23,7 @@ public class PlayerManager {
      */
     public void addPlayer(String playername) {
         JobsPlayer jPlayer = new JobsPlayer(plugin, playername);
-        jPlayer.loadDAOData(plugin.getJobsConfiguration().getJobsDAO().getAllJobs(jPlayer));
+        jPlayer.loadDAOData(plugin.getJobsCore().getJobsDAO().getAllJobs(jPlayer));
         players.put(playername, jPlayer);
     }
     
@@ -32,7 +32,7 @@ public class PlayerManager {
      * @param playername
      */
     public void removePlayer(String playername) {
-        JobsDAO dao = plugin.getJobsConfiguration().getJobsDAO();
+        JobsDAO dao = plugin.getJobsCore().getJobsDAO();
         if (players.containsKey(playername)) {
             JobsPlayer player = players.remove(playername);
             dao.save(player);
@@ -43,7 +43,7 @@ public class PlayerManager {
      * Save all the information of all of the players in the game
      */
     public void saveAll() {
-        JobsDAO dao = plugin.getJobsConfiguration().getJobsDAO();
+        JobsDAO dao = plugin.getJobsCore().getJobsDAO();
         for (JobsPlayer player : players.values()) {
             dao.save(player);
         }
@@ -58,7 +58,7 @@ public class PlayerManager {
         JobsPlayer jPlayer = players.get(playername);
         if (jPlayer == null) {
             jPlayer = new JobsPlayer(plugin, playername);
-            jPlayer.loadDAOData(plugin.getJobsConfiguration().getJobsDAO().getAllJobs(jPlayer));
+            jPlayer.loadDAOData(plugin.getJobsCore().getJobsDAO().getAllJobs(jPlayer));
         }
         return jPlayer;
     }
@@ -76,8 +76,8 @@ public class PlayerManager {
         if (!jPlayer.joinJob(job))
             return;
         
-        plugin.getJobsConfiguration().getJobsDAO().joinJob(jPlayer, job);
-        plugin.getJobConfig().takeSlot(job);
+        plugin.getJobsCore().getJobsDAO().joinJob(jPlayer, job);
+        plugin.getJobsCore().takeSlot(job);
         if (player != null) {
             String message = plugin.getMessageConfig().getMessage("join-job-success");
             message = message.replace("%jobcolour%", job.getChatColour().toString());
@@ -101,8 +101,8 @@ public class PlayerManager {
         if (!jPlayer.leaveJob(job))
             return;
         
-        plugin.getJobsConfiguration().getJobsDAO().quitJob(jPlayer, job);
-        plugin.getJobConfig().leaveSlot(job);
+        plugin.getJobsCore().getJobsDAO().quitJob(jPlayer, job);
+        plugin.getJobsCore().leaveSlot(job);
         if(player != null) {
             String message = plugin.getMessageConfig().getMessage("leave-job-success");
             message = message.replace("%jobcolour%", job.getChatColour().toString());
@@ -123,7 +123,7 @@ public class PlayerManager {
         if (!jPlayer.transferJob(oldjob,  newjob))
             return;
         
-        JobsDAO dao = plugin.getJobsConfiguration().getJobsDAO();
+        JobsDAO dao = plugin.getJobsCore().getJobsDAO();
         dao.quitJob(jPlayer, oldjob);
         dao.joinJob(jPlayer, newjob);
         dao.save(jPlayer);
@@ -158,7 +158,7 @@ public class PlayerManager {
                 player.sendMessage(line);
             }
         }
-        plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
+        plugin.getJobsCore().getJobsDAO().save(jPlayer);
     }
     
     /**
@@ -179,7 +179,7 @@ public class PlayerManager {
                 player.sendMessage(line);
             }
         }
-        plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
+        plugin.getJobsCore().getJobsDAO().save(jPlayer);
     }
     
     /**
@@ -204,7 +204,7 @@ public class PlayerManager {
                 player.sendMessage(line);
             }
         }
-        plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
+        plugin.getJobsCore().getJobsDAO().save(jPlayer);
     }
     
     /**
@@ -228,7 +228,7 @@ public class PlayerManager {
                 player.sendMessage(line);
             }
         }
-        plugin.getJobsConfiguration().getJobsDAO().save(jPlayer);
+        plugin.getJobsCore().getJobsDAO().save(jPlayer);
     }
     
     

@@ -25,7 +25,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.zford.jobs.bukkit.JobsPlugin;
+import me.zford.jobs.Jobs;
 import me.zford.jobs.container.Job;
 import me.zford.jobs.container.JobProgression;
 import me.zford.jobs.container.JobsPlayer;
@@ -41,18 +41,16 @@ import me.zford.jobs.container.JobsPlayer;
 public abstract class JobsDAO {
     
     private JobsConnectionPool pool;
-    protected JobsPlugin plugin;
+    protected Jobs core;
     private String prefix;
     
-    public JobsDAO(JobsPlugin plugin, String driver, String url, String username, String password, String prefix) {
-        this.plugin = plugin;
+    public JobsDAO(Jobs core, String driver, String url, String username, String password, String prefix) {
+        this.core = core;
         this.prefix = prefix;
         try {
             pool = new JobsConnectionPool(driver, url, username, password);
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("[Jobs] - database connection error. Disabling jobs!");
-            this.plugin.disablePlugin();
         }
     }
     
@@ -196,7 +194,7 @@ public abstract class JobsDAO {
         try {
             return pool.getConnection();
         } catch (SQLException e) {
-            plugin.getLogger().severe("Unable to connect to the database: "+e.getMessage());
+            core.getPluginLogger().severe("Unable to connect to the database: "+e.getMessage());
             return null;
         }
     }

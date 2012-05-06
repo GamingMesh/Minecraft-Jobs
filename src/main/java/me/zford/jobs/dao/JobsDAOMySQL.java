@@ -22,32 +22,28 @@ package me.zford.jobs.dao;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import me.zford.jobs.bukkit.JobsPlugin;
+import me.zford.jobs.Jobs;
 
 public class JobsDAOMySQL extends JobsDAO {
     
-    public JobsDAOMySQL(JobsPlugin plugin, String url, String username, String password, String prefix) {
-        super(plugin, "com.mysql.jdbc.Driver", url, username, password, prefix);
+    public JobsDAOMySQL(Jobs core, String url, String username, String password, String prefix) {
+        super(core, "com.mysql.jdbc.Driver", url, username, password, prefix);
         setUp();
     }
     
     public void setUp(){
-        try{
+        try {
             JobsConnection conn = getConnection();
-            if(conn != null){
-                Statement st = conn.createStatement();
-                String table = "CREATE TABLE IF NOT EXISTS `" + getPrefix() + "jobs` (username varchar(20), experience integer, level integer, job varchar(20));";
-                st.executeUpdate(table);
-                conn.close();
+            if (conn == null) {
+                core.getPluginLogger().severe("Could not initialize database!  Could not connect to MySQL!");
+                return;
             }
-            else{
-                System.err.println("[Jobs] - MySQL connection problem");
-                plugin.disablePlugin();
-            }
-        }
-        catch (SQLException e){
+            Statement st = conn.createStatement();
+            String table = "CREATE TABLE IF NOT EXISTS `" + getPrefix() + "jobs` (username varchar(20), experience integer, level integer, job varchar(20));";
+            st.executeUpdate(table);
+            conn.close();
+        } catch (SQLException e) {
             e.printStackTrace();
-            plugin.disablePlugin();
         }
     }
 }
