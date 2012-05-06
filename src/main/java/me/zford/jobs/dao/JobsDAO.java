@@ -44,11 +44,11 @@ public abstract class JobsDAO {
     protected Jobs core;
     private String prefix;
     
-    public JobsDAO(Jobs core, String driver, String url, String username, String password, String prefix) {
+    public JobsDAO(Jobs core, String driverName, String url, String username, String password, String prefix) {
         this.core = core;
         this.prefix = prefix;
         try {
-            pool = new JobsConnectionPool(driver, url, username, password);
+            pool = new JobsConnectionPool(core, driverName, url, username, password);
         } catch (Exception e) {
             e.printStackTrace();
         }

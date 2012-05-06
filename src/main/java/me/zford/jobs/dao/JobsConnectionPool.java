@@ -20,18 +20,23 @@
 package me.zford.jobs.dao;
 
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.LinkedList;
+
+import me.zford.jobs.Jobs;
 
 public class JobsConnectionPool {
     private LinkedList<JobsConnection> pooledConnections;
     private String url;
     private String username;
     private String password;
-    public JobsConnectionPool(String driver, String url, String username, String password) throws InstantiationException, IllegalAccessException, ClassNotFoundException {
+    public JobsConnectionPool(Jobs core, String driverName, String url, String username, String password) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
         this.pooledConnections = new LinkedList<JobsConnection>();
-        Class.forName(driver);
+        Driver driver = (Driver) Class.forName(driverName, true, core.getJobsClassloader()).newInstance();
+        JobsDriver jDriver = new JobsDriver(driver);
+        DriverManager.registerDriver(jDriver);
         this.url = url;
         this.username = username;
         this.password = password;

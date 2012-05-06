@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import org.bukkit.plugin.java.JavaPlugin;
+import me.zford.jobs.Jobs;
 
 public class JobsClassLoader extends URLClassLoader {
     
-    public JobsClassLoader(JavaPlugin plugin) {
-        super(new URL[0], plugin.getClass().getClassLoader());
+    public JobsClassLoader(Jobs core) {
+        super(new URL[0], core.getClass().getClassLoader());
     }
 
     public void addFile(File f) throws IOException {

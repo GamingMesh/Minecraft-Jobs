@@ -9,11 +9,13 @@ import java.util.logging.Logger;
 import me.zford.jobs.bukkit.JobsPlugin;
 import me.zford.jobs.container.Job;
 import me.zford.jobs.dao.JobsDAO;
+import me.zford.jobs.util.JobsClassLoader;
 
 public class Jobs {
     private Logger pLogger;
     private Logger sLogger;
     private File dataFolder;
+    private JobsClassLoader classLoader = new JobsClassLoader(this);
     private JobsDAO dao = null;
     private List<Job> jobs = null;
     private Job noneJob = null;
@@ -143,5 +145,12 @@ public class Jobs {
      */
     public void leaveSlot(Job job) {
         usedSlots.put(job, usedSlots.get(job)-1);
+    }
+    
+    /**
+     * Returns the jobs classloader
+     */
+    public JobsClassLoader getJobsClassloader() {
+        return classLoader;
     }
 }

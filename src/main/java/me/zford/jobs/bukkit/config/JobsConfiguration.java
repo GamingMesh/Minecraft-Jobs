@@ -34,7 +34,6 @@ import me.zford.jobs.dao.JobsDAOH2;
 import me.zford.jobs.dao.JobsDAOMySQL;
 import me.zford.jobs.dao.JobsDAOSQLite;
 import me.zford.jobs.util.ChatColor;
-import me.zford.jobs.util.JobsClassLoader;
 import me.zford.jobs.util.FileDownloader;
 
 import org.bukkit.Bukkit;
@@ -55,11 +54,8 @@ public class JobsConfiguration {
     
     private JobsPlugin plugin;
     
-    private JobsClassLoader classLoader;
-    
     public JobsConfiguration(JobsPlugin plugin) {
         this.plugin = plugin;
-        this.classLoader = new JobsClassLoader(plugin);
     }
     
     public void reload() {
@@ -187,7 +183,7 @@ public class JobsConfiguration {
             }
             if (plugin.isEnabled()) {
                 try {
-                    classLoader.addFile(h2jar);
+                    plugin.getJobsCore().getJobsClassloader().addFile(h2jar);
                 } catch (IOException e) {
                     plugin.getLogger().severe("Could not load database library.  Disabling jobs!");
                     plugin.disablePlugin();
