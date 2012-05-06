@@ -146,6 +146,10 @@ public class JobsConfiguration {
         writer.addComment("economy-batch-size", "Changes how how many players are paid per payment batch.  Setting this too low or too high may cause tick lag.");
         config.addDefault("economy-batch-size", 10);
         
+        writer.addComment("economy-batch-delay", "Changes how often, in seconds, players are paid out.  Default is 5 seconds.",
+                "Setting this too low may cause tick lag.  Increase this to improve economy performance (at the cost of delays in payment)");
+        config.addDefault("economy-batch-delay", 5);
+        
         try {
             config.load(f);
         } catch (FileNotFoundException e) {
@@ -218,6 +222,7 @@ public class JobsConfiguration {
         copySetting(config, writer, "enable-pay-creative");
         copySetting(config, writer, "modify-chat");
         copySetting(config, writer, "economy-batch-size");
+        copySetting(config, writer, "economy-batch-delay");
         
         // Write back config
         try {
@@ -559,5 +564,9 @@ public class JobsConfiguration {
     
     public int getEconomyBatchSize() {
         return config.getInt("economy-batch-size");
+    }
+    
+    public int getEconomyBatchDelay() {
+        return config.getInt("economy-batch-delay");
     }
 }

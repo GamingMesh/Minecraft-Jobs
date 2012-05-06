@@ -44,6 +44,7 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitScheduler;
 
 public class JobsPlugin extends JavaPlugin {
     private Jobs core;
@@ -99,14 +100,6 @@ public class JobsPlugin extends JavaPlugin {
             return;
         }
         
-        // set the system to auto save
-        if (getJobsConfiguration().getSavePeriod() > 0) {
-            getServer().getScheduler().scheduleSyncRepeatingTask(this, new DatabaseSaveTask(pManager), 20*60*getJobsConfiguration().getSavePeriod(), 20*60*getJobsConfiguration().getSavePeriod());
-        }
-        
-        // schedule payouts to buffered payments
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, new BufferedPaymentRepeatableTask(economy), 100, 100);
-        
         // register the listeners
         getServer().getPluginManager().registerEvents(new JobsListener(this), this);
         getServer().getPluginManager().registerEvents(new JobsPaymentListener(this), this);
@@ -118,6 +111,8 @@ public class JobsPlugin extends JavaPlugin {
         
         // register permissions
         reRegisterPermissions();
+        
+        restartTasks();
         
         // all loaded properly.
         getLogger().info("Plugin has been enabled succesfully.");
@@ -188,6 +183,25 @@ public class JobsPlugin extends JavaPlugin {
         jobsConfiguration.reload();
         getJobConfig().reload();
         core.reload();
+        restartTasks();
+    }
+    
+    /**
+     * Restarts all tasks
+     */
+    private void restartTasks() {
+        BukkitScheduler scheduler = getServer().getScheduler();
+        scheduler.cancelTasks(this);
+        
+        // set the system to auto save
+        if (getJobsConfiguration().getSavePeriod() > 0) {
+            int saveDelay = getJobsConfiguration().getSavePeriod() * 20 * 60;
+            getServer().getScheduler().scheduleSyncRepeatingTask(this, new DatabaseSaveTask(pManager), saveDelay, saveDelay);
+        }
+        
+        // schedule payouts to buffered payments
+        int economyDelay = getJobsConfiguration().getEconomyBatchDelay() * 20;
+        getServer().getScheduler().scheduleSyncRepeatingTask(this, new BufferedPaymentRepeatableTask(economy), economyDelay, economyDelay);
     }
     
     /**
