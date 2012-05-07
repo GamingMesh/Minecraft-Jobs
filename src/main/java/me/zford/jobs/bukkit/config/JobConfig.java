@@ -327,6 +327,15 @@ public class JobConfig {
                     ConfigurationSection killItem = killSection.getConfigurationSection(killKey);
                     EntityType type = EntityType.fromName(killKey.toUpperCase());
                     if (type == null) {
+                        // Do long method
+                        for (EntityType entityType : EntityType.values()) {
+                            if (entityType.getName().equals(killKey)) {
+                                type = entityType;
+                                break;
+                            }
+                        }
+                    }
+                    if (type == null) {
                         plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + killKey + " Kill entity type property. Skipping!");
                         continue;
                     }
