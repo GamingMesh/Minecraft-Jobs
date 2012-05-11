@@ -68,13 +68,6 @@ public class JobConfig {
         }
         YamlConfiguration conf = new YamlConfiguration();
         conf.options().pathSeparator('/');
-        conf.options().header(new StringBuilder()
-            .append("Jobs configuration.").append(System.getProperty("line.separator"))
-            .append(System.getProperty("line.separator"))
-            .append("Stores information about each job.").append(System.getProperty("line.separator"))
-            .append(System.getProperty("line.separator"))
-            .append("For example configurations, visit http://dev.bukkit.org/server-mods/jobs/.").append(System.getProperty("line.separator"))
-            .toString());
         try {
             conf.load(f);
         } catch (Exception e) {
@@ -86,6 +79,13 @@ public class JobConfig {
             plugin.getJobsCore().getServerLogger().severe("==============================================");
             return;
         }
+        conf.options().header(new StringBuilder()
+            .append("Jobs configuration.").append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("Stores information about each job.").append(System.getProperty("line.separator"))
+            .append(System.getProperty("line.separator"))
+            .append("For example configurations, visit http://dev.bukkit.org/server-mods/jobs/.").append(System.getProperty("line.separator"))
+            .toString());
         ConfigurationSection jobsSection = conf.getConfigurationSection("Jobs");
         if (jobsSection == null) {
             jobsSection = conf.createSection("Jobs");
