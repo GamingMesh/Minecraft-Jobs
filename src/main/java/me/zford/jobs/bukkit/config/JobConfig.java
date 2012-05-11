@@ -329,7 +329,7 @@ public class JobConfig {
                     if (type == null) {
                         // Do long method
                         for (EntityType entityType : EntityType.values()) {
-                            if (entityType.getName().equals(killKey)) {
+                            if (killKey.equals(entityType.getName())) {
                                 type = entityType;
                                 break;
                             }
