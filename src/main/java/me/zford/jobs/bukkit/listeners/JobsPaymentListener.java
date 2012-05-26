@@ -49,6 +49,7 @@ import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType.SlotType;
@@ -66,6 +67,7 @@ public class JobsPaymentListener implements Listener {
     private JobsPlugin plugin;
     private Set<LivingEntity> mobSpawnerCreatures = Collections.newSetFromMap(new WeakHashMap<LivingEntity, Boolean>());
     private final String furnaceOwner = "jobsFurnaceOwner";
+    private final String brewingOwner = "jobsBrewingOwner";
     
     public JobsPaymentListener(JobsPlugin plugin){
         this.plugin = plugin;
@@ -236,6 +238,28 @@ public class JobsPaymentListener implements Listener {
         plugin.action(jPlayer, new ItemActionInfo(event.getResult(), ActionType.SMELT), multiplier);
     }
     
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+    public void onBrewEvent(BrewEvent event) {
+        if (!plugin.isEnabled())
+            return;
+        Block block = event.getBlock();
+        if (!block.hasMetadata(brewingOwner))
+            return;
+        List<MetadataValue> data = block.getMetadata(brewingOwner);
+        if (data.isEmpty())
+            return;
+        
+        // only care about first
+        MetadataValue value = data.get(0);
+        String playerName = value.asString();
+        Player player = plugin.getServer().getPlayerExact(playerName);
+        if (player == null || !player.isOnline())
+            return;
+        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        plugin.action(jPlayer, new ItemActionInfo(event.getContents().getIngredient(), ActionType.BREW), multiplier);
+    }
+    
     @EventHandler(priority=EventPriority.MONITOR)
     public void onEntityDeath(EntityDeathEvent event) {
         // Entity that died must be living
@@ -296,12 +320,16 @@ public class JobsPaymentListener implements Listener {
         
         Block block = event.getClickedBlock();
         
-        if (!block.getType().equals(Material.FURNACE))
-            return;
-        
-        if (block.hasMetadata(furnaceOwner))
-            block.removeMetadata(furnaceOwner, plugin);
-        
-        block.setMetadata(furnaceOwner, new FixedMetadataValue(plugin, event.getPlayer().getName()));
+        if (block.getType().equals(Material.FURNACE)) {
+            if (block.hasMetadata(furnaceOwner))
+                block.removeMetadata(furnaceOwner, plugin);
+            
+            block.setMetadata(furnaceOwner, new FixedMetadataValue(plugin, event.getPlayer().getName()));
+        } else if (block.getType().equals(Material.BREWING_STAND)) {
+            if (block.hasMetadata(brewingOwner))
+                block.removeMetadata(brewingOwner, plugin);
+            
+            block.setMetadata(brewingOwner, new FixedMetadataValue(plugin, event.getPlayer().getName()));
+        }
     }
 }

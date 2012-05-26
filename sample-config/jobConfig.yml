@@ -444,7 +444,45 @@ Jobs:
             GOLD_INGOT:
                 income: 2.0
                 experience: 2.0
-
+  Brewer:
+      fullname: Brewer
+      shortname: Br
+      ChatColour: LIGHT_PURPLE
+      chat-display: full
+      leveling-progression-equation: 100*((1.13+(0.01*(numjobs-1)))^(joblevel-1))
+      income-progression-equation: baseincome*((1.05)^(joblevel-1))
+      experience-progression-equation: baseexperience*((1.05)^(joblevel-1))
+      Brew:
+          NETHER_STALK:
+              income: 1.0
+              experience: 1.0
+          REDSTONE_DUST:
+              income: 2.0
+              experience: 2.0
+          GLOWSTONE_DUST:
+              income: 2.0
+              experience: 2.0
+          SPIDER_EYE:
+              income: 2.0
+              experience: 2.0
+          FERMENTED_SPIDER_EYE:
+              income: 2.0
+              experience: 2.0
+          BLAZE_POWDER:
+              income: 2.0
+              experience: 2.0
+          SUGAR:
+              income: 2.0
+              experience: 2.0
+          SPECKLED_MELON:
+              income: 4.0
+              experience: 4.0
+          MAGMA_CREAM:
+              income: 4.0
+              experience: 4.0
+          GHAST_TEAR:
+              income: 4.0
+              experience: 4.0
     None:
         fullname: None
         shortname: N

@@ -319,6 +319,44 @@ public class JobConfig {
                 }
             }
             
+            // brew
+            ConfigurationSection brewSection = jobSection.getConfigurationSection("Brew");
+            ArrayList<JobInfo> jobBrewInfo = new ArrayList<JobInfo>();
+            if (brewSection != null) {
+                for (String brewKey : brewSection.getKeys(false)) {
+                    ConfigurationSection brewItem = brewSection.getConfigurationSection(brewKey);
+                    String materialType = brewKey.toUpperCase();
+                    String subType = "";
+                    
+                    if (materialType.contains("-")) {
+                        // uses subType
+                        subType = ":" + materialType.split("-")[1];
+                        materialType = materialType.split("-")[0];
+                    }
+                    Material material = Material.matchMaterial(materialType);
+                    if (material == null) {
+                        // try integer method
+                        Integer matId = null;
+                        try {
+                            matId = Integer.decode(materialType);
+                        } catch (NumberFormatException e) {}
+                        if (matId != null) {
+                            material = Material.getMaterial(matId);
+                        }
+                    }
+                    
+                    if(material == null) {
+                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + brewKey + " Brew material type property. Skipping!");
+                        continue;
+                    }
+                    
+                    double income = brewItem.getDouble("income", 0.0);
+                    double experience = brewItem.getDouble("experience", 0.0);
+                    
+                    jobBrewInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
+                }
+            }
+            
             // kill
             ConfigurationSection killSection = jobSection.getConfigurationSection("Kill");
             ArrayList<JobInfo> jobKillInfo = new ArrayList<JobInfo>();
@@ -411,6 +449,7 @@ public class JobConfig {
             job.setJobInfo(ActionType.FISH, jobFishInfo);
             job.setJobInfo(ActionType.CRAFT, jobCraftInfo);
             job.setJobInfo(ActionType.SMELT, jobSmeltInfo);
+            job.setJobInfo(ActionType.BREW, jobBrewInfo);
             
             if (jobKey.equalsIgnoreCase("none")) {
                 plugin.getJobsCore().setNoneJob(job);
