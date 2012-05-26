@@ -485,19 +485,19 @@ public class JobsCommands implements CommandExecutor {
         
         int showAllTypes = 1;
         for (ActionType actionType : ActionType.values()) {
-            if (type.startsWith(actionType.getName())) {
+            if (type.startsWith(actionType.getName().toLowerCase())) {
                 showAllTypes = 0;
                 break;
             }
         }
         
         for (ActionType actionType : ActionType.values()) {
-            if (showAllTypes == 1 || type.startsWith(actionType.getName())) {
+            if (showAllTypes == 1 || type.startsWith(actionType.getName().toLowerCase())) {
                 List<JobInfo> info = job.getJobInfo(actionType);
                 if (info != null && !info.isEmpty()) {
                     message.append(jobInfoMessage(player, job, actionType));
                 } else if (showAllTypes == 0) {
-                    String myMessage = plugin.getMessageConfig().getMessage(actionType.getName()+"-none");
+                    String myMessage = plugin.getMessageConfig().getMessage(actionType.getName().toLowerCase()+"-none");
                     myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
                     myMessage = myMessage.replace("%jobname%", job.getName());
                     message.append(myMessage);
@@ -516,7 +516,7 @@ public class JobsCommands implements CommandExecutor {
      */
     private String jobInfoMessage(JobsPlayer player, Job job, ActionType type) {
         StringBuilder message = new StringBuilder();
-        message.append(plugin.getMessageConfig().getMessage(type.getName()+"-header")).append("\n");
+        message.append(plugin.getMessageConfig().getMessage(type.getName().toLowerCase()+"-header")).append("\n");
         
         DecimalFormat format = new DecimalFormat("#.##");
         int level = 1;
@@ -529,11 +529,11 @@ public class JobsCommands implements CommandExecutor {
         for (JobInfo info: jobInfo) {
             String myMessage;
             if (info.getName().contains(":")){
-                myMessage = plugin.getMessageConfig().getMessage(type.getName()+"-info-sub");
+                myMessage = plugin.getMessageConfig().getMessage(type.getName().toLowerCase()+"-info-sub");
                 myMessage = myMessage.replace("%item%", info.getName().split(":")[0].replace("_", " ").toLowerCase());
                 myMessage = myMessage.replace("%subitem%", info.getName().split(":")[1]);
             } else {
-                myMessage = plugin.getMessageConfig().getMessage(type.getName()+"-info-no-sub");
+                myMessage = plugin.getMessageConfig().getMessage(type.getName().toLowerCase()+"-info-no-sub");
                 myMessage = myMessage.replace("%item%", info.getName().replace("_", " ").toLowerCase());
             }
             myMessage = myMessage.replace("%income%", format.format(info.getIncome(level, numjobs)));

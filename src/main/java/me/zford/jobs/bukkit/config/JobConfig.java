@@ -165,302 +165,6 @@ public class JobConfig {
                 continue;
             }
             
-            // items
-            
-            // break
-            ConfigurationSection breakSection = jobSection.getConfigurationSection("Break");
-            ArrayList<JobInfo> jobBreakInfo = new ArrayList<JobInfo>();
-            if (breakSection != null) {
-                for (String breakKey : breakSection.getKeys(false)) {
-                    ConfigurationSection breakItem = breakSection.getConfigurationSection(breakKey);
-                    String materialType = breakKey.toUpperCase();
-                    String subType = "";
-                    
-                    if (materialType.contains("-")) {
-                        // uses subType
-                        subType = ":" + materialType.split("-")[1];
-                        materialType = materialType.split("-")[0];
-                    }
-                    Material material = Material.matchMaterial(materialType);
-                    if (material == null) {
-                        // try integer method
-                        Integer matId = null;
-                        try {
-                            matId = Integer.decode(materialType);
-                        } catch (NumberFormatException e) {}
-                        if (matId != null) {
-                            material = Material.getMaterial(matId);
-                        }
-                    }
-                    
-                    if (material == null) {
-                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + breakKey + " Break material type property. Skipping!");
-                        continue;
-                    }
-                    
-                    double income = breakItem.getDouble("income", 0.0);
-                    double experience = breakItem.getDouble("experience", 0.0);
-                    
-                    jobBreakInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
-                }
-            }
-            
-            // place
-            ConfigurationSection placeSection = jobSection.getConfigurationSection("Place");
-            ArrayList<JobInfo> jobPlaceInfo = new ArrayList<JobInfo>();
-            if (placeSection != null) {
-                for (String placeKey : placeSection.getKeys(false)) {
-                    ConfigurationSection placeItem = placeSection.getConfigurationSection(placeKey);
-                    String materialType = placeKey.toUpperCase();
-                    String subType = "";
-                    
-                    if (materialType.contains("-")) {
-                        // uses subType
-                        subType = ":" + materialType.split("-")[1];
-                        materialType = materialType.split("-")[0];
-                    }
-                    Material material = Material.matchMaterial(materialType);
-                    if (material == null) {
-                        // try integer method
-                        Integer matId = null;
-                        try {
-                            matId = Integer.decode(materialType);
-                        } catch (NumberFormatException e) {}
-                        if (matId != null) {
-                            material = Material.getMaterial(matId);
-                        }
-                    }
-                    
-                    if(material == null) {
-                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + placeKey + " Place material type property. Skipping!");
-                        continue;
-                    }
-                    
-                    double income = placeItem.getDouble("income", 0.0);
-                    double experience = placeItem.getDouble("experience", 0.0);
-                    
-                    jobPlaceInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
-                }
-            }
-            
-            // craft
-            ConfigurationSection craftSection = jobSection.getConfigurationSection("Craft");
-            ArrayList<JobInfo> jobCraftInfo = new ArrayList<JobInfo>();
-            if (craftSection != null) {
-                for (String craftKey : craftSection.getKeys(false)) {
-                    ConfigurationSection craftItem = craftSection.getConfigurationSection(craftKey);
-                    String materialType = craftKey.toUpperCase();
-                    String subType = "";
-                    
-                    if (materialType.contains("-")) {
-                        // uses subType
-                        subType = ":" + materialType.split("-")[1];
-                        materialType = materialType.split("-")[0];
-                    }
-                    Material material = Material.matchMaterial(materialType);
-                    if (material == null) {
-                        // try integer method
-                        Integer matId = null;
-                        try {
-                            matId = Integer.decode(materialType);
-                        } catch (NumberFormatException e) {}
-                        if (matId != null) {
-                            material = Material.getMaterial(matId);
-                        }
-                    }
-                    
-                    if(material == null) {
-                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + craftKey + " Craft material type property. Skipping!");
-                        continue;
-                    }
-                    
-                    double income = craftItem.getDouble("income", 0.0);
-                    double experience = craftItem.getDouble("experience", 0.0);
-
-                    jobCraftInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
-                }
-            }
-            
-            // smelt
-            ConfigurationSection smeltSection = jobSection.getConfigurationSection("Smelt");
-            ArrayList<JobInfo> jobSmeltInfo = new ArrayList<JobInfo>();
-            if (smeltSection != null) {
-                for (String smeltKey : smeltSection.getKeys(false)) {
-                    ConfigurationSection smeltItem = smeltSection.getConfigurationSection(smeltKey);
-                    String materialType = smeltKey.toUpperCase();
-                    String subType = "";
-                    
-                    if (materialType.contains("-")) {
-                        // uses subType
-                        subType = ":" + materialType.split("-")[1];
-                        materialType = materialType.split("-")[0];
-                    }
-                    Material material = Material.matchMaterial(materialType);
-                    if (material == null) {
-                        // try integer method
-                        Integer matId = null;
-                        try {
-                            matId = Integer.decode(materialType);
-                        } catch (NumberFormatException e) {}
-                        if (matId != null) {
-                            material = Material.getMaterial(matId);
-                        }
-                    }
-                    
-                    if(material == null) {
-                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + smeltKey + " Smelt material type property. Skipping!");
-                        continue;
-                    }
-                    
-                    double income = smeltItem.getDouble("income", 0.0);
-                    double experience = smeltItem.getDouble("experience", 0.0);
-                    
-                    jobSmeltInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
-                }
-            }
-            
-            // brew
-            ConfigurationSection brewSection = jobSection.getConfigurationSection("Brew");
-            ArrayList<JobInfo> jobBrewInfo = new ArrayList<JobInfo>();
-            if (brewSection != null) {
-                for (String brewKey : brewSection.getKeys(false)) {
-                    ConfigurationSection brewItem = brewSection.getConfigurationSection(brewKey);
-                    String materialType = brewKey.toUpperCase();
-                    String subType = "";
-                    
-                    if (materialType.contains("-")) {
-                        // uses subType
-                        subType = ":" + materialType.split("-")[1];
-                        materialType = materialType.split("-")[0];
-                    }
-                    Material material = Material.matchMaterial(materialType);
-                    if (material == null) {
-                        // try integer method
-                        Integer matId = null;
-                        try {
-                            matId = Integer.decode(materialType);
-                        } catch (NumberFormatException e) {}
-                        if (matId != null) {
-                            material = Material.getMaterial(matId);
-                        }
-                    }
-                    
-                    if(material == null) {
-                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + brewKey + " Brew material type property. Skipping!");
-                        continue;
-                    }
-                    
-                    double income = brewItem.getDouble("income", 0.0);
-                    double experience = brewItem.getDouble("experience", 0.0);
-                    
-                    jobBrewInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
-                }
-            }
-            
-            // enchant
-            ConfigurationSection enchantSection = jobSection.getConfigurationSection("Enchant");
-            ArrayList<JobInfo> jobEnchantInfo = new ArrayList<JobInfo>();
-            if (enchantSection != null) {
-                for (String enchantKey : enchantSection.getKeys(false)) {
-                    ConfigurationSection enchantItem = enchantSection.getConfigurationSection(enchantKey);
-                    String materialType = enchantKey.toUpperCase();
-                    String subType = "";
-                    
-                    if (materialType.contains("-")) {
-                        // uses subType
-                        subType = ":" + materialType.split("-")[1];
-                        materialType = materialType.split("-")[0];
-                    }
-                    Material material = Material.matchMaterial(materialType);
-                    if (material == null) {
-                        // try integer method
-                        Integer matId = null;
-                        try {
-                            matId = Integer.decode(materialType);
-                        } catch (NumberFormatException e) {}
-                        if (matId != null) {
-                            material = Material.getMaterial(matId);
-                        }
-                    }
-                    
-                    if(material == null) {
-                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + enchantKey + " Enchant material type property. Skipping!");
-                        continue;
-                    }
-                    
-                    double income = enchantItem.getDouble("income", 0.0);
-                    double experience = enchantItem.getDouble("experience", 0.0);
-                    
-                    jobEnchantInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
-                }
-            }
-            
-            // kill
-            ConfigurationSection killSection = jobSection.getConfigurationSection("Kill");
-            ArrayList<JobInfo> jobKillInfo = new ArrayList<JobInfo>();
-            if (killSection != null) {
-                for (String killKey : killSection.getKeys(false)) {
-                    ConfigurationSection killItem = killSection.getConfigurationSection(killKey);
-                    EntityType type = EntityType.fromName(killKey.toUpperCase());
-                    if (type == null) {
-                        // Do long method
-                        for (EntityType entityType : EntityType.values()) {
-                            if (killKey.equals(entityType.getName())) {
-                                type = entityType;
-                                break;
-                            }
-                        }
-                    }
-                    if (type == null) {
-                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + killKey + " Kill entity type property. Skipping!");
-                        continue;
-                    }
-                    
-                    double income = killItem.getDouble("income", 0.0);
-                    double experience = killItem.getDouble("experience", 0.0);
-                    
-                    jobKillInfo.add(new JobInfo(type.toString(), income, incomeEquation, experience, expEquation));
-                }
-            }
-            
-            // fish
-            ConfigurationSection fishSection = jobSection.getConfigurationSection("Fish");
-            ArrayList<JobInfo> jobFishInfo = new ArrayList<JobInfo>();
-            if (fishSection != null) {
-                for (String fishKey : fishSection.getKeys(false)) {
-                    ConfigurationSection fishItem = fishSection.getConfigurationSection(fishKey);
-                    String materialType = fishKey.toUpperCase();
-                    String subType = "";
-                    
-                    if (materialType.contains("-")) {
-                        // uses subType
-                        subType = ":" + materialType.split("-")[1];
-                        materialType = materialType.split("-")[0];
-                    }
-                    Material material = Material.matchMaterial(materialType);
-                    if (material == null) {
-                        // try integer method
-                        Integer matId = null;
-                        try {
-                            matId = Integer.decode(materialType);
-                        } catch (NumberFormatException e) {}
-                        if (matId != null) {
-                            material = Material.getMaterial(matId);
-                        }
-                    }
-                    
-                    if(material == null) {
-                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + fishKey + " Fish material type property. Skipping!");
-                        continue;
-                    }
-                    
-                    double income = fishItem.getDouble("income", 0.0);
-                    double experience = fishItem.getDouble("experience", 0.0);
-                    
-                    jobKillInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
-                }
-            }
-            
             // Permissions
             ArrayList<JobPermission> jobPermissions = new ArrayList<JobPermission>();
             ConfigurationSection permissionsSection = jobSection.getConfigurationSection("permissions");
@@ -481,14 +185,65 @@ public class JobConfig {
             
             Job job = new Job(jobPermissions, jobName, jobShortName, color, maxExpEquation, displayMethod, maxLevel, maxSlots);
             
-            job.setJobInfo(ActionType.BREAK, jobBreakInfo);
-            job.setJobInfo(ActionType.PLACE, jobPlaceInfo);
-            job.setJobInfo(ActionType.KILL, jobKillInfo);
-            job.setJobInfo(ActionType.FISH, jobFishInfo);
-            job.setJobInfo(ActionType.CRAFT, jobCraftInfo);
-            job.setJobInfo(ActionType.SMELT, jobSmeltInfo);
-            job.setJobInfo(ActionType.BREW, jobBrewInfo);
-            job.setJobInfo(ActionType.ENCHANT, jobEnchantInfo);
+            for (ActionType actionType : ActionType.values()) {
+                ConfigurationSection typeSection = jobSection.getConfigurationSection(actionType.getName());
+                ArrayList<JobInfo> jobInfo = new ArrayList<JobInfo>();
+                if (typeSection != null) {
+                    for (String key : typeSection.getKeys(false)) {
+                        ConfigurationSection section = typeSection.getConfigurationSection(key);
+                        String myKey = key.toUpperCase();
+                        String type = null;
+                        String subType = "";
+                        
+                        if (myKey.contains("-")) {
+                            // uses subType
+                            subType = ":" + myKey.split("-")[1];
+                            myKey = myKey.split("-")[0];
+                        }
+                        Material material = Material.matchMaterial(myKey);
+                        if (material == null) {
+                            // try integer method
+                            Integer matId = null;
+                            try {
+                                matId = Integer.decode(myKey);
+                            } catch (NumberFormatException e) {}
+                            if (matId != null) {
+                                material = Material.getMaterial(matId);
+                            }
+                        }
+                        
+                        if (material != null) {
+                            type = material.toString();
+                        } else {
+                            // check entities
+                            EntityType entity = EntityType.fromName(key);
+                            if (entity == null) {
+                                // Do long method
+                                for (EntityType entityType : EntityType.values()) {
+                                    if (key.equalsIgnoreCase(entityType.getName())) {
+                                        entity = entityType;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            if (entity != null)
+                                type = entity.toString();
+                        }
+                        
+                        if (type == null) {
+                            plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + key + " " + actionType.getName() + " type property. Skipping!");
+                            continue;
+                        }
+                        
+                        double income = section.getDouble("income", 0.0);
+                        double experience = section.getDouble("experience", 0.0);
+                        
+                        jobInfo.add(new JobInfo(type+subType, income, incomeEquation, experience, expEquation));
+                    }
+                }
+                job.setJobInfo(actionType, jobInfo);
+            }
             
             if (jobKey.equalsIgnoreCase("none")) {
                 plugin.getJobsCore().setNoneJob(job);

@@ -1,14 +1,14 @@
 package me.zford.jobs.container;
 
 public enum ActionType {
-    BREAK("break"),
-    PLACE("place"),
-    KILL("kill"),
-    FISH("fish"),
-    CRAFT("craft"),
-    SMELT("smelt"),
-    BREW("brew"),
-    ENCHANT("enchant");
+    BREAK("Break"),
+    PLACE("Place"),
+    KILL("Kill"),
+    FISH("Fish"),
+    CRAFT("Craft"),
+    SMELT("Smelt"),
+    BREW("Brew"),
+    ENCHANT("Enchant");
     
     private String name;
     private ActionType(String name) {
