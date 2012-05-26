@@ -7,7 +7,8 @@ public enum ActionType {
     FISH("fish"),
     CRAFT("craft"),
     SMELT("smelt"),
-    BREW("brew");
+    BREW("brew"),
+    ENCHANT("enchant");
     
     private String name;
     private ActionType(String name) {

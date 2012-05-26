@@ -45,6 +45,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -56,6 +57,7 @@ import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.inventory.EnchantingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -214,6 +216,47 @@ public class JobsPaymentListener implements Listener {
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
         plugin.action(jPlayer, new ItemActionInfo(resultStack, ActionType.CRAFT), multiplier);
+    }
+
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+    public void onEnchantItem(EnchantItemEvent event) {
+        // make sure plugin is enabled
+        if(!plugin.isEnabled()) return;
+        Inventory inv = event.getInventory();
+        
+        if (!(inv instanceof EnchantingInventory))
+            return;
+        
+        // restricted area multiplier
+        List<HumanEntity> viewers = event.getViewers();
+        if (viewers.size() == 0)
+            return;
+        Player player = null;
+        for (HumanEntity viewer : event.getViewers()) {
+            if (viewer instanceof Player) {
+                player = (Player) viewer;
+                break;
+            }
+        }
+        
+        if (player == null)
+            return;
+        
+        ItemStack resultStack = ((EnchantingInventory) inv).getItem();
+        
+        if (resultStack == null)
+            return;
+        
+        if (!plugin.hasWorldPermission(player, player.getWorld()))
+            return;
+        
+        // check if in creative
+        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+            return;
+        
+        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        plugin.action(jPlayer, new ItemActionInfo(resultStack, ActionType.ENCHANT), multiplier);
     }
     
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)

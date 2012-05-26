@@ -357,6 +357,44 @@ public class JobConfig {
                 }
             }
             
+            // enchant
+            ConfigurationSection enchantSection = jobSection.getConfigurationSection("Enchant");
+            ArrayList<JobInfo> jobEnchantInfo = new ArrayList<JobInfo>();
+            if (enchantSection != null) {
+                for (String enchantKey : enchantSection.getKeys(false)) {
+                    ConfigurationSection enchantItem = enchantSection.getConfigurationSection(enchantKey);
+                    String materialType = enchantKey.toUpperCase();
+                    String subType = "";
+                    
+                    if (materialType.contains("-")) {
+                        // uses subType
+                        subType = ":" + materialType.split("-")[1];
+                        materialType = materialType.split("-")[0];
+                    }
+                    Material material = Material.matchMaterial(materialType);
+                    if (material == null) {
+                        // try integer method
+                        Integer matId = null;
+                        try {
+                            matId = Integer.decode(materialType);
+                        } catch (NumberFormatException e) {}
+                        if (matId != null) {
+                            material = Material.getMaterial(matId);
+                        }
+                    }
+                    
+                    if(material == null) {
+                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + enchantKey + " Enchant material type property. Skipping!");
+                        continue;
+                    }
+                    
+                    double income = enchantItem.getDouble("income", 0.0);
+                    double experience = enchantItem.getDouble("experience", 0.0);
+                    
+                    jobEnchantInfo.add(new JobInfo(material.toString()+subType, income, incomeEquation, experience, expEquation));
+                }
+            }
+            
             // kill
             ConfigurationSection killSection = jobSection.getConfigurationSection("Kill");
             ArrayList<JobInfo> jobKillInfo = new ArrayList<JobInfo>();
@@ -450,6 +488,7 @@ public class JobConfig {
             job.setJobInfo(ActionType.CRAFT, jobCraftInfo);
             job.setJobInfo(ActionType.SMELT, jobSmeltInfo);
             job.setJobInfo(ActionType.BREW, jobBrewInfo);
+            job.setJobInfo(ActionType.ENCHANT, jobEnchantInfo);
             
             if (jobKey.equalsIgnoreCase("none")) {
                 plugin.getJobsCore().setNoneJob(job);

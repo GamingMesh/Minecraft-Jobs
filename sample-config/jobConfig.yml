@@ -390,7 +390,6 @@ Jobs:
             Hunter:
                 income: 20.0
                 experience: 20.0
-                
     Fisherman:
         fullname: Fisherman
         shortname: Fi
@@ -413,7 +412,6 @@ Jobs:
             Fisherman:
                 income: 10.0
                 experience: 10.0
-                
     Weaponsmith:
         fullname: Weaponsmith
         shortname: W
@@ -483,6 +481,29 @@ Jobs:
           GHAST_TEAR:
               income: 4.0
               experience: 4.0
+    Enchanter:
+        fullname: Enchanter
+        shortname: E
+        ChatColour: DARK_BLUE
+        chat-display: full
+        #max-level: 10
+        #slots: 10
+        leveling-progression-equation: 100*((1.13+(0.01*(numjobs-1)))^(joblevel-1))
+        income-progression-equation: baseincome*((1.05)^(joblevel-1))
+        experience-progression-equation: baseexperience*((1.05)^(joblevel-1))
+        Enchant:
+            WOOD_SWORD:
+                income: 4.0
+                experience: 4.0
+            IRON_SWORD:
+                income: 6.0
+                experience: 6.0
+            GOLD_SWORD:
+                income: 8.0
+                experience: 8.0
+            DIAMOND_SWORD:
+                income: 10.0
+                experience: 10.0
     None:
         fullname: None
         shortname: N
