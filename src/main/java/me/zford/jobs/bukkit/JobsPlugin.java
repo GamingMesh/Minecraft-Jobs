@@ -52,6 +52,8 @@ public class JobsPlugin extends JavaPlugin {
     private JobsConfiguration jobsConfiguration = new JobsConfiguration(this);
     private PlayerManager pManager = new PlayerManager(this);
     private JobConfig jobConfig = new JobConfig(this);
+    private int paymentTaskId = -1;
+    private int saveTaskId = -1;
     private BufferedEconomy economy;
 
     /**
@@ -191,17 +193,22 @@ public class JobsPlugin extends JavaPlugin {
      */
     private void restartTasks() {
         BukkitScheduler scheduler = getServer().getScheduler();
-        scheduler.cancelTasks(this);
+        
+        if (paymentTaskId > 0)
+            scheduler.cancelTask(paymentTaskId);
+        
+        if (saveTaskId > 0)
+            scheduler.cancelTask(saveTaskId);
         
         // set the system to auto save
         if (getJobsConfiguration().getSavePeriod() > 0) {
             int saveDelay = getJobsConfiguration().getSavePeriod() * 20 * 60;
-            getServer().getScheduler().scheduleSyncRepeatingTask(this, new DatabaseSaveTask(pManager), saveDelay, saveDelay);
+            saveTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new DatabaseSaveTask(pManager), saveDelay, saveDelay);
         }
         
         // schedule payouts to buffered payments
         int economyDelay = getJobsConfiguration().getEconomyBatchDelay() * 20;
-        getServer().getScheduler().scheduleSyncRepeatingTask(this, new BufferedPaymentRepeatableTask(economy), economyDelay, economyDelay);
+        paymentTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new BufferedPaymentRepeatableTask(economy), economyDelay, economyDelay);
     }
     
     /**
