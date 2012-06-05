@@ -29,7 +29,7 @@ public class JobInfo {
     public double getIncome(int level, int numjobs) {
         moneyEquation.setVariable("joblevel", level);
         moneyEquation.setVariable("numjobs", numjobs);
-        moneyEquation.setVariable("baseincome", baseXp);
+        moneyEquation.setVariable("baseincome", baseIncome);
         return moneyEquation.getValue();
     }
     
