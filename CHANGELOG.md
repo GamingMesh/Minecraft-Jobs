@@ -1,5 +1,13 @@
 # Jobs plugin change log summary
 
+## 2.8.4
+* Fixed H2 driver
+* Implemented Brewing
+* Implemented Enchanting
+* Added batch size flags for economy payments to help reduce tick lag
+* Tasks now restart on reload
+* Rewrote job task code to be more modular
+
 ## 2.8.3
 * Fixed leaving jobs without having to logout
 
