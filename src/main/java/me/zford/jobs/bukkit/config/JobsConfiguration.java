@@ -198,12 +198,6 @@ public class JobsConfiguration {
             plugin.disablePlugin();
         }
         
-        // save-period
-        if(config.getInt("save-period") <= 0) {
-            plugin.getLogger().info("Invalid save-period property! Defaulting to 10!");
-            config.set("save-period", 10);
-        }
-        
         // Make sure we're only copying settings we care about
         copySetting(config, writer, "storage-method");
         copySetting(config, writer, "mysql-username");
