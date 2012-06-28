@@ -77,6 +77,9 @@ public class JobsPaymentListener implements Listener {
     
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
     public void onBlockBreak(BlockBreakEvent event) {
+        // Check that player is destroying block
+        if(player!=null) {
+        Player player = event.getPlayer();
         // remove furnace metadata for broken block
         Block block = event.getBlock();
         if (block.getType().equals(Material.FURNACE) && block.hasMetadata(furnaceOwner))
@@ -84,8 +87,6 @@ public class JobsPaymentListener implements Listener {
         
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-        
-        Player player = event.getPlayer();
         
         // check if in creative
         if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
@@ -99,9 +100,12 @@ public class JobsPaymentListener implements Listener {
             plugin.action(jPlayer, new BlockActionInfo(block, ActionType.BREAK), multiplier);
         }
     }
+    }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
     public void onBlockPlace(BlockPlaceEvent event) {
+        if(player!=null) {
+        Player player = event.getPlayer();
         Block block = event.getBlock();
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
@@ -109,7 +113,7 @@ public class JobsPaymentListener implements Listener {
         // check to make sure you can build
         if(!event.canBuild()) return;
         
-        Player player = event.getPlayer();
+        
         
         // check if in creative
         if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
@@ -122,6 +126,7 @@ public class JobsPaymentListener implements Listener {
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
             plugin.action(jPlayer, new BlockActionInfo(block, ActionType.PLACE), multiplier);
         }
+    }
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
