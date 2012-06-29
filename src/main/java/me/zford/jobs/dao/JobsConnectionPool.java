@@ -23,17 +23,15 @@ import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.LinkedList;
 
 import me.zford.jobs.Jobs;
 
 public class JobsConnectionPool {
-    private LinkedList<JobsConnection> pooledConnections;
+    private JobsConnection connection;
     private String url;
     private String username;
     private String password;
     public JobsConnectionPool(Jobs core, String driverName, String url, String username, String password) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
-        this.pooledConnections = new LinkedList<JobsConnection>();
         Driver driver = (Driver) Class.forName(driverName, true, core.getJobsClassloader()).newInstance();
         JobsDriver jDriver = new JobsDriver(driver);
         DriverManager.registerDriver(jDriver);
@@ -43,31 +41,25 @@ public class JobsConnectionPool {
     }
     
     public synchronized JobsConnection getConnection() throws SQLException {
-        // Try to get a pooled connection
-        while(!pooledConnections.isEmpty()) {
-            JobsConnection conn = pooledConnections.remove();
-            if (conn.isClosed() || !conn.isValid(1)) {
-                try {
-                    conn.closeConnection();
-                } catch (SQLException e) {}
-                continue;
-            }
-            return conn;
-        }
-        // create a new connection
-        Connection conn = DriverManager.getConnection(url, username, password);
-        return new JobsConnection(conn, this);
-    }
-    
-    public synchronized void returnToPool(JobsConnection conn) {
-        pooledConnections.add(conn);
-    }
-    
-    public synchronized void closeConnections() {
-        while(!pooledConnections.isEmpty()) {
-            JobsConnection conn = pooledConnections.remove();
+        if (connection != null && (connection.isClosed() || !connection.isValid(1))) {
             try {
-                conn.closeConnection();
+                connection.closeConnection();
+            } catch (SQLException e) {}
+            connection = null;
+        }
+        
+        if (connection == null) {
+            Connection conn = DriverManager.getConnection(url, username, password);
+            connection = new JobsConnection(conn);
+        }
+        
+        return connection;
+    }
+    
+    public synchronized void closeConnection() {
+        if (connection != null) {
+            try {
+                connection.closeConnection();
             } catch (SQLException e) {
                 e.printStackTrace();
             }

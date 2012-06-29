@@ -67,7 +67,7 @@ public abstract class JobsDAO {
      * @param player - the player being searched for
      * @return list of all of the names of the jobs the players are part of.
      */
-    public List<JobsDAOData> getAllJobs(JobsPlayer player) {
+    public synchronized List<JobsDAOData> getAllJobs(JobsPlayer player) {
         ArrayList<JobsDAOData> jobs = new ArrayList<JobsDAOData>();
         JobsConnection conn = getConnection();
         if (conn == null)
@@ -81,7 +81,6 @@ public abstract class JobsDAO {
                 jobs.add(new JobsDAOData(res.getString(3), res.getInt(1), res.getInt(2)));
             }
             prest.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -93,7 +92,7 @@ public abstract class JobsDAO {
      * @param player - player that wishes to join the job
      * @param job - job that the player wishes to join
      */
-    public void joinJob(JobsPlayer player, Job job) {
+    public synchronized void joinJob(JobsPlayer player, Job job) {
         String sql = "INSERT INTO `" + prefix + "jobs` (`username`, `experience`, `level`, `job`) VALUES (?, ?, ?, ?);";
         JobsConnection conn = getConnection();
         if (conn == null)
@@ -106,7 +105,6 @@ public abstract class JobsDAO {
             prest.setString(4, job.getName());
             prest.executeUpdate();
             prest.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -117,7 +115,7 @@ public abstract class JobsDAO {
      * @param player - player that wishes to quit the job
      * @param job - job that the player wishes to quit
      */
-    public void quitJob(JobsPlayer player, Job job) {
+    public synchronized void quitJob(JobsPlayer player, Job job) {
         JobsConnection conn = getConnection();
         if (conn == null)
             return;
@@ -128,7 +126,6 @@ public abstract class JobsDAO {
             prest.setString(2, job.getName());
             prest.executeUpdate();
             prest.close();
-            conn.close();
         } catch(SQLException e) {
             e.printStackTrace();
         }       
@@ -138,7 +135,7 @@ public abstract class JobsDAO {
      * Save player-job information
      * @param jobInfo - the information getting saved
      */
-    public void save(JobsPlayer player) {
+    public synchronized void save(JobsPlayer player) {
         String sql = "UPDATE `" + prefix + "jobs` SET `experience` = ?, `level` = ? WHERE `username` = ? AND `job` = ?;";
         JobsConnection conn = getConnection();
         if (conn == null)
@@ -153,7 +150,6 @@ public abstract class JobsDAO {
                 prest.executeUpdate();
             }
             prest.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -164,7 +160,7 @@ public abstract class JobsDAO {
      * @param job - the job
      * @return  the number of players that have a particular job
      */
-    public int getSlotsTaken(Job job) {
+    public synchronized int getSlotsTaken(Job job) {
         int slot = 0;
         JobsConnection conn = getConnection();
         if (conn == null)
@@ -178,7 +174,6 @@ public abstract class JobsDAO {
                 slot = res.getInt(1);
             }
             prest.close();
-            conn.close();
         } catch(SQLException e) {
             e.printStackTrace();
         }
@@ -202,7 +197,7 @@ public abstract class JobsDAO {
     /**
      * Close all active database handles
      */
-    public void closeConnections() {
-        pool.closeConnections();
+    public synchronized void closeConnections() {
+        pool.closeConnection();
     }
 }

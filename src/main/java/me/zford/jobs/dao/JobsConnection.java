@@ -26,10 +26,8 @@ import java.sql.Statement;
 
 public class JobsConnection {
     private Connection conn;
-    private JobsConnectionPool pool;
-    public JobsConnection(Connection conn, JobsConnectionPool pool) {
+    public JobsConnection(Connection conn) {
         this.conn = conn;
-        this.pool = pool;
     }
     
     public synchronized boolean isClosed() {
@@ -47,10 +45,6 @@ public class JobsConnection {
         } catch (AbstractMethodError e) {
             return true;
         }
-    }
-    
-    public synchronized void close() {
-        pool.returnToPool(this);
     }
     
     public synchronized void closeConnection() throws SQLException {

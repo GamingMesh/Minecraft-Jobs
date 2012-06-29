@@ -21,7 +21,7 @@ public class PlayerManager {
      * Add a player to the plugin to me managed.
      * @param playername
      */
-    public void addPlayer(String playername) {
+    public synchronized void addPlayer(String playername) {
         JobsPlayer jPlayer = new JobsPlayer(plugin, playername);
         jPlayer.loadDAOData(plugin.getJobsCore().getJobsDAO().getAllJobs(jPlayer));
         players.put(playername, jPlayer);
@@ -31,7 +31,7 @@ public class PlayerManager {
      * Remove a player from the plugin.
      * @param playername
      */
-    public void removePlayer(String playername) {
+    public synchronized void removePlayer(String playername) {
         JobsDAO dao = plugin.getJobsCore().getJobsDAO();
         if (players.containsKey(playername)) {
             JobsPlayer player = players.remove(playername);
@@ -42,7 +42,7 @@ public class PlayerManager {
     /**
      * Save all the information of all of the players in the game
      */
-    public void saveAll() {
+    public synchronized void saveAll() {
         JobsDAO dao = plugin.getJobsCore().getJobsDAO();
         for (JobsPlayer player : players.values()) {
             dao.save(player);
@@ -54,7 +54,7 @@ public class PlayerManager {
      * @param player - the player who's job you're getting
      * @return the player job info of the player
      */
-    public JobsPlayer getJobsPlayer(String playername) {
+    public synchronized JobsPlayer getJobsPlayer(String playername) {
         JobsPlayer jPlayer = players.get(playername);
         if (jPlayer == null) {
             jPlayer = new JobsPlayer(plugin, playername);
@@ -68,7 +68,7 @@ public class PlayerManager {
      * @param jPlayer
      * @param job
      */
-    public void joinJob(JobsPlayer jPlayer, Job job) {
+    public synchronized void joinJob(JobsPlayer jPlayer, Job job) {
         if (jPlayer.isInJob(job))
             return;
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
@@ -93,7 +93,7 @@ public class PlayerManager {
      * @param jPlayer
      * @param job
      */
-    public void leaveJob(JobsPlayer jPlayer, Job job) {
+    public synchronized void leaveJob(JobsPlayer jPlayer, Job job) {
         if (!jPlayer.isInJob(job))
             return;
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
@@ -119,7 +119,7 @@ public class PlayerManager {
      * @param oldjob - the old job
      * @param newjob - the new job
      */
-    public void transferJob(JobsPlayer jPlayer, Job oldjob, Job newjob) {
+    public synchronized void transferJob(JobsPlayer jPlayer, Job oldjob, Job newjob) {
         if (!jPlayer.transferJob(oldjob,  newjob))
             return;
         
@@ -146,7 +146,7 @@ public class PlayerManager {
      * @param job - the job
      * @param levels - number of levels to promote
      */
-    public void promoteJob(JobsPlayer jPlayer, Job job, int levels) {
+    public synchronized void promoteJob(JobsPlayer jPlayer, Job job, int levels) {
         jPlayer.promoteJob(job, levels);
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if (player != null) {
@@ -167,7 +167,7 @@ public class PlayerManager {
      * @param job - the job
      * @param levels - number of levels to demote
      */
-    public void demoteJob(JobsPlayer jPlayer, Job job, int levels) {
+    public synchronized void demoteJob(JobsPlayer jPlayer, Job job, int levels) {
         jPlayer.demoteJob(job, levels);
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if (player != null) {
@@ -188,7 +188,7 @@ public class PlayerManager {
      * @param job - the job
      * @param experience - experience gained
      */
-    public void addExperience(JobsPlayer jPlayer, Job job, double experience) {
+    public synchronized void addExperience(JobsPlayer jPlayer, Job job, double experience) {
         JobProgression prog = jPlayer.getJobProgression(job);
         if (prog == null)
             return;
@@ -213,7 +213,7 @@ public class PlayerManager {
      * @param job - the job
      * @param experience - experience gained
      */
-    public void removeExperience(JobsPlayer jPlayer, Job job, double experience) {
+    public synchronized void removeExperience(JobsPlayer jPlayer, Job job, double experience) {
         JobProgression prog = jPlayer.getJobProgression(job);
         if (prog == null)
             return;
@@ -237,7 +237,7 @@ public class PlayerManager {
      * @param jPlayer
      * @param job
      */
-    public void performLevelUp(JobsPlayer jPlayer, Job job) {
+    public synchronized void performLevelUp(JobsPlayer jPlayer, Job job) {
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
         JobProgression prog = jPlayer.getJobProgression(job);
         if (prog == null)

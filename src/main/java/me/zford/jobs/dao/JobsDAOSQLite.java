@@ -12,7 +12,7 @@ public class JobsDAOSQLite extends JobsDAO {
         setUp();
     }
     
-    public void setUp(){
+    public synchronized void setUp(){
         try {
             JobsConnection conn = getConnection();
             if (conn == null) {
@@ -22,7 +22,6 @@ public class JobsDAOSQLite extends JobsDAO {
             Statement st = conn.createStatement();
             String table = "CREATE TABLE IF NOT EXISTS `" + getPrefix() + "jobs` (username varchar(20), experience INT, level INT, job varchar(20));";
             st.executeUpdate(table);
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }

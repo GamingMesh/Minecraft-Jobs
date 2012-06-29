@@ -53,13 +53,16 @@ public class JobsPlugin extends JavaPlugin {
     private PlayerManager pManager = new PlayerManager(this);
     private JobConfig jobConfig = new JobConfig(this);
     private int paymentTaskId = -1;
-    private int saveTaskId = -1;
+    private DatabaseSaveTask saveTask;
     private BufferedEconomy economy;
 
     /**
      * Method called when you disable the plugin
      */
-    public void onDisable() {        
+    public void onDisable() {
+        if (saveTask != null)
+            saveTask.shutdown();
+        
         // remove all permissions for online players
         for (Player online: getServer().getOnlinePlayers()) {
             JobsPlayer jPlayer = pManager.getJobsPlayer(online.getName());
@@ -197,13 +200,15 @@ public class JobsPlugin extends JavaPlugin {
         if (paymentTaskId > 0)
             scheduler.cancelTask(paymentTaskId);
         
-        if (saveTaskId > 0)
-            scheduler.cancelTask(saveTaskId);
+        if (saveTask != null) {
+            saveTask.shutdown();
+            saveTask = null;
+        }
         
         // set the system to auto save
         if (getJobsConfiguration().getSavePeriod() > 0) {
-            int saveDelay = getJobsConfiguration().getSavePeriod() * 20 * 60;
-            saveTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new DatabaseSaveTask(pManager), saveDelay, saveDelay);
+            saveTask = new DatabaseSaveTask(this, getJobsConfiguration().getSavePeriod());
+            saveTask.start();
         }
         
         // schedule payouts to buffered payments

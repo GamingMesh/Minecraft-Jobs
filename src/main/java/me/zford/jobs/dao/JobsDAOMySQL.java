@@ -31,7 +31,7 @@ public class JobsDAOMySQL extends JobsDAO {
         setUp();
     }
     
-    public void setUp(){
+    public synchronized void setUp(){
         try {
             JobsConnection conn = getConnection();
             if (conn == null) {
@@ -41,7 +41,6 @@ public class JobsDAOMySQL extends JobsDAO {
             Statement st = conn.createStatement();
             String table = "CREATE TABLE IF NOT EXISTS `" + getPrefix() + "jobs` (username varchar(20), experience integer, level integer, job varchar(20));";
             st.executeUpdate(table);
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
