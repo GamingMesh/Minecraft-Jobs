@@ -218,16 +218,12 @@ public class JobConfig {
                             // check entities
                             EntityType entity = EntityType.fromName(key);
                             if (entity == null) {
-                                // Do long method
-                                for (EntityType entityType : EntityType.values()) {
-                                    if (key.equalsIgnoreCase(entityType.getName())) {
-                                        entity = entityType;
-                                        break;
-                                    }
-                                }
+                                try {
+                                    entity = EntityType.valueOf(key.toUpperCase());
+                                } catch (IllegalArgumentException e) {}
                             }
                             
-                            if (entity != null)
+                            if (entity != null && entity.isAlive())
                                 type = entity.toString();
                         }
                         
