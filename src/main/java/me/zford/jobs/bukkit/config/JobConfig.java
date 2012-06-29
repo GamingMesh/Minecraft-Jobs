@@ -94,7 +94,7 @@ public class JobConfig {
             ConfigurationSection jobSection = jobsSection.getConfigurationSection(jobKey);
             String jobName = jobSection.getString("fullname");
             if (jobName == null) {
-                plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid fullname property. Skipping job!");
+                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid fullname property. Skipping job!");
                 continue;
             }
             
@@ -109,13 +109,13 @@ public class JobConfig {
 
             String jobShortName = jobSection.getString("shortname");
             if (jobShortName == null) {
-                plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " is missing the shortname property.  Skipping job!");
+                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " is missing the shortname property.  Skipping job!");
                 continue;
             }
 
             ChatColor color = ChatColor.matchColor(jobSection.getString("ChatColour", ""));
             if (color == null) {
-                plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid ChatColour property.  Skipping job!");
+                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid ChatColour property.  Skipping job!");
                 continue;
             }
             DisplayMethod displayMethod = DisplayMethod.matchMethod(jobSection.getString("chat-display", ""));
@@ -133,7 +133,7 @@ public class JobConfig {
                 maxExpEquation.setVariable("joblevel", 1);
                 maxExpEquation.getValue();
             } catch(Exception e) {
-                plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid leveling-progression-equation property. Skipping job!");
+                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid leveling-progression-equation property. Skipping job!");
                 continue;
             }
             
@@ -147,7 +147,7 @@ public class JobConfig {
                 incomeEquation.setVariable("baseincome", 1);
                 incomeEquation.getValue();
             } catch(Exception e) {
-                plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid income-progression-equation property. Skipping job!");
+                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid income-progression-equation property. Skipping job!");
                 continue;
             }
             
@@ -161,7 +161,7 @@ public class JobConfig {
                 expEquation.setVariable("baseexperience", 1);
                 expEquation.getValue();
             } catch(Exception e) {
-                plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid experience-progression-equation property. Skipping job!");
+                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid experience-progression-equation property. Skipping job!");
                 continue;
             }
             
@@ -174,7 +174,7 @@ public class JobConfig {
                     
                     String node = permissionKey.toLowerCase();
                     if (permissionSection == null) {
-                        plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid permission key" + permissionKey + "!");
+                        plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid permission key" + permissionKey + "!");
                         continue;
                     }
                     boolean value = permissionSection.getBoolean("value", true);
@@ -228,7 +228,7 @@ public class JobConfig {
                         }
                         
                         if (type == null) {
-                            plugin.getJobsCore().getPluginLogger().severe("Job " + jobKey + " has an invalid " + key + " " + actionType.getName() + " type property. Skipping!");
+                            plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid " + key + " " + actionType.getName() + " type property. Skipping!");
                             continue;
                         }
                         
