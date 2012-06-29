@@ -91,13 +91,13 @@ public class JobsPaymentListener implements Listener {
         if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
             return;
         
+        if (!plugin.hasWorldPermission(player, player.getWorld()))
+            return;
+        
         // restricted area multiplier
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
-        
-        if (plugin.hasWorldPermission(player, player.getWorld())) {
-            JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-            plugin.action(jPlayer, new BlockActionInfo(block, ActionType.BREAK), multiplier);
-        }
+        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        plugin.action(jPlayer, new BlockActionInfo(block, ActionType.BREAK), multiplier);
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
@@ -115,13 +115,13 @@ public class JobsPaymentListener implements Listener {
         if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
             return;
         
+        if (!plugin.hasWorldPermission(player, player.getWorld()))
+            return;
+        
         // restricted area multiplier
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
-        
-        if (plugin.hasWorldPermission(player, player.getWorld())) {
-            JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-            plugin.action(jPlayer, new BlockActionInfo(block, ActionType.PLACE), multiplier);
-        }
+        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        plugin.action(jPlayer, new BlockActionInfo(block, ActionType.PLACE), multiplier);
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
@@ -134,8 +134,9 @@ public class JobsPaymentListener implements Listener {
         // check if in creative
         if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
             return;
-        
-        if (!plugin.hasWorldPermission(player, player.getWorld())) return;
+
+        if (!plugin.hasWorldPermission(player, player.getWorld()))
+            return;
         
         // restricted area multiplier
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
@@ -276,6 +277,10 @@ public class JobsPaymentListener implements Listener {
         Player player = plugin.getServer().getPlayerExact(playerName);
         if (player == null || !player.isOnline())
             return;
+        
+        if (!plugin.hasWorldPermission(player, player.getWorld()))
+            return;
+        
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
         plugin.action(jPlayer, new ItemActionInfo(event.getResult(), ActionType.SMELT), multiplier);
@@ -298,6 +303,10 @@ public class JobsPaymentListener implements Listener {
         Player player = plugin.getServer().getPlayerExact(playerName);
         if (player == null || !player.isOnline())
             return;
+        
+        if (!plugin.hasWorldPermission(player, player.getWorld()))
+            return;
+        
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
         plugin.action(jPlayer, new ItemActionInfo(event.getContents().getIngredient(), ActionType.BREW), multiplier);
@@ -335,6 +344,10 @@ public class JobsPaymentListener implements Listener {
                 // check if in creative
                 if (pDamager.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
                     return;
+
+                if (!plugin.hasWorldPermission(pDamager, pDamager.getWorld()))
+                    return;
+                
                 // restricted area multiplier
                 double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(pDamager);
                 // pay
