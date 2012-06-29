@@ -1,5 +1,10 @@
 # Jobs plugin change log summary
 
+## 2.8.5
+* Improved reading of mob names in config file
+* Periodic saving is done in a separate thread
+* Player logins and logouts are handled in a separate thread
+
 ## 2.8.4
 * Fixed H2 driver
 * Implemented Brewing
