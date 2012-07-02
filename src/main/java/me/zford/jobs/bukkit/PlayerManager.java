@@ -1,6 +1,9 @@
 package me.zford.jobs.bukkit;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.bukkit.entity.Player;
 
@@ -12,7 +15,7 @@ import me.zford.jobs.dao.JobsDAO;
 
 public class PlayerManager {
     private JobsPlugin plugin;
-    private HashMap<String, JobsPlayer> players = new HashMap<String, JobsPlayer>();
+    private Map<String, JobsPlayer> players = Collections.synchronizedMap(new HashMap<String, JobsPlayer>());
     public PlayerManager(JobsPlugin plugin) {
         this.plugin = plugin;
     }
@@ -21,7 +24,7 @@ public class PlayerManager {
      * Add a player to the plugin to me managed.
      * @param playername
      */
-    public synchronized void addPlayer(String playername) {
+    public void addPlayer(String playername) {
         JobsPlayer jPlayer = new JobsPlayer(plugin, playername);
         jPlayer.loadDAOData(plugin.getJobsCore().getJobsDAO().getAllJobs(jPlayer));
         players.put(playername, jPlayer);
@@ -31,10 +34,10 @@ public class PlayerManager {
      * Remove a player from the plugin.
      * @param playername
      */
-    public synchronized void removePlayer(String playername) {
-        JobsDAO dao = plugin.getJobsCore().getJobsDAO();
-        if (players.containsKey(playername)) {
-            JobsPlayer player = players.remove(playername);
+    public void removePlayer(String playername) {
+        JobsPlayer player = players.remove(playername);
+        if (player != null) {
+            JobsDAO dao = plugin.getJobsCore().getJobsDAO();
             dao.save(player);
         }
     }
@@ -42,9 +45,15 @@ public class PlayerManager {
     /**
      * Save all the information of all of the players in the game
      */
-    public synchronized void saveAll() {
+    public void saveAll() {
         JobsDAO dao = plugin.getJobsCore().getJobsDAO();
-        for (JobsPlayer player : players.values()) {
+        ArrayList<JobsPlayer> list = new ArrayList<JobsPlayer>(players.size());
+        synchronized (players) {
+            for (JobsPlayer player : players.values()) {
+                list.add(player);
+            }
+        }
+        for (JobsPlayer player : list) {
             dao.save(player);
         }
     }
@@ -54,7 +63,7 @@ public class PlayerManager {
      * @param player - the player who's job you're getting
      * @return the player job info of the player
      */
-    public synchronized JobsPlayer getJobsPlayer(String playername) {
+    public JobsPlayer getJobsPlayer(String playername) {
         JobsPlayer jPlayer = players.get(playername);
         if (jPlayer == null) {
             jPlayer = new JobsPlayer(plugin, playername);
@@ -68,7 +77,7 @@ public class PlayerManager {
      * @param jPlayer
      * @param job
      */
-    public synchronized void joinJob(JobsPlayer jPlayer, Job job) {
+    public void joinJob(JobsPlayer jPlayer, Job job) {
         if (jPlayer.isInJob(job))
             return;
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
@@ -93,7 +102,7 @@ public class PlayerManager {
      * @param jPlayer
      * @param job
      */
-    public synchronized void leaveJob(JobsPlayer jPlayer, Job job) {
+    public void leaveJob(JobsPlayer jPlayer, Job job) {
         if (!jPlayer.isInJob(job))
             return;
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
@@ -119,7 +128,7 @@ public class PlayerManager {
      * @param oldjob - the old job
      * @param newjob - the new job
      */
-    public synchronized void transferJob(JobsPlayer jPlayer, Job oldjob, Job newjob) {
+    public void transferJob(JobsPlayer jPlayer, Job oldjob, Job newjob) {
         if (!jPlayer.transferJob(oldjob,  newjob))
             return;
         
@@ -146,7 +155,7 @@ public class PlayerManager {
      * @param job - the job
      * @param levels - number of levels to promote
      */
-    public synchronized void promoteJob(JobsPlayer jPlayer, Job job, int levels) {
+    public void promoteJob(JobsPlayer jPlayer, Job job, int levels) {
         jPlayer.promoteJob(job, levels);
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if (player != null) {
@@ -167,7 +176,7 @@ public class PlayerManager {
      * @param job - the job
      * @param levels - number of levels to demote
      */
-    public synchronized void demoteJob(JobsPlayer jPlayer, Job job, int levels) {
+    public void demoteJob(JobsPlayer jPlayer, Job job, int levels) {
         jPlayer.demoteJob(job, levels);
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if (player != null) {
@@ -188,7 +197,7 @@ public class PlayerManager {
      * @param job - the job
      * @param experience - experience gained
      */
-    public synchronized void addExperience(JobsPlayer jPlayer, Job job, double experience) {
+    public void addExperience(JobsPlayer jPlayer, Job job, double experience) {
         JobProgression prog = jPlayer.getJobProgression(job);
         if (prog == null)
             return;
@@ -213,7 +222,7 @@ public class PlayerManager {
      * @param job - the job
      * @param experience - experience gained
      */
-    public synchronized void removeExperience(JobsPlayer jPlayer, Job job, double experience) {
+    public void removeExperience(JobsPlayer jPlayer, Job job, double experience) {
         JobProgression prog = jPlayer.getJobProgression(job);
         if (prog == null)
             return;
@@ -237,7 +246,7 @@ public class PlayerManager {
      * @param jPlayer
      * @param job
      */
-    public synchronized void performLevelUp(JobsPlayer jPlayer, Job job) {
+    public void performLevelUp(JobsPlayer jPlayer, Job job) {
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
         JobProgression prog = jPlayer.getJobProgression(job);
         if (prog == null)
