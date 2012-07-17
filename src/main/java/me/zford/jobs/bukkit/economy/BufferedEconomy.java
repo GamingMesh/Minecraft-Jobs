@@ -50,17 +50,19 @@ public class BufferedEconomy {
         int batchSize = plugin.getJobsConfiguration().getEconomyBatchSize();
         ArrayList<BufferedPayment> buffered = new ArrayList<BufferedPayment>(batchSize);
         synchronized (payments) {
+            int i = 0;
             for (Map.Entry<String, Double> entry : payments.entrySet()) {
                 if (buffered.size() >= batchSize) {
-                    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BufferedPaymentTask(economy, buffered));
+                    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BufferedPaymentTask(economy, buffered), i);
                     buffered = new ArrayList<BufferedPayment>(batchSize);
+                    i++;
                 }
                 String playername = entry.getKey();
                 double payment = entry.getValue().doubleValue();
                 if (payment != 0)
                     buffered.add(new BufferedPayment(playername, payment));
             }
-            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BufferedPaymentTask(economy, buffered));
+            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BufferedPaymentTask(economy, buffered), i);
             
             payments.clear();
         }
