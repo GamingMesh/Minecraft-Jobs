@@ -58,7 +58,7 @@ public class JobsConfiguration {
         this.plugin = plugin;
     }
     
-    public void reload() {
+    public synchronized void reload() {
         // general settings
         loadGeneralSettings();
         // title settings
@@ -72,7 +72,7 @@ public class JobsConfiguration {
      * 
      * loads from Jobs/generalConfig.yml
      */
-    private void loadGeneralSettings(){
+    private synchronized void loadGeneralSettings(){
         File f = new File(plugin.getDataFolder(), "generalConfig.yml");
         
         if(!f.exists()) {
@@ -222,7 +222,7 @@ public class JobsConfiguration {
         }
     }
     
-    private void copySetting(Configuration reader, Configuration writer, String path) {
+    private synchronized void copySetting(Configuration reader, Configuration writer, String path) {
         writer.set(path, reader.get(path));
     }
     
@@ -231,7 +231,7 @@ public class JobsConfiguration {
      * 
      * loads from Jobs/titleConfig.yml
      */
-    private void loadTitleSettings(){
+    private synchronized void loadTitleSettings(){
         this.titles.clear();
         File f = new File(plugin.getDataFolder(), "titleConfig.yml");
         if(!f.exists()) {
@@ -335,7 +335,7 @@ public class JobsConfiguration {
      * 
      * loads from Jobs/restrictedAreas.yml
      */
-    private void loadRestrictedAreaSettings(){
+    private synchronized void loadRestrictedAreaSettings(){
         this.restrictedAreas.clear();
         File f = new File(plugin.getDataFolder(), "restrictedAreas.yml");
         if (!f.exists()) {
@@ -458,7 +458,7 @@ public class JobsConfiguration {
      * Get how often in minutes to save job information
      * @return how often in minutes to save job information
      */
-    public int getSavePeriod(){
+    public synchronized int getSavePeriod(){
         return config.getInt("save-period");
     }
     
@@ -467,7 +467,7 @@ public class JobsConfiguration {
      * @return true - broadcast on skill up
      * @return false - do not broadcast on skill up
      */
-    public boolean isBroadcastingSkillups(){
+    public synchronized boolean isBroadcastingSkillups(){
         return config.getBoolean("broadcast-on-skill-up");
     }
     
@@ -476,7 +476,7 @@ public class JobsConfiguration {
      * @return true - broadcast on level up
      * @return false - do not broadcast on level up
      */
-    public boolean isBroadcastingLevelups(){
+    public synchronized boolean isBroadcastingLevelups(){
         return config.getBoolean("broadcast-on-level-up");
     }
     
@@ -485,7 +485,7 @@ public class JobsConfiguration {
      * @return true - pay in creative
      * @return false - do not pay in creative
      */
-    public boolean payInCreative() {
+    public synchronized boolean payInCreative() {
         return config.getBoolean("enable-pay-creative");
     }
     
@@ -514,7 +514,7 @@ public class JobsConfiguration {
      * Function to return the maximum number of jobs a player can join
      * @return
      */
-    public int getMaxJobs() {
+    public synchronized int getMaxJobs() {
         return config.getInt("max-jobs");
     }
     
@@ -523,7 +523,7 @@ public class JobsConfiguration {
      * @return true - you get paid
      * @return false - you don't get paid
      */
-    public boolean payNearSpawner() {
+    public synchronized boolean payNearSpawner() {
         return config.getBoolean("enable-pay-near-spawner");
     }
     
@@ -531,7 +531,7 @@ public class JobsConfiguration {
      * Function to get the restricted areas on the server
      * @return restricted areas on the server
      */
-    public List<RestrictedArea> getRestrictedAreas() {
+    public synchronized List<RestrictedArea> getRestrictedAreas() {
         return this.restrictedAreas;
     }
     
@@ -548,15 +548,15 @@ public class JobsConfiguration {
         return 1.0;
     }
     
-    public boolean getModifyChat() {
+    public synchronized boolean getModifyChat() {
         return config.getBoolean("modify-chat");
     }
     
-    public int getEconomyBatchSize() {
+    public synchronized int getEconomyBatchSize() {
         return config.getInt("economy-batch-size");
     }
     
-    public int getEconomyBatchDelay() {
+    public synchronized int getEconomyBatchDelay() {
         return config.getInt("economy-batch-delay");
     }
 }

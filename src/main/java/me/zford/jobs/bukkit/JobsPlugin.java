@@ -28,7 +28,7 @@ import me.zford.jobs.bukkit.config.MessageConfig;
 import me.zford.jobs.bukkit.economy.BufferedEconomy;
 import me.zford.jobs.bukkit.listeners.JobsListener;
 import me.zford.jobs.bukkit.listeners.JobsPaymentListener;
-import me.zford.jobs.bukkit.tasks.BufferedPaymentRepeatableTask;
+import me.zford.jobs.bukkit.tasks.BufferedPaymentThread;
 import me.zford.jobs.container.ActionInfo;
 import me.zford.jobs.container.Job;
 import me.zford.jobs.container.JobProgression;
@@ -44,7 +44,6 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
 
 public class JobsPlugin extends JavaPlugin {
     private Jobs core;
@@ -52,7 +51,7 @@ public class JobsPlugin extends JavaPlugin {
     private JobsConfiguration jobsConfiguration = new JobsConfiguration(this);
     private PlayerManager pManager = new PlayerManager(this);
     private JobConfig jobConfig = new JobConfig(this);
-    private int paymentTaskId = -1;
+    private BufferedPaymentThread paymentThread;
     private DatabaseSaveTask saveTask;
     private BufferedEconomy economy;
     private PlayerLoginManager loginManager = new PlayerLoginManager(this);
@@ -63,6 +62,9 @@ public class JobsPlugin extends JavaPlugin {
     public void onDisable() {
         if (saveTask != null)
             saveTask.shutdown();
+        
+        if (paymentThread != null)
+            paymentThread.shutdown();
         
         loginManager.shutdown();
         
@@ -207,10 +209,10 @@ public class JobsPlugin extends JavaPlugin {
      * Restarts all tasks
      */
     private void restartTasks() {
-        BukkitScheduler scheduler = getServer().getScheduler();
-        
-        if (paymentTaskId > 0)
-            scheduler.cancelTask(paymentTaskId);
+        if (paymentThread != null) {
+            paymentThread.shutdown();
+            paymentThread = null;
+        }
         
         if (saveTask != null) {
             saveTask.shutdown();
@@ -224,8 +226,8 @@ public class JobsPlugin extends JavaPlugin {
         }
         
         // schedule payouts to buffered payments
-        int economyDelay = getJobsConfiguration().getEconomyBatchDelay() * 20;
-        paymentTaskId = getServer().getScheduler().scheduleSyncRepeatingTask(this, new BufferedPaymentRepeatableTask(economy), economyDelay, economyDelay);
+        paymentThread = new BufferedPaymentThread(this, economy, getJobsConfiguration().getEconomyBatchDelay());
+        paymentThread.start();
     }
     
     /**
