@@ -27,6 +27,8 @@ public class BufferedEconomy {
      * @param amount - amount to be paid
      */
     public void pay(JobsPlayer player, double amount) {
+        if (amount == 0)
+            return;
         double total = 0;
         String playername = player.getName();
         if (payments.containsKey(playername))
