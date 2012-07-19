@@ -15,7 +15,11 @@ public class BufferedPaymentTask implements Runnable {
     @Override
     public void run() {
         for (BufferedPayment payment : payments) {
-            economy.depositPlayer(payment.getPlayerName(), payment.getAmount());
+            if (payment.getAmount() > 0) {
+                economy.depositPlayer(payment.getPlayerName(), payment.getAmount());
+            } else {
+                economy.withdrawPlayer(payment.getPlayerName(), -payment.getAmount());
+            }
         }
     }
 }
