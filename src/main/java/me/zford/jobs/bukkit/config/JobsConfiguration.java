@@ -139,8 +139,8 @@ public class JobsConfiguration {
         writer.addComment("modify-chat", "Modifys chat to add chat titles.  If you're using a chat manager, you may add the tag {jobs} to your chat format and disable this.");
         config.addDefault("modify-chat", true);
         
-        writer.addComment("economy-batch-size", "Changes how how many players are paid per payment batch.  Setting this too low or too high may cause tick lag.");
-        config.addDefault("economy-batch-size", 10);
+        writer.addComment("economy-batch-size", "Changes how how many players are paid per payment batch.  Setting this too high may cause tick lag.");
+        config.addDefault("economy-batch-size", 1);
         
         writer.addComment("economy-batch-delay", "Changes how often, in seconds, players are paid out.  Default is 5 seconds.",
                 "Setting this too low may cause tick lag.  Increase this to improve economy performance (at the cost of delays in payment)");
