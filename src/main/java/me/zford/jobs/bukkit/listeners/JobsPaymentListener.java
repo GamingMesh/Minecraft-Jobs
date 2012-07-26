@@ -86,6 +86,9 @@ public class JobsPaymentListener implements Listener {
         if(!plugin.isEnabled()) return;
         
         Player player = event.getPlayer();
+
+        //Check for mods fake-users
+        if(player.getName().equalsIgnoreCase("[redpower]") || player.getName().equalsIgnoreCase("[industrialcraft]") || player.getName().equalsIgnoreCase("[buildcraft]")) return;
         
         // check if in creative
         if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
