@@ -92,7 +92,9 @@ public class MessageConfig {
         ERROR_NO_PERMISSION("ChatColor.REDYou do not have permission to do that!"),
         JOIN_TOO_MANY_JOB("ChatColor.REDYou have joined too many jobs."),
         LEAVE_JOB_FAILED_TOO_MANY("ChatColor.REDYou have joined too many jobs!"),
-        LEAVE_JOB_SUCCESS("You have left the job %jobcolour%%jobname%ChatColor.WHITE.");
+        LEAVE_JOB_SUCCESS("You have left the job %jobcolour%%jobname%ChatColor.WHITE."),
+        CANNOT_EMPLOY_FACTION("ChatColor.REDYou cannot employ a player who is not in your faction. ChatColor.WHITE"),
+        CANNOT_FIRE_FACTION("ChatColor.REDYou cannot fire a player who is not in your faction. ChatColor.WHITE");
         
         private String message;
         
