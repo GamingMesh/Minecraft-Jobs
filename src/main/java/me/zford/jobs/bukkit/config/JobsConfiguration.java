@@ -145,6 +145,9 @@ public class JobsConfiguration {
         writer.addComment("economy-batch-delay", "Changes how often, in seconds, players are paid out.  Default is 5 seconds.",
                 "Setting this too low may cause tick lag.  Increase this to improve economy performance (at the cost of delays in payment)");
         config.addDefault("economy-batch-delay", 5);
+        writer.addComment("factions-enabled", "Enables or disables factions integration.",
+        "It will allow faction admins and moderators to employ and fire only players who are in their faction.");
+        config.addDefault("factions-enabled", false);
         
         try {
             config.load(f);
@@ -213,6 +216,7 @@ public class JobsConfiguration {
         copySetting(config, writer, "modify-chat");
         copySetting(config, writer, "economy-batch-size");
         copySetting(config, writer, "economy-batch-delay");
+        copySetting(config, writer, "factions-enabled");
         
         // Write back config
         try {
@@ -558,5 +562,8 @@ public class JobsConfiguration {
     
     public synchronized int getEconomyBatchDelay() {
         return config.getInt("economy-batch-delay");
+    }
+        public synchronized boolean isFactionsEnabled() {
+        return config.getBoolean("factions-enabled");
     }
 }

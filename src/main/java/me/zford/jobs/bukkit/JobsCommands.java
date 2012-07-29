@@ -40,6 +40,12 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import com.massivecraft.factions.FPlayer;
+import com.massivecraft.factions.FPlayers;
+import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.struct.Role;
+
+
 public class JobsCommands implements CommandExecutor {
     
     private JobsPlugin plugin;
@@ -95,7 +101,8 @@ public class JobsCommands implements CommandExecutor {
     }
     
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {    
+                
         if (args.length == 0)
             return help(sender);
         
@@ -114,12 +121,57 @@ public class JobsCommands implements CommandExecutor {
         }
         
         try {
+            
+            
             Method m = getClass().getMethod(cmd, CommandSender.class, String[].class);
-            if (!hasCommandPermission(sender, cmd)) {
+            
+            if (!hasCommandPermission(sender, cmd)) {      
+                
+                // check if the plugin should use factions based on the config
+                if(plugin.getJobsConfiguration().isFactionsEnabled())
+                {
+                    // only enables the employ or fire commands
+                    if(cmd.equals("employ") || cmd.equals("fire"))
+                    {
+                        // Get the calling players Faction
+                        Player currentPlayer = (Player)sender;
+                        FPlayer factionPlayer = FPlayers.i.get(currentPlayer);
+
+                        Role role = factionPlayer.getRole();
+                        
+                        // check they are faction leader or moderator
+                        if(role == Role.ADMIN || role == Role.MODERATOR)
+                        {
+                            // Get the Target Players Faction
+                           String targetPlayerName = myArgs[0];
+                           Player targetPlayer = sender.getServer().getPlayer(targetPlayerName);
+                           FPlayer factionTargetPlayer = FPlayers.i.get(targetPlayer);
+                           // Check they are in the same faction (dont want them employing or firing from each others faction)
+                           if(factionPlayer.getFaction() == factionTargetPlayer.getFaction())
+                           {
+                                return (Boolean) m.invoke(this, sender, myArgs);
+                           }
+                           else
+                           {
+                               // Get the configuartion message to return
+                               if(cmd.equals("employ"))
+                               {
+                                   sender.sendMessage(plugin.getMessageConfig().getMessage("cannot-employ-faction"));
+                               }
+                               else
+                               {
+                                   sender.sendMessage(plugin.getMessageConfig().getMessage("cannot-fire-faction"));
+                               }
+                            return true;
+                           }
+                        }
+                    }
+                }
+                        
                 sender.sendMessage(plugin.getMessageConfig().getMessage("error-no-permission"));
                 return true;
             }
-            return (Boolean) m.invoke(this, sender, myArgs);
+           return (Boolean) m.invoke(this, sender, myArgs);
         } catch (SecurityException e) {
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
@@ -184,7 +236,35 @@ public class JobsCommands implements CommandExecutor {
         sender.sendMessage(ChatColor.GREEN+"*** "+ChatColor.YELLOW+"Jobs"+ChatColor.GREEN+" ***");
         for (String cmd : commands) {
             if (!hasCommandPermission(sender, cmd))
-                continue;
+            {
+                 // check if the plugin should use factions based on the config
+                if(plugin.getJobsConfiguration().isFactionsEnabled())
+                {
+                    // only enables the employ or fire commands
+                    if(cmd.equals("employ") || cmd.equals("fire"))
+                    {
+                         // Get the calling players Faction
+                        Player currentPlayer = (Player)sender;
+                        FPlayer factionPlayer = FPlayers.i.get(currentPlayer);
+
+                        Role role = factionPlayer.getRole();
+                        
+                        // check they are faction leader or moderator
+                        if(role != Role.ADMIN && role != Role.MODERATOR)
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        continue;
+                    }
+                }
+                else
+                {
+                     continue;
+                }
+            }
             sender.sendMessage(getUsage(cmd));
         }
         sender.sendMessage(ChatColor.YELLOW+"Type /jobs [cmd] ? for more information about a command.");
@@ -218,7 +298,7 @@ public class JobsCommands implements CommandExecutor {
         }
         
         if (jPlayer.isInJob(job)) {
-            // already in job message
+            // already in job message 
             String message = plugin.getMessageConfig().getMessage("join-job-failed-already-in");
             message = message.replace("%jobcolour%", job.getChatColour().toString());
             message = message.replace("%jobname%", job.getName());
