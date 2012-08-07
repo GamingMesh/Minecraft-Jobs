@@ -328,6 +328,8 @@ public class JobsCommands implements CommandExecutor {
     public boolean browse(CommandSender sender, String[] args) {
         ArrayList<String> jobs = new ArrayList<String>();
         for (Job job: plugin.getJobsCore().getJobs()) {
+        	if (!plugin.hasJobPermission(sender, job))
+        		continue;
             if (job.getMaxLevel() > 0) {
                 jobs.add(job.getChatColour() + job.getName() + ChatColor.WHITE + " - max lvl: " + job.getMaxLevel());
             } else {
