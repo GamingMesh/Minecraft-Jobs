@@ -27,6 +27,7 @@ import me.zford.jobs.bukkit.config.JobsConfiguration;
 import me.zford.jobs.bukkit.config.MessageConfig;
 import me.zford.jobs.bukkit.economy.BufferedEconomy;
 import me.zford.jobs.bukkit.listeners.JobsListener;
+import me.zford.jobs.bukkit.listeners.JobsMcmmoListener;
 import me.zford.jobs.bukkit.listeners.JobsPaymentListener;
 import me.zford.jobs.bukkit.tasks.BufferedPaymentThread;
 import me.zford.jobs.container.ActionInfo;
@@ -110,6 +111,12 @@ public class JobsPlugin extends JavaPlugin {
             return;
         }
         
+        if (loadMcmmo()) {
+        	getServer().getPluginManager().registerEvents(new JobsMcmmoListener(this), this);
+        }else {
+        	getServer().getLogger().severe("Unable to load mcMMO. Repair events will be ignored.");
+        }
+        
         // register the listeners
         getServer().getPluginManager().registerEvents(new JobsListener(this), this);
         getServer().getPluginManager().registerEvents(new JobsPaymentListener(this), this);
@@ -145,6 +152,18 @@ public class JobsPlugin extends JavaPlugin {
         economy = new BufferedEconomy(this);
         
         getLogger().info("["+getDescription().getName()+"] Successfully linked with Vault.");
+        return true;
+    }
+    
+    /**
+     * Loads mcMMO
+     */
+    private boolean loadMcmmo() {
+        Plugin test = getServer().getPluginManager().getPlugin("mcMMO");
+        if (test == null)
+            return false;
+        
+        getLogger().info("["+getDescription().getName()+"] Successfully linked with mcMMO.");
         return true;
     }
     
