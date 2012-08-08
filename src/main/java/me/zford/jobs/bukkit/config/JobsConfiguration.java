@@ -130,6 +130,9 @@ public class JobsConfiguration {
         );
         config.addDefault("max-jobs", 3);
         
+        writer.addComment("hide-jobs-without-permission", "Hide jobs from player if they lack the permission to join the job");
+        config.addDefault("hide-jobs-without-permission", false);
+        
         writer.addComment("enable-pay-near-spawner", "option to allow payment to be made when killing mobs from a spawner");
         config.addDefault("enable-pay-near-spawner", false);
         
@@ -208,6 +211,7 @@ public class JobsConfiguration {
         copySetting(config, writer, "broadcast-on-skill-up");
         copySetting(config, writer, "broadcast-on-level-up");
         copySetting(config, writer, "max-jobs");
+        copySetting(config, writer, "hide-jobs-without-permission");
         copySetting(config, writer, "enable-pay-near-spawner");
         copySetting(config, writer, "enable-pay-creative");
         copySetting(config, writer, "modify-chat");
@@ -508,6 +512,14 @@ public class JobsConfiguration {
             }
         }
         return title;
+    }
+    
+    /**
+     * Function to check if jobs should be hidden to players that lack permission to join the job
+     * @return
+     */
+    public synchronized boolean getHideJobsWithoutPermission() {
+        return config.getBoolean("hide-jobs-without-permission");
     }
     
     /**
