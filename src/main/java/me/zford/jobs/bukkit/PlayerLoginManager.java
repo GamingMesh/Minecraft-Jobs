@@ -28,23 +28,22 @@ public class PlayerLoginManager extends Thread {
     public void run() {
         plugin.getLogger().info("Login manager started");
         while (running) {
-            while (!queue.isEmpty()) {
-                JobsLogin login = queue.remove();
-                try {
-                    if (login.getType().equals(LoginType.LOGIN)) {
-                        plugin.getPlayerManager().addPlayer(login.getPlayer());
-                    } else if (login.getType().equals(LoginType.LOGOUT)) {
-                        plugin.getPlayerManager().removePlayer(login.getPlayer());
-                    }
-                } catch (Throwable t) {
-                    t.printStackTrace();
-                }
-            }
+            JobsLogin login = null;
             try {
-                sleep(10);
-            } catch (InterruptedException e) {
-                this.running = false;
+                login = queue.take();
+            } catch (InterruptedException e) {}
+            
+            if (login == null)
                 continue;
+            
+            try {
+                if (login.getType().equals(LoginType.LOGIN)) {
+                    plugin.getPlayerManager().addPlayer(login.getPlayer());
+                } else if (login.getType().equals(LoginType.LOGOUT)) {
+                    plugin.getPlayerManager().removePlayer(login.getPlayer());
+                }
+            } catch (Throwable t) {
+                t.printStackTrace();
             }
         }
         plugin.getLogger().info("Login manager shutdown");
