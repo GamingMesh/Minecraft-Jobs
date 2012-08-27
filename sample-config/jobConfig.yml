@@ -12,16 +12,16 @@
 
 Jobs:
   # must be one word
-  Woodcutter:
+  Holzfäller:
     # full name of the job (displayed when browsing a job, used when joining and leaving)
     # also can be used as a prefix for the user's name if the option is enabled.
     # Shown as a prefix only when the user has 1 job.
     #
     # NOTE: Must be 1 word
-    fullname: Woodcutter
+    fullname: Holzfäller
     # Shortened version of the name of the job. Used as a prefix when the user has more 
     # than 1 job
-    shortname: W
+    shortname: HF
     # The colour of the name, for a full list of supported colours, go to the message config.
     ChatColour: GREEN
     # Option to let you choose what kind of prefix this job adds to your name.
@@ -135,8 +135,8 @@ Jobs:
         value: true
         # Permission granted when reaching level 10
         level: 10
-  Miner:
-    fullname: Miner
+  Minenarbeiter:
+    fullname: Minenarbeiter
     shortname: M
     ChatColour: DARK_GRAY
     chat-display: full
@@ -185,14 +185,14 @@ Jobs:
         experience: -6.0
     Kill:
       Player:
-        income: 7.5
-        experience: 7.5
+        income: -7.5
+        experience: -7.5
     custom-kill:
       Miner:
-        income: 10.0
-        experience: 10.0
-  Builder:
-    fullname: Builder
+        income: -10.0
+        experience: -10.0
+  Baumeister:
+    fullname: Baumeister
     shortname: B
     ChatColour: WHITE
     chat-display: full
@@ -258,15 +258,15 @@ Jobs:
         experience: 5.0
     Kill:
       Player:
-        income: 7.5
-        experience: 7.5
+        income: -7.5
+        experience: -7.5
     custom-kill:
       Builder:
-        income: 10.0
-        experience: 10.0
-  Digger:
-    fullname: Digger
-    shortname: D
+        income: -10.0
+        experience: -10.0
+  Gräber:
+    fullname: Gräber
+    shortname: G
     ChatColour: GOLD
     chat-display: full
     #max-level: 10
@@ -292,15 +292,15 @@ Jobs:
         experience: 2.0
     Kill:
       Player:
-        income: 7.5
-        experience: 7.5
+        income: -7.5
+        experience: -7.5
     custom-kill:
       Digger:
-        income: 10.0
-        experience: 10.0
-  Farmer:
-    fullname: Farmer
-    shortname: Fa
+        income: -10.0
+        experience: -10.0
+  Elfe:
+    fullname: Elfe
+    shortname: E
     ChatColour: BLUE
     chat-display: full
     #max-level: 10
@@ -324,15 +324,15 @@ Jobs:
         experience: 1.0
     Kill:
       Player:
-        income: 7.5
-        experience: 7.5
+        income: -7.5
+        experience: -7.5
     custom-kill:
       Farmer:
-        income: 10.0
-        experience: 10.0
-  Hunter:
-    fullname: Hunter
-    shortname: H
+        income: -10.0
+        experience: -10.0
+  Assassine:
+    fullname: Assassine
+    shortname: A
     ChatColour: RED
     chat-display: full
     #max-level: 10
@@ -372,26 +372,26 @@ Jobs:
         income: 7.5
         experience: 7.5
     custom-kill:
-      Woodcutter:
+      Holzfäller:
         income: 10.0
         experience: 10.0
-      Miner:
+      Minenarbeiter:
         income: 10.0
         experience: 10.0
-      Digger:
+      Gräber:
         income: 10.0
         experience: 10.0
-      Farmer:
+      Elfe:
         income: 10.0
         experience: 10.0
-      Builder:
+      Baumeister:
         income: 10.0
         experience: 10.0
-      Hunter:
+      Assassine:
         income: 20.0
         experience: 20.0
-  Fisherman:
-    fullname: Fisherman
+  Fischer:
+    fullname: Fischer
     shortname: Fi
     ChatColour: AQUA
     chat-display: full
@@ -406,15 +406,15 @@ Jobs:
         experience: 4.0
     Kill:
       Player:
-        income: 7.5
-        experience: 7.5
+        income: -7.5
+        experience: -7.5
     custom-kill:
       Fisherman:
-        income: 10.0
-        experience: 10.0
-  Weaponsmith:
-    fullname: Weaponsmith
-    shortname: W
+        income: -10.0
+        experience: -10.0
+  Schmied:
+    fullname: Schmied
+    shortname: S
     ChatColour: DARK_PURPLE
     chat-display: full
     #max-level: 10
@@ -442,8 +442,8 @@ Jobs:
       GOLD_INGOT:
         income: 2.0
         experience: 2.0
-  Brewer:
-    fullname: Brewer
+  Bräuer:
+    fullname: Bräuer
     shortname: Br
     ChatColour: LIGHT_PURPLE
     chat-display: full
@@ -481,9 +481,9 @@ Jobs:
       GHAST_TEAR:
         income: 4.0
         experience: 4.0
-  Enchanter:
-    fullname: Enchanter
-    shortname: E
+  Magier:
+    fullname: Magier
+    shortname: Ma
     ChatColour: DARK_BLUE
     chat-display: full
     #max-level: 10
@@ -504,11 +504,11 @@ Jobs:
       DIAMOND_SWORD:
         income: 10.0
         experience: 10.0
-  None:
-    fullname: None
-    shortname: N
-    ChatColour: WHITE
-    chat-display: none
+  König:
+    fullname: König
+    shortname: König
+    ChatColour: BLACK
+    chat-display: full
     #max-level: 10
     #slots: 10
     leveling-progression-equation: 100*((1.13+(0.01*(numjobs-1)))^(joblevel-1))
@@ -516,4 +516,4 @@ Jobs:
     experience-progression-equation: baseexperience*((1.05)^(joblevel-1))
     Kill:
       Player:
-        income: 7.5
+        income: 0.0
