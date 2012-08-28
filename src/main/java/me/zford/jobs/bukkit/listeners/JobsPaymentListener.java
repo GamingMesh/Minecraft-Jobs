@@ -87,6 +87,10 @@ public class JobsPaymentListener implements Listener {
         
         Player player = event.getPlayer();
         
+        // check the existence of the player
+        if (player.isEmpty())
+            return;
+        
         // check if in creative
         if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
             return;
