@@ -12,16 +12,16 @@
 
 Jobs:
   # must be one word
-  Woodcutter:
+  Bucheron:
     # full name of the job (displayed when browsing a job, used when joining and leaving)
     # also can be used as a prefix for the user's name if the option is enabled.
     # Shown as a prefix only when the user has 1 job.
     #
     # NOTE: Must be 1 word
-    fullname: Woodcutter
+    fullname: Bucheron
     # Shortened version of the name of the job. Used as a prefix when the user has more 
     # than 1 job
-    shortname: W
+    shortname: B
     # The colour of the name, for a full list of supported colours, go to the message config.
     ChatColour: GREEN
     # Option to let you choose what kind of prefix this job adds to your name.
@@ -135,8 +135,8 @@ Jobs:
         value: true
         # Permission granted when reaching level 10
         level: 10
-  Miner:
-    fullname: Miner
+  Mineur:
+    fullname: Mineur
     shortname: M
     ChatColour: DARK_GRAY
     chat-display: full
@@ -191,9 +191,9 @@ Jobs:
       Miner:
         income: 10.0
         experience: 10.0
-  Builder:
-    fullname: Builder
-    shortname: B
+  Constructeur:
+    fullname: Constructeur
+    shortname: C
     ChatColour: WHITE
     chat-display: full
     #max-level: 10
@@ -264,9 +264,9 @@ Jobs:
       Builder:
         income: 10.0
         experience: 10.0
-  Digger:
-    fullname: Digger
-    shortname: D
+  Pelleteur:
+    fullname: Pelleteur
+    shortname: P
     ChatColour: GOLD
     chat-display: full
     #max-level: 10
@@ -298,9 +298,9 @@ Jobs:
       Digger:
         income: 10.0
         experience: 10.0
-  Farmer:
-    fullname: Farmer
-    shortname: Fa
+  Fermier:
+    fullname: Fermier
+    shortname: Fe
     ChatColour: BLUE
     chat-display: full
     #max-level: 10
@@ -330,9 +330,9 @@ Jobs:
       Farmer:
         income: 10.0
         experience: 10.0
-  Hunter:
-    fullname: Hunter
-    shortname: H
+  Chasseur:
+    fullname: Chasseur
+    shortname: Ch
     ChatColour: RED
     chat-display: full
     #max-level: 10
@@ -341,58 +341,58 @@ Jobs:
     income-progression-equation: baseincome*((1.05)^(joblevel-1))
     experience-progression-equation: baseexperience*((1.05)^(joblevel-1))
     Kill:
-      Chicken:
+      Poule:
         income: 2.5
         experience: 2.5
-      Cow:
+      Vache:
         income: 2.5
         experience: 2.5
-      Pig:
+      Cochon:
         income: 2.5
         experience: 2.5
-      Sheep: 
+      Mouton: 
         income: 2.5
         experience: 2.5
-      Wolf: 
+      Loup: 
         income: 5.0
         experience: 5.0
       Creeper: 
         income: 10.0
         experience: 10.0
-      Skeleton: 
+      Skellete: 
         income: 10.0
         experience: 10.0
-      Spider:
+      Araignee:
         income: 10.0
         experience: 10.0
       Zombie: 
         income: 10.0
         experience: 10.0
-      Player:
+      Joueur:
         income: 7.5
         experience: 7.5
     custom-kill:
-      Woodcutter:
+      Bucheron:
         income: 10.0
         experience: 10.0
-      Miner:
+      Mineur:
         income: 10.0
         experience: 10.0
-      Digger:
+      Pelleteur:
         income: 10.0
         experience: 10.0
-      Farmer:
+      Fermier:
         income: 10.0
         experience: 10.0
-      Builder:
+      Constructeur:
         income: 10.0
         experience: 10.0
-      Hunter:
+      Chasseur:
         income: 20.0
         experience: 20.0
-  Fisherman:
-    fullname: Fisherman
-    shortname: Fi
+  Pecheur:
+    fullname: Pecheur
+    shortname: P
     ChatColour: AQUA
     chat-display: full
     #max-level: 10
@@ -400,21 +400,21 @@ Jobs:
     leveling-progression-equation: 100*((1.13+(0.01*(numjobs-1)))^(joblevel-1))
     income-progression-equation: baseincome*((1.05)^(joblevel-1))
     experience-progression-equation: baseexperience*((1.05)^(joblevel-1))
-    Fish:
+    Poisson:
       RAW_FISH:
         income: 4.0
         experience: 4.0
     Kill:
-      Player:
+      Joueur:
         income: 7.5
         experience: 7.5
     custom-kill:
-      Fisherman:
+      Pecheur:
         income: 10.0
         experience: 10.0
-  Weaponsmith:
-    fullname: Weaponsmith
-    shortname: W
+  Forgeron:
+    fullname: Forgeron
+    shortname: Fo
     ChatColour: DARK_PURPLE
     chat-display: full
     #max-level: 10
@@ -442,9 +442,9 @@ Jobs:
       GOLD_INGOT:
         income: 2.0
         experience: 2.0
-  Brewer:
-    fullname: Brewer
-    shortname: Br
+  Alchimiste:
+    fullname: Alchimiste
+    shortname: A
     ChatColour: LIGHT_PURPLE
     chat-display: full
     leveling-progression-equation: 100*((1.13+(0.01*(numjobs-1)))^(joblevel-1))
@@ -481,8 +481,8 @@ Jobs:
       GHAST_TEAR:
         income: 4.0
         experience: 4.0
-  Enchanter:
-    fullname: Enchanter
+  Enchanteur:
+    fullname: Enchanteur
     shortname: E
     ChatColour: DARK_BLUE
     chat-display: full
