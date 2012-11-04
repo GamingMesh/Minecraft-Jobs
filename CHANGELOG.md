@@ -1,5 +1,13 @@
 # Jobs plugin change log summary
 
+## 2.9.0
+* Fixed some issues with World permissions
+* Rewrote command handling
+* Fixed issues with negative economy amounts
+* Fixes some issues with economy payments causing lag spikes
+* Implemented Bukkit Async chat events 
+* Potentially fixed issues with IndustrialCraft (and other client mods, untested)
+
 ## 2.8.5
 * Improved reading of mob names in config file
 * Periodic saving is done in a separate thread
