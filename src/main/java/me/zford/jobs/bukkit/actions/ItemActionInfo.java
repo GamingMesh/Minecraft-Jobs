@@ -20,6 +20,6 @@ public class ItemActionInfo extends BaseActionInfo implements ActionInfo {
 
     @Override
     public String getNameWithSub() {
-        return getName()+":"+items.getData();
+        return getName()+":"+items.getData().getData();
     }
 }
