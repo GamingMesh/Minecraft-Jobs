@@ -1,8 +1,6 @@
-package me.zford.jobs.resources.jfep;
-
-/*
+/**
  * -------------------------------------------------------------------------
- *	$Id: Sfun.java,v 1.1.1.1 2005/06/06 07:43:35 Administrator Exp $
+ *  $Id: Sfun.java,v 1.1.1.1 2005/06/06 07:43:35 Administrator Exp $
  * -------------------------------------------------------------------------
  * Copyright (c) 1997 - 1998 by Visual Numerics, Inc. All rights reserved.
  *
@@ -22,6 +20,8 @@ package me.zford.jobs.resources.jfep;
  *
  * -------------------------------------------------------------------------
  */
+
+package me.zford.jobs.resources.jfep;
 
 /**
  *	Collection of special functions.

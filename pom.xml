@@ -15,6 +15,19 @@
       <url>http://repo.bukkit.org/content/groups/public</url>
     </repository>
   </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>mc-release</id>
+      <name>Local Maven repository of releases</name>
+      <url>http://mc-repo.googlecode.com/svn/maven2/releases</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </pluginRepository>
+  </pluginRepositories>
   <dependencies>
     <dependency>
       <groupId>org.bukkit</groupId>
@@ -54,6 +67,36 @@
           <target>1.6</target>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>com.mycila.maven-license-plugin</groupId>
+        <artifactId>maven-license-plugin</artifactId>
+        <version>1.10.b1</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+          <header>${basedir}/HEADER-GPL.txt</header>
+          <validHeaders>
+            <validHeader>${basedir}/HEADER-JFEP.txt</validHeader>
+            <validHeader>${basedir}/HEADER-Sfun.txt</validHeader>
+          </validHeaders>
+          <strictCheck>true</strictCheck>
+          <includes>
+            <include>src/main/java/**</include>
+          </includes>
+          <properties>
+            <description>Jobs Plugin for Bukkit</description>
+            <year>2011</year>
+            <owner>Zak Ford</owner>
+            <email>zak.j.ford@gmail.com</email>
+          </properties>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>    
     </plugins>
   </build>
 </project>
