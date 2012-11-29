@@ -44,6 +44,8 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.onarandombox.MultiverseCore.MultiverseCore;
+
 public class JobsPlugin extends JavaPlugin {
     private Jobs core;
     private MessageConfig messageConfig = new MessageConfig(this);
@@ -89,6 +91,18 @@ public class JobsPlugin extends JavaPlugin {
      * Method called when the plugin is enabled
      */
     public void onEnable() {
+    Plugin plugin = getServer().getPluginManager().getPlugin("Multiverse-Core");
+    try{
+    if(plugin == null){
+    }
+    }catch(Exception ex){
+    getLogger().info("Failed to hook in MultiVerse" + ex);
+    }
+    if(plugin != null){
+    me.zford.jobs.bukkit.listeners.JobsListener.setupMultiverseConnector(new MultiverseConnector((MultiverseCore) plugin));
+    getLogger().info("Successfully hooked into Multiverse:");
+    getLogger().info("Branch: " + plugin);
+    }
         core = new Jobs(this);
         JobsCommands commands = new JobsCommands(this);
         this.getCommand("jobs").setExecutor(commands);
