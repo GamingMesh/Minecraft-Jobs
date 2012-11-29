@@ -38,6 +38,9 @@ public class JobsListener implements Listener {
     // hook to the main plugin
     private JobsPlugin plugin;
     
+    //Hook into multiverse
+    private static MultiverseConnector multiverseConnector;
+    
     public JobsListener(JobsPlugin plugin) {
         this.plugin = plugin;
     }
@@ -90,4 +93,19 @@ public class JobsListener implements Listener {
         if (pm.getPermission("jobs.world."+world.getName().toLowerCase()) == null)
             pm.addPermission(new Permission("jobs.world."+world.getName().toLowerCase(), PermissionDefault.TRUE));
     }
+    public static void setupMultiverseConnector(MultiverseConnector conn) {
+    multiverseConnector = conn;
+}
+
+private String getWorldAlias(String world) {
+    
+	
+    if (JobsListener.multiverseConnector != null) {
+        return multiverseConnector.getColoredAliasForWorld(world);
+    }
+    
+    plugin.getLogger().info("Connector enabled!");
+    return world;
+    
+}
 }
