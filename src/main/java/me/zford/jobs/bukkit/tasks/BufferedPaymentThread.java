@@ -58,6 +58,9 @@ public class BufferedPaymentThread extends Thread {
                 Economy economy = economyFuture.get();
                 if (economy != null)
                     bufferedEconomy.payAll(economy);
+            } catch (InterruptedException e) {
+                running = false;
+                continue;
             } catch (Throwable t) {
                 t.printStackTrace();
                 plugin.getLogger().severe("Exception in BufferedPaymentThread, stopping economy payments!");
