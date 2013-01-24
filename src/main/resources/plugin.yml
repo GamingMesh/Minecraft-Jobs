@@ -12,8 +12,13 @@ permissions:
   jobs.*:
     description: Grants access to all Jobs commands
     children:
-      jobs.admin.*: true
+      jobs.admin: true
+  jobs.admin:
+    description: Grants permissions as an admin
+    default: false
+    children:
       jobs.use: true
+      jobs.command.*: true
   jobs.use:
     description: Grants ability to use this plugin
     default: true
