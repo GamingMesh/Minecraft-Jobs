@@ -78,6 +78,9 @@ public class JobsPaymentListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         // remove furnace metadata for broken block
         Block block = event.getBlock();
+        if (block == null)
+            return;
+        
         if (block.getType().equals(Material.FURNACE) && block.hasMetadata(furnaceOwner))
             block.removeMetadata(furnaceOwner, plugin);
         
@@ -105,6 +108,9 @@ public class JobsPaymentListener implements Listener {
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
     public void onBlockPlace(BlockPlaceEvent event) {
         Block block = event.getBlock();
+        if (block == null)
+            return;
+        
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
         
@@ -267,6 +273,9 @@ public class JobsPaymentListener implements Listener {
         if (!plugin.isEnabled())
             return;
         Block block = event.getBlock();
+        if (block == null)
+            return;
+        
         if (!block.hasMetadata(furnaceOwner))
             return;
         List<MetadataValue> data = block.getMetadata(furnaceOwner);
@@ -293,6 +302,9 @@ public class JobsPaymentListener implements Listener {
         if (!plugin.isEnabled())
             return;
         Block block = event.getBlock();
+        if (block == null)
+            return;
+        
         if (!block.hasMetadata(brewingOwner))
             return;
         List<MetadataValue> data = block.getMetadata(brewingOwner);
@@ -377,6 +389,8 @@ public class JobsPaymentListener implements Listener {
             return;
         
         Block block = event.getClickedBlock();
+        if (block == null)
+            return;
         
         if (block.getType().equals(Material.FURNACE)) {
             if (block.hasMetadata(furnaceOwner))
