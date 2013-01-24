@@ -285,45 +285,64 @@ public class JobsPlayer {
      * Function to recalculate permissions
      */
     public void recalculatePermissions() {
-        Player player = plugin.getServer().getPlayer(playername);
-        if (player == null)
-            return;
-        
-        boolean changed = false;
-        if (this.attachment != null) {
-            player.removeAttachment(attachment);
-            this.attachment = null;
-            changed = true;
-        }
-        
-        if (progression.size() == 0) {
-            Job job = plugin.getJobsCore().getNoneJob();
-            if (job != null) {
-                for (JobPermission perm : job.getPermissions()) {
-                    if (perm.getLevelRequirement() <= 0) {
-                        if (this.attachment == null) {
-                            this.attachment = player.addAttachment(plugin);
-                            changed = true;
+        /*
+         * This can be called from PlayerLoginManager in some cases.
+         * In those cases we'll schedule it as a delayed task.
+         * 
+         * This should be moved into a separate Bukkit specific section
+         * for forward compatibility.
+         * 
+         */
+        Runnable runnable = new Runnable() {
+            public void run() {
+                Player player = plugin.getServer().getPlayer(playername);
+                if (player == null)
+                    return;
+                
+                boolean changed = false;
+                if (attachment != null) {
+                    player.removeAttachment(attachment);
+                    attachment = null;
+                    changed = true;
+                }
+                
+                if (progression.size() == 0) {
+                    Job job = plugin.getJobsCore().getNoneJob();
+                    if (job != null) {
+                        for (JobPermission perm : job.getPermissions()) {
+                            if (perm.getLevelRequirement() <= 0) {
+                                if (attachment == null) {
+                                    attachment = player.addAttachment(plugin);
+                                    changed = true;
+                                }
+                                attachment.setPermission(perm.getNode(), perm.getValue());
+                            }
                         }
-                        attachment.setPermission(perm.getNode(), perm.getValue());
+                    }
+                } else {
+                    for (JobProgression prog : progression) {
+                        for (JobPermission perm : prog.getJob().getPermissions()) {
+                            if (prog.getLevel() >= perm.getLevelRequirement()) {
+                                if (attachment == null) {
+                                    attachment = player.addAttachment(plugin);
+                                    changed = true;
+                                }
+                                attachment.setPermission(perm.getNode(), perm.getValue());
+                            }
+                        }
                     }
                 }
+                if (changed)
+                    player.recalculatePermissions();
+                
             }
+        };
+        
+        if (plugin.getServer().isPrimaryThread()) {
+            runnable.run();
         } else {
-            for (JobProgression prog : progression) {
-                for (JobPermission perm : prog.getJob().getPermissions()) {
-                    if (prog.getLevel() >= perm.getLevelRequirement()) {
-                        if (this.attachment == null) {
-                            this.attachment = player.addAttachment(plugin);
-                            changed = true;
-                        }
-                        attachment.setPermission(perm.getNode(), perm.getValue());
-                    }
-                }
-            }
+            plugin.getServer().getScheduler().runTask(plugin, runnable);
         }
-        if (changed)
-            player.recalculatePermissions();
     }
     
     /**
