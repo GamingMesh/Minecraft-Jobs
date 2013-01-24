@@ -1,5 +1,11 @@
 # Jobs plugin change log summary
 
+## 2.9.1
+* Fixed crafting and smelting with subtypes
+* Fixed some errors on shutdown
+* Fixed issues causing permissions not to be granted to admins
+* Fixed issues on some servers causing a permission error on player join
+
 ## 2.9.0
 * Fixed some issues with World permissions
 * Rewrote command handling
