@@ -34,6 +34,7 @@ import me.zford.jobs.container.JobProgression;
 import me.zford.jobs.container.JobsPlayer;
 import me.zford.jobs.dao.JobsDAO;
 import me.zford.jobs.tasks.DatabaseSaveTask;
+import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -42,6 +43,7 @@ import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class JobsPlugin extends JavaPlugin {
@@ -298,5 +300,23 @@ public class JobsPlugin extends JavaPlugin {
                 }
             }
         }
+    }
+    
+    /**
+     * Gets the Vault economy provider
+     * 
+     * @return Vault economy provider
+     */
+    public Economy getEconomy() {
+        RegisteredServiceProvider<Economy> provider = getServer().getServicesManager().getRegistration(Economy.class);
+        if (provider == null)
+            return null;
+        
+        Economy economy = provider.getProvider();
+        
+        if (economy == null || !economy.isEnabled())
+            return null;
+        
+        return economy;
     }
 }

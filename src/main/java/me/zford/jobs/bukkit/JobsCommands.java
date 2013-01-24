@@ -20,7 +20,6 @@ package me.zford.jobs.bukkit;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,6 +32,7 @@ import me.zford.jobs.container.JobInfo;
 import me.zford.jobs.container.JobProgression;
 import me.zford.jobs.container.JobsPlayer;
 import me.zford.jobs.util.ChatColor;
+import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -657,9 +657,9 @@ public class JobsCommands implements CommandExecutor {
      */
     private String jobInfoMessage(JobsPlayer player, Job job, ActionType type) {
         StringBuilder message = new StringBuilder();
-        message.append(plugin.getMessageConfig().getMessage(type.getName().toLowerCase()+"-header")).append("\n");
+        message.append(type.getName());
+        message.append(":\n");
         
-        DecimalFormat format = new DecimalFormat("#.##");
         int level = 1;
         
         JobProgression prog = player.getJobProgression(job);
@@ -667,19 +667,30 @@ public class JobsCommands implements CommandExecutor {
             level = prog.getLevel();
         int numjobs = player.getJobProgression().size();
         List<JobInfo> jobInfo = job.getJobInfo(type);
+        Economy economy = plugin.getEconomy();
         for (JobInfo info: jobInfo) {
-            String myMessage;
-            if (info.getName().contains(":")){
-                myMessage = plugin.getMessageConfig().getMessage(type.getName().toLowerCase()+"-info-sub");
-                myMessage = myMessage.replace("%item%", info.getName().split(":")[0].replace("_", " ").toLowerCase());
-                myMessage = myMessage.replace("%subitem%", info.getName().split(":")[1]);
-            } else {
-                myMessage = plugin.getMessageConfig().getMessage(type.getName().toLowerCase()+"-info-no-sub");
-                myMessage = myMessage.replace("%item%", info.getName().replace("_", " ").toLowerCase());
-            }
-            myMessage = myMessage.replace("%income%", format.format(info.getIncome(level, numjobs)));
-            myMessage = myMessage.replace("%experience%", format.format(info.getExperience(level, numjobs)));
-            message.append(myMessage).append("\n");
+            String materialName = info.getName().toLowerCase().replace('_', ' ');
+            
+            double income = info.getIncome(level, numjobs);
+            ChatColor incomeColor = income >= 0 ? ChatColor.GREEN : ChatColor.DARK_RED;
+            String incomeString = economy != null ? economy.format(income) : String.format("$%.2f", income);
+            
+            double xp = info.getExperience(level, numjobs);
+            ChatColor xpColor = xp >= 0 ? ChatColor.YELLOW : ChatColor.GRAY;
+            
+            message.append("  ");
+            
+            message.append(materialName);
+            message.append(' ');
+            
+            message.append(xpColor.toString());
+            message.append(xp);
+            message.append(" xp ");
+            
+            message.append(incomeColor.toString());
+            message.append(incomeString);
+            
+            message.append('\n');
         }
         return message.toString();
     }

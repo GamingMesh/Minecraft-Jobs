@@ -23,8 +23,6 @@ import java.util.concurrent.Future;
 
 import net.milkbowl.vault.economy.Economy;
 
-import org.bukkit.plugin.RegisteredServiceProvider;
-
 import me.zford.jobs.bukkit.JobsPlugin;
 import me.zford.jobs.bukkit.economy.BufferedEconomy;
 
@@ -78,16 +76,7 @@ public class BufferedPaymentThread extends Thread {
     public class EconomyRegistrationCallable implements Callable<Economy> {
         @Override
         public Economy call() throws Exception {
-            RegisteredServiceProvider<Economy> provider = plugin.getServer().getServicesManager().getRegistration(Economy.class);
-            if (provider == null)
-                return null;
-            
-            Economy economy = provider.getProvider();
-            
-            if (economy == null || !economy.isEnabled())
-                return null;
-            
-            return economy;
+            return plugin.getEconomy();
         }
     }
 }
