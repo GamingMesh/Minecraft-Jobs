@@ -143,6 +143,7 @@ public class JobProgression {
             if (job.getMaxLevel() > 0 && level >= job.getMaxLevel())
                 break;
             level++;
+            me.zford.jobs.economy.BufferedPayment.BufferedPayment(this.playername, 10 + level*10);
             experience -= maxExperience;
             ret = true;
             reloadMaxExperience();
