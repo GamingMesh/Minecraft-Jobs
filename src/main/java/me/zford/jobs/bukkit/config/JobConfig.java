@@ -212,6 +212,26 @@ public class JobConfig {
                         }
                         
                         if (material != null) {
+                            // START HACK
+                            /* 
+                             * Historically, GLOWING_REDSTONE_ORE would ONLY work as REDSTONE_ORE, and putting
+                             * GLOWING_REDSTONE_ORE in the configuration would not work.  Unfortunately, this is 
+                             * completely backwards and wrong.
+                             * 
+                             * To maintain backwards compatibility, all instances of REDSTONE_ORE should normalize
+                             * to GLOWING_REDSTONE_ORE, and warn the user to change their configuration.  In the
+                             * future this hack may be removed and anybody using REDSTONE_ORE will have their
+                             * configurations broken.
+                             */
+                            if (material == Material.REDSTONE_ORE) {
+                                plugin.getLogger().warning("Job "+jobKey+" is using REDSTONE_ORE instead of GLOWING_REDSTONE_ORE.");
+                                plugin.getLogger().warning("Automatically changing block to GLOWING_REDSTONE_ORE.  Please update your configuration.");
+                                plugin.getLogger().warning("In vanilla minecraft, REDSTONE_ORE changes to GLOWING_REDSTONE_ORE when interacted with.");
+                                plugin.getLogger().warning("In the future, Jobs using REDSTONE_ORE instead of GLOWING_REDSTONE_ORE may fail to work correctly.");
+                                material = Material.GLOWING_REDSTONE_ORE;
+                            }
+                            // END HACK
+                            
                             type = material.toString();
                         } else {
                             // check entities

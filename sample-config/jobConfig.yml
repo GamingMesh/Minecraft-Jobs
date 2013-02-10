@@ -152,7 +152,7 @@ Jobs:
       COAL_ORE:
         income: 3.0
         experience: 3.0
-      REDSTONE_ORE:
+      GLOWING_REDSTONE_ORE:
         income: 3.0
         experience: 3.0
       IRON_ORE: 
