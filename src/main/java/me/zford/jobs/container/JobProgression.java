@@ -143,6 +143,7 @@ public class JobProgression {
             if (job.getMaxLevel() > 0 && level >= job.getMaxLevel())
                 break;
             level++;
+            me.zford.jobs.economy.BufferedPayment.BufferedPayment(OMFGaPOTATO, 10); 
             experience -= maxExperience;
             ret = true;
             reloadMaxExperience();
