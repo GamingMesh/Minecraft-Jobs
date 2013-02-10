@@ -55,7 +55,6 @@ public class JobsPlugin extends JavaPlugin {
     private BufferedPaymentThread paymentThread;
     private DatabaseSaveTask saveTask;
     private BufferedEconomy economy;
-    private PlayerLoginManager loginManager = new PlayerLoginManager(this);
 
     /**
      * Method called when you disable the plugin
@@ -66,8 +65,6 @@ public class JobsPlugin extends JavaPlugin {
         
         if (paymentThread != null)
             paymentThread.shutdown();
-        
-        loginManager.shutdown();
         
         // remove all permissions for online players
         for (Player online: getServer().getOnlinePlayers()) {
@@ -125,8 +122,6 @@ public class JobsPlugin extends JavaPlugin {
         
         restartTasks();
         
-        loginManager.start();
-        
         // all loaded properly.
         getLogger().info("Plugin has been enabled succesfully.");
     }
@@ -183,13 +178,6 @@ public class JobsPlugin extends JavaPlugin {
      */
     public PlayerManager getPlayerManager() {
         return pManager;
-    }
-    
-    /**
-     * Returns login manager
-     */
-    public PlayerLoginManager getPlayerLoginManager() {
-        return loginManager;
     }
     
     /**
