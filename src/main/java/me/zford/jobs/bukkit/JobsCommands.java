@@ -303,7 +303,12 @@ public class JobsCommands implements CommandExecutor {
                 sender.sendMessage(plugin.getMessageConfig().getMessage("error-no-permission"));
                 return true;
             }
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+            Player player = plugin.getServer().getPlayer(args[0]);
+            if (player == null) {
+                jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+            } else {
+                jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+            }
         } else if (sender instanceof Player) {
             jPlayer = plugin.getPlayerManager().getJobsPlayer(((Player) sender).getName());
         }
@@ -400,8 +405,13 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "fire");
             return true;
         }
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        JobsPlayer jPlayer = null;
         Player player = plugin.getServer().getPlayer(args[0]);
+        if (player == null) {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        } else {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        }
         Job job = plugin.getJobsCore().getJob(args[1]);
         if (job == null) {
             sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
@@ -435,8 +445,13 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "employ");
             return true;
         }
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        JobsPlayer jPlayer = null;
         Player player = plugin.getServer().getPlayer(args[0]);
+        if (player == null) {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        } else {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        }
         Job job = plugin.getJobsCore().getJob(args[1]);
         if (job == null) {
             sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
@@ -471,7 +486,13 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "promote");
             return true;
         }
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        JobsPlayer jPlayer = null;
+        Player player = plugin.getServer().getPlayer(args[0]);
+        if (player == null) {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        } else {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        }
         Job job = plugin.getJobsCore().getJob(args[1]);
         if (job == null) {
             sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
@@ -495,7 +516,13 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "demote");
             return true;
         }
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        JobsPlayer jPlayer = null;
+        Player player = plugin.getServer().getPlayer(args[0]);
+        if (player == null) {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        } else {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        }
         Job job = plugin.getJobsCore().getJob(args[1]);
         if (job == null) {
             sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
@@ -520,7 +547,13 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "grantxp");
             return true;
         }
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        JobsPlayer jPlayer = null;
+        Player player = plugin.getServer().getPlayer(args[0]);
+        if (player == null) {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        } else {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        }
         Job job = plugin.getJobsCore().getJob(args[1]);
         if (job == null) {
             sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
@@ -550,7 +583,13 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "removexp");
             return true;
         }
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        JobsPlayer jPlayer = null;
+        Player player = plugin.getServer().getPlayer(args[0]);
+        if (player == null) {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        } else {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        }
         Job job = plugin.getJobsCore().getJob(args[1]);
         if (job == null) {
             sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
@@ -580,7 +619,13 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "transfer");
             return true;
         }
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        JobsPlayer jPlayer = null;
+        Player player = plugin.getServer().getPlayer(args[0]);
+        if (player == null) {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        } else {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        }
         Job oldjob = plugin.getJobsCore().getJob(args[1]);
         Job newjob = plugin.getJobsCore().getJob(args[2]);
         if (oldjob == null) {
