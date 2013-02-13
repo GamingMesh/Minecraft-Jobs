@@ -375,12 +375,28 @@ public class JobsPlayer {
         }
     }
     
-    public boolean isOnline() {
-        return isOnline;
+    /**
+     * Perform connect
+     */
+    public void onConnect() {
+        isOnline = true;
     }
     
-    public void setOnline(boolean value) {
-        isOnline = value;
+    /**
+     * Perform disconnect
+     * 
+     */
+    public void onDisconnect() {
+        attachment = null;
+        isOnline = false;
+    }
+    
+    /**
+     * Whether or not player is online
+     * @return true if online, otherwise false
+     */
+    public boolean isOnline() {
+        return isOnline;
     }
     
     public boolean isSaved() {

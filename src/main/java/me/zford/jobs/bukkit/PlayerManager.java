@@ -51,7 +51,7 @@ public class PlayerManager {
                 jPlayer.loadDAOData(plugin.getJobsCore().getJobsDAO().getAllJobs(jPlayer));
                 players.put(playername, jPlayer);
             }
-            jPlayer.setOnline(true);
+            jPlayer.onConnect();
             jPlayer.reloadHonorific();
             jPlayer.recalculatePermissions();
         }
@@ -67,11 +67,12 @@ public class PlayerManager {
                 JobsPlayer jPlayer = players.remove(playername);
                 if (jPlayer != null) {
                     jPlayer.save(plugin.getJobsCore().getJobsDAO());
+                    jPlayer.onDisconnect();
                 }
             } else {
                 JobsPlayer jPlayer = players.get(playername);
                 if (jPlayer != null) {
-                    jPlayer.setOnline(false);
+                    jPlayer.onDisconnect();
                 }
             }
         }
