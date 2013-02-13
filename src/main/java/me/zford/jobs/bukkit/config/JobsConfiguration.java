@@ -111,10 +111,7 @@ public class JobsConfiguration {
         config.addDefault("mysql-url", "jdbc:mysql://localhost:3306/minecraft");
         config.addDefault("mysql-table-prefix", "");
         
-        writer.addComment("save-period", 
-                "How often in minutes you want it to save, 0 disables periodic saving and",
-                "the system will only save on logout"
-        );
+        writer.addComment("save-period",  "How often in minutes you want it to save.  This must be a non-zero number");
         config.addDefault("save-period", 10);
         
         writer.addComment("broadcast-on-skill-up", "Do all players get a message when somone goes up a skill level?");
@@ -198,6 +195,11 @@ public class JobsConfiguration {
         } else {
             plugin.getLogger().severe("Invalid storage method!  Disabling jobs!");
             plugin.disablePlugin();
+        }
+        
+        if (config.getInt("save-period") <= 0) {
+            plugin.getLogger().severe("Save period must be greater than 0!  Defaulting to 10 minutes!");
+            config.set("save-period", 10);
         }
         
         // Make sure we're only copying settings we care about

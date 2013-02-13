@@ -381,14 +381,15 @@ public class JobsCommands implements CommandExecutor {
     
     public boolean reload(CommandSender sender, String[] args) {
         try {
-            for(Player player : plugin.getServer().getOnlinePlayers()) {
+            for (Player player : plugin.getServer().getOnlinePlayers()) {
                 JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
                 jPlayer.removePermissions();
-                plugin.getPlayerManager().removePlayer(player.getName());
             }
             plugin.reloadConfigurations();
             for(Player player : plugin.getServer().getOnlinePlayers()) {
-                plugin.getPlayerManager().addPlayer(player.getName());
+                JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+                jPlayer.reloadHonorific();
+                jPlayer.recalculatePermissions();
             }
             plugin.reRegisterPermissions();
             sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));

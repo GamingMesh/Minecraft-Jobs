@@ -46,14 +46,14 @@ public class JobsListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-        plugin.getPlayerManager().addPlayer(event.getPlayer().getName());
+        plugin.getPlayerManager().playerJoin(event.getPlayer().getName());
     }
 
     @EventHandler(priority=EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-        plugin.getPlayerManager().removePlayer(event.getPlayer().getName());
+        plugin.getPlayerManager().playerQuit(event.getPlayer().getName());
     }
     
     @EventHandler(priority=EventPriority.NORMAL, ignoreCancelled=true)

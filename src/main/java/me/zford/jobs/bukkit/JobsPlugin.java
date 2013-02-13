@@ -28,12 +28,12 @@ import me.zford.jobs.bukkit.economy.BufferedEconomy;
 import me.zford.jobs.bukkit.listeners.JobsListener;
 import me.zford.jobs.bukkit.listeners.JobsPaymentListener;
 import me.zford.jobs.bukkit.tasks.BufferedPaymentThread;
+import me.zford.jobs.bukkit.tasks.DatabaseSaveTask;
 import me.zford.jobs.container.ActionInfo;
 import me.zford.jobs.container.Job;
 import me.zford.jobs.container.JobProgression;
 import me.zford.jobs.container.JobsPlayer;
 import me.zford.jobs.dao.JobsDAO;
-import me.zford.jobs.tasks.DatabaseSaveTask;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.World;
@@ -114,7 +114,7 @@ public class JobsPlugin extends JavaPlugin {
         
         // add all online players
         for (Player online: getServer().getOnlinePlayers()){
-            pManager.addPlayer(online.getName());
+            pManager.playerJoin(online.getName());
         }
         
         // register permissions

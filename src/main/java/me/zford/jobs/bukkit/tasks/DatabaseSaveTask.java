@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.tasks;
+package me.zford.jobs.bukkit.tasks;
 
 import me.zford.jobs.bukkit.JobsPlugin;
 

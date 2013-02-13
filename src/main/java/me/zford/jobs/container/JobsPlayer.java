@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import me.zford.jobs.bukkit.JobsPlugin;
+import me.zford.jobs.dao.JobsDAO;
 import me.zford.jobs.dao.JobsDAOData;
 import me.zford.jobs.util.ChatColor;
 
@@ -40,7 +41,14 @@ public class JobsPlayer {
     private String honorific;
     // permission attachment
     private PermissionAttachment attachment;
-        
+    // player save status
+    private volatile boolean isSaved = true;
+    // player online status
+    private volatile boolean isOnline = false;
+    
+    // save lock
+    public final Object saveLock = new Object();
+    
     /**
      * Constructor.
      * Reads data storage and configures itself.
@@ -54,23 +62,23 @@ public class JobsPlayer {
     }
     
     public void loadDAOData(List<JobsDAOData> list) {
-        progression.clear();
-        for (JobsDAOData jobdata: list) {
-            if (plugin.getJobsCore().getJob(jobdata.getJobName()) != null) {
-                // add the job
-                Job job = plugin.getJobsCore().getJob(jobdata.getJobName());
-                if (job != null) {
-                    // create the progression object
-                    JobProgression jobProgression = new JobProgression(job, this, jobdata.getLevel(), jobdata.getExperience(), plugin.getJobsConfiguration().getTitleForLevel(jobdata.getLevel()));
-                    // calculate the max level
-                    
-                    // add the progression level.
-                    progression.add(jobProgression);
+        synchronized (saveLock) {
+            progression.clear();
+            for (JobsDAOData jobdata: list) {
+                if (plugin.getJobsCore().getJob(jobdata.getJobName()) != null) {
+                    // add the job
+                    Job job = plugin.getJobsCore().getJob(jobdata.getJobName());
+                    if (job != null) {
+                        // create the progression object
+                        JobProgression jobProgression = new JobProgression(job, this, jobdata.getLevel(), jobdata.getExperience(), plugin.getJobsConfiguration().getTitleForLevel(jobdata.getLevel()));
+                        // calculate the max level
+                        
+                        // add the progression level.
+                        progression.add(jobProgression);
+                    }
                 }
             }
         }
-        reloadHonorific();
-        recalculatePermissions();
     }
     
     /**
@@ -110,13 +118,15 @@ public class JobsPlayer {
      * @param job - the job joined
      */
     public boolean joinJob(Job job) {
-        if (!isInJob(job)) {
-            progression.add(new JobProgression(job, this, 1, 0.0, plugin.getJobsConfiguration().getTitleForLevel(1)));
-            reloadHonorific();
-            recalculatePermissions();
-            return true;
+        synchronized (saveLock) {
+            if (!isInJob(job)) {
+                progression.add(new JobProgression(job, this, 1, 0.0, plugin.getJobsConfiguration().getTitleForLevel(1)));
+                reloadHonorific();
+                recalculatePermissions();
+                return true;
+            }
+            return false;
         }
-        return false;
     }
     
     /**
@@ -124,14 +134,16 @@ public class JobsPlayer {
      * @param job - the job left
      */
     public boolean leaveJob(Job job) {
-        JobProgression prog = getJobProgression(job);
-        progression.remove(prog);
-        if (prog != null) {
-            reloadHonorific();
-            recalculatePermissions();
-            return true;
+        synchronized (saveLock) {
+            JobProgression prog = getJobProgression(job);
+            progression.remove(prog);
+            if (prog != null) {
+                reloadHonorific();
+                recalculatePermissions();
+                return true;
+            }
+            return false;
         }
-        return false;
     }
     
     /**
@@ -140,17 +152,19 @@ public class JobsPlayer {
      * @param levels - number of levels to promote
      */
     public void promoteJob(Job job, int levels) {
-        JobProgression prog = getJobProgression(job);
-        if (prog == null)
-            return;
-        if (levels <= 0)
-            return;
-        int newLevel = prog.getLevel() + levels;
-        Integer maxLevel = job.getMaxLevel();
-        if (maxLevel != null && newLevel > maxLevel) {
-            newLevel = maxLevel.intValue();
+        synchronized (saveLock) {
+            JobProgression prog = getJobProgression(job);
+            if (prog == null)
+                return;
+            if (levels <= 0)
+                return;
+            int newLevel = prog.getLevel() + levels;
+            Integer maxLevel = job.getMaxLevel();
+            if (maxLevel != null && newLevel > maxLevel) {
+                newLevel = maxLevel.intValue();
+            }
+            setLevel(job, newLevel);
         }
-        setLevel(job, newLevel);
     }
     
     /**
@@ -159,16 +173,18 @@ public class JobsPlayer {
      * @param levels - number of levels to demote
      */
     public void demoteJob(Job job, int levels) {
-        JobProgression prog = getJobProgression(job);
-        if (prog == null)
-            return;
-        if (levels <= 0)
-            return;
-        int newLevel = prog.getLevel() - levels;
-        if (newLevel < 1) {
-            newLevel = 1;
+        synchronized (saveLock) {
+            JobProgression prog = getJobProgression(job);
+            if (prog == null)
+                return;
+            if (levels <= 0)
+                return;
+            int newLevel = prog.getLevel() - levels;
+            if (newLevel < 1) {
+                newLevel = 1;
+            }
+            setLevel(job, newLevel);
         }
-        setLevel(job, newLevel);
     }
     
     /**
@@ -177,14 +193,16 @@ public class JobsPlayer {
      * @param level - the level
      */
     private void setLevel(Job job, int level) {
-        JobProgression prog = getJobProgression(job);
-        if (prog == null)
-            return;
-
-        if (level != prog.getLevel()) {
-            prog.setLevel(level);
-            reloadHonorific();
-            recalculatePermissions();
+        synchronized (saveLock) {
+            JobProgression prog = getJobProgression(job);
+            if (prog == null)
+                return;
+    
+            if (level != prog.getLevel()) {
+                prog.setLevel(level);
+                reloadHonorific();
+                recalculatePermissions();
+            }
         }
     }
     
@@ -194,21 +212,23 @@ public class JobsPlayer {
      * @param newjob - the new job
      */
     public boolean transferJob(Job oldjob, Job newjob) {
-        if (!isInJob(newjob)) {
-            for (JobProgression prog : progression) {
-                if (!prog.getJob().equals(oldjob))
-                    continue;
-                
-                prog.setJob(newjob);
-                if (newjob.getMaxLevel() > 0 && prog.getLevel() > newjob.getMaxLevel()) {
-                    prog.setLevel(newjob.getMaxLevel());
+        synchronized (saveLock) {
+            if (!isInJob(newjob)) {
+                for (JobProgression prog : progression) {
+                    if (!prog.getJob().equals(oldjob))
+                        continue;
+                    
+                    prog.setJob(newjob);
+                    if (newjob.getMaxLevel() > 0 && prog.getLevel() > newjob.getMaxLevel()) {
+                        prog.setLevel(newjob.getMaxLevel());
+                    }
+                    reloadHonorific();
+                    recalculatePermissions();
+                    return true;
                 }
-                reloadHonorific();
-                recalculatePermissions();
-                return true;
             }
+            return false;
         }
-        return false;
     }
     
     /**
@@ -285,64 +305,46 @@ public class JobsPlayer {
      * Function to recalculate permissions
      */
     public void recalculatePermissions() {
-        /*
-         * This can be called from PlayerLoginManager in some cases.
-         * In those cases we'll schedule it as a delayed task.
-         * 
-         * This should be moved into a separate Bukkit specific section
-         * for forward compatibility.
-         * 
-         */
-        Runnable runnable = new Runnable() {
-            public void run() {
-                Player player = plugin.getServer().getPlayer(playername);
-                if (player == null)
-                    return;
-                
-                boolean changed = false;
-                if (attachment != null) {
-                    player.removeAttachment(attachment);
-                    attachment = null;
-                    changed = true;
-                }
-                
-                if (progression.size() == 0) {
-                    Job job = plugin.getJobsCore().getNoneJob();
-                    if (job != null) {
-                        for (JobPermission perm : job.getPermissions()) {
-                            if (perm.getLevelRequirement() <= 0) {
-                                if (attachment == null) {
-                                    attachment = player.addAttachment(plugin);
-                                    changed = true;
-                                }
-                                attachment.setPermission(perm.getNode(), perm.getValue());
-                            }
-                        }
-                    }
-                } else {
-                    for (JobProgression prog : progression) {
-                        for (JobPermission perm : prog.getJob().getPermissions()) {
-                            if (prog.getLevel() >= perm.getLevelRequirement()) {
-                                if (attachment == null) {
-                                    attachment = player.addAttachment(plugin);
-                                    changed = true;
-                                }
-                                attachment.setPermission(perm.getNode(), perm.getValue());
-                            }
-                        }
-                    }
-                }
-                if (changed)
-                    player.recalculatePermissions();
-                
-            }
-        };
+        Player player = plugin.getServer().getPlayer(playername);
+        if (player == null)
+            return;
         
-        if (plugin.getServer().isPrimaryThread()) {
-            runnable.run();
-        } else {
-            plugin.getServer().getScheduler().runTask(plugin, runnable);
+        boolean changed = false;
+        if (attachment != null) {
+            player.removeAttachment(attachment);
+            attachment = null;
+            changed = true;
         }
+        
+        if (progression.size() == 0) {
+            Job job = plugin.getJobsCore().getNoneJob();
+            if (job != null) {
+                for (JobPermission perm : job.getPermissions()) {
+                    if (perm.getLevelRequirement() <= 0) {
+                        if (attachment == null) {
+                            attachment = player.addAttachment(plugin);
+                            changed = true;
+                        }
+                        attachment.setPermission(perm.getNode(), perm.getValue());
+                    }
+                }
+            }
+        } else {
+            for (JobProgression prog : progression) {
+                for (JobPermission perm : prog.getJob().getPermissions()) {
+                    if (prog.getLevel() >= perm.getLevelRequirement()) {
+                        if (attachment == null) {
+                            attachment = player.addAttachment(plugin);
+                            changed = true;
+                        }
+                        attachment.setPermission(perm.getNode(), perm.getValue());
+                    }
+                }
+            }
+        }
+        if (changed)
+            player.recalculatePermissions();
+        
     }
     
     /**
@@ -358,5 +360,34 @@ public class JobsPlayer {
             player.recalculatePermissions();
             this.attachment = null;
         }
+    }
+    
+    /**
+     * Performs player save
+     * @param dao
+     */
+    public void save(JobsDAO dao) {
+        synchronized (saveLock) {
+            if (!isSaved()) {
+                dao.save(this);
+                setSaved(true);
+            }
+        }
+    }
+    
+    public boolean isOnline() {
+        return isOnline;
+    }
+    
+    public void setOnline(boolean value) {
+        isOnline = value;
+    }
+    
+    public boolean isSaved() {
+        return isSaved;
+    }
+    
+    public void setSaved(boolean value) {
+        isSaved = value;
     }
 }

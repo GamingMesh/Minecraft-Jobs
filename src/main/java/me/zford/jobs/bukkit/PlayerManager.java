@@ -21,6 +21,7 @@ package me.zford.jobs.bukkit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.bukkit.entity.Player;
@@ -39,24 +40,33 @@ public class PlayerManager {
     }
     
     /**
-     * Add a player to the plugin to me managed.
+     * Handles join of new player
      * @param playername
      */
-    public void addPlayer(String playername) {
-        JobsPlayer jPlayer = new JobsPlayer(plugin, playername);
-        jPlayer.loadDAOData(plugin.getJobsCore().getJobsDAO().getAllJobs(jPlayer));
-        players.put(playername, jPlayer);
+    public void playerJoin(String playername) {
+        synchronized (players) {
+            JobsPlayer jPlayer = players.get(playername);
+            if (jPlayer == null) {
+                jPlayer = new JobsPlayer(plugin, playername);
+                jPlayer.loadDAOData(plugin.getJobsCore().getJobsDAO().getAllJobs(jPlayer));
+                players.put(playername, jPlayer);
+            }
+            jPlayer.setOnline(true);
+            jPlayer.reloadHonorific();
+            jPlayer.recalculatePermissions();
+        }
     }
     
     /**
-     * Remove a player from the plugin.
+     * Handles player quit
      * @param playername
      */
-    public void removePlayer(String playername) {
-        JobsPlayer player = players.remove(playername);
-        if (player != null) {
-            JobsDAO dao = plugin.getJobsCore().getJobsDAO();
-            dao.save(player);
+    public void playerQuit(String playername) {
+        synchronized (players) {
+            JobsPlayer jPlayer = players.get(playername);
+            if (jPlayer != null) {
+                jPlayer.setOnline(false);
+            }
         }
     }
     
@@ -65,14 +75,33 @@ public class PlayerManager {
      */
     public void saveAll() {
         JobsDAO dao = plugin.getJobsCore().getJobsDAO();
-        ArrayList<JobsPlayer> list = new ArrayList<JobsPlayer>(players.size());
+        
+        /*
+         * Saving is a three step process to minimize synchronization locks when called asynchronously.
+         * 
+         * 1) Safely copy list for saving.
+         * 2) Perform save on all players on copied list.
+         * 3) Garbage collect the real list to remove any offline players with saved data
+         */
+        ArrayList<JobsPlayer> list = null;
         synchronized (players) {
-            for (JobsPlayer player : players.values()) {
-                list.add(player);
-            }
+            list = new ArrayList<JobsPlayer>(players.values());
         }
-        for (JobsPlayer player : list) {
-            dao.save(player);
+        
+        for (JobsPlayer jPlayer : list) {
+            jPlayer.save(dao);
+        }
+        
+        synchronized (players) {
+            Iterator<JobsPlayer> iter = players.values().iterator();
+            while (iter.hasNext()) {
+                JobsPlayer jPlayer = iter.next();
+                synchronized (jPlayer.saveLock) {
+                    if (!jPlayer.isOnline() && jPlayer.isSaved()) {
+                        iter.remove();
+                    }
+                }
+            }
         }
     }
     
@@ -96,15 +125,18 @@ public class PlayerManager {
      * @param job
      */
     public void joinJob(JobsPlayer jPlayer, Job job) {
-        if (jPlayer.isInJob(job))
-            return;
-        Player player = plugin.getServer().getPlayer(jPlayer.getName());
-        // let the user join the job
-        if (!jPlayer.joinJob(job))
-            return;
+        synchronized (jPlayer.saveLock) {
+            if (jPlayer.isInJob(job))
+                return;
+            // let the user join the job
+            if (!jPlayer.joinJob(job))
+                return;
+            
+            plugin.getJobsCore().getJobsDAO().joinJob(jPlayer, job);
+            plugin.getJobsCore().takeSlot(job);
+        }
         
-        plugin.getJobsCore().getJobsDAO().joinJob(jPlayer, job);
-        plugin.getJobsCore().takeSlot(job);
+        Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if (player != null) {
             String message = plugin.getMessageConfig().getMessage("join-job-success");
             message = message.replace("%jobcolour%", job.getChatColour().toString());
@@ -121,15 +153,18 @@ public class PlayerManager {
      * @param job
      */
     public void leaveJob(JobsPlayer jPlayer, Job job) {
-        if (!jPlayer.isInJob(job))
-            return;
-        Player player = plugin.getServer().getPlayer(jPlayer.getName());
-        // let the user leave the job
-        if (!jPlayer.leaveJob(job))
-            return;
+        synchronized (jPlayer.saveLock) {
+            if (!jPlayer.isInJob(job))
+                return;
+            // let the user leave the job
+            if (!jPlayer.leaveJob(job))
+                return;
+            
+            plugin.getJobsCore().getJobsDAO().quitJob(jPlayer, job);
+            plugin.getJobsCore().leaveSlot(job);
+        }
         
-        plugin.getJobsCore().getJobsDAO().quitJob(jPlayer, job);
-        plugin.getJobsCore().leaveSlot(job);
+        Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if(player != null) {
             String message = plugin.getMessageConfig().getMessage("leave-job-success");
             message = message.replace("%jobcolour%", job.getChatColour().toString());
@@ -147,13 +182,16 @@ public class PlayerManager {
      * @param newjob - the new job
      */
     public void transferJob(JobsPlayer jPlayer, Job oldjob, Job newjob) {
-        if (!jPlayer.transferJob(oldjob,  newjob))
-            return;
+        synchronized (jPlayer.saveLock) {
+            if (!jPlayer.transferJob(oldjob,  newjob))
+                return;
+            
+            JobsDAO dao = plugin.getJobsCore().getJobsDAO();
+            dao.quitJob(jPlayer, oldjob);
+            dao.joinJob(jPlayer, newjob);
+            jPlayer.save(dao);
+        }
         
-        JobsDAO dao = plugin.getJobsCore().getJobsDAO();
-        dao.quitJob(jPlayer, oldjob);
-        dao.joinJob(jPlayer, newjob);
-        dao.save(jPlayer);
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if (player != null) {
             String message = plugin.getMessageConfig().getMessage("transfer-target");
@@ -174,7 +212,11 @@ public class PlayerManager {
      * @param levels - number of levels to promote
      */
     public void promoteJob(JobsPlayer jPlayer, Job job, int levels) {
-        jPlayer.promoteJob(job, levels);
+        synchronized (jPlayer.saveLock) {
+            jPlayer.promoteJob(job, levels);
+            jPlayer.save(plugin.getJobsCore().getJobsDAO());
+        }
+        
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if (player != null) {
             String message = plugin.getMessageConfig().getMessage("promote-target");
@@ -185,7 +227,6 @@ public class PlayerManager {
                 player.sendMessage(line);
             }
         }
-        plugin.getJobsCore().getJobsDAO().save(jPlayer);
     }
     
     /**
@@ -195,7 +236,11 @@ public class PlayerManager {
      * @param levels - number of levels to demote
      */
     public void demoteJob(JobsPlayer jPlayer, Job job, int levels) {
-        jPlayer.demoteJob(job, levels);
+        synchronized (jPlayer.saveLock) {
+            jPlayer.demoteJob(job, levels);
+            jPlayer.save(plugin.getJobsCore().getJobsDAO());
+        }
+        
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if (player != null) {
             String message = plugin.getMessageConfig().getMessage("demote-target");
@@ -206,7 +251,6 @@ public class PlayerManager {
                 player.sendMessage(line);
             }
         }
-        plugin.getJobsCore().getJobsDAO().save(jPlayer);
     }
     
     /**
@@ -216,11 +260,16 @@ public class PlayerManager {
      * @param experience - experience gained
      */
     public void addExperience(JobsPlayer jPlayer, Job job, double experience) {
-        JobProgression prog = jPlayer.getJobProgression(job);
-        if (prog == null)
-            return;
-        if (prog.addExperience(experience))
-            performLevelUp(jPlayer, job);
+        synchronized (jPlayer.saveLock) {
+            JobProgression prog = jPlayer.getJobProgression(job);
+            if (prog == null)
+                return;
+            if (prog.addExperience(experience))
+                performLevelUp(jPlayer, job);
+    
+            jPlayer.save(plugin.getJobsCore().getJobsDAO());
+        }
+        
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if (player != null) {
             String message = plugin.getMessageConfig().getMessage("grantxp-target");
@@ -231,7 +280,6 @@ public class PlayerManager {
                 player.sendMessage(line);
             }
         }
-        plugin.getJobsCore().getJobsDAO().save(jPlayer);
     }
     
     /**
@@ -241,10 +289,15 @@ public class PlayerManager {
      * @param experience - experience gained
      */
     public void removeExperience(JobsPlayer jPlayer, Job job, double experience) {
-        JobProgression prog = jPlayer.getJobProgression(job);
-        if (prog == null)
-            return;
-        prog.addExperience(-experience);
+        synchronized (jPlayer.saveLock) {
+            JobProgression prog = jPlayer.getJobProgression(job);
+            if (prog == null)
+                return;
+            prog.addExperience(-experience);
+            
+            jPlayer.save(plugin.getJobsCore().getJobsDAO());
+        }
+        
         Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if (player != null) {
             String message = plugin.getMessageConfig().getMessage("removexp-target");
@@ -255,7 +308,6 @@ public class PlayerManager {
                 player.sendMessage(line);
             }
         }
-        plugin.getJobsCore().getJobsDAO().save(jPlayer);
     }
     
     

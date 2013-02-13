@@ -23,9 +23,9 @@ import java.util.HashMap;
 public class JobProgression {
     private Job job;
     private JobsPlayer jPlayer;
-    private Title title;
     private double experience;
     private int level;
+    private transient Title title;
     private transient int maxExperience;
     
     public JobProgression(Job job, JobsPlayer jPlayer, int level, double experience, Title title) {
@@ -59,8 +59,11 @@ public class JobProgression {
      * @param job - the new job to be set
      */
     public void setJob(Job job) {
-        this.job = job;
-        reloadMaxExperienceAndCheckLevelUp();
+        synchronized (jPlayer.saveLock) {
+            jPlayer.setSaved(false);
+            this.job = job;
+            reloadMaxExperienceAndCheckLevelUp();
+        }
     }
 
     /**
@@ -77,8 +80,11 @@ public class JobProgression {
      * @return - job level up
      */
     public boolean addExperience(double experience) {
-        this.experience += experience;
-        return checkLevelUp();
+        synchronized (jPlayer.saveLock) {
+            jPlayer.setSaved(false);
+            this.experience += experience;
+            return checkLevelUp();
+        }
     }
 
     /**
@@ -102,8 +108,11 @@ public class JobProgression {
      * @param level - the new level for this job
      */
     public void setLevel(int level) {
-        this.level = level;
-        reloadMaxExperienceAndCheckLevelUp();
+        synchronized (jPlayer.saveLock) {
+            jPlayer.setSaved(false);
+            this.level = level;
+            reloadMaxExperienceAndCheckLevelUp();
+        }
     }
 
     /**
