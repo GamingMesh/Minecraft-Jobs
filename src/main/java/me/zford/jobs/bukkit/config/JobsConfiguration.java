@@ -114,6 +114,13 @@ public class JobsConfiguration {
         writer.addComment("save-period",  "How often in minutes you want it to save.  This must be a non-zero number");
         config.addDefault("save-period", 10);
         
+        writer.addComment("save-on-disconnect",
+                "Should player data be saved on disconnect?",
+                "Player data is always periodically auto-saved and autosaved during a clean shutdown.",
+                "Only enable this if you have a multi-server setup, or have a really good reason for enabling this.",
+                "Turning this on will decrease database performance.");
+        config.addDefault("save-on-disconnect", false);
+        
         writer.addComment("broadcast-on-skill-up", "Do all players get a message when somone goes up a skill level?");
         config.addDefault("broadcast-on-skill-up", false);
         
@@ -209,6 +216,7 @@ public class JobsConfiguration {
         copySetting(config, writer, "mysql-url");
         copySetting(config, writer, "mysql-table-prefix");
         copySetting(config, writer, "save-period");
+        copySetting(config, writer, "save-on-disconnect");
         copySetting(config, writer, "broadcast-on-skill-up");
         copySetting(config, writer, "broadcast-on-level-up");
         copySetting(config, writer, "max-jobs");
@@ -571,5 +579,9 @@ public class JobsConfiguration {
     
     public synchronized int getEconomyBatchDelay() {
         return config.getInt("economy-batch-delay");
+    }
+    
+    public synchronized boolean saveOnDisconnect() {
+        return config.getBoolean("save-on-disconnect");
     }
 }

@@ -63,9 +63,16 @@ public class PlayerManager {
      */
     public void playerQuit(String playername) {
         synchronized (players) {
-            JobsPlayer jPlayer = players.get(playername);
-            if (jPlayer != null) {
-                jPlayer.setOnline(false);
+            if (plugin.getJobsConfiguration().saveOnDisconnect()) {
+                JobsPlayer jPlayer = players.remove(playername);
+                if (jPlayer != null) {
+                    jPlayer.save(plugin.getJobsCore().getJobsDAO());
+                }
+            } else {
+                JobsPlayer jPlayer = players.get(playername);
+                if (jPlayer != null) {
+                    jPlayer.setOnline(false);
+                }
             }
         }
     }
