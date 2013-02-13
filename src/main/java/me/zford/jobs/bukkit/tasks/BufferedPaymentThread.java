@@ -19,6 +19,7 @@
 package me.zford.jobs.bukkit.tasks;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 
 import net.milkbowl.vault.economy.Economy;
@@ -57,6 +58,9 @@ public class BufferedPaymentThread extends Thread {
                 if (economy != null)
                     bufferedEconomy.payAll(economy);
             } catch (InterruptedException e) {
+                running = false;
+                continue;
+            } catch (CancellationException e) {
                 running = false;
                 continue;
             } catch (Throwable t) {
