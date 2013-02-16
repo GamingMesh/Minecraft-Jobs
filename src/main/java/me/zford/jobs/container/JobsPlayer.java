@@ -159,9 +159,9 @@ public class JobsPlayer {
             if (levels <= 0)
                 return;
             int newLevel = prog.getLevel() + levels;
-            Integer maxLevel = job.getMaxLevel();
-            if (maxLevel != null && newLevel > maxLevel) {
-                newLevel = maxLevel.intValue();
+            int maxLevel = job.getMaxLevel();
+            if (maxLevel > 0 && newLevel > maxLevel) {
+                newLevel = maxLevel;
             }
             setLevel(job, newLevel);
         }
