@@ -723,6 +723,7 @@ public class JobsCommands implements CommandExecutor {
             
             double xp = info.getExperience(level, numjobs);
             ChatColor xpColor = xp >= 0 ? ChatColor.YELLOW : ChatColor.GRAY;
+            String xpString = String.format("%.2f xp", xp);
             
             message.append("  ");
             
@@ -730,8 +731,8 @@ public class JobsCommands implements CommandExecutor {
             message.append(' ');
             
             message.append(xpColor.toString());
-            message.append(xp);
-            message.append(" xp ");
+            message.append(xpString);
+            message.append(' ');
             
             message.append(incomeColor.toString());
             message.append(incomeString);
