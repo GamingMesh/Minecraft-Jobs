@@ -212,6 +212,13 @@ public class JobConfig {
                         }
                         
                         if (material != null) {
+                            // Break and Place actions MUST be blocks
+                            if (actionType == ActionType.BREAK || actionType == ActionType.PLACE) {
+                                if (!material.isBlock()) {
+                                    plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid " + actionType.getName() + " type property: " + key + "! Material must be a block!");
+                                    continue;
+                                }
+                            }
                             // START HACK
                             /* 
                              * Historically, GLOWING_REDSTONE_ORE would ONLY work as REDSTONE_ORE, and putting
@@ -233,7 +240,7 @@ public class JobConfig {
                             // END HACK
                             
                             type = material.toString();
-                        } else {
+                        } else if (actionType == ActionType.KILL) {
                             // check entities
                             EntityType entity = EntityType.fromName(key);
                             if (entity == null) {
@@ -247,7 +254,7 @@ public class JobConfig {
                         }
                         
                         if (type == null) {
-                            plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid " + key + " " + actionType.getName() + " type property. Skipping!");
+                            plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid " + actionType.getName() + " type property: " + key + "!");
                             continue;
                         }
                         
