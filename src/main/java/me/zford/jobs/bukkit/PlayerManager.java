@@ -31,6 +31,7 @@ import me.zford.jobs.container.JobProgression;
 import me.zford.jobs.container.JobsPlayer;
 import me.zford.jobs.container.Title;
 import me.zford.jobs.dao.JobsDAO;
+import me.zford.jobs.util.ChatColor;
 
 public class PlayerManager {
     private JobsPlugin plugin;
@@ -143,16 +144,6 @@ public class PlayerManager {
             plugin.getJobsCore().getJobsDAO().joinJob(jPlayer, job);
             plugin.getJobsCore().takeSlot(job);
         }
-        
-        Player player = plugin.getServer().getPlayer(jPlayer.getName());
-        if (player != null) {
-            String message = plugin.getMessageConfig().getMessage("join-job-success");
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            message = message.replace("%jobname%", job.getName());
-            for (String line: message.split("\n")) {
-                player.sendMessage(line);
-            }
-        }
     }
     
     /**
@@ -170,16 +161,6 @@ public class PlayerManager {
             
             plugin.getJobsCore().getJobsDAO().quitJob(jPlayer, job);
             plugin.getJobsCore().leaveSlot(job);
-        }
-        
-        Player player = plugin.getServer().getPlayer(jPlayer.getName());
-        if(player != null) {
-            String message = plugin.getMessageConfig().getMessage("leave-job-success");
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            message = message.replace("%jobname%", job.getName());
-            for (String line: message.split("\n")) {
-                player.sendMessage(line);
-            }
         }
     }
     
@@ -199,18 +180,6 @@ public class PlayerManager {
             dao.joinJob(jPlayer, newjob);
             jPlayer.save(dao);
         }
-        
-        Player player = plugin.getServer().getPlayer(jPlayer.getName());
-        if (player != null) {
-            String message = plugin.getMessageConfig().getMessage("transfer-target");
-            message = message.replace("%oldjobcolour%", oldjob.getChatColour().toString());
-            message = message.replace("%oldjobname%", oldjob.getName());
-            message = message.replace("%newjobcolour%", newjob.getChatColour().toString());
-            message = message.replace("%newjobname%", newjob.getName());
-            for (String line: message.split("\n")) {
-                player.sendMessage(line);
-            }
-        }
     }
     
     /**
@@ -224,17 +193,6 @@ public class PlayerManager {
             jPlayer.promoteJob(job, levels);
             jPlayer.save(plugin.getJobsCore().getJobsDAO());
         }
-        
-        Player player = plugin.getServer().getPlayer(jPlayer.getName());
-        if (player != null) {
-            String message = plugin.getMessageConfig().getMessage("promote-target");
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            message = message.replace("%jobname%", job.getName());
-            message = message.replace("%levelsgained%", Integer.valueOf(levels).toString());
-            for (String line: message.split("\n")) {
-                player.sendMessage(line);
-            }
-        }
     }
     
     /**
@@ -247,17 +205,6 @@ public class PlayerManager {
         synchronized (jPlayer.saveLock) {
             jPlayer.demoteJob(job, levels);
             jPlayer.save(plugin.getJobsCore().getJobsDAO());
-        }
-        
-        Player player = plugin.getServer().getPlayer(jPlayer.getName());
-        if (player != null) {
-            String message = plugin.getMessageConfig().getMessage("demote-target");
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            message = message.replace("%jobname%", job.getName());
-            message = message.replace("%levelslost%", Integer.valueOf(levels).toString());
-            for (String line: message.split("\n")) {
-                player.sendMessage(line);
-            }
         }
     }
     
@@ -277,17 +224,6 @@ public class PlayerManager {
     
             jPlayer.save(plugin.getJobsCore().getJobsDAO());
         }
-        
-        Player player = plugin.getServer().getPlayer(jPlayer.getName());
-        if (player != null) {
-            String message = plugin.getMessageConfig().getMessage("grantxp-target");
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            message = message.replace("%jobname%", job.getName());
-            message = message.replace("%expgained%", Double.valueOf(experience).toString());
-            for (String line: message.split("\n")) {
-                player.sendMessage(line);
-            }
-        }
     }
     
     /**
@@ -305,17 +241,6 @@ public class PlayerManager {
             
             jPlayer.save(plugin.getJobsCore().getJobsDAO());
         }
-        
-        Player player = plugin.getServer().getPlayer(jPlayer.getName());
-        if (player != null) {
-            String message = plugin.getMessageConfig().getMessage("removexp-target");
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            message = message.replace("%jobname%", job.getName());
-            message = message.replace("%expgained%", Double.valueOf(experience).toString());
-            for (String line: message.split("\n")) {
-                player.sendMessage(line);
-            }
-        }
     }
     
     
@@ -332,22 +257,15 @@ public class PlayerManager {
 
         String message;
         if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
-            message = plugin.getMessageConfig().getMessage("level-up-broadcast");
+            message = plugin.getMessageConfig().getMessage("message.levelup.broadcast");
         } else {
-            message = plugin.getMessageConfig().getMessage("level-up-no-broadcast");
+            message = plugin.getMessageConfig().getMessage("message.levelup.nobroadcast");
         }
-        message = message.replace("%jobname%", job.getName());
-        message = message.replace("%jobcolour%", job.getChatColour().toString());
+        message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
         if (prog.getTitle() != null) {
-            message = message.replace("%titlename%", prog.getTitle().getName());
-            message = message.replace("%titlecolour%", prog.getTitle().getChatColor().toString());
+            message = message.replace("%titlename%", prog.getTitle().getChatColor() + prog.getTitle().getName() + ChatColor.WHITE);
         }
         message = message.replace("%playername%", jPlayer.getName());
-        if (player == null) {
-            message = message.replace("%playerdisplayname%", jPlayer.getName());
-        } else {
-            message = message.replace("%playerdisplayname%", player.getDisplayName());
-        }
         message = message.replace("%joblevel%", ""+prog.getLevel());
         for (String line: message.split("\n")) {
             if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
@@ -361,15 +279,13 @@ public class PlayerManager {
         if (levelTitle != null && !levelTitle.equals(prog.getTitle())) {        
             // user would skill up
             if (plugin.getJobsConfiguration().isBroadcastingSkillups()) {
-                message = plugin.getMessageConfig().getMessage("skill-up-broadcast");
+                message = plugin.getMessageConfig().getMessage("message.skillup.broadcast");
             } else {
-                message = plugin.getMessageConfig().getMessage("skill-up-no-broadcast");
+                message = plugin.getMessageConfig().getMessage("message.skillup.nobroadcast");
             }
             message = message.replace("%playername%", jPlayer.getName());
-            message = message.replace("%titlecolour%", levelTitle.getChatColor().toString());
-            message = message.replace("%titlename%", levelTitle.getName());
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            message = message.replace("%jobname%", job.getName());
+            message = message.replace("%titlename%", levelTitle.getChatColor() + levelTitle.getName() + ChatColor.WHITE);
+            message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
             for (String line: message.split("\n")) {
                 if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
                     plugin.getServer().broadcastMessage(line);

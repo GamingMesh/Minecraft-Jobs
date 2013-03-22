@@ -22,7 +22,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -43,40 +42,10 @@ public class JobsCommands implements CommandExecutor {
     
     private JobsPlugin plugin;
     private static final String label = "jobs";
-    private HashMap<String, String> commandUsage = new HashMap<String, String>();
-    private HashMap<String, String> commandHelp = new HashMap<String, String>();
     private LinkedHashSet<String> commands = new LinkedHashSet<String>();
     
     public JobsCommands(JobsPlugin plugin) {
         this.plugin = plugin;
-        commandUsage.put("join", "[jobname]");
-        commandUsage.put("leave", "[jobname]");
-        commandUsage.put("info", "[jobname] [action]");
-        commandUsage.put("stats", "[playername]");
-        commandUsage.put("playerinfo", "[playername] [jobname] [action]");
-        commandUsage.put("fire", "[playername] [jobname]");
-        commandUsage.put("employ", "[playername] [jobname]");
-        commandUsage.put("promote", "[playername] [jobname] [levels]");
-        commandUsage.put("demote", "[playername] [jobname] [levels]");
-        commandUsage.put("grantxp", "[playername] [jobname] [xp]");
-        commandUsage.put("removexp", "[playername] [jobname] [xp]");
-        commandUsage.put("transfer", "[playername] [oldjob] [newjob]");
-
-        commandHelp.put("browse", "List the jobs available to you.");
-        commandHelp.put("stats", "Show the level you are in each job you are part of.");
-        commandHelp.put("join", "Join the selected job.");
-        commandHelp.put("leave", "Leave the selected job.");
-        commandHelp.put("info", "Show how much each job is getting paid and for what.");
-        commandHelp.put("playerinfo", "Show how much each job is getting paid and for what on another player.");
-        commandHelp.put("fire", "Fire the player from the job.");
-        commandHelp.put("employ", "Employ the player to the job.");
-        commandHelp.put("promote", "Promote the player X levels in a job.");
-        commandHelp.put("demote", "Demote the player X levels in a job.");
-        commandHelp.put("grantxp", "Grant the player X experience in a job.");
-        commandHelp.put("removexp", "Remove X experience from the player in a job.");
-        commandHelp.put("transfer", "Transfer a player's job from an old job to a new job.");
-        commandHelp.put("reload", "Reload configurations.");
-
         commands.add("browse");
         commands.add("stats");
         commands.add("join");
@@ -115,7 +84,7 @@ public class JobsCommands implements CommandExecutor {
         try {
             Method m = getClass().getMethod(cmd, CommandSender.class, String[].class);
             if (!hasCommandPermission(sender, cmd)) {
-                sender.sendMessage(plugin.getMessageConfig().getMessage("error-no-permission"));
+                sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.permission"));
                 return true;
             }
             return (Boolean) m.invoke(this, sender, myArgs);
@@ -151,18 +120,19 @@ public class JobsCommands implements CommandExecutor {
         builder.append('/').append(label).append(' ');
         builder.append(cmd);
         builder.append(ChatColor.YELLOW);
-        if (commandUsage.containsKey(cmd)) {
+        String key = "message."+cmd+".help.args";
+        if (plugin.getMessageConfig().containsKey(key)) {
             builder.append(' ');
-            builder.append(commandUsage.get(cmd));
+            builder.append(plugin.getMessageConfig().getMessage(key));
         }
         return builder.toString();
     }
     
     public void sendUsage(CommandSender sender, String cmd) {
-        sender.sendMessage(ChatColor.YELLOW+"Usage: "+getUsage(cmd));
-        if (commandHelp.containsKey(cmd)) {
-            sender.sendMessage(ChatColor.YELLOW+"* "+commandHelp.get(cmd));
-        }
+        String message = ChatColor.YELLOW + plugin.getMessageConfig().getMessage("command.help.output.usage");
+        message = message.replace("%usage%", getUsage(cmd));
+        sender.sendMessage(message);
+        sender.sendMessage(ChatColor.YELLOW+"* "+plugin.getMessageConfig().getMessage("command."+cmd+".help"));
     }
     
     public void sendValidActions(CommandSender sender) {
@@ -186,7 +156,7 @@ public class JobsCommands implements CommandExecutor {
                 continue;
             sender.sendMessage(getUsage(cmd));
         }
-        sender.sendMessage(ChatColor.YELLOW+"Type /jobs [cmd] ? for more information about a command.");
+        sender.sendMessage(ChatColor.YELLOW + plugin.getMessageConfig().getMessage("command.help.output"));
         return true;
     }
     
@@ -206,40 +176,42 @@ public class JobsCommands implements CommandExecutor {
         Job job = plugin.getJobsCore().getJob(jobName);
         if (job == null) {
             // job does not exist
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.job"));
             return true;
         }
         
         if (!plugin.hasJobPermission(pSender, job)) {
             // you do not have permission to join the job
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-permission"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.permission"));
             return true;
         }
         
         if (jPlayer.isInJob(job)) {
             // already in job message
-            String message = plugin.getMessageConfig().getMessage("join-job-failed-already-in");
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            message = message.replace("%jobname%", job.getName());
-            sendMessageByLine(sender, message);
+            String message = ChatColor.RED + plugin.getMessageConfig().getMessage("command.join.error.alreadyin");
+            message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.RED);
+            sender.sendMessage(message);
             return true;
         }
         
         if (job.getMaxSlots() != null && plugin.getJobsCore().getUsedSlots(job) >= job.getMaxSlots()) {
-            String message = plugin.getMessageConfig().getMessage("join-job-failed-no-slots");
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            message = message.replace("%jobname%", job.getName());
-            sendMessageByLine(sender, message);
+            String message = ChatColor.RED + plugin.getMessageConfig().getMessage("command.join.error.fullslots");
+            message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.RED);
+            sender.sendMessage(message);
             return true;
         }
         
         int confMaxJobs = plugin.getJobsConfiguration().getMaxJobs();
         if (confMaxJobs > 0 && jPlayer.getJobProgression().size() >= confMaxJobs) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("join-too-many-job"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.join.error.maxjobs"));
             return true;
         }
         
         plugin.getPlayerManager().joinJob(jPlayer, job);
+        
+        String message = plugin.getMessageConfig().getMessage("command.join.success");
+        message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
+        sender.sendMessage(message);
         return true;
     }
     
@@ -258,11 +230,14 @@ public class JobsCommands implements CommandExecutor {
         String jobName = args[0];
         Job job = plugin.getJobsCore().getJob(jobName);
         if (job == null) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.job"));
             return true;
         }
         
         plugin.getPlayerManager().leaveJob(jPlayer, job);
+        String message = plugin.getMessageConfig().getMessage("command.leave.success");
+        message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
+        sender.sendMessage(message);
         return true;
     }
     
@@ -282,14 +257,14 @@ public class JobsCommands implements CommandExecutor {
         String jobName = args[0];
         Job job = plugin.getJobsCore().getJob(jobName);
         if (job == null) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.job"));
             return true;
         }
         String type = "";
         if (args.length >= 2) {
             type = args[1];
         }
-        sendMessageByLine(sender, jobInfoMessage(jPlayer, job, type));
+        sender.sendMessage(jobInfoMessage(jPlayer, job, type).split("\n"));
         return true;
     }
     
@@ -300,7 +275,7 @@ public class JobsCommands implements CommandExecutor {
         JobsPlayer jPlayer = null;
         if (args.length >= 1) {
             if (!sender.hasPermission("jobs.command.admin.stats")) {
-                sender.sendMessage(plugin.getMessageConfig().getMessage("error-no-permission"));
+                sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.permission"));
                 return true;
             }
             Player player = plugin.getServer().getPlayer(args[0]);
@@ -319,12 +294,12 @@ public class JobsCommands implements CommandExecutor {
         }
         
         if (jPlayer.getJobProgression().size() == 0){
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("stats-no-job"));
+            sender.sendMessage(plugin.getMessageConfig().getMessage("command.stats.error.job"));
             return true;
         }
         
         for (JobProgression jobProg: jPlayer.getJobProgression()){
-            sendMessageByLine(sender, jobStatsMessage(jobProg));
+            sender.sendMessage(jobStatsMessage(jobProg).split("\n"));
         }
         return true;
     }
@@ -337,21 +312,21 @@ public class JobsCommands implements CommandExecutor {
                     continue;
             }
             if (job.getMaxLevel() > 0) {
-                jobs.add(job.getChatColour() + job.getName() + ChatColor.WHITE + " - max lvl: " + job.getMaxLevel());
+                jobs.add(job.getChatColor() + job.getName() + ChatColor.WHITE + " - max lvl: " + job.getMaxLevel());
             } else {
-                jobs.add(job.getChatColour() + job.getName());
+                jobs.add(job.getChatColor() + job.getName());
             }
         }
         
         if (jobs.size() == 0) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("browse-no-jobs"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.browse.error.nojobs"));
             return true;   
         }
-        sendMessageByLine(sender, plugin.getMessageConfig().getMessage("browse-jobs-header"));
+        sender.sendMessage(plugin.getMessageConfig().getMessage("command.browse.output.header"));
         for(String job : jobs) {
             sender.sendMessage("    "+job);
         }
-        sendMessageByLine(sender, plugin.getMessageConfig().getMessage("browse-jobs-footer"));
+        sender.sendMessage(plugin.getMessageConfig().getMessage("command.browse.output.footer"));
         return true;
     }
     
@@ -368,14 +343,14 @@ public class JobsCommands implements CommandExecutor {
         String jobName = args[1];
         Job job = plugin.getJobsCore().getJob(jobName);
         if (job == null) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.job"));
             return true;
         }
         String type = "";
         if (args.length >= 3) {
             type = args[2];
         }
-        sendMessageByLine(sender, jobInfoMessage(jPlayer, job, type));
+        sender.sendMessage(jobInfoMessage(jPlayer, job, type).split("\n"));
         return true;
     }
     
@@ -392,9 +367,9 @@ public class JobsCommands implements CommandExecutor {
                 jPlayer.recalculatePermissions();
             }
             plugin.reRegisterPermissions();
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
+            sender.sendMessage(plugin.getMessageConfig().getMessage("command.admin.success"));
         } catch (Exception e) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.admin.error"));
             plugin.getLogger().severe("There was an error when performing a reload: ");
             e.printStackTrace();
         }
@@ -415,28 +390,26 @@ public class JobsCommands implements CommandExecutor {
         }
         Job job = plugin.getJobsCore().getJob(args[1]);
         if (job == null) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.job"));
             return true;
         }
         if (!jPlayer.isInJob(job)) {
-            String message = plugin.getMessageConfig().getMessage("fire-target-no-job");
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            message = message.replace("%jobname%", job.getName());
-            sendMessageByLine(sender, message);
+            String message = ChatColor.RED + plugin.getMessageConfig().getMessage("command.fire.error.nojob");
+            message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.RED);
+            sender.sendMessage(message);
             return true;
         }
         try {
             plugin.getPlayerManager().leaveJob(jPlayer, job);
             if (player != null) {
-                String message = plugin.getMessageConfig().getMessage("fire-target");
-                message = message.replace("%jobcolour%", job.getChatColour().toString());
-                message = message.replace("%jobname%", job.getName());
-                sendMessageByLine(player, message);
+                String message = plugin.getMessageConfig().getMessage("command.fire.output.target");
+                message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
+                sender.sendMessage(message);
             }
             
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
+            sender.sendMessage(plugin.getMessageConfig().getMessage("command.admin.success"));
         } catch (Exception e) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.admin.error"));
         }
         return true;
     }
@@ -455,29 +428,27 @@ public class JobsCommands implements CommandExecutor {
         }
         Job job = plugin.getJobsCore().getJob(args[1]);
         if (job == null) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.job"));
             return true;
         }
         if (jPlayer.isInJob(job)) {
             // already in job message
-            String message = plugin.getMessageConfig().getMessage("join-job-failed-already-in");
-            message = message.replace("%jobcolour%", job.getChatColour().toString());
-            message = message.replace("%jobname%", job.getName());
-            sendMessageByLine(sender, message);
+            String message = ChatColor.RED + plugin.getMessageConfig().getMessage("command.employ.error.alreadyin");
+            message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.RED);
+            sender.sendMessage(message);
             return true;
         }
         try {
             // check if player already has the job
             plugin.getPlayerManager().joinJob(jPlayer, job);
             if(player != null) {
-                String message = plugin.getMessageConfig().getMessage("employ-target");
-                message = message.replace("%jobcolour%", job.getChatColour().toString());
-                message = message.replace("%jobname%", job.getName());
-                sendMessageByLine(player, message);
+                String message = plugin.getMessageConfig().getMessage("command.employ.output.target");
+                message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
+                sender.sendMessage(message);
             }
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
+            sender.sendMessage(plugin.getMessageConfig().getMessage("command.admin.success"));
         } catch (Exception e) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.admin.error"));
         }
         return true;
     }
@@ -496,7 +467,7 @@ public class JobsCommands implements CommandExecutor {
         }
         Job job = plugin.getJobsCore().getJob(args[1]);
         if (job == null) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.job"));
             return true;
         }
         try {
@@ -504,10 +475,18 @@ public class JobsCommands implements CommandExecutor {
             if (jPlayer.isInJob(job)) {
                 Integer levelsGained = Integer.parseInt(args[2]);
                 plugin.getPlayerManager().promoteJob(jPlayer, job, levelsGained);
-                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
+                
+                if (player != null) {
+                    String message = plugin.getMessageConfig().getMessage("command.promote.output.target");
+                    message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
+                    message = message.replace("%levelsgained%", Integer.valueOf(levelsGained).toString());
+                    player.sendMessage(message);
+                }
+                
+                sender.sendMessage(plugin.getMessageConfig().getMessage("command.admin.success"));
             }
         } catch (Exception e) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.admin.error"));
         }
         return true;
     }
@@ -526,7 +505,7 @@ public class JobsCommands implements CommandExecutor {
         }
         Job job = plugin.getJobsCore().getJob(args[1]);
         if (job == null) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.job"));
             return true;
         }
         try {
@@ -534,11 +513,19 @@ public class JobsCommands implements CommandExecutor {
             if (jPlayer.isInJob(job)) {
                 Integer levelsLost = Integer.parseInt(args[2]);
                 plugin.getPlayerManager().demoteJob(jPlayer, job, levelsLost);
-                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
+                
+                if (player != null) {
+                    String message = plugin.getMessageConfig().getMessage("command.demote.output.target");
+                    message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
+                    message = message.replace("%levelslost%", Integer.valueOf(levelsLost).toString());
+                    player.sendMessage(message);
+                }
+                
+                sender.sendMessage(plugin.getMessageConfig().getMessage("command.admin.success"));
             }
         }
         catch (Exception e) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.admin.error"));
         }
         return true;
     }
@@ -557,24 +544,31 @@ public class JobsCommands implements CommandExecutor {
         }
         Job job = plugin.getJobsCore().getJob(args[1]);
         if (job == null) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.job"));
             return true;
         }
-        double expGained;
+        double xpGained;
         try {
-            expGained = Double.parseDouble(args[2]);
+            xpGained = Double.parseDouble(args[2]);
         } catch (Exception e) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.admin.error"));
             return true;
         }
-        if (expGained <= 0) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+        if (xpGained <= 0) {
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.admin.error"));
             return true;
         }
         // check if player already has the job
         if (jPlayer.isInJob(job)) {
-            plugin.getPlayerManager().addExperience(jPlayer, job, expGained);
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
+            plugin.getPlayerManager().addExperience(jPlayer, job, xpGained);
+            
+            if (player != null) {
+                String message = plugin.getMessageConfig().getMessage("command.grantxp.output.target");
+                message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
+                message = message.replace("%xpgained%", Double.valueOf(xpGained).toString());
+            }
+            
+            sender.sendMessage(plugin.getMessageConfig().getMessage("command.admin.success"));
         }
         return true;
     }
@@ -593,24 +587,32 @@ public class JobsCommands implements CommandExecutor {
         }
         Job job = plugin.getJobsCore().getJob(args[1]);
         if (job == null) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.job"));
             return true;
         }
-        double expLost;
+        double xpLost;
         try {
-            expLost = Double.parseDouble(args[2]);
+            xpLost = Double.parseDouble(args[2]);
         } catch (Exception e) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.admin.error"));
             return true;
         }
-        if (expLost <= 0) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+        if (xpLost <= 0) {
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.admin.error"));
             return true;
         }
         // check if player already has the job
         if (jPlayer.isInJob(job)) {
-            plugin.getPlayerManager().removeExperience(jPlayer, job, expLost);
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
+            plugin.getPlayerManager().removeExperience(jPlayer, job, xpLost);
+            
+            if (player != null) {
+                String message = plugin.getMessageConfig().getMessage("command.removexp.output.target");
+                message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
+                message = message.replace("%xplost%", Double.valueOf(xpLost).toString());
+                player.sendMessage(message);
+            }
+            
+            sender.sendMessage(plugin.getMessageConfig().getMessage("command.admin.success"));
         }
         return true;
     }
@@ -630,20 +632,27 @@ public class JobsCommands implements CommandExecutor {
         Job oldjob = plugin.getJobsCore().getJob(args[1]);
         Job newjob = plugin.getJobsCore().getJob(args[2]);
         if (oldjob == null) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.job"));
             return true;
         }
         if (newjob == null) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("error-no-job"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.job"));
             return true;
         }
         try {
             if(jPlayer.isInJob(oldjob) && !jPlayer.isInJob(newjob)) {
                 plugin.getPlayerManager().transferJob(jPlayer, oldjob, newjob);
-                sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-success"));
+                
+                if (player != null) {
+                    String message = plugin.getMessageConfig().getMessage("command.transfer.output.target");
+                    message = message.replace("%oldjobname%", oldjob.getChatColor() + oldjob.getName() + ChatColor.WHITE);
+                    message = message.replace("%newjobname%", newjob.getChatColor() + newjob.getName() + ChatColor.WHITE);
+                    player.sendMessage(message);
+                }
+                sender.sendMessage(plugin.getMessageConfig().getMessage("command.admin.success"));
             }
         } catch (Exception e) {
-            sendMessageByLine(sender, plugin.getMessageConfig().getMessage("admin-command-failed"));
+            sender.sendMessage(ChatColor.RED + plugin.getMessageConfig().getMessage("command.admin.error"));
         }
         return true;
     }
@@ -659,7 +668,7 @@ public class JobsCommands implements CommandExecutor {
     private String jobInfoMessage(JobsPlayer player, Job job, String type) {
         if(job == null){
             // job doesn't exist
-            return plugin.getMessageConfig().getMessage("error-no-job");
+            return ChatColor.RED + plugin.getMessageConfig().getMessage("command.error.job");
         }
         
         if (type == null) {
@@ -684,9 +693,8 @@ public class JobsCommands implements CommandExecutor {
                 if (info != null && !info.isEmpty()) {
                     message.append(jobInfoMessage(player, job, actionType));
                 } else if (showAllTypes == 0) {
-                    String myMessage = plugin.getMessageConfig().getMessage(actionType.getName().toLowerCase()+"-none");
-                    myMessage = myMessage.replace("%jobcolour%", job.getChatColour().toString());
-                    myMessage = myMessage.replace("%jobname%", job.getName());
+                    String myMessage = plugin.getMessageConfig().getMessage("command.info.output." + actionType.getName().toLowerCase() + ".none");
+                    myMessage = myMessage.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
                     message.append(myMessage);
                 }
             }
@@ -748,24 +756,11 @@ public class JobsCommands implements CommandExecutor {
      * @return the message
      */
     private String jobStatsMessage(JobProgression jobProg) {
-        String message = plugin.getMessageConfig().getMessage("stats-job");
+        String message = plugin.getMessageConfig().getMessage("command.stats.output");
         message = message.replace("%joblevel%", Integer.valueOf(jobProg.getLevel()).toString());
-        message = message.replace("%jobcolour%", jobProg.getJob().getChatColour().toString());
-        message = message.replace("%jobname%", jobProg.getJob().getName());
-        message = message.replace("%jobexp%", Integer.toString((int)jobProg.getExperience()));
-        message = message.replace("%jobmaxexp%", Integer.toString(jobProg.getMaxExperience()));
+        message = message.replace("%jobname%", jobProg.getJob().getChatColor() + jobProg.getJob().getName() + ChatColor.WHITE);
+        message = message.replace("%jobxp%", Integer.toString((int)jobProg.getExperience()));
+        message = message.replace("%jobmaxxp%", Integer.toString(jobProg.getMaxExperience()));
         return message;
-    }
-    
-    
-    /**
-     * Sends a message to line by line
-     * @param sender - who receives info
-     * @param message - message which needs to be sent
-     */
-    private void sendMessageByLine(CommandSender sender, String message) {
-        for(String line : message.split("\n")) {
-            sender.sendMessage(line);
-        }
     }
 }

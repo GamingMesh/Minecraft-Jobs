@@ -154,7 +154,7 @@ public class Job {
      * Get the Color of the job for chat
      * @return the Color of the job for chat
      */
-    public ChatColor getChatColour(){
+    public ChatColor getChatColor(){
         return jobColour;
     }
     

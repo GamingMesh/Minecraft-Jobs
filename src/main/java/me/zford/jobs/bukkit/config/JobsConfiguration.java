@@ -25,6 +25,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Locale;
 
 import me.zford.jobs.bukkit.JobsPlugin;
 import me.zford.jobs.container.RestrictedArea;
@@ -52,6 +53,8 @@ public class JobsConfiguration {
     private ArrayList<RestrictedArea> restrictedAreas = new ArrayList<RestrictedArea>();
     
     private JobsPlugin plugin;
+    
+    private Locale locale;
     
     public JobsConfiguration(JobsPlugin plugin) {
         this.plugin = plugin;
@@ -101,6 +104,10 @@ public class JobsConfiguration {
         config.options().copyDefaults(true);
         
         writer.options().header(header.toString());
+        
+        writer.addComment("locale-language", "Default language.  Use your languages two digit ISO 639-1 code, and optionally followed by the ISO-3166-1 country code.",
+                "Example: en, en_US");
+        config.addDefault("locale-language", Locale.getDefault().getLanguage());
 
         writer.addComment("storage-method", "storage method, can be MySQL, sqlite, h2");
         config.addDefault("storage-method", "sqlite");
@@ -162,6 +169,19 @@ public class JobsConfiguration {
             e.printStackTrace();
         }
         
+        String localeString = config.getString("locale-language");
+        try {
+            int i = localeString.indexOf('_');
+            if (i == -1) {
+                locale = new Locale(localeString);
+            } else {
+                locale = new Locale(localeString.substring(0, i), localeString.substring(i+1));
+            }
+        } catch (IllegalArgumentException e) {
+            locale = Locale.getDefault();
+            plugin.getLogger().warning("Invalid locale \""+localeString+"\" defaulting to "+locale.getLanguage());
+        }
+        
         String storageMethod = config.getString("storage-method");
         if(storageMethod.equalsIgnoreCase("mysql")) {
             String username = config.getString("mysql-username");
@@ -210,6 +230,7 @@ public class JobsConfiguration {
         }
         
         // Make sure we're only copying settings we care about
+        copySetting(config, writer, "locale-language");
         copySetting(config, writer, "storage-method");
         copySetting(config, writer, "mysql-username");
         copySetting(config, writer, "mysql-password");
@@ -583,5 +604,9 @@ public class JobsConfiguration {
     
     public synchronized boolean saveOnDisconnect() {
         return config.getBoolean("save-on-disconnect");
+    }
+    
+    public synchronized Locale getLocale() {
+        return locale;
     }
 }

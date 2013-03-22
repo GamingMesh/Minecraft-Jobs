@@ -275,7 +275,7 @@ public class JobsPlayer {
                     if (gotTitle) {
                         builder.append(" ");
                     }
-                    builder.append(prog.getJob().getChatColour() + prog.getJob().getName() + ChatColor.WHITE);
+                    builder.append(prog.getJob().getChatColor() + prog.getJob().getName() + ChatColor.WHITE);
                     gotTitle = true;
                 }
             }
@@ -293,7 +293,7 @@ public class JobsPlayer {
             if (numJobs > 1 && (method.equals(DisplayMethod.FULL) || method.equals(DisplayMethod.JOB)) ||
                     method.equals(DisplayMethod.SHORT_FULL) || 
                     method.equals(DisplayMethod.SHORT_JOB)) {
-                builder.append(prog.getJob().getChatColour() + prog.getJob().getShortName() + ChatColor.WHITE);
+                builder.append(prog.getJob().getChatColor() + prog.getJob().getShortName() + ChatColor.WHITE);
                 gotTitle = true;
             }
         }

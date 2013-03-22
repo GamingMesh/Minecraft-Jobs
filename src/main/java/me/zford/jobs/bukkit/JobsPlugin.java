@@ -187,8 +187,8 @@ public class JobsPlugin extends JavaPlugin {
         if (!getDataFolder().exists()) {
             getDataFolder().mkdirs();
         }
-        getMessageConfig().reload();
         jobsConfiguration.reload();
+        getMessageConfig().reload();
         getJobConfig().reload();
         core.reload();
         restartTasks();
