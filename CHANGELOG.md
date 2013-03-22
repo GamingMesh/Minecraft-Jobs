@@ -1,5 +1,12 @@
 # Jobs plugin change log summary
 
+## 2.9.2
+* Added color coding to income in /jobs browse
+* Changed behavior of REDSTONE_ORE, removed hacks, added configuration warning
+* Fixed most admin commands to work better with offline players
+* Reworked entire save system
+* Potentially fixed issues with Tekkit and other client mods behaving badly (untested)
+
 ## 2.9.1
 * Fixed crafting and smelting with subtypes
 * Fixed some errors on shutdown
