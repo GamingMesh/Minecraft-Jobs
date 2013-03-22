@@ -711,7 +711,7 @@ public class JobsCommands implements CommandExecutor {
      */
     private String jobInfoMessage(JobsPlayer player, Job job, ActionType type) {
         StringBuilder message = new StringBuilder();
-        message.append(type.getName());
+        message.append(plugin.getMessageConfig().getMessage("command.info.output." + type.getName().toLowerCase()));
         message.append(":\n");
         
         int level = 1;
