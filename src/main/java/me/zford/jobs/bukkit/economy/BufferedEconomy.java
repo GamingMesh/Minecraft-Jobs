@@ -18,10 +18,10 @@
 
 package me.zford.jobs.bukkit.economy;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import net.milkbowl.vault.economy.Economy;
 
@@ -32,12 +32,13 @@ import me.zford.jobs.economy.BufferedPayment;
 
 public class BufferedEconomy {
     
-    private Map<String, Double> payments = Collections.synchronizedMap(new LinkedHashMap<String, Double>());
+    private LinkedBlockingQueue<BufferedPayment> payments = new LinkedBlockingQueue<BufferedPayment>();
+    private final Map<String, BufferedPayment> paymentCache = Collections.synchronizedMap(new HashMap<String, BufferedPayment>());
     private JobsPlugin plugin;
     public BufferedEconomy(JobsPlugin plugin) {
         this.plugin = plugin;
     }
-
+    
     /**
      * Add payment to player's payment buffer
      * @param player - player to be paid
@@ -46,16 +47,15 @@ public class BufferedEconomy {
     public void pay(JobsPlayer player, double amount) {
         if (amount == 0)
             return;
-        double total = 0;
-        String playername = player.getName();
-        
-        synchronized (payments) {
-            if (payments.containsKey(playername))
-                total = payments.get(playername);
-            
-            total += amount;
-            payments.put(player.getName(), total);
-        }
+        pay(new BufferedPayment(player.getName(), amount));
+    }
+    
+    /**
+     * Add payment to player's payment buffer
+     * @param payment - payment to be paid
+     */
+    public void pay(BufferedPayment payment) {
+        payments.add(payment);
     }
     
     /**
@@ -65,24 +65,25 @@ public class BufferedEconomy {
         if (payments.isEmpty())
             return;
         
-        int batchSize = plugin.getJobsConfiguration().getEconomyBatchSize();
-        ArrayList<BufferedPayment> buffered = new ArrayList<BufferedPayment>(batchSize);
-        synchronized (payments) {
-            int i = 0;
-            for (Map.Entry<String, Double> entry : payments.entrySet()) {
-                if (buffered.size() >= batchSize) {
-                    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BufferedPaymentTask(economy, buffered), i);
-                    buffered = new ArrayList<BufferedPayment>(batchSize);
-                    i++;
+        synchronized (paymentCache) {
+            // combine all payments using paymentCache
+            while (!payments.isEmpty()) {
+                BufferedPayment payment = payments.remove();
+                if (paymentCache.containsKey(payment.getPlayerName())) {
+                    BufferedPayment existing = paymentCache.get(payment.getPlayerName());
+                    existing.setAmount(existing.getAmount() + payment.getAmount());
+                } else {
+                    paymentCache.put(payment.getPlayerName(), payment);
                 }
-                String playername = entry.getKey();
-                double payment = entry.getValue().doubleValue();
-                if (payment != 0)
-                    buffered.add(new BufferedPayment(playername, payment));
             }
-            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BufferedPaymentTask(economy, buffered), i);
-            
-            payments.clear();
+            // Schedule all payments
+            int i = 0;
+            for (BufferedPayment payment : paymentCache.values()) {
+                i++;
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BufferedPaymentTask(this, economy, payment), i);
+            }
+            // empty payment cache
+            paymentCache.clear();
         }
     }
 }

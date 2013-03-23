@@ -18,25 +18,28 @@
 
 package me.zford.jobs.bukkit.tasks;
 
-import java.util.List;
-
+import me.zford.jobs.bukkit.economy.BufferedEconomy;
 import me.zford.jobs.economy.BufferedPayment;
 import net.milkbowl.vault.economy.Economy;
+import net.milkbowl.vault.economy.EconomyResponse;
 
 public class BufferedPaymentTask implements Runnable {
+    private BufferedEconomy bufferedEconomy;
     private Economy economy;
-    private List<BufferedPayment> payments;
-    public BufferedPaymentTask(Economy economy, List<BufferedPayment> payments) {
+    private BufferedPayment payment;
+    public BufferedPaymentTask(BufferedEconomy bufferedEconomy, Economy economy, BufferedPayment payment) {
+        this.bufferedEconomy =  bufferedEconomy;
         this.economy = economy;
-        this.payments = payments;
+        this.payment = payment;
     }
     @Override
     public void run() {
-        for (BufferedPayment payment : payments) {
-            if (payment.getAmount() > 0) {
-                economy.depositPlayer(payment.getPlayerName(), payment.getAmount());
-            } else {
-                economy.withdrawPlayer(payment.getPlayerName(), -payment.getAmount());
+        if (payment.getAmount() > 0) {
+            economy.depositPlayer(payment.getPlayerName(), payment.getAmount());
+        } else {
+            EconomyResponse response = economy.withdrawPlayer(payment.getPlayerName(), -payment.getAmount());
+            if (response.type == EconomyResponse.ResponseType.FAILURE) {
+                bufferedEconomy.pay(payment);
             }
         }
     }
