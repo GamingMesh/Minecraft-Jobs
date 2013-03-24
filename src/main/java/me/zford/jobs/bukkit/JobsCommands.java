@@ -120,7 +120,7 @@ public class JobsCommands implements CommandExecutor {
         builder.append('/').append(label).append(' ');
         builder.append(cmd);
         builder.append(ChatColor.YELLOW);
-        String key = "message."+cmd+".help.args";
+        String key = "command."+cmd+".help.args";
         if (plugin.getMessageConfig().containsKey(key)) {
             builder.append(' ');
             builder.append(plugin.getMessageConfig().getMessage(key));
