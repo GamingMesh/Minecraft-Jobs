@@ -23,7 +23,6 @@ import java.util.List;
 import me.zford.jobs.Jobs;
 import me.zford.jobs.bukkit.config.JobConfig;
 import me.zford.jobs.bukkit.config.JobsConfiguration;
-import me.zford.jobs.bukkit.config.MessageConfig;
 import me.zford.jobs.bukkit.economy.BufferedEconomy;
 import me.zford.jobs.bukkit.listeners.JobsListener;
 import me.zford.jobs.bukkit.listeners.JobsPaymentListener;
@@ -34,6 +33,7 @@ import me.zford.jobs.container.Job;
 import me.zford.jobs.container.JobProgression;
 import me.zford.jobs.container.JobsPlayer;
 import me.zford.jobs.dao.JobsDAO;
+import me.zford.jobs.i18n.Language;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.World;
@@ -48,7 +48,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class JobsPlugin extends JavaPlugin {
     private Jobs core;
-    private MessageConfig messageConfig = new MessageConfig(this);
     private JobsConfiguration jobsConfiguration = new JobsConfiguration(this);
     private PlayerManager pManager = new PlayerManager(this);
     private JobConfig jobConfig = new JobConfig(this);
@@ -166,14 +165,6 @@ public class JobsPlugin extends JavaPlugin {
     }
     
     /**
-     * Get the message configuration data
-     * @return - the message configuration
-     */
-    public MessageConfig getMessageConfig() {
-        return messageConfig;
-    }
-    
-    /**
      * Returns player manager
      */
     public PlayerManager getPlayerManager() {
@@ -188,7 +179,7 @@ public class JobsPlugin extends JavaPlugin {
             getDataFolder().mkdirs();
         }
         jobsConfiguration.reload();
-        getMessageConfig().reload();
+        Language.reload(jobsConfiguration.getLocale());
         getJobConfig().reload();
         core.reload();
         restartTasks();

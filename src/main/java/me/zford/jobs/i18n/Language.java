@@ -16,25 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.bukkit.config;
+package me.zford.jobs.i18n;
 
+import java.util.Locale;
 import java.util.ResourceBundle;
 
-import me.zford.jobs.bukkit.JobsPlugin;
-
-public class MessageConfig {
-    private JobsPlugin plugin;
-    private ResourceBundle bundle;
+public class Language {
+    private static ResourceBundle bundle;
     
-    public MessageConfig(JobsPlugin plugin) {
-        this.plugin = plugin;
+    static {
+        bundle = ResourceBundle.getBundle("i18n/messages");
     }
+    
+    private Language() { }
     
     /**
      * Reloads the config
      */
-    public void reload() {
-        bundle = ResourceBundle.getBundle("i18n/messages", plugin.getJobsConfiguration().getLocale());
+    public static void reload(Locale locale) {
+        bundle = ResourceBundle.getBundle("i18n/messages", locale);
     }
     
     /**
@@ -42,11 +42,11 @@ public class MessageConfig {
      * @param key - the key of the message
      * @return the message
      */
-    public String getMessage(String key) {
+    public static String getMessage(String key) {
         return bundle.getString(key);
     }
     
-    public boolean containsKey(String key) {
+    public static boolean containsKey(String key) {
         return bundle.containsKey(key);
     }
 }

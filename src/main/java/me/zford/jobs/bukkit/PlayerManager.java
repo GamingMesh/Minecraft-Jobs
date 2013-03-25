@@ -31,6 +31,7 @@ import me.zford.jobs.container.JobProgression;
 import me.zford.jobs.container.JobsPlayer;
 import me.zford.jobs.container.Title;
 import me.zford.jobs.dao.JobsDAO;
+import me.zford.jobs.i18n.Language;
 import me.zford.jobs.util.ChatColor;
 
 public class PlayerManager {
@@ -257,9 +258,9 @@ public class PlayerManager {
 
         String message;
         if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
-            message = plugin.getMessageConfig().getMessage("message.levelup.broadcast");
+            message = Language.getMessage("message.levelup.broadcast");
         } else {
-            message = plugin.getMessageConfig().getMessage("message.levelup.nobroadcast");
+            message = Language.getMessage("message.levelup.nobroadcast");
         }
         message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
         if (prog.getTitle() != null) {
@@ -279,9 +280,9 @@ public class PlayerManager {
         if (levelTitle != null && !levelTitle.equals(prog.getTitle())) {        
             // user would skill up
             if (plugin.getJobsConfiguration().isBroadcastingSkillups()) {
-                message = plugin.getMessageConfig().getMessage("message.skillup.broadcast");
+                message = Language.getMessage("message.skillup.broadcast");
             } else {
-                message = plugin.getMessageConfig().getMessage("message.skillup.nobroadcast");
+                message = Language.getMessage("message.skillup.nobroadcast");
             }
             message = message.replace("%playername%", jPlayer.getName());
             message = message.replace("%titlename%", levelTitle.getChatColor() + levelTitle.getName() + ChatColor.WHITE);
