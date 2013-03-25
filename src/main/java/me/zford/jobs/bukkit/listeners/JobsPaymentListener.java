@@ -55,6 +55,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.EnchantingInventory;
 import org.bukkit.inventory.Inventory;
@@ -173,20 +174,10 @@ public class JobsPaymentListener implements Listener {
         if (recipe == null)
             return;
         
-        // restricted area multiplier
-        List<HumanEntity> viewers = event.getViewers();
-        if (viewers.size() == 0)
+        if (!(event.getWhoClicked() instanceof Player))
             return;
-        Player player = null;
-        for (HumanEntity viewer : event.getViewers()) {
-            if (viewer instanceof Player) {
-                player = (Player) viewer;
-                break;
-            }
-        }
         
-        if (player == null)
-            return;
+        Player player = (Player) event.getWhoClicked();
         
         ItemStack resultStack = recipe.getResult();
         
@@ -228,6 +219,67 @@ public class JobsPaymentListener implements Listener {
         double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
         plugin.action(jPlayer, new ItemActionInfo(resultStack, ActionType.CRAFT), multiplier);
+    }
+
+    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
+    public void onInventoryRepair(InventoryClickEvent event) {
+        // make sure plugin is enabled
+        if(!plugin.isEnabled()) return;
+        Inventory inv = event.getInventory();
+        
+        // must be anvil inventory
+        if (!(inv instanceof AnvilInventory))
+            return;
+        
+        // Must be "container" slot 9
+        if (!event.getSlotType().equals(SlotType.CONTAINER) || event.getSlot() != 9)
+            return;
+        
+        if (!(event.getWhoClicked() instanceof Player))
+            return;
+        
+        Player player = (Player) event.getWhoClicked();
+        
+        ItemStack resultStack = event.getCurrentItem();
+        
+        if (resultStack == null)
+            return;
+        
+        if (!plugin.hasWorldPermission(player, player.getWorld()))
+            return;
+        
+        // check if in creative
+        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+            return;
+        
+        if (event.isShiftClick()) {
+            // check for full inventory
+            PlayerInventory pInv = player.getInventory();
+            boolean isFull = true;
+            for (ItemStack stack : pInv.getContents()) {
+                if (stack == null || stack.getType().equals(Material.AIR)) {
+                    isFull = false;
+                    break;
+                }
+            }
+            if (isFull)
+                return;
+        } else {
+            // check item on cursor
+            ItemStack cursor = player.getItemOnCursor();
+            if (cursor != null && !cursor.getType().equals(Material.AIR)) {
+                // don't craft if it's a different item
+                if (!cursor.getType().equals(resultStack.getType()))
+                    return;
+                // check if stack is full
+                if (cursor.getAmount() >= cursor.getMaxStackSize())
+                    return;
+            }
+        }
+        
+        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        plugin.action(jPlayer, new ItemActionInfo(resultStack, ActionType.REPAIR), multiplier);
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
