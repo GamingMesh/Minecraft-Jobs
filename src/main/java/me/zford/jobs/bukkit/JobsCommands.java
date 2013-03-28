@@ -295,7 +295,7 @@ public class JobsCommands implements CommandExecutor {
         }
         
         if (jPlayer.getJobProgression().size() == 0){
-            sender.sendMessage(Language.getMessage("command.stats.error.job"));
+            sender.sendMessage(Language.getMessage("command.stats.error.nojob"));
             return true;
         }
         
