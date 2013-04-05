@@ -1,5 +1,10 @@
 # Jobs plugin change log summary
 
+## 2.10.0
+* Added full i18n support, removed messageConfig.yml (you may delete this file from your plugins folder)
+* Modified payment handling to retry withdrawals if there is insufficient funding
+* Implemented Anvil Reparing (Repair keyword)
+
 ## 2.9.2
 * Added color coding to income in /jobs browse
 * Changed behavior of REDSTONE_ORE, removed hacks, added configuration warning
