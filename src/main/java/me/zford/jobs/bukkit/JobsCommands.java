@@ -162,7 +162,7 @@ public class JobsCommands implements CommandExecutor {
     }
     
     public boolean join(CommandSender sender, String[] args) {
-        if (!(sender instanceof CommandSender))
+        if (!(sender instanceof Player))
             return false;
         
         if (args.length < 1) {
@@ -217,7 +217,7 @@ public class JobsCommands implements CommandExecutor {
     }
     
     public boolean leave(CommandSender sender, String[] args) {
-        if (!(sender instanceof CommandSender))
+        if (!(sender instanceof Player))
             return false;
         
         if (args.length < 1) {
@@ -243,7 +243,7 @@ public class JobsCommands implements CommandExecutor {
     }
     
     public boolean info(CommandSender sender, String[] args) {
-        if (!(sender instanceof CommandSender))
+        if (!(sender instanceof Player))
             return false;
         
         if (args.length < 1) {
@@ -270,9 +270,6 @@ public class JobsCommands implements CommandExecutor {
     }
     
     public boolean stats(CommandSender sender, String[] args) {
-        if (!(sender instanceof CommandSender))
-            return false;
-
         JobsPlayer jPlayer = null;
         if (args.length >= 1) {
             if (!sender.hasPermission("jobs.command.admin.stats")) {
