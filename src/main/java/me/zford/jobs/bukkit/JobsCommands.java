@@ -402,7 +402,7 @@ public class JobsCommands implements CommandExecutor {
             if (player != null) {
                 String message = Language.getMessage("command.fire.output.target");
                 message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
-                sender.sendMessage(message);
+                player.sendMessage(message);
             }
             
             sender.sendMessage(Language.getMessage("command.admin.success"));
@@ -439,10 +439,10 @@ public class JobsCommands implements CommandExecutor {
         try {
             // check if player already has the job
             plugin.getPlayerManager().joinJob(jPlayer, job);
-            if(player != null) {
+            if (player != null) {
                 String message = Language.getMessage("command.employ.output.target");
                 message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
-                sender.sendMessage(message);
+                player.sendMessage(message);
             }
             sender.sendMessage(Language.getMessage("command.admin.success"));
         } catch (Exception e) {
@@ -564,6 +564,7 @@ public class JobsCommands implements CommandExecutor {
                 String message = Language.getMessage("command.grantxp.output.target");
                 message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
                 message = message.replace("%xpgained%", Double.valueOf(xpGained).toString());
+                player.sendMessage(message);
             }
             
             sender.sendMessage(Language.getMessage("command.admin.success"));
@@ -647,7 +648,7 @@ public class JobsCommands implements CommandExecutor {
                     message = message.replace("%newjobname%", newjob.getChatColor() + newjob.getName() + ChatColor.WHITE);
                     player.sendMessage(message);
                 }
-                sender.sendMessage(Language.getMessage("command.admin.success"));
+                player.sendMessage(Language.getMessage("command.admin.success"));
             }
         } catch (Exception e) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.admin.error"));
