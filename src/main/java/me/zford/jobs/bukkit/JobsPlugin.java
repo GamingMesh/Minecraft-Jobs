@@ -272,6 +272,11 @@ public class JobsPlugin extends JavaPlugin {
                 Double income = prog.getJob().getIncome(info, level, numjobs);
                 if (income != null) {
                     Double exp = prog.getJob().getExperience(info, level, numjobs);
+                    if (jobsConfiguration.addXpPlayer()) {
+                        Player player = getServer().getPlayer(jPlayer.getName());
+                        if (player != null)
+                            player.giveExp(exp.intValue());
+                    }
                     // give income
                     economy.pay(jPlayer, income*multiplier);
                     if (prog.addExperience(exp*multiplier))

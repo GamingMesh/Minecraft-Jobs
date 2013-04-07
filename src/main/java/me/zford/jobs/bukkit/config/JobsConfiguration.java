@@ -149,6 +149,9 @@ public class JobsConfiguration {
         writer.addComment("enable-pay-creative", "option to allow payment to be made in creative mode");
         config.addDefault("enable-pay-creative", false);
         
+        writer.addComment("add-xp-player", "Adds the Jobs xp recieved to the player's Minecraft XP bar");
+        config.addDefault("add-xp-player", false);
+        
         writer.addComment("modify-chat", "Modifys chat to add chat titles.  If you're using a chat manager, you may add the tag {jobs} to your chat format and disable this.");
         config.addDefault("modify-chat", true);
         
@@ -241,6 +244,7 @@ public class JobsConfiguration {
         copySetting(config, writer, "hide-jobs-without-permission");
         copySetting(config, writer, "enable-pay-near-spawner");
         copySetting(config, writer, "enable-pay-creative");
+        copySetting(config, writer, "add-xp-player");
         copySetting(config, writer, "modify-chat");
         copySetting(config, writer, "economy-batch-delay");
         
@@ -538,6 +542,10 @@ public class JobsConfiguration {
             }
         }
         return title;
+    }
+    
+    public synchronized boolean addXpPlayer() {
+        return config.getBoolean("add-xp-player");
     }
     
     /**
