@@ -196,7 +196,7 @@ public class JobsConfiguration {
             if (!h2jar.exists()) {
                 plugin.getLogger().info("[Jobs] H2 library not found, downloading...");
                 try {
-                    FileDownloader.downloadFile(new URL("http://repo2.maven.org/maven2/com/h2database/h2/1.3.164/h2-1.3.164.jar"), h2jar);
+                    FileDownloader.downloadFile(new URL("http://dev.bukkit.org/media/files/692/88/h2-1.3.171.jar"), h2jar);
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
