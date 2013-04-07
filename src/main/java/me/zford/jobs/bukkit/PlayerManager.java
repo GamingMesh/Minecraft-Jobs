@@ -166,6 +166,21 @@ public class PlayerManager {
     }
     
     /**
+     * Causes player to leave all their jobs
+     * @param jPlayer
+     */
+    public void leaveAllJobs(JobsPlayer jPlayer) {
+        synchronized (jPlayer.saveLock) {
+            for (JobProgression job : jPlayer.getJobProgression()) {
+                plugin.getJobsCore().getJobsDAO().quitJob(jPlayer, job.getJob());
+                plugin.getJobsCore().leaveSlot(job.getJob());
+            }
+            
+            jPlayer.leaveAllJobs();
+        }
+    }
+    
+    /**
      * Transfers player job
      * @param jPlayer
      * @param oldjob - the old job

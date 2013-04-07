@@ -31,9 +31,11 @@ permissions:
       jobs.command.admin.stats: true
       jobs.command.join: true
       jobs.command.leave: true
+      jobs.command.leaveall: true
       jobs.command.info: true
       jobs.command.playerinfo: true
       jobs.command.fire: true
+      jobs.command.fireall: true
       jobs.command.employ: true
       jobs.command.promote: true
       jobs.command.demote: true
@@ -56,6 +58,9 @@ permissions:
   jobs.command.leave:
     description: Grants access to the leave command
     default: true
+  jobs.command.leaveall:
+    description: Grants access to the leaveall command
+    default: true
   jobs.command.info:
     description: Grants access to the info command
     default: true
@@ -64,6 +69,9 @@ permissions:
     default: op
   jobs.command.fire:
     description: Grants access to the fire command
+    default: op
+  jobs.command.fireall:
+    description: Grants access to the fireall command
     default: op
   jobs.command.employ:
     description: Grants access to the employ command

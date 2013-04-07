@@ -147,6 +147,19 @@ public class JobsPlayer {
     }
     
     /**
+     * Leave all jobs
+     * @return on success
+     */
+    public boolean leaveAllJobs() {
+        synchronized (saveLock) {
+            progression.clear();
+            reloadHonorific();
+            recalculatePermissions();
+            return true;
+        }
+    }
+    
+    /**
      * Promotes player in job
      * @param job - the job being promoted
      * @param levels - number of levels to promote

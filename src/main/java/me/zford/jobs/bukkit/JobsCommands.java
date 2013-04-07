@@ -51,9 +51,11 @@ public class JobsCommands implements CommandExecutor {
         commands.add("stats");
         commands.add("join");
         commands.add("leave");
+        commands.add("leaveall");
         commands.add("info");
         commands.add("playerinfo");
         commands.add("fire");
+        commands.add("fireall");
         commands.add("employ");
         commands.add("promote");
         commands.add("demote");
@@ -242,6 +244,24 @@ public class JobsCommands implements CommandExecutor {
         return true;
     }
     
+    public boolean leaveall(CommandSender sender, String[] args) {
+        if (!(sender instanceof Player))
+            return false;
+        
+        Player pSender = (Player) sender;
+        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(pSender.getName());
+        
+        List<JobProgression> jobs = jPlayer.getJobProgression();
+        if (jobs.size() == 0) {
+            sender.sendMessage(Language.getMessage("command.leaveall.error.nojobs"));
+            return true;
+        }
+        
+        plugin.getPlayerManager().leaveAllJobs(jPlayer);
+        sender.sendMessage(Language.getMessage("command.leaveall.success"));
+        return true;
+    }
+    
     public boolean info(CommandSender sender, String[] args) {
         if (!(sender instanceof Player))
             return false;
@@ -403,6 +423,38 @@ public class JobsCommands implements CommandExecutor {
                 String message = Language.getMessage("command.fire.output.target");
                 message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
                 player.sendMessage(message);
+            }
+            
+            sender.sendMessage(Language.getMessage("command.admin.success"));
+        } catch (Exception e) {
+            sender.sendMessage(ChatColor.RED + Language.getMessage("command.admin.error"));
+        }
+        return true;
+    }
+    
+    public boolean fireall(CommandSender sender, String[] args) {
+        if (args.length < 1) {
+            sendUsage(sender, "fireall");
+            return true;
+        }
+        JobsPlayer jPlayer = null;
+        Player player = plugin.getServer().getPlayer(args[0]);
+        if (player == null) {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+        } else {
+            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        }
+        
+        List<JobProgression> jobs = jPlayer.getJobProgression();
+        if (jobs.size() == 0) {
+            sender.sendMessage(Language.getMessage("command.fireall.error.nojobs"));
+            return true;
+        }
+        
+        try {
+            plugin.getPlayerManager().leaveAllJobs(jPlayer);
+            if (player != null) {
+                player.sendMessage(Language.getMessage("command.fireall.output.target"));
             }
             
             sender.sendMessage(Language.getMessage("command.admin.success"));
