@@ -18,10 +18,7 @@
 
 package me.zford.jobs.bukkit.listeners;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.WeakHashMap;
 
 import me.zford.jobs.bukkit.JobsPlugin;
 import me.zford.jobs.bukkit.actions.BlockActionInfo;
@@ -67,9 +64,9 @@ import org.bukkit.metadata.MetadataValue;
 
 public class JobsPaymentListener implements Listener {
     private JobsPlugin plugin;
-    private Set<LivingEntity> mobSpawnerCreatures = Collections.newSetFromMap(new WeakHashMap<LivingEntity, Boolean>());
-    private final String furnaceOwner = "jobsFurnaceOwner";
-    private final String brewingOwner = "jobsBrewingOwner";
+    private final String furnaceOwnerMetadata = "jobsFurnaceOwner";
+    private final String brewingOwnerMetadata = "jobsBrewingOwner";
+    private final String mobSpawnerMetadata = "jobsMobSpawner";
     
     public JobsPaymentListener(JobsPlugin plugin){
         this.plugin = plugin;
@@ -82,8 +79,8 @@ public class JobsPaymentListener implements Listener {
         if (block == null)
             return;
         
-        if (block.getType().equals(Material.FURNACE) && block.hasMetadata(furnaceOwner))
-            block.removeMetadata(furnaceOwner, plugin);
+        if (block.getType().equals(Material.FURNACE) && block.hasMetadata(furnaceOwnerMetadata))
+            block.removeMetadata(furnaceOwnerMetadata, plugin);
         
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
@@ -331,9 +328,9 @@ public class JobsPaymentListener implements Listener {
         if (block == null)
             return;
         
-        if (!block.hasMetadata(furnaceOwner))
+        if (!block.hasMetadata(furnaceOwnerMetadata))
             return;
-        List<MetadataValue> data = block.getMetadata(furnaceOwner);
+        List<MetadataValue> data = block.getMetadata(furnaceOwnerMetadata);
         if (data.isEmpty())
             return;
         
@@ -360,9 +357,9 @@ public class JobsPaymentListener implements Listener {
         if (block == null)
             return;
         
-        if (!block.hasMetadata(brewingOwner))
+        if (!block.hasMetadata(brewingOwnerMetadata))
             return;
-        List<MetadataValue> data = block.getMetadata(brewingOwner);
+        List<MetadataValue> data = block.getMetadata(brewingOwnerMetadata);
         if (data.isEmpty())
             return;
         
@@ -387,10 +384,12 @@ public class JobsPaymentListener implements Listener {
         if(!(event.getEntity() instanceof LivingEntity))
             return;
         LivingEntity lVictim = (LivingEntity)event.getEntity();
-        
+
         // mob spawner, no payment or experience
-        if(mobSpawnerCreatures.remove(lVictim))
+        if (lVictim.hasMetadata(mobSpawnerMetadata)) {
+            lVictim.removeMetadata(mobSpawnerMetadata, plugin);
             return;
+        }
         
         // make sure plugin is enabled
         if(!plugin.isEnabled())
@@ -435,7 +434,7 @@ public class JobsPaymentListener implements Listener {
         if(plugin.getJobsConfiguration().payNearSpawner())
             return;
         LivingEntity creature = (LivingEntity)event.getEntity();
-        mobSpawnerCreatures.add(creature);
+        creature.setMetadata(mobSpawnerMetadata, new FixedMetadataValue(plugin, true));
     }
     
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
@@ -448,15 +447,15 @@ public class JobsPaymentListener implements Listener {
             return;
         
         if (block.getType().equals(Material.FURNACE)) {
-            if (block.hasMetadata(furnaceOwner))
-                block.removeMetadata(furnaceOwner, plugin);
+            if (block.hasMetadata(furnaceOwnerMetadata))
+                block.removeMetadata(furnaceOwnerMetadata, plugin);
             
-            block.setMetadata(furnaceOwner, new FixedMetadataValue(plugin, event.getPlayer().getName()));
+            block.setMetadata(furnaceOwnerMetadata, new FixedMetadataValue(plugin, event.getPlayer().getName()));
         } else if (block.getType().equals(Material.BREWING_STAND)) {
-            if (block.hasMetadata(brewingOwner))
-                block.removeMetadata(brewingOwner, plugin);
+            if (block.hasMetadata(brewingOwnerMetadata))
+                block.removeMetadata(brewingOwnerMetadata, plugin);
             
-            block.setMetadata(brewingOwner, new FixedMetadataValue(plugin, event.getPlayer().getName()));
+            block.setMetadata(brewingOwnerMetadata, new FixedMetadataValue(plugin, event.getPlayer().getName()));
         }
     }
 }
