@@ -111,11 +111,14 @@ public class JobConfig {
                 plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " is missing the shortname property.  Skipping job!");
                 continue;
             }
-
-            ChatColor color = ChatColor.matchColor(jobSection.getString("ChatColour", ""));
-            if (color == null) {
-                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid ChatColour property.  Skipping job!");
-                continue;
+            
+            ChatColor color = ChatColor.WHITE;
+            if (jobSection.contains("ChatColour")) {
+                color = ChatColor.matchColor(jobSection.getString("ChatColour", ""));
+                if (color == null) {
+                    color = ChatColor.WHITE;
+                    plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid ChatColour property.  Defaulting to WHITE!");
+                }
             }
             DisplayMethod displayMethod = DisplayMethod.matchMethod(jobSection.getString("chat-display", ""));
             if (displayMethod == null) {
