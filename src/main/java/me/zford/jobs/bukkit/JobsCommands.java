@@ -787,7 +787,7 @@ public class JobsCommands implements CommandExecutor {
             message.append("  ");
             
             message.append(materialName);
-            message.append(' ');
+            message.append(" -> ");
             
             message.append(xpColor.toString());
             message.append(xpString);
