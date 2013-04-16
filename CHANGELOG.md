@@ -1,5 +1,12 @@
 # Jobs plugin change log summary
 
+## 2.10.2
+* Fixed /jobs reload command
+* Faster permission handling
+* Added configuration toggle to allow for adding Jobs xp to player's minecraft XP bar
+* Slightly modified /jobs info to make it easier to read
+* Added better error handling for some configuration mishaps
+
 ## 2.10.1
 * Fixed error when using player-only commands in console
 * Fixed player notices in some admin commands
