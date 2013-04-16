@@ -24,6 +24,7 @@ import me.zford.jobs.bukkit.JobsPlugin;
 import me.zford.jobs.bukkit.actions.BlockActionInfo;
 import me.zford.jobs.bukkit.actions.EntityActionInfo;
 import me.zford.jobs.bukkit.actions.ItemActionInfo;
+import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.container.ActionType;
 import me.zford.jobs.container.JobsPlayer;
 
@@ -91,14 +92,14 @@ public class JobsPaymentListener implements Listener {
             return;
         
         // check if in creative
-        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+        if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
         
         if (!plugin.hasWorldPermission(player, player.getWorld()))
             return;
         
         // restricted area multiplier
-        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
         plugin.action(jPlayer, new BlockActionInfo(block, ActionType.BREAK), multiplier);
     }
@@ -121,14 +122,14 @@ public class JobsPaymentListener implements Listener {
             return;
         
         // check if in creative
-        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+        if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
         
         if (!plugin.hasWorldPermission(player, player.getWorld()))
             return;
         
         // restricted area multiplier
-        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
         plugin.action(jPlayer, new BlockActionInfo(block, ActionType.PLACE), multiplier);
     }
@@ -141,14 +142,14 @@ public class JobsPaymentListener implements Listener {
         Player player = event.getPlayer();
         
         // check if in creative
-        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+        if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
 
         if (!plugin.hasWorldPermission(player, player.getWorld()))
             return;
         
         // restricted area multiplier
-        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         
         if (event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
             JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
@@ -185,7 +186,7 @@ public class JobsPaymentListener implements Listener {
             return;
         
         // check if in creative
-        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+        if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
         
         if (event.isShiftClick()) {
@@ -213,7 +214,7 @@ public class JobsPaymentListener implements Listener {
             }
         }
         
-        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
         plugin.action(jPlayer, new ItemActionInfo(resultStack, ActionType.CRAFT), multiplier);
     }
@@ -246,7 +247,7 @@ public class JobsPaymentListener implements Listener {
             return;
         
         // check if in creative
-        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+        if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
         
         if (event.isShiftClick()) {
@@ -274,7 +275,7 @@ public class JobsPaymentListener implements Listener {
             }
         }
         
-        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
         plugin.action(jPlayer, new ItemActionInfo(resultStack, ActionType.REPAIR), multiplier);
     }
@@ -312,10 +313,10 @@ public class JobsPaymentListener implements Listener {
             return;
         
         // check if in creative
-        if (player.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+        if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
         
-        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
         plugin.action(jPlayer, new ItemActionInfo(resultStack, ActionType.ENCHANT), multiplier);
     }
@@ -344,7 +345,7 @@ public class JobsPaymentListener implements Listener {
         if (!plugin.hasWorldPermission(player, player.getWorld()))
             return;
         
-        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
         plugin.action(jPlayer, new ItemActionInfo(event.getResult(), ActionType.SMELT), multiplier);
     }
@@ -373,7 +374,7 @@ public class JobsPaymentListener implements Listener {
         if (!plugin.hasWorldPermission(player, player.getWorld()))
             return;
         
-        double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(player);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
         plugin.action(jPlayer, new ItemActionInfo(event.getContents().getIngredient(), ActionType.BREW), multiplier);
     }
@@ -410,14 +411,14 @@ public class JobsPaymentListener implements Listener {
             }
             if(pDamager != null) {
                 // check if in creative
-                if (pDamager.getGameMode().equals(GameMode.CREATIVE) && !plugin.getJobsConfiguration().payInCreative())
+                if (pDamager.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
                     return;
 
                 if (!plugin.hasWorldPermission(pDamager, pDamager.getWorld()))
                     return;
                 
                 // restricted area multiplier
-                double multiplier = plugin.getJobsConfiguration().getRestrictedMultiplier(pDamager);
+                double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(pDamager);
                 // pay
                 JobsPlayer jDamager = plugin.getPlayerManager().getJobsPlayer(pDamager.getName());
                 plugin.action(jDamager, new EntityActionInfo(lVictim.getType(), ActionType.KILL), multiplier);
@@ -431,7 +432,7 @@ public class JobsPaymentListener implements Listener {
             return;
         if(!event.getSpawnReason().equals(SpawnReason.SPAWNER))
             return;
-        if(plugin.getJobsConfiguration().payNearSpawner())
+        if(ConfigManager.getJobsConfiguration().payNearSpawner())
             return;
         LivingEntity creature = (LivingEntity)event.getEntity();
         creature.setMetadata(mobSpawnerMetadata, new FixedMetadataValue(plugin, true));

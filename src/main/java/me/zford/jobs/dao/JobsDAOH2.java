@@ -27,6 +27,9 @@ import me.zford.jobs.Jobs;
 public class JobsDAOH2 extends JobsDAO {
     public JobsDAOH2(Jobs core) {
         super(core, "org.h2.Driver", "jdbc:h2:"+new File(core.getDataFolder(), "jobs").getPath(), "sa", "sa", "");
+        File dir = core.getDataFolder();
+        if (!dir.exists())
+            dir.mkdirs();
         setUp();
     }
     

@@ -27,6 +27,9 @@ import me.zford.jobs.Jobs;
 public class JobsDAOSQLite extends JobsDAO {
     public JobsDAOSQLite(Jobs core) {
         super(core, "org.sqlite.JDBC", "jdbc:sqlite:"+new File(core.getDataFolder(), "jobs.sqlite.db").getPath(), null, null, "");
+        File dir = core.getDataFolder();
+        if (!dir.exists())
+            dir.mkdirs();
         setUp();
     }
     

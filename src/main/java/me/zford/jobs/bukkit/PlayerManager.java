@@ -26,6 +26,7 @@ import java.util.Map;
 
 import org.bukkit.entity.Player;
 
+import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.container.Job;
 import me.zford.jobs.container.JobProgression;
 import me.zford.jobs.container.JobsPlayer;
@@ -65,7 +66,7 @@ public class PlayerManager {
      */
     public void playerQuit(String playername) {
         synchronized (players) {
-            if (plugin.getJobsConfiguration().saveOnDisconnect()) {
+            if (ConfigManager.getJobsConfiguration().saveOnDisconnect()) {
                 JobsPlayer jPlayer = players.remove(playername);
                 if (jPlayer != null) {
                     jPlayer.save(plugin.getJobsCore().getJobsDAO());
@@ -272,7 +273,7 @@ public class PlayerManager {
             return;
 
         String message;
-        if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
+        if (ConfigManager.getJobsConfiguration().isBroadcastingLevelups()) {
             message = Language.getMessage("message.levelup.broadcast");
         } else {
             message = Language.getMessage("message.levelup.nobroadcast");
@@ -284,17 +285,17 @@ public class PlayerManager {
         message = message.replace("%playername%", jPlayer.getName());
         message = message.replace("%joblevel%", ""+prog.getLevel());
         for (String line: message.split("\n")) {
-            if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
+            if (ConfigManager.getJobsConfiguration().isBroadcastingLevelups()) {
                 plugin.getServer().broadcastMessage(line);
             } else if (player != null) {
                 player.sendMessage(line);
             }
         }
         
-        Title levelTitle = plugin.getJobsConfiguration().getTitleForLevel(prog.getLevel());
+        Title levelTitle = ConfigManager.getJobsConfiguration().getTitleForLevel(prog.getLevel());
         if (levelTitle != null && !levelTitle.equals(prog.getTitle())) {        
             // user would skill up
-            if (plugin.getJobsConfiguration().isBroadcastingSkillups()) {
+            if (ConfigManager.getJobsConfiguration().isBroadcastingSkillups()) {
                 message = Language.getMessage("message.skillup.broadcast");
             } else {
                 message = Language.getMessage("message.skillup.nobroadcast");
@@ -303,7 +304,7 @@ public class PlayerManager {
             message = message.replace("%titlename%", levelTitle.getChatColor() + levelTitle.getName() + ChatColor.WHITE);
             message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
             for (String line: message.split("\n")) {
-                if (plugin.getJobsConfiguration().isBroadcastingLevelups()) {
+                if (ConfigManager.getJobsConfiguration().isBroadcastingLevelups()) {
                     plugin.getServer().broadcastMessage(line);
                 } else if (player != null) {
                     player.sendMessage(line);

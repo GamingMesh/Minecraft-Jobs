@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 
 import me.zford.jobs.bukkit.JobsPlugin;
+import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.dao.JobsDAO;
 import me.zford.jobs.dao.JobsDAOData;
 import me.zford.jobs.util.ChatColor;
@@ -70,7 +71,7 @@ public class JobsPlayer {
                     Job job = plugin.getJobsCore().getJob(jobdata.getJobName());
                     if (job != null) {
                         // create the progression object
-                        JobProgression jobProgression = new JobProgression(job, this, jobdata.getLevel(), jobdata.getExperience(), plugin.getJobsConfiguration().getTitleForLevel(jobdata.getLevel()));
+                        JobProgression jobProgression = new JobProgression(job, this, jobdata.getLevel(), jobdata.getExperience(), ConfigManager.getJobsConfiguration().getTitleForLevel(jobdata.getLevel()));
                         // calculate the max level
                         
                         // add the progression level.
@@ -120,7 +121,7 @@ public class JobsPlayer {
     public boolean joinJob(Job job) {
         synchronized (saveLock) {
             if (!isInJob(job)) {
-                progression.add(new JobProgression(job, this, 1, 0.0, plugin.getJobsConfiguration().getTitleForLevel(1)));
+                progression.add(new JobProgression(job, this, 1, 0.0, ConfigManager.getJobsConfiguration().getTitleForLevel(1)));
                 reloadHonorific();
                 recalculatePermissions();
                 return true;

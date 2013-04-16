@@ -21,13 +21,14 @@ package me.zford.jobs.bukkit;
 import java.util.List;
 
 import me.zford.jobs.Jobs;
-import me.zford.jobs.bukkit.config.JobConfig;
-import me.zford.jobs.bukkit.config.JobsConfiguration;
+import me.zford.jobs.bukkit.config.BukkitJobConfig;
+import me.zford.jobs.bukkit.config.BukkitJobsConfiguration;
 import me.zford.jobs.bukkit.economy.BufferedEconomy;
 import me.zford.jobs.bukkit.listeners.JobsListener;
 import me.zford.jobs.bukkit.listeners.JobsPaymentListener;
 import me.zford.jobs.bukkit.tasks.BufferedPaymentThread;
 import me.zford.jobs.bukkit.tasks.DatabaseSaveTask;
+import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.container.ActionInfo;
 import me.zford.jobs.container.Job;
 import me.zford.jobs.container.JobProgression;
@@ -48,9 +49,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class JobsPlugin extends JavaPlugin {
     private Jobs core;
-    private JobsConfiguration jobsConfiguration = new JobsConfiguration(this);
     private PlayerManager pManager = new PlayerManager(this);
-    private JobConfig jobConfig = new JobConfig(this);
     private BufferedPaymentThread paymentThread;
     private DatabaseSaveTask saveTask;
     private BufferedEconomy economy;
@@ -87,6 +86,9 @@ public class JobsPlugin extends JavaPlugin {
      * Method called when the plugin is enabled
      */
     public void onEnable() {
+        ConfigManager.registerJobsConfiguration(new BukkitJobsConfiguration(this));
+        ConfigManager.registerJobConfig(new BukkitJobConfig(this));
+        
         core = new Jobs(this);
         JobsCommands commands = new JobsCommands(this);
         this.getCommand("jobs").setExecutor(commands);
@@ -151,20 +153,6 @@ public class JobsPlugin extends JavaPlugin {
     }
     
     /**
-     * Returns the jobs configuration
-     */
-    public JobsConfiguration getJobsConfiguration() {
-        return jobsConfiguration;
-    }
-    
-    /**
-     * Returns the job config
-     */
-    public JobConfig getJobConfig() {
-        return jobConfig;
-    }
-    
-    /**
      * Returns player manager
      */
     public PlayerManager getPlayerManager() {
@@ -175,12 +163,9 @@ public class JobsPlugin extends JavaPlugin {
      * Reloads all configuration files
      */
     public void reloadConfigurations() {
-        if (!getDataFolder().exists()) {
-            getDataFolder().mkdirs();
-        }
-        jobsConfiguration.reload();
-        Language.reload(jobsConfiguration.getLocale());
-        getJobConfig().reload();
+        ConfigManager.getJobsConfiguration().reload();
+        Language.reload(ConfigManager.getJobsConfiguration().getLocale());
+        ConfigManager.getJobConfig().reload();
         core.reload();
         restartTasks();
     }
@@ -200,13 +185,13 @@ public class JobsPlugin extends JavaPlugin {
         }
         
         // set the system to auto save
-        if (getJobsConfiguration().getSavePeriod() > 0) {
-            saveTask = new DatabaseSaveTask(this, getJobsConfiguration().getSavePeriod());
+        if (ConfigManager.getJobsConfiguration().getSavePeriod() > 0) {
+            saveTask = new DatabaseSaveTask(this, ConfigManager.getJobsConfiguration().getSavePeriod());
             saveTask.start();
         }
         
         // schedule payouts to buffered payments
-        paymentThread = new BufferedPaymentThread(this, economy, getJobsConfiguration().getEconomyBatchDelay());
+        paymentThread = new BufferedPaymentThread(this, economy, ConfigManager.getJobsConfiguration().getEconomyBatchDelay());
         paymentThread.start();
     }
     
@@ -272,7 +257,7 @@ public class JobsPlugin extends JavaPlugin {
                 Double income = prog.getJob().getIncome(info, level, numjobs);
                 if (income != null) {
                     Double exp = prog.getJob().getExperience(info, level, numjobs);
-                    if (jobsConfiguration.addXpPlayer()) {
+                    if (ConfigManager.getJobsConfiguration().addXpPlayer()) {
                         Player player = getServer().getPlayer(jPlayer.getName());
                         if (player != null)
                             player.giveExp(exp.intValue());

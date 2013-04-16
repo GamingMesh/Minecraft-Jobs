@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import me.zford.jobs.bukkit.JobsPlugin;
+import me.zford.jobs.config.JobConfig;
 import me.zford.jobs.container.ActionType;
 import me.zford.jobs.container.DisplayMethod;
 import me.zford.jobs.container.Job;
@@ -36,12 +37,13 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 
-public class JobConfig {
+public class BukkitJobConfig extends JobConfig {
     private JobsPlugin plugin;
-    public JobConfig(JobsPlugin plugin) {
+    public BukkitJobConfig(JobsPlugin plugin) {
         this.plugin = plugin;
     }
     
+    @Override
     public void reload() {
         // job settings
         loadJobSettings();

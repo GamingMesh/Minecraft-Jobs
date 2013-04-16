@@ -19,6 +19,7 @@
 package me.zford.jobs.bukkit.listeners;
 
 import me.zford.jobs.bukkit.JobsPlugin;
+import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.container.JobsPlayer;
 
 import org.bukkit.World;
@@ -60,7 +61,7 @@ public class JobsListener implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         if (!plugin.isEnabled()) return;
         
-        if (!plugin.getJobsConfiguration().getModifyChat())
+        if (!ConfigManager.getJobsConfiguration().getModifyChat())
             return;
         
         String format = event.getFormat();

@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.container.ActionType;
 import me.zford.jobs.container.Job;
 import me.zford.jobs.container.JobInfo;
@@ -204,7 +205,7 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         
-        int confMaxJobs = plugin.getJobsConfiguration().getMaxJobs();
+        int confMaxJobs = ConfigManager.getJobsConfiguration().getMaxJobs();
         if (confMaxJobs > 0 && jPlayer.getJobProgression().size() >= confMaxJobs) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.join.error.maxjobs"));
             return true;
@@ -325,7 +326,7 @@ public class JobsCommands implements CommandExecutor {
     public boolean browse(CommandSender sender, String[] args) {
         ArrayList<String> jobs = new ArrayList<String>();
         for (Job job: plugin.getJobsCore().getJobs()) {
-            if (plugin.getJobsConfiguration().getHideJobsWithoutPermission()) {
+            if (ConfigManager.getJobsConfiguration().getHideJobsWithoutPermission()) {
                 if (!plugin.hasJobPermission(sender, job))
                     continue;
             }

@@ -19,15 +19,21 @@
 package me.zford.jobs.bukkit.config;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Locale;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
+
 import me.zford.jobs.bukkit.JobsPlugin;
+import me.zford.jobs.config.JobsConfiguration;
 import me.zford.jobs.container.RestrictedArea;
 import me.zford.jobs.container.Title;
 import me.zford.jobs.dao.JobsDAOH2;
@@ -36,30 +42,14 @@ import me.zford.jobs.dao.JobsDAOSQLite;
 import me.zford.jobs.util.ChatColor;
 import me.zford.jobs.util.FileDownloader;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.configuration.Configuration;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.entity.Player;
-
-public class JobsConfiguration {
-    private YamlConfiguration config;
-    // all of the possible titles
-    private List<Title> titles = new ArrayList<Title>();
-    
-    private ArrayList<RestrictedArea> restrictedAreas = new ArrayList<RestrictedArea>();
-    
+public class BukkitJobsConfiguration extends JobsConfiguration {
     private JobsPlugin plugin;
-    
-    private Locale locale;
-    
-    public JobsConfiguration(JobsPlugin plugin) {
+    public BukkitJobsConfiguration(JobsPlugin plugin) {
+        super();
         this.plugin = plugin;
     }
     
+    @Override    
     public synchronized void reload() {
         // general settings
         loadGeneralSettings();
@@ -76,16 +66,8 @@ public class JobsConfiguration {
      */
     private synchronized void loadGeneralSettings(){
         File f = new File(plugin.getDataFolder(), "generalConfig.yml");
+        YamlConfiguration config = YamlConfiguration.loadConfiguration(f);
         
-        if(!f.exists()) {
-            try {
-                f.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        
-        config = new YamlConfiguration();
         CommentedYamlConfiguration writer = new CommentedYamlConfiguration();
         StringBuilder header = new StringBuilder();
         header.append("General configuration.");
@@ -159,29 +141,6 @@ public class JobsConfiguration {
                 "Setting this too low may cause tick lag.  Increase this to improve economy performance (at the cost of delays in payment)");
         config.addDefault("economy-batch-delay", 5);
         
-        try {
-            config.load(f);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
-        
-        String localeString = config.getString("locale-language");
-        try {
-            int i = localeString.indexOf('_');
-            if (i == -1) {
-                locale = new Locale(localeString);
-            } else {
-                locale = new Locale(localeString.substring(0, i), localeString.substring(i+1));
-            }
-        } catch (IllegalArgumentException e) {
-            locale = Locale.getDefault();
-            plugin.getLogger().warning("Invalid locale \""+localeString+"\" defaulting to "+locale.getLanguage());
-        }
-        
         String storageMethod = config.getString("storage-method");
         if(storageMethod.equalsIgnoreCase("mysql")) {
             String username = config.getString("mysql-username");
@@ -229,6 +188,31 @@ public class JobsConfiguration {
             config.set("save-period", 10);
         }
         
+        String localeString = config.getString("locale-language");
+        try {
+            int i = localeString.indexOf('_');
+            if (i == -1) {
+                locale = new Locale(localeString);
+            } else {
+                locale = new Locale(localeString.substring(0, i), localeString.substring(i+1));
+            }
+        } catch (IllegalArgumentException e) {
+            locale = Locale.getDefault();
+            plugin.getLogger().warning("Invalid locale \""+localeString+"\" defaulting to "+locale.getLanguage());
+        }
+        
+        savePeriod = config.getInt("save-period");
+        isBroadcastingSkillups = config.getBoolean("broadcast-on-skill-up");
+        isBroadcastingLevelups = config.getBoolean("broadcast-on-level-up");
+        payInCreative = config.getBoolean("enable-pay-creative");
+        addXpPlayer = config.getBoolean("add-xp-player");
+        hideJobsWithoutPermission = config.getBoolean("hide-jobs-without-permission");
+        maxJobs = config.getInt("max-jobs");
+        payNearSpawner = config.getBoolean("enable-pay-near-spawner");
+        modifyChat = config.getBoolean("modify-chat");
+        economyBatchDelay = config.getInt("economy-batch-delay");
+        saveOnDisconnect = config.getBoolean("save-on-disconnect");
+        
         // Make sure we're only copying settings we care about
         copySetting(config, writer, "locale-language");
         copySetting(config, writer, "storage-method");
@@ -268,14 +252,7 @@ public class JobsConfiguration {
     private synchronized void loadTitleSettings(){
         this.titles.clear();
         File f = new File(plugin.getDataFolder(), "titleConfig.yml");
-        if(!f.exists()) {
-            try {
-                f.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        YamlConfiguration conf = new YamlConfiguration();
+        YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
         StringBuilder header = new StringBuilder()
             .append("Title configuration")
             .append(System.getProperty("line.separator"))
@@ -318,15 +295,7 @@ public class JobsConfiguration {
         conf.options().header(header.toString());
         conf.options().copyDefaults(true);
         conf.options().indent(2);
-        try {
-            conf.load(f);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
+        
         ConfigurationSection titleSection = conf.getConfigurationSection("Titles");
         if (titleSection == null) {
             titleSection = conf.createSection("Titles");
@@ -356,6 +325,7 @@ public class JobsConfiguration {
             
             this.titles.add(new Title(titleName, titleShortName, titleColor, levelReq));
         }
+        
         try {
             conf.save(f);
         } catch (IOException e) {
@@ -372,14 +342,7 @@ public class JobsConfiguration {
     private synchronized void loadRestrictedAreaSettings(){
         this.restrictedAreas.clear();
         File f = new File(plugin.getDataFolder(), "restrictedAreas.yml");
-        if (!f.exists()) {
-            try {
-                f.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        YamlConfiguration conf = new YamlConfiguration();
+        YamlConfiguration conf = YamlConfiguration.loadConfiguration(f);
         conf.options().indent(2);
         conf.options().copyDefaults(true);
         StringBuilder header = new StringBuilder();
@@ -443,15 +406,7 @@ public class JobsConfiguration {
             .append(System.getProperty("line.separator"))
             .append("      z: -150");
         conf.options().header(header.toString());
-        try {
-            conf.load(f);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
+        
         List<World> worlds = Bukkit.getServer().getWorlds();
         ConfigurationSection areaSection = conf.getConfigurationSection("restrictedareas");
         if (areaSection != null) {
@@ -487,126 +442,5 @@ public class JobsConfiguration {
             e.printStackTrace();
         }
     }
-    
-    /**
-     * Get how often in minutes to save job information
-     * @return how often in minutes to save job information
-     */
-    public synchronized int getSavePeriod(){
-        return config.getInt("save-period");
-    }
-    
-    /**
-     * Function that tells if the system is set to broadcast on skill up
-     * @return true - broadcast on skill up
-     * @return false - do not broadcast on skill up
-     */
-    public synchronized boolean isBroadcastingSkillups(){
-        return config.getBoolean("broadcast-on-skill-up");
-    }
-    
-    /**
-     * Function that tells if the system is set to broadcast on level up
-     * @return true - broadcast on level up
-     * @return false - do not broadcast on level up
-     */
-    public synchronized boolean isBroadcastingLevelups(){
-        return config.getBoolean("broadcast-on-level-up");
-    }
-    
-    /**
-     * Function that tells if the player should be paid while in creative
-     * @return true - pay in creative
-     * @return false - do not pay in creative
-     */
-    public synchronized boolean payInCreative() {
-        return config.getBoolean("enable-pay-creative");
-    }
-    
-    /**
-     * Function to return the title for a given level
-     * @return the correct title
-     * @return null if no title matches
-     */
-    public Title getTitleForLevel(int level) {
-        Title title = null;
-        for (Title t: titles) {
-            if (title == null) {
-                if (t.getLevelReq() <= level) {
-                    title = t;
-                }
-            } else {
-                if (t.getLevelReq() <= level && t.getLevelReq() > title.getLevelReq()) {
-                    title = t;
-                }
-            }
-        }
-        return title;
-    }
-    
-    public synchronized boolean addXpPlayer() {
-        return config.getBoolean("add-xp-player");
-    }
-    
-    /**
-     * Function to check if jobs should be hidden to players that lack permission to join the job
-     * @return
-     */
-    public synchronized boolean getHideJobsWithoutPermission() {
-        return config.getBoolean("hide-jobs-without-permission");
-    }
-    
-    /**
-     * Function to return the maximum number of jobs a player can join
-     * @return
-     */
-    public synchronized int getMaxJobs() {
-        return config.getInt("max-jobs");
-    }
-    
-    /**
-     * Function to check if you get paid near a spawner is enabled
-     * @return true - you get paid
-     * @return false - you don't get paid
-     */
-    public synchronized boolean payNearSpawner() {
-        return config.getBoolean("enable-pay-near-spawner");
-    }
-    
-   /**
-     * Function to get the restricted areas on the server
-     * @return restricted areas on the server
-     */
-    public synchronized List<RestrictedArea> getRestrictedAreas() {
-        return this.restrictedAreas;
-    }
-    
-    /**
-     * Gets the area multiplier for the player
-     * @param player
-     * @return - the multiplier
-     */
-    public double getRestrictedMultiplier(Player player) {
-        for(RestrictedArea area : getRestrictedAreas()) {
-            if (area.inRestrictedArea(player))
-                return area.getMultiplier();
-        }
-        return 1.0;
-    }
-    
-    public synchronized boolean getModifyChat() {
-        return config.getBoolean("modify-chat");
-    }
-    
-    public synchronized int getEconomyBatchDelay() {
-        return config.getInt("economy-batch-delay");
-    }
-    
-    public synchronized boolean saveOnDisconnect() {
-        return config.getBoolean("save-on-disconnect");
-    }
-    
-    public synchronized Locale getLocale() {
-        return locale;
-    }
+
 }
