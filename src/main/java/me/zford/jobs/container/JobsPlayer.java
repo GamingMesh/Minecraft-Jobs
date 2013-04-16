@@ -20,6 +20,7 @@ package me.zford.jobs.container;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import me.zford.jobs.bukkit.JobsPlugin;
@@ -28,8 +29,12 @@ import me.zford.jobs.dao.JobsDAO;
 import me.zford.jobs.dao.JobsDAOData;
 import me.zford.jobs.util.ChatColor;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
+import org.bukkit.permissions.PermissionAttachmentInfo;
+import org.bukkit.permissions.PermissionDefault;
 
 public class JobsPlayer {
     // jobs plugin
@@ -40,8 +45,6 @@ public class JobsPlayer {
     private ArrayList<JobProgression> progression = new ArrayList<JobProgression>();
     // display honorific
     private String honorific;
-    // permission attachment
-    private PermissionAttachment attachment;
     // player save status
     private volatile boolean isSaved = true;
     // player online status
@@ -324,22 +327,23 @@ public class JobsPlayer {
             return;
         
         boolean changed = false;
-        if (attachment != null) {
-            player.removeAttachment(attachment);
-            attachment = null;
+        
+        // remove old permissions
+        String permissionName = "jobs.players."+player.getName();
+        Permission permission = Bukkit.getServer().getPluginManager().getPermission(permissionName);
+        if (permission != null) {
+            Bukkit.getServer().getPluginManager().removePermission(permission);
             changed = true;
         }
         
+        // calculate new permissions
+        HashMap<String, Boolean> permissions = new HashMap<String, Boolean>();
         if (progression.size() == 0) {
             Job job = plugin.getJobsCore().getNoneJob();
             if (job != null) {
                 for (JobPermission perm : job.getPermissions()) {
                     if (perm.getLevelRequirement() <= 0) {
-                        if (attachment == null) {
-                            attachment = player.addAttachment(plugin);
-                            changed = true;
-                        }
-                        attachment.setPermission(perm.getNode(), perm.getValue());
+                        permissions.put(perm.getNode(), perm.getValue());
                     }
                 }
             }
@@ -347,33 +351,38 @@ public class JobsPlayer {
             for (JobProgression prog : progression) {
                 for (JobPermission perm : prog.getJob().getPermissions()) {
                     if (prog.getLevel() >= perm.getLevelRequirement()) {
-                        if (attachment == null) {
-                            attachment = player.addAttachment(plugin);
-                            changed = true;
-                        }
-                        attachment.setPermission(perm.getNode(), perm.getValue());
+                        permissions.put(perm.getNode(), perm.getValue());
                     }
                 }
             }
         }
-        if (changed)
-            player.recalculatePermissions();
         
-    }
-    
-    /**
-     * Function to remove all permissions
-     */
-    public void removePermissions() {
-        Player player = plugin.getServer().getPlayer(playername);
-        if (player == null)
+        // add new permissions (if applicable)
+        if (permissions.size() > 0) {
+            Bukkit.getServer().getPluginManager().addPermission(new Permission(permissionName, PermissionDefault.FALSE, permissions));
+            changed = true;
+        }
+        
+        // If the permissions changed, recalculate them
+        if (!changed)
             return;
         
-        if (this.attachment != null) {
-            player.removeAttachment(attachment);
-            player.recalculatePermissions();
-            this.attachment = null;
+        // find old attachment
+        PermissionAttachment attachment = null;
+        for (PermissionAttachmentInfo pai : player.getEffectivePermissions()) {
+            if (pai.getAttachment() != null && pai.getAttachment().getPlugin() instanceof JobsPlugin) {
+                attachment = pai.getAttachment();
+            }
         }
+        
+        // create if attachment doesn't exist
+        if (attachment == null) {
+            attachment = player.addAttachment(plugin);
+            attachment.setPermission(permissionName, true);
+        }
+        
+        // recalculate!
+        player.recalculatePermissions();
     }
     
     /**
@@ -401,7 +410,6 @@ public class JobsPlayer {
      * 
      */
     public void onDisconnect() {
-        attachment = null;
         isOnline = false;
     }
     

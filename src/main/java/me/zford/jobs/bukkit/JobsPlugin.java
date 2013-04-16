@@ -64,11 +64,6 @@ public class JobsPlugin extends JavaPlugin {
         if (paymentThread != null)
             paymentThread.shutdown();
         
-        // remove all permissions for online players
-        for (Player online: getServer().getOnlinePlayers()) {
-            JobsPlayer jPlayer = pManager.getJobsPlayer(online.getName());
-            jPlayer.removePermissions();
-        }
         // kill all scheduled tasks associated to this.
         getServer().getScheduler().cancelTasks(this);
         
