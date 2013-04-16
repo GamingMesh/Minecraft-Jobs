@@ -315,4 +315,25 @@ public class PlayerManager {
         jPlayer.reloadHonorific();
         jPlayer.recalculatePermissions();
     }
+    
+    /**
+     * Perform reload
+     */
+    public void reload() {
+        synchronized (players) {
+            for (JobsPlayer jPlayer : players.values()) {
+                for (JobProgression progression : jPlayer.getJobProgression()) {
+                    String jobName = progression.getJob().getName();
+                    Job job = plugin.getJobsCore().getJob(jobName);
+                    if (job != null) {
+                        progression.setJob(job);
+                    }
+                }
+                if (jPlayer.isOnline()) {
+                    jPlayer.reloadHonorific();
+                    jPlayer.recalculatePermissions();
+                }
+            }
+        }
+    }
 }
