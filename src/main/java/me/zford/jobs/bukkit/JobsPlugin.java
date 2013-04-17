@@ -18,112 +18,77 @@
 
 package me.zford.jobs.bukkit;
 
-import java.util.List;
-
 import me.zford.jobs.Jobs;
+import me.zford.jobs.bukkit.commands.BukkitJobsCommands;
 import me.zford.jobs.bukkit.config.BukkitJobConfig;
 import me.zford.jobs.bukkit.config.BukkitJobsConfiguration;
-import me.zford.jobs.bukkit.economy.BufferedEconomy;
+import me.zford.jobs.bukkit.economy.VaultEconomy;
 import me.zford.jobs.bukkit.listeners.JobsListener;
 import me.zford.jobs.bukkit.listeners.JobsPaymentListener;
-import me.zford.jobs.bukkit.tasks.BufferedPaymentThread;
-import me.zford.jobs.bukkit.tasks.DatabaseSaveTask;
 import me.zford.jobs.config.ConfigManager;
-import me.zford.jobs.container.ActionInfo;
-import me.zford.jobs.container.Job;
-import me.zford.jobs.container.JobProgression;
-import me.zford.jobs.container.JobsPlayer;
-import me.zford.jobs.dao.JobsDAO;
-import me.zford.jobs.i18n.Language;
 import net.milkbowl.vault.economy.Economy;
 
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permissible;
-import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class JobsPlugin extends JavaPlugin {
-    private Jobs core;
-    private PlayerManager pManager = new PlayerManager(this);
-    private BufferedPaymentThread paymentThread;
-    private DatabaseSaveTask saveTask;
-    private BufferedEconomy economy;
-
-    /**
-     * Method called when you disable the plugin
-     */
-    public void onDisable() {
-        if (saveTask != null)
-            saveTask.shutdown();
-        
-        if (paymentThread != null)
-            paymentThread.shutdown();
-        
-        // kill all scheduled tasks associated to this.
-        getServer().getScheduler().cancelTasks(this);
-        
-        pManager.saveAll();
-        
-        JobsDAO dao = core.getJobsDAO();
-        if (dao != null) {
-            dao.closeConnections();
-        }
-        
-        getLogger().info("Plugin has been disabled succesfully.");
-    }
-
-    /**
-     * Method called when the plugin is enabled
-     */
+    @Override
     public void onEnable() {
-        ConfigManager.registerJobsConfiguration(new BukkitJobsConfiguration(this));
-        ConfigManager.registerJobConfig(new BukkitJobConfig(this));
+        Jobs.setPermissionHandler(new BukkitPermissionHandler(this));
+        Jobs.setServer(new BukkitServer());
+        Jobs.setScheduler(new BukkitTaskScheduler(this));
         
-        core = new Jobs(this);
-        JobsCommands commands = new JobsCommands(this);
-        this.getCommand("jobs").setExecutor(commands);
+        Jobs.setPluginLogger(getLogger());
         
-        reloadConfigurations();
-        
-        if(!this.isEnabled())
-            return;
+        Jobs.setDataFolder(getDataFolder());
         
         if (!loadVault()) {
-            getServer().getLogger().severe("==================== Jobs ====================");
-            getServer().getLogger().severe("Vault is required by this plugin to operate!");
-            getServer().getLogger().severe("Please install Vault first!");
-            getServer().getLogger().severe("You can find the latest version here:");
-            getServer().getLogger().severe("http://dev.bukkit.org/server-mods/vault/");
-            getServer().getLogger().severe("==============================================");
+            Jobs.getServer().getLogger().severe("==================== Jobs ====================");
+            Jobs.getServer().getLogger().severe("Vault is required by this plugin to operate!");
+            Jobs.getServer().getLogger().severe("Please install Vault first!");
+            Jobs.getServer().getLogger().severe("You can find the latest version here:");
+            Jobs.getServer().getLogger().severe("http://dev.bukkit.org/server-mods/vault/");
+            Jobs.getServer().getLogger().severe("==============================================");
             setEnabled(false);
             return;
         }
+        
+        ConfigManager.registerJobsConfiguration(new BukkitJobsConfiguration(this));
+        ConfigManager.registerJobConfig(new BukkitJobConfig(this));
+        
+        getCommand("jobs").setExecutor(new BukkitJobsCommands(this));
+        
+        Jobs.startup();
         
         // register the listeners
         getServer().getPluginManager().registerEvents(new JobsListener(this), this);
         getServer().getPluginManager().registerEvents(new JobsPaymentListener(this), this);
         
-        // add all online players
-        for (Player online: getServer().getOnlinePlayers()){
-            pManager.playerJoin(online.getName());
-        }
-        
-        // register permissions
-        reRegisterPermissions();
-        
-        restartTasks();
+        // register economy
+        Jobs.getScheduler().scheduleTask(new Runnable() {
+            public void run() {
+                RegisteredServiceProvider<Economy> provider = getServer().getServicesManager().getRegistration(Economy.class);
+                if (provider == null)
+                    return;
+                
+                Economy economy = provider.getProvider();
+                
+                if (economy == null || !economy.isEnabled())
+                    return;
+                
+                Jobs.setEconomy(new VaultEconomy(economy));
+            }
+        });
         
         // all loaded properly.
-        getLogger().info("Plugin has been enabled succesfully.");
+        Jobs.getPluginLogger().info("Plugin has been enabled succesfully.");
     }
     
-    public Jobs getJobsCore() {
-        return core;
+    @Override
+    public void onDisable() {
+        Jobs.shutdown();
+        Jobs.getPluginLogger().info("Plugin has been disabled succesfully.");
     }
     
     /**
@@ -134,153 +99,7 @@ public class JobsPlugin extends JavaPlugin {
         if (test == null)
             return false;
         
-        economy = new BufferedEconomy(this);
-        
-        getLogger().info("["+getDescription().getName()+"] Successfully linked with Vault.");
+        Jobs.getPluginLogger().info("["+getDescription().getName()+"] Successfully linked with Vault.");
         return true;
-    }
-    
-    /**
-     * Disable the plugin
-     */
-    public void disablePlugin(){
-        setEnabled(false);
-    }
-    
-    /**
-     * Returns player manager
-     */
-    public PlayerManager getPlayerManager() {
-        return pManager;
-    }
-    
-    /**
-     * Reloads all configuration files
-     */
-    public void reloadConfigurations() {
-        ConfigManager.getJobsConfiguration().reload();
-        Language.reload(ConfigManager.getJobsConfiguration().getLocale());
-        ConfigManager.getJobConfig().reload();
-        core.reload();
-        restartTasks();
-    }
-    
-    /**
-     * Restarts all tasks
-     */
-    private void restartTasks() {
-        if (paymentThread != null) {
-            paymentThread.shutdown();
-            paymentThread = null;
-        }
-        
-        if (saveTask != null) {
-            saveTask.shutdown();
-            saveTask = null;
-        }
-        
-        // set the system to auto save
-        if (ConfigManager.getJobsConfiguration().getSavePeriod() > 0) {
-            saveTask = new DatabaseSaveTask(this, ConfigManager.getJobsConfiguration().getSavePeriod());
-            saveTask.start();
-        }
-        
-        // schedule payouts to buffered payments
-        paymentThread = new BufferedPaymentThread(this, economy, ConfigManager.getJobsConfiguration().getEconomyBatchDelay());
-        paymentThread.start();
-    }
-    
-    /**
-     * Check World permissions
-     */
-    public boolean hasWorldPermission(Permissible permissable, World world) {
-        if (!permissable.hasPermission("jobs.use")) {
-            return false;
-        } else {
-            return permissable.hasPermission("jobs.world."+world.getName().toLowerCase());
-        }
-    }
-    
-    /**
-     * Check Job joining permission
-     */
-    public boolean hasJobPermission(Permissible permissable, Job job) {
-        if (!permissable.hasPermission("jobs.use")) {
-            return false;
-        } else {
-            return permissable.hasPermission("jobs.join."+job.getName().toLowerCase());
-        }
-    }
-    
-    /**
-     * Re-Register Permissions
-     */
-    public void reRegisterPermissions() {
-        PluginManager pm = getServer().getPluginManager();
-        for (World world : getServer().getWorlds()) {
-            if (pm.getPermission("jobs.world."+world.getName().toLowerCase()) == null)
-                pm.addPermission(new Permission("jobs.world."+world.getName().toLowerCase(), PermissionDefault.TRUE));
-        }
-        for (Job job : core.getJobs()) {
-            if (pm.getPermission("jobs.join."+job.getName().toLowerCase()) == null)
-                pm.addPermission(new Permission("jobs.join."+job.getName().toLowerCase(), PermissionDefault.TRUE));
-        }
-    }
-    
-    /**
-     * Performed an action
-     * 
-     * Give correct experience and income
-     * @param jPlayer - the player
-     * @param action - the action
-     * @param multiplier - the payment/xp multiplier
-     */
-    public void action(JobsPlayer jPlayer, ActionInfo info, double multiplier) {
-        List<JobProgression> progression = jPlayer.getJobProgression();
-        int numjobs = progression.size();
-        // no job
-        if (numjobs == 0) {
-            Job jobNone = core.getNoneJob();
-            if (jobNone != null) {
-                Double income = jobNone.getIncome(info, 1, numjobs);
-                if (income != null)
-                    economy.pay(jPlayer, income*multiplier);
-            }
-        } else {
-            for (JobProgression prog : progression) {
-                int level = prog.getLevel();
-                Double income = prog.getJob().getIncome(info, level, numjobs);
-                if (income != null) {
-                    Double exp = prog.getJob().getExperience(info, level, numjobs);
-                    if (ConfigManager.getJobsConfiguration().addXpPlayer()) {
-                        Player player = getServer().getPlayer(jPlayer.getName());
-                        if (player != null)
-                            player.giveExp(exp.intValue());
-                    }
-                    // give income
-                    economy.pay(jPlayer, income*multiplier);
-                    if (prog.addExperience(exp*multiplier))
-                        pManager.performLevelUp(jPlayer, prog.getJob());
-                }
-            }
-        }
-    }
-    
-    /**
-     * Gets the Vault economy provider
-     * 
-     * @return Vault economy provider
-     */
-    public Economy getEconomy() {
-        RegisteredServiceProvider<Economy> provider = getServer().getServicesManager().getRegistration(Economy.class);
-        if (provider == null)
-            return null;
-        
-        Economy economy = provider.getProvider();
-        
-        if (economy == null || !economy.isEnabled())
-            return null;
-        
-        return economy;
     }
 }

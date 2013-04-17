@@ -16,15 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.bukkit;
+package me.zford.jobs;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-
-import org.bukkit.entity.Player;
 
 import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.container.Job;
@@ -36,11 +34,7 @@ import me.zford.jobs.i18n.Language;
 import me.zford.jobs.util.ChatColor;
 
 public class PlayerManager {
-    private JobsPlugin plugin;
     private Map<String, JobsPlayer> players = Collections.synchronizedMap(new HashMap<String, JobsPlayer>());
-    public PlayerManager(JobsPlugin plugin) {
-        this.plugin = plugin;
-    }
     
     /**
      * Handles join of new player
@@ -50,13 +44,13 @@ public class PlayerManager {
         synchronized (players) {
             JobsPlayer jPlayer = players.get(playername);
             if (jPlayer == null) {
-                jPlayer = new JobsPlayer(plugin, playername);
-                jPlayer.loadDAOData(plugin.getJobsCore().getJobsDAO().getAllJobs(jPlayer));
+                jPlayer = new JobsPlayer(playername);
+                jPlayer.loadDAOData(Jobs.getJobsDAO().getAllJobs(jPlayer));
                 players.put(playername, jPlayer);
             }
             jPlayer.onConnect();
             jPlayer.reloadHonorific();
-            jPlayer.recalculatePermissions();
+            Jobs.getPermissionHandler().recalculatePermissions(jPlayer);
         }
     }
     
@@ -69,7 +63,7 @@ public class PlayerManager {
             if (ConfigManager.getJobsConfiguration().saveOnDisconnect()) {
                 JobsPlayer jPlayer = players.remove(playername);
                 if (jPlayer != null) {
-                    jPlayer.save(plugin.getJobsCore().getJobsDAO());
+                    jPlayer.save(Jobs.getJobsDAO());
                     jPlayer.onDisconnect();
                 }
             } else {
@@ -85,7 +79,7 @@ public class PlayerManager {
      * Save all the information of all of the players in the game
      */
     public void saveAll() {
-        JobsDAO dao = plugin.getJobsCore().getJobsDAO();
+        JobsDAO dao = Jobs.getJobsDAO();
         
         /*
          * Saving is a three step process to minimize synchronization locks when called asynchronously.
@@ -124,8 +118,8 @@ public class PlayerManager {
     public JobsPlayer getJobsPlayer(String playername) {
         JobsPlayer jPlayer = players.get(playername);
         if (jPlayer == null) {
-            jPlayer = new JobsPlayer(plugin, playername);
-            jPlayer.loadDAOData(plugin.getJobsCore().getJobsDAO().getAllJobs(jPlayer));
+            jPlayer = new JobsPlayer(playername);
+            jPlayer.loadDAOData(Jobs.getJobsDAO().getAllJobs(jPlayer));
         }
         return jPlayer;
     }
@@ -143,8 +137,8 @@ public class PlayerManager {
             if (!jPlayer.joinJob(job))
                 return;
             
-            plugin.getJobsCore().getJobsDAO().joinJob(jPlayer, job);
-            plugin.getJobsCore().takeSlot(job);
+            Jobs.getJobsDAO().joinJob(jPlayer, job);
+            Jobs.takeSlot(job);
         }
     }
     
@@ -161,8 +155,8 @@ public class PlayerManager {
             if (!jPlayer.leaveJob(job))
                 return;
             
-            plugin.getJobsCore().getJobsDAO().quitJob(jPlayer, job);
-            plugin.getJobsCore().leaveSlot(job);
+            Jobs.getJobsDAO().quitJob(jPlayer, job);
+            Jobs.leaveSlot(job);
         }
     }
     
@@ -173,8 +167,8 @@ public class PlayerManager {
     public void leaveAllJobs(JobsPlayer jPlayer) {
         synchronized (jPlayer.saveLock) {
             for (JobProgression job : jPlayer.getJobProgression()) {
-                plugin.getJobsCore().getJobsDAO().quitJob(jPlayer, job.getJob());
-                plugin.getJobsCore().leaveSlot(job.getJob());
+                Jobs.getJobsDAO().quitJob(jPlayer, job.getJob());
+                Jobs.leaveSlot(job.getJob());
             }
             
             jPlayer.leaveAllJobs();
@@ -192,7 +186,7 @@ public class PlayerManager {
             if (!jPlayer.transferJob(oldjob,  newjob))
                 return;
             
-            JobsDAO dao = plugin.getJobsCore().getJobsDAO();
+            JobsDAO dao = Jobs.getJobsDAO();
             dao.quitJob(jPlayer, oldjob);
             dao.joinJob(jPlayer, newjob);
             jPlayer.save(dao);
@@ -208,7 +202,7 @@ public class PlayerManager {
     public void promoteJob(JobsPlayer jPlayer, Job job, int levels) {
         synchronized (jPlayer.saveLock) {
             jPlayer.promoteJob(job, levels);
-            jPlayer.save(plugin.getJobsCore().getJobsDAO());
+            jPlayer.save(Jobs.getJobsDAO());
         }
     }
     
@@ -221,7 +215,7 @@ public class PlayerManager {
     public void demoteJob(JobsPlayer jPlayer, Job job, int levels) {
         synchronized (jPlayer.saveLock) {
             jPlayer.demoteJob(job, levels);
-            jPlayer.save(plugin.getJobsCore().getJobsDAO());
+            jPlayer.save(Jobs.getJobsDAO());
         }
     }
     
@@ -239,7 +233,7 @@ public class PlayerManager {
             if (prog.addExperience(experience))
                 performLevelUp(jPlayer, job);
     
-            jPlayer.save(plugin.getJobsCore().getJobsDAO());
+            jPlayer.save(Jobs.getJobsDAO());
         }
     }
     
@@ -256,7 +250,7 @@ public class PlayerManager {
                 return;
             prog.addExperience(-experience);
             
-            jPlayer.save(plugin.getJobsCore().getJobsDAO());
+            jPlayer.save(Jobs.getJobsDAO());
         }
     }
     
@@ -267,11 +261,11 @@ public class PlayerManager {
      * @param job
      */
     public void performLevelUp(JobsPlayer jPlayer, Job job) {
-        Player player = plugin.getServer().getPlayer(jPlayer.getName());
+        Player player = Jobs.getServer().getPlayer(jPlayer.getName());
         JobProgression prog = jPlayer.getJobProgression(job);
         if (prog == null)
             return;
-
+        
         String message;
         if (ConfigManager.getJobsConfiguration().isBroadcastingLevelups()) {
             message = Language.getMessage("message.levelup.broadcast");
@@ -286,7 +280,7 @@ public class PlayerManager {
         message = message.replace("%joblevel%", ""+prog.getLevel());
         for (String line: message.split("\n")) {
             if (ConfigManager.getJobsConfiguration().isBroadcastingLevelups()) {
-                plugin.getServer().broadcastMessage(line);
+                Jobs.getServer().broadcastMessage(line);
             } else if (player != null) {
                 player.sendMessage(line);
             }
@@ -305,7 +299,7 @@ public class PlayerManager {
             message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
             for (String line: message.split("\n")) {
                 if (ConfigManager.getJobsConfiguration().isBroadcastingLevelups()) {
-                    plugin.getServer().broadcastMessage(line);
+                    Jobs.getServer().broadcastMessage(line);
                 } else if (player != null) {
                     player.sendMessage(line);
                 }
@@ -313,7 +307,7 @@ public class PlayerManager {
         }
         prog.setTitle(levelTitle);
         jPlayer.reloadHonorific();
-        jPlayer.recalculatePermissions();
+        Jobs.getPermissionHandler().recalculatePermissions(jPlayer);
     }
     
     /**
@@ -324,14 +318,14 @@ public class PlayerManager {
             for (JobsPlayer jPlayer : players.values()) {
                 for (JobProgression progression : jPlayer.getJobProgression()) {
                     String jobName = progression.getJob().getName();
-                    Job job = plugin.getJobsCore().getJob(jobName);
+                    Job job = Jobs.getJob(jobName);
                     if (job != null) {
                         progression.setJob(job);
                     }
                 }
                 if (jPlayer.isOnline()) {
                     jPlayer.reloadHonorific();
-                    jPlayer.recalculatePermissions();
+                    Jobs.getPermissionHandler().recalculatePermissions(jPlayer);
                 }
             }
         }

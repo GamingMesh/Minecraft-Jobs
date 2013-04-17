@@ -18,6 +18,7 @@
 
 package me.zford.jobs.bukkit.listeners;
 
+import me.zford.jobs.Jobs;
 import me.zford.jobs.bukkit.JobsPlugin;
 import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.container.JobsPlayer;
@@ -47,14 +48,14 @@ public class JobsListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-        plugin.getPlayerManager().playerJoin(event.getPlayer().getName());
+        Jobs.getPlayerManager().playerJoin(event.getPlayer().getName());
     }
 
     @EventHandler(priority=EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-        plugin.getPlayerManager().playerQuit(event.getPlayer().getName());
+        Jobs.getPlayerManager().playerQuit(event.getPlayer().getName());
     }
     
     @EventHandler(priority=EventPriority.NORMAL, ignoreCancelled=true)
@@ -74,7 +75,7 @@ public class JobsListener implements Listener {
         if (!plugin.isEnabled()) return;
         
         Player player = event.getPlayer();
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         String honorific = "";
         if (jPlayer != null)
             honorific = jPlayer.getDisplayHonorific();

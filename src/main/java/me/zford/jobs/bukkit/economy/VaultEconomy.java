@@ -16,15 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.bukkit.actions;
+package me.zford.jobs.bukkit.economy;
 
-import me.zford.jobs.container.ActionInfo;
-import me.zford.jobs.container.ActionType;
+import me.zford.jobs.economy.Economy;
 
-import org.bukkit.block.Block;
+public class VaultEconomy implements Economy {
+    private net.milkbowl.vault.economy.Economy vault;
+    public VaultEconomy(net.milkbowl.vault.economy.Economy vault) {
+        this.vault = vault;
+    }
 
-public class BlockActionInfo extends MaterialActionInfo implements ActionInfo {
-    public BlockActionInfo(Block block, ActionType type) {
-        super(block.getType(), block.getData(), type);
+    @Override
+    public boolean depositPlayer(String playerName, double money) {
+        return vault.depositPlayer(playerName, money).transactionSuccess();
+    }
+
+    @Override
+    public boolean withdrawPlayer(String playerName, double money) {
+        return vault.withdrawPlayer(playerName, money).transactionSuccess();
+    }
+
+    @Override
+    public String format(double money) {
+        return vault.format(money);
     }
 }

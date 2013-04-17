@@ -20,25 +20,15 @@ package me.zford.jobs.container;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
-import me.zford.jobs.bukkit.JobsPlugin;
+import me.zford.jobs.Jobs;
 import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.dao.JobsDAO;
 import me.zford.jobs.dao.JobsDAOData;
 import me.zford.jobs.util.ChatColor;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.bukkit.permissions.PermissionDefault;
-
 public class JobsPlayer {
-    // jobs plugin
-    private JobsPlugin plugin;
     // the player the object belongs to
     private String playername;
     // progression of the player in each job
@@ -56,12 +46,10 @@ public class JobsPlayer {
     /**
      * Constructor.
      * Reads data storage and configures itself.
-     * @param plugin - the jobs plugin
      * @param playername - the player this represents
      * @param dao - the data access object
      */
-    public JobsPlayer(JobsPlugin plugin, String playername) {
-        this.plugin = plugin;
+    public JobsPlayer(String playername) {
         this.playername = playername;
     }
     
@@ -69,9 +57,9 @@ public class JobsPlayer {
         synchronized (saveLock) {
             progression.clear();
             for (JobsDAOData jobdata: list) {
-                if (plugin.getJobsCore().getJob(jobdata.getJobName()) != null) {
+                if (Jobs.getJob(jobdata.getJobName()) != null) {
                     // add the job
-                    Job job = plugin.getJobsCore().getJob(jobdata.getJobName());
+                    Job job = Jobs.getJob(jobdata.getJobName());
                     if (job != null) {
                         // create the progression object
                         JobProgression jobProgression = new JobProgression(job, this, jobdata.getLevel(), jobdata.getExperience(), ConfigManager.getJobsConfiguration().getTitleForLevel(jobdata.getLevel()));
@@ -126,7 +114,7 @@ public class JobsPlayer {
             if (!isInJob(job)) {
                 progression.add(new JobProgression(job, this, 1, 0.0, ConfigManager.getJobsConfiguration().getTitleForLevel(1)));
                 reloadHonorific();
-                recalculatePermissions();
+                Jobs.getPermissionHandler().recalculatePermissions(this);
                 return true;
             }
             return false;
@@ -143,7 +131,7 @@ public class JobsPlayer {
             progression.remove(prog);
             if (prog != null) {
                 reloadHonorific();
-                recalculatePermissions();
+                Jobs.getPermissionHandler().recalculatePermissions(this);
                 return true;
             }
             return false;
@@ -158,7 +146,7 @@ public class JobsPlayer {
         synchronized (saveLock) {
             progression.clear();
             reloadHonorific();
-            recalculatePermissions();
+            Jobs.getPermissionHandler().recalculatePermissions(this);;
             return true;
         }
     }
@@ -218,7 +206,7 @@ public class JobsPlayer {
             if (level != prog.getLevel()) {
                 prog.setLevel(level);
                 reloadHonorific();
-                recalculatePermissions();
+                Jobs.getPermissionHandler().recalculatePermissions(this);;
             }
         }
     }
@@ -240,7 +228,7 @@ public class JobsPlayer {
                         prog.setLevel(newjob.getMaxLevel());
                     }
                     reloadHonorific();
-                    recalculatePermissions();
+                    Jobs.getPermissionHandler().recalculatePermissions(this);;
                     return true;
                 }
             }
@@ -316,73 +304,6 @@ public class JobsPlayer {
         }
         
         honorific = builder.toString().trim();
-    }
-    
-    /**
-     * Function to recalculate permissions
-     */
-    public void recalculatePermissions() {
-        Player player = plugin.getServer().getPlayer(playername);
-        if (player == null)
-            return;
-        
-        boolean changed = false;
-        
-        // remove old permissions
-        String permissionName = "jobs.players."+player.getName();
-        Permission permission = Bukkit.getServer().getPluginManager().getPermission(permissionName);
-        if (permission != null) {
-            Bukkit.getServer().getPluginManager().removePermission(permission);
-            changed = true;
-        }
-        
-        // calculate new permissions
-        HashMap<String, Boolean> permissions = new HashMap<String, Boolean>();
-        if (progression.size() == 0) {
-            Job job = plugin.getJobsCore().getNoneJob();
-            if (job != null) {
-                for (JobPermission perm : job.getPermissions()) {
-                    if (perm.getLevelRequirement() <= 0) {
-                        permissions.put(perm.getNode(), perm.getValue());
-                    }
-                }
-            }
-        } else {
-            for (JobProgression prog : progression) {
-                for (JobPermission perm : prog.getJob().getPermissions()) {
-                    if (prog.getLevel() >= perm.getLevelRequirement()) {
-                        permissions.put(perm.getNode(), perm.getValue());
-                    }
-                }
-            }
-        }
-        
-        // add new permissions (if applicable)
-        if (permissions.size() > 0) {
-            Bukkit.getServer().getPluginManager().addPermission(new Permission(permissionName, PermissionDefault.FALSE, permissions));
-            changed = true;
-        }
-        
-        // If the permissions changed, recalculate them
-        if (!changed)
-            return;
-        
-        // find old attachment
-        PermissionAttachment attachment = null;
-        for (PermissionAttachmentInfo pai : player.getEffectivePermissions()) {
-            if (pai.getAttachment() != null && pai.getAttachment().getPlugin() instanceof JobsPlugin) {
-                attachment = pai.getAttachment();
-            }
-        }
-        
-        // create if attachment doesn't exist
-        if (attachment == null) {
-            attachment = player.addAttachment(plugin);
-            attachment.setPermission(permissionName, true);
-        }
-        
-        // recalculate!
-        player.recalculatePermissions();
     }
     
     /**

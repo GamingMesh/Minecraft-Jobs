@@ -22,16 +22,14 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.List;
 import java.util.Locale;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import me.zford.jobs.Jobs;
+import me.zford.jobs.Location;
 import me.zford.jobs.bukkit.JobsPlugin;
 import me.zford.jobs.config.JobsConfiguration;
 import me.zford.jobs.container.RestrictedArea;
@@ -145,46 +143,43 @@ public class BukkitJobsConfiguration extends JobsConfiguration {
         if(storageMethod.equalsIgnoreCase("mysql")) {
             String username = config.getString("mysql-username");
             if(username == null) {
-                plugin.getLogger().severe("mysql-username property invalid or missing");
-                plugin.disablePlugin();
+                Jobs.getPluginLogger().severe("mysql-username property invalid or missing");
             }
             String password = config.getString("mysql-password");
             String url = config.getString("mysql-url");
             String prefix = config.getString("mysql-table-prefix");
             if (plugin.isEnabled())
-                plugin.getJobsCore().setDAO(new JobsDAOMySQL(plugin.getJobsCore(), url, username, password, prefix));
+                Jobs.setDAO(new JobsDAOMySQL(url, username, password, prefix));
         } else if(storageMethod.equalsIgnoreCase("h2")) {
             File h2jar = new File(plugin.getDataFolder(), "h2.jar");
             if (!h2jar.exists()) {
-                plugin.getLogger().info("[Jobs] H2 library not found, downloading...");
+                Jobs.getPluginLogger().info("[Jobs] H2 library not found, downloading...");
                 try {
                     FileDownloader.downloadFile(new URL("http://dev.bukkit.org/media/files/692/88/h2-1.3.171.jar"), h2jar);
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
-                    plugin.getLogger().severe("Could not download database library.  Disabling jobs!");
-                    plugin.disablePlugin();
+                    Jobs.getPluginLogger().severe("Could not download database library!");
                 }
             }
             if (plugin.isEnabled()) {
                 try {
-                    plugin.getJobsCore().getJobsClassloader().addFile(h2jar);
+                    Jobs.getJobsClassloader().addFile(h2jar);
                 } catch (IOException e) {
-                    plugin.getLogger().severe("Could not load database library.  Disabling jobs!");
-                    plugin.disablePlugin();
+                    Jobs.getPluginLogger().severe("Could not load database library!");
                 }
                 if (plugin.isEnabled())
-                    plugin.getJobsCore().setDAO(new JobsDAOH2(plugin.getJobsCore()));
+                    Jobs.setDAO(new JobsDAOH2());
             }
         } else if(storageMethod.equalsIgnoreCase("sqlite")) {
-            plugin.getJobsCore().setDAO(new JobsDAOSQLite(plugin.getJobsCore()));
+            Jobs.setDAO(new JobsDAOSQLite());
         } else {
-            plugin.getLogger().severe("Invalid storage method!  Disabling jobs!");
-            plugin.disablePlugin();
+            Jobs.getPluginLogger().warning("Invalid storage method!  Defaulting to sqlite!");
+            Jobs.setDAO(new JobsDAOSQLite());
         }
         
         if (config.getInt("save-period") <= 0) {
-            plugin.getLogger().severe("Save period must be greater than 0!  Defaulting to 10 minutes!");
+            Jobs.getPluginLogger().severe("Save period must be greater than 0!  Defaulting to 10 minutes!");
             config.set("save-period", 10);
         }
         
@@ -198,7 +193,7 @@ public class BukkitJobsConfiguration extends JobsConfiguration {
             }
         } catch (IllegalArgumentException e) {
             locale = Locale.getDefault();
-            plugin.getLogger().warning("Invalid locale \""+localeString+"\" defaulting to "+locale.getLanguage());
+            Jobs.getPluginLogger().warning("Invalid locale \""+localeString+"\" defaulting to "+locale.getLanguage());
         }
         
         savePeriod = config.getInt("save-period");
@@ -307,19 +302,19 @@ public class BukkitJobsConfiguration extends JobsConfiguration {
             int levelReq = conf.getInt("Titles."+titleKey+".levelReq", -1);
             
             if (titleName == null) {
-                plugin.getLogger().severe("Title " + titleKey + " has an invalid Name property. Skipping!");
+                Jobs.getPluginLogger().severe("Title " + titleKey + " has an invalid Name property. Skipping!");
                 continue;
             }
             if (titleShortName == null) {
-                plugin.getLogger().severe("Title " + titleKey + " has an invalid ShortName property. Skipping!");
+                Jobs.getPluginLogger().severe("Title " + titleKey + " has an invalid ShortName property. Skipping!");
                 continue;
             }
             if (titleColor == null) {
-                plugin.getLogger().severe("Title " + titleKey + "has an invalid ChatColour property. Skipping!");
+                Jobs.getPluginLogger().severe("Title " + titleKey + "has an invalid ChatColour property. Skipping!");
                 continue;
             }
             if (levelReq <= -1) {
-                plugin.getLogger().severe("Title " + titleKey + " has an invalid levelReq property. Skipping!");
+                Jobs.getPluginLogger().severe("Title " + titleKey + " has an invalid levelReq property. Skipping!");
                 continue;
             }
             
@@ -406,30 +401,17 @@ public class BukkitJobsConfiguration extends JobsConfiguration {
             .append(System.getProperty("line.separator"))
             .append("      z: -150");
         conf.options().header(header.toString());
-        
-        List<World> worlds = Bukkit.getServer().getWorlds();
         ConfigurationSection areaSection = conf.getConfigurationSection("restrictedareas");
         if (areaSection != null) {
             for (String areaKey : areaSection.getKeys(false)) {
                 String worldName = conf.getString("restrictedareas."+areaKey+".world");
                 double multiplier = conf.getDouble("restrictedareas."+areaKey+".multiplier", 0.0);
-                World pointWorld = null;
-                for (World world : worlds) {
-                    if (world.getName().equals(worldName)) {
-                        pointWorld = world;
-                        break;
-                    }
-                }
-                if (pointWorld == null) {
-                    plugin.getLogger().severe("Unknown world "+worldName+", skipping area!");
-                    continue;
-                }
-                Location point1 = new Location(pointWorld,
+                Location point1 = new Location(worldName,
                         conf.getDouble("restrictedareas."+areaKey+".point1.x", 0.0),
                         conf.getDouble("restrictedareas."+areaKey+".point1.y", 0.0),
                         conf.getDouble("restrictedareas."+areaKey+".point1.z", 0.0));
     
-                Location point2 = new Location(pointWorld,
+                Location point2 = new Location(worldName,
                         conf.getDouble("restrictedareas."+areaKey+".point2.x", 0.0),
                         conf.getDouble("restrictedareas."+areaKey+".point2.y", 0.0),
                         conf.getDouble("restrictedareas."+areaKey+".point2.z", 0.0));

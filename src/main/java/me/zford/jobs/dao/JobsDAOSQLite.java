@@ -25,9 +25,9 @@ import java.sql.Statement;
 import me.zford.jobs.Jobs;
 
 public class JobsDAOSQLite extends JobsDAO {
-    public JobsDAOSQLite(Jobs core) {
-        super(core, "org.sqlite.JDBC", "jdbc:sqlite:"+new File(core.getDataFolder(), "jobs.sqlite.db").getPath(), null, null, "");
-        File dir = core.getDataFolder();
+    public JobsDAOSQLite() {
+        super("org.sqlite.JDBC", "jdbc:sqlite:"+new File(Jobs.getDataFolder(), "jobs.sqlite.db").getPath(), null, null, "");
+        File dir = Jobs.getDataFolder();
         if (!dir.exists())
             dir.mkdirs();
         setUp();
@@ -37,7 +37,7 @@ public class JobsDAOSQLite extends JobsDAO {
         try {
             JobsConnection conn = getConnection();
             if (conn == null) {
-                core.getPluginLogger().severe("Could not initialize database!  Could not connect to SQLite!");
+                Jobs.getPluginLogger().severe("Could not initialize database!  Could not connect to SQLite!");
                 return;
             }
             Statement st = conn.createStatement();

@@ -40,14 +40,12 @@ import me.zford.jobs.container.JobsPlayer;
 public abstract class JobsDAO {
     
     private JobsConnectionPool pool;
-    protected Jobs core;
     private String prefix;
     
-    public JobsDAO(Jobs core, String driverName, String url, String username, String password, String prefix) {
-        this.core = core;
+    public JobsDAO(String driverName, String url, String username, String password, String prefix) {
         this.prefix = prefix;
         try {
-            pool = new JobsConnectionPool(core, driverName, url, username, password);
+            pool = new JobsConnectionPool(driverName, url, username, password);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -188,7 +186,7 @@ public abstract class JobsDAO {
         try {
             return pool.getConnection();
         } catch (SQLException e) {
-            core.getPluginLogger().severe("Unable to connect to the database: "+e.getMessage());
+            Jobs.getPluginLogger().severe("Unable to connect to the database: "+e.getMessage());
             return null;
         }
     }

@@ -16,16 +16,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.container;
+package me.zford.jobs.bukkit;
 
-public abstract class BaseActionInfo implements ActionInfo {
-    private ActionType type;
-    public BaseActionInfo(ActionType type) {
-        this.type = type;
+import org.bukkit.Bukkit;
+
+import me.zford.jobs.TaskScheduler;
+
+public class BukkitTaskScheduler implements TaskScheduler {
+    private JobsPlugin plugin;
+    public BukkitTaskScheduler(JobsPlugin plugin) {
+        this.plugin = plugin;
     }
-
     @Override
-    public ActionType getType() {
-        return this.type;
+    public void scheduleTask(Runnable task) {
+        Bukkit.getServer().getScheduler().runTask(plugin, task);
+    }
+    @Override
+    public void scheduleTask(Runnable task, long delayTicks) {
+        Bukkit.getServer().getScheduler().runTaskLater(plugin, task, delayTicks);
+        
+    }
+    @Override
+    public void scheduleTask(Runnable task, long delayTicks, long periodTicks) {
+        Bukkit.getServer().getScheduler().runTaskTimer(plugin, task, delayTicks, periodTicks);
     }
 }

@@ -16,15 +16,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.bukkit.actions;
+package me.zford.jobs.bukkit.commands;
 
-import me.zford.jobs.container.ActionInfo;
-import me.zford.jobs.container.ActionType;
+import org.bukkit.command.ConsoleCommandSender;
 
-import org.bukkit.block.Block;
+import me.zford.jobs.commands.CommandSender;
 
-public class BlockActionInfo extends MaterialActionInfo implements ActionInfo {
-    public BlockActionInfo(Block block, ActionType type) {
-        super(block.getType(), block.getData(), type);
+public class BukkitConsole implements CommandSender {
+    private ConsoleCommandSender console;
+    public BukkitConsole(ConsoleCommandSender sender) {
+        this.console = sender;
     }
+    @Override
+    public void sendMessage(String message) {
+        console.sendMessage(message);
+    }
+
+    @Override
+    public void sendMessage(String[] messages) {
+        console.sendMessage(messages);
+    }
+    
+    @Override
+    public boolean hasPermission(String name) {
+        return console.hasPermission(name);
+    }
+
 }

@@ -16,12 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.bukkit.tasks;
+package me.zford.jobs.tasks;
 
-import me.zford.jobs.bukkit.economy.BufferedEconomy;
+import me.zford.jobs.economy.BufferedEconomy;
 import me.zford.jobs.economy.BufferedPayment;
-import net.milkbowl.vault.economy.Economy;
-import net.milkbowl.vault.economy.EconomyResponse;
+import me.zford.jobs.economy.Economy;
 
 public class BufferedPaymentTask implements Runnable {
     private BufferedEconomy bufferedEconomy;
@@ -37,8 +36,7 @@ public class BufferedPaymentTask implements Runnable {
         if (payment.getAmount() > 0) {
             economy.depositPlayer(payment.getPlayerName(), payment.getAmount());
         } else {
-            EconomyResponse response = economy.withdrawPlayer(payment.getPlayerName(), -payment.getAmount());
-            if (response.type == EconomyResponse.ResponseType.FAILURE) {
+            if (!economy.withdrawPlayer(payment.getPlayerName(), -payment.getAmount())) {
                 bufferedEconomy.pay(payment);
             }
         }

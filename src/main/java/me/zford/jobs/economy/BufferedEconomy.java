@@ -16,29 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.bukkit.economy;
+package me.zford.jobs.economy;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import net.milkbowl.vault.economy.Economy;
-
-import me.zford.jobs.bukkit.JobsPlugin;
-import me.zford.jobs.bukkit.tasks.BufferedPaymentTask;
+import me.zford.jobs.Jobs;
 import me.zford.jobs.container.JobsPlayer;
-import me.zford.jobs.economy.BufferedPayment;
+import me.zford.jobs.tasks.BufferedPaymentTask;
 
 public class BufferedEconomy {
-    
+    private Economy economy;
     private LinkedBlockingQueue<BufferedPayment> payments = new LinkedBlockingQueue<BufferedPayment>();
     private final Map<String, BufferedPayment> paymentCache = Collections.synchronizedMap(new HashMap<String, BufferedPayment>());
-    private JobsPlugin plugin;
-    public BufferedEconomy(JobsPlugin plugin) {
-        this.plugin = plugin;
-    }
     
+    public BufferedEconomy (Economy economy) {
+        this.economy = economy;
+    }
     /**
      * Add payment to player's payment buffer
      * @param player - player to be paid
@@ -58,10 +54,14 @@ public class BufferedEconomy {
         payments.add(payment);
     }
     
+    public String format(double money) {
+        return economy.format(money);
+    }
+    
     /**
      * Payout all players the amount they are going to be paid
      */
-    public void payAll(Economy economy) {
+    public void payAll() {
         if (payments.isEmpty())
             return;
         
@@ -80,7 +80,7 @@ public class BufferedEconomy {
             int i = 0;
             for (BufferedPayment payment : paymentCache.values()) {
                 i++;
-                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, new BufferedPaymentTask(this, economy, payment), i);
+                Jobs.getScheduler().scheduleTask(new BufferedPaymentTask(this, economy, payment), i);
             }
             // empty payment cache
             paymentCache.clear();

@@ -16,15 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.bukkit.actions;
+package me.zford.jobs;
 
-import me.zford.jobs.container.ActionInfo;
-import me.zford.jobs.container.ActionType;
+import me.zford.jobs.commands.CommandSender;
 
-import org.bukkit.block.Block;
-
-public class BlockActionInfo extends MaterialActionInfo implements ActionInfo {
-    public BlockActionInfo(Block block, ActionType type) {
-        super(block.getType(), block.getData(), type);
-    }
+public abstract class Player implements CommandSender {
+    public abstract String getName();
+    public abstract Location getLocation();
+    public abstract void giveExp(int amount);
 }

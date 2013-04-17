@@ -25,9 +25,9 @@ import java.sql.Statement;
 import me.zford.jobs.Jobs;
 
 public class JobsDAOH2 extends JobsDAO {
-    public JobsDAOH2(Jobs core) {
-        super(core, "org.h2.Driver", "jdbc:h2:"+new File(core.getDataFolder(), "jobs").getPath(), "sa", "sa", "");
-        File dir = core.getDataFolder();
+    public JobsDAOH2() {
+        super("org.h2.Driver", "jdbc:h2:"+new File(Jobs.getDataFolder(), "jobs").getPath(), "sa", "sa", "");
+        File dir = Jobs.getDataFolder();
         if (!dir.exists())
             dir.mkdirs();
         setUp();
@@ -37,7 +37,7 @@ public class JobsDAOH2 extends JobsDAO {
         try {
             JobsConnection conn = getConnection();
             if (conn == null) {
-                core.getPluginLogger().severe("Could not initialize database!  Could not connect to H2!");
+                Jobs.getPluginLogger().severe("Could not initialize database!  Could not connect to H2!");
                 return;
             }
             Statement st = conn.createStatement();

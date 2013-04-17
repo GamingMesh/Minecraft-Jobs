@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.bukkit;
+package me.zford.jobs.commands;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,29 +25,23 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 
+import me.zford.jobs.Jobs;
+import me.zford.jobs.Player;
 import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.container.ActionType;
 import me.zford.jobs.container.Job;
 import me.zford.jobs.container.JobInfo;
 import me.zford.jobs.container.JobProgression;
 import me.zford.jobs.container.JobsPlayer;
+import me.zford.jobs.economy.BufferedEconomy;
 import me.zford.jobs.i18n.Language;
 import me.zford.jobs.util.ChatColor;
-import net.milkbowl.vault.economy.Economy;
 
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
-public class JobsCommands implements CommandExecutor {
-    
-    private JobsPlugin plugin;
+public abstract class JobsCommands {
     private static final String label = "jobs";
     private LinkedHashSet<String> commands = new LinkedHashSet<String>();
     
-    public JobsCommands(JobsPlugin plugin) {
-        this.plugin = plugin;
+    public JobsCommands() {
         commands.add("browse");
         commands.add("stats");
         commands.add("join");
@@ -66,8 +60,7 @@ public class JobsCommands implements CommandExecutor {
         commands.add("reload");
     }
     
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, String label, String[] args) {
         if (args.length == 0)
             return help(sender);
         
@@ -153,7 +146,7 @@ public class JobsCommands implements CommandExecutor {
         sender.sendMessage(ChatColor.YELLOW+"Valid actions are: "+ChatColor.WHITE+ builder.toString());
     }
     
-    private boolean help(CommandSender sender) {
+    protected boolean help(CommandSender sender) {
         sender.sendMessage(ChatColor.GREEN+"*** "+ChatColor.YELLOW+"Jobs"+ChatColor.GREEN+" ***");
         for (String cmd : commands) {
             if (!hasCommandPermission(sender, cmd))
@@ -174,17 +167,17 @@ public class JobsCommands implements CommandExecutor {
         }
         
         Player pSender = (Player) sender;
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(pSender.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(pSender.getName());
         
         String jobName = args[0];
-        Job job = plugin.getJobsCore().getJob(jobName);
+        Job job = Jobs.getJob(jobName);
         if (job == null) {
             // job does not exist
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
             return true;
         }
         
-        if (!plugin.hasJobPermission(pSender, job)) {
+        if (!hasJobPermission(pSender, job)) {
             // you do not have permission to join the job
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.permission"));
             return true;
@@ -198,7 +191,7 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         
-        if (job.getMaxSlots() != null && plugin.getJobsCore().getUsedSlots(job) >= job.getMaxSlots()) {
+        if (job.getMaxSlots() != null && Jobs.getUsedSlots(job) >= job.getMaxSlots()) {
             String message = ChatColor.RED + Language.getMessage("command.join.error.fullslots");
             message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.RED);
             sender.sendMessage(message);
@@ -211,7 +204,7 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         
-        plugin.getPlayerManager().joinJob(jPlayer, job);
+        Jobs.getPlayerManager().joinJob(jPlayer, job);
         
         String message = Language.getMessage("command.join.success");
         message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
@@ -229,16 +222,16 @@ public class JobsCommands implements CommandExecutor {
         }
         
         Player pSender = (Player) sender;
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(pSender.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(pSender.getName());
         
         String jobName = args[0];
-        Job job = plugin.getJobsCore().getJob(jobName);
+        Job job = Jobs.getJob(jobName);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
             return true;
         }
         
-        plugin.getPlayerManager().leaveJob(jPlayer, job);
+        Jobs.getPlayerManager().leaveJob(jPlayer, job);
         String message = Language.getMessage("command.leave.success");
         message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
         sender.sendMessage(message);
@@ -250,7 +243,7 @@ public class JobsCommands implements CommandExecutor {
             return false;
         
         Player pSender = (Player) sender;
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(pSender.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(pSender.getName());
         
         List<JobProgression> jobs = jPlayer.getJobProgression();
         if (jobs.size() == 0) {
@@ -258,7 +251,7 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         
-        plugin.getPlayerManager().leaveAllJobs(jPlayer);
+        Jobs.getPlayerManager().leaveAllJobs(jPlayer);
         sender.sendMessage(Language.getMessage("command.leaveall.success"));
         return true;
     }
@@ -274,10 +267,10 @@ public class JobsCommands implements CommandExecutor {
         }
         
         Player pSender = (Player) sender;
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(pSender.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(pSender.getName());
         
         String jobName = args[0];
-        Job job = plugin.getJobsCore().getJob(jobName);
+        Job job = Jobs.getJob(jobName);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
             return true;
@@ -297,14 +290,14 @@ public class JobsCommands implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.permission"));
                 return true;
             }
-            Player player = plugin.getServer().getPlayer(args[0]);
+            Player player = Jobs.getServer().getPlayer(args[0]);
             if (player == null) {
-                jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+                jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
             } else {
-                jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+                jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
             }
         } else if (sender instanceof Player) {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(((Player) sender).getName());
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(((Player) sender).getName());
         }
         
         if(jPlayer == null) {
@@ -325,9 +318,9 @@ public class JobsCommands implements CommandExecutor {
     
     public boolean browse(CommandSender sender, String[] args) {
         ArrayList<String> jobs = new ArrayList<String>();
-        for (Job job: plugin.getJobsCore().getJobs()) {
+        for (Job job: Jobs.getJobs()) {
             if (ConfigManager.getJobsConfiguration().getHideJobsWithoutPermission()) {
-                if (!plugin.hasJobPermission(sender, job))
+                if (!hasJobPermission(sender, job))
                     continue;
             }
             if (job.getMaxLevel() > 0) {
@@ -357,10 +350,10 @@ public class JobsCommands implements CommandExecutor {
         }
         
         String playerName = args[0];
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(playerName);
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(playerName);
         
         String jobName = args[1];
-        Job job = plugin.getJobsCore().getJob(jobName);
+        Job job = Jobs.getJob(jobName);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
             return true;
@@ -375,13 +368,11 @@ public class JobsCommands implements CommandExecutor {
     
     public boolean reload(CommandSender sender, String[] args) {
         try {
-            plugin.reloadConfigurations();
-            plugin.getPlayerManager().reload();
-            plugin.reRegisterPermissions();
+            Jobs.reload();
             sender.sendMessage(Language.getMessage("command.admin.success"));
         } catch (Exception e) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.admin.error"));
-            plugin.getLogger().severe("There was an error when performing a reload: ");
+            Jobs.getPluginLogger().severe("There was an error when performing a reload: ");
             e.printStackTrace();
         }
         return true;
@@ -393,13 +384,13 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = plugin.getServer().getPlayer(args[0]);
+        Player player = Jobs.getServer().getPlayer(args[0]);
         if (player == null) {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         }
-        Job job = plugin.getJobsCore().getJob(args[1]);
+        Job job = Jobs.getJob(args[1]);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
             return true;
@@ -411,7 +402,7 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         try {
-            plugin.getPlayerManager().leaveJob(jPlayer, job);
+            Jobs.getPlayerManager().leaveJob(jPlayer, job);
             if (player != null) {
                 String message = Language.getMessage("command.fire.output.target");
                 message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
@@ -431,11 +422,11 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = plugin.getServer().getPlayer(args[0]);
+        Player player = Jobs.getServer().getPlayer(args[0]);
         if (player == null) {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         }
         
         List<JobProgression> jobs = jPlayer.getJobProgression();
@@ -445,7 +436,7 @@ public class JobsCommands implements CommandExecutor {
         }
         
         try {
-            plugin.getPlayerManager().leaveAllJobs(jPlayer);
+            Jobs.getPlayerManager().leaveAllJobs(jPlayer);
             if (player != null) {
                 player.sendMessage(Language.getMessage("command.fireall.output.target"));
             }
@@ -463,13 +454,13 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = plugin.getServer().getPlayer(args[0]);
+        Player player = Jobs.getServer().getPlayer(args[0]);
         if (player == null) {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         }
-        Job job = plugin.getJobsCore().getJob(args[1]);
+        Job job = Jobs.getJob(args[1]);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
             return true;
@@ -483,7 +474,7 @@ public class JobsCommands implements CommandExecutor {
         }
         try {
             // check if player already has the job
-            plugin.getPlayerManager().joinJob(jPlayer, job);
+            Jobs.getPlayerManager().joinJob(jPlayer, job);
             if (player != null) {
                 String message = Language.getMessage("command.employ.output.target");
                 message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
@@ -502,13 +493,13 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = plugin.getServer().getPlayer(args[0]);
+        Player player = Jobs.getServer().getPlayer(args[0]);
         if (player == null) {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         }
-        Job job = plugin.getJobsCore().getJob(args[1]);
+        Job job = Jobs.getJob(args[1]);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
             return true;
@@ -517,7 +508,7 @@ public class JobsCommands implements CommandExecutor {
             // check if player already has the job
             if (jPlayer.isInJob(job)) {
                 Integer levelsGained = Integer.parseInt(args[2]);
-                plugin.getPlayerManager().promoteJob(jPlayer, job, levelsGained);
+                Jobs.getPlayerManager().promoteJob(jPlayer, job, levelsGained);
                 
                 if (player != null) {
                     String message = Language.getMessage("command.promote.output.target");
@@ -540,13 +531,13 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = plugin.getServer().getPlayer(args[0]);
+        Player player = Jobs.getServer().getPlayer(args[0]);
         if (player == null) {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         }
-        Job job = plugin.getJobsCore().getJob(args[1]);
+        Job job = Jobs.getJob(args[1]);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
             return true;
@@ -555,7 +546,7 @@ public class JobsCommands implements CommandExecutor {
             // check if player already has the job
             if (jPlayer.isInJob(job)) {
                 Integer levelsLost = Integer.parseInt(args[2]);
-                plugin.getPlayerManager().demoteJob(jPlayer, job, levelsLost);
+                Jobs.getPlayerManager().demoteJob(jPlayer, job, levelsLost);
                 
                 if (player != null) {
                     String message = Language.getMessage("command.demote.output.target");
@@ -579,13 +570,13 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = plugin.getServer().getPlayer(args[0]);
+        Player player = Jobs.getServer().getPlayer(args[0]);
         if (player == null) {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         }
-        Job job = plugin.getJobsCore().getJob(args[1]);
+        Job job = Jobs.getJob(args[1]);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
             return true;
@@ -603,7 +594,7 @@ public class JobsCommands implements CommandExecutor {
         }
         // check if player already has the job
         if (jPlayer.isInJob(job)) {
-            plugin.getPlayerManager().addExperience(jPlayer, job, xpGained);
+            Jobs.getPlayerManager().addExperience(jPlayer, job, xpGained);
             
             if (player != null) {
                 String message = Language.getMessage("command.grantxp.output.target");
@@ -623,13 +614,13 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = plugin.getServer().getPlayer(args[0]);
+        Player player = Jobs.getServer().getPlayer(args[0]);
         if (player == null) {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         }
-        Job job = plugin.getJobsCore().getJob(args[1]);
+        Job job = Jobs.getJob(args[1]);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
             return true;
@@ -647,7 +638,7 @@ public class JobsCommands implements CommandExecutor {
         }
         // check if player already has the job
         if (jPlayer.isInJob(job)) {
-            plugin.getPlayerManager().removeExperience(jPlayer, job, xpLost);
+            Jobs.getPlayerManager().removeExperience(jPlayer, job, xpLost);
             
             if (player != null) {
                 String message = Language.getMessage("command.removexp.output.target");
@@ -667,14 +658,14 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = plugin.getServer().getPlayer(args[0]);
+        Player player = Jobs.getServer().getPlayer(args[0]);
         if (player == null) {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(args[0]);
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
-            jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         }
-        Job oldjob = plugin.getJobsCore().getJob(args[1]);
-        Job newjob = plugin.getJobsCore().getJob(args[2]);
+        Job oldjob = Jobs.getJob(args[1]);
+        Job newjob = Jobs.getJob(args[2]);
         if (oldjob == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
             return true;
@@ -685,7 +676,7 @@ public class JobsCommands implements CommandExecutor {
         }
         try {
             if(jPlayer.isInJob(oldjob) && !jPlayer.isInJob(newjob)) {
-                plugin.getPlayerManager().transferJob(jPlayer, oldjob, newjob);
+                Jobs.getPlayerManager().transferJob(jPlayer, oldjob, newjob);
                 
                 if (player != null) {
                     String message = Language.getMessage("command.transfer.output.target");
@@ -765,7 +756,7 @@ public class JobsCommands implements CommandExecutor {
             level = prog.getLevel();
         int numjobs = player.getJobProgression().size();
         List<JobInfo> jobInfo = job.getJobInfo(type);
-        Economy economy = plugin.getEconomy();
+        BufferedEconomy economy = Jobs.getEconomy();
         for (JobInfo info: jobInfo) {
             String materialName = info.getName().toLowerCase().replace('_', ' ');
             
@@ -806,5 +797,16 @@ public class JobsCommands implements CommandExecutor {
         message = message.replace("%jobxp%", Integer.toString((int)jobProg.getExperience()));
         message = message.replace("%jobmaxxp%", Integer.toString(jobProg.getMaxExperience()));
         return message;
+    }
+    
+    /**
+     * Check Job joining permission
+     */
+    private boolean hasJobPermission(CommandSender sender, Job job) {
+        if (!sender.hasPermission("jobs.use")) {
+            return false;
+        } else {
+            return sender.hasPermission("jobs.join."+job.getName().toLowerCase());
+        }
     }
 }

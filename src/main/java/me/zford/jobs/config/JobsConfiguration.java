@@ -22,10 +22,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import me.zford.jobs.Player;
 import me.zford.jobs.container.RestrictedArea;
 import me.zford.jobs.container.Title;
-
-import org.bukkit.entity.Player;
 
 public abstract class JobsConfiguration {
     // all of the possible titles

@@ -16,15 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.bukkit.actions;
+package me.zford.jobs;
 
-import me.zford.jobs.container.ActionInfo;
-import me.zford.jobs.container.ActionType;
+import java.util.logging.Logger;
 
-import org.bukkit.block.Block;
-
-public class BlockActionInfo extends MaterialActionInfo implements ActionInfo {
-    public BlockActionInfo(Block block, ActionType type) {
-        super(block.getType(), block.getData(), type);
-    }
+public interface Server {
+    public Player getPlayer(String name);
+    public Player[] getOnlinePlayers();
+    public Logger getLogger();
+    public void broadcastMessage(String message);
 }

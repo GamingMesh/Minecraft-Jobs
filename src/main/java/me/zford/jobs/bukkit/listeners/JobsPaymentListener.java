@@ -20,6 +20,8 @@ package me.zford.jobs.bukkit.listeners;
 
 import java.util.List;
 
+import me.zford.jobs.Jobs;
+import me.zford.jobs.bukkit.BukkitUtil;
 import me.zford.jobs.bukkit.JobsPlugin;
 import me.zford.jobs.bukkit.actions.BlockActionInfo;
 import me.zford.jobs.bukkit.actions.EntityActionInfo;
@@ -30,6 +32,7 @@ import me.zford.jobs.container.JobsPlayer;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
@@ -95,13 +98,13 @@ public class JobsPaymentListener implements Listener {
         if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
         
-        if (!plugin.hasWorldPermission(player, player.getWorld()))
+        if (!hasWorldPermission(player, player.getWorld()))
             return;
         
         // restricted area multiplier
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-        plugin.action(jPlayer, new BlockActionInfo(block, ActionType.BREAK), multiplier);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        Jobs.action(jPlayer, new BlockActionInfo(block, ActionType.BREAK), multiplier);
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
@@ -125,13 +128,13 @@ public class JobsPaymentListener implements Listener {
         if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
         
-        if (!plugin.hasWorldPermission(player, player.getWorld()))
+        if (!hasWorldPermission(player, player.getWorld()))
             return;
         
         // restricted area multiplier
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-        plugin.action(jPlayer, new BlockActionInfo(block, ActionType.PLACE), multiplier);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        Jobs.action(jPlayer, new BlockActionInfo(block, ActionType.PLACE), multiplier);
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
@@ -145,16 +148,16 @@ public class JobsPaymentListener implements Listener {
         if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
 
-        if (!plugin.hasWorldPermission(player, player.getWorld()))
+        if (!hasWorldPermission(player, player.getWorld()))
             return;
         
         // restricted area multiplier
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
         
         if (event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
-            JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
+            JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
             ItemStack items = ((Item) event.getCaught()).getItemStack();
-            plugin.action(jPlayer, new ItemActionInfo(items, ActionType.FISH), multiplier);
+            Jobs.action(jPlayer, new ItemActionInfo(items, ActionType.FISH), multiplier);
         }
     }
 
@@ -182,7 +185,7 @@ public class JobsPaymentListener implements Listener {
         if (resultStack == null)
             return;
         
-        if (!plugin.hasWorldPermission(player, player.getWorld()))
+        if (!hasWorldPermission(player, player.getWorld()))
             return;
         
         // check if in creative
@@ -214,9 +217,9 @@ public class JobsPaymentListener implements Listener {
             }
         }
         
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-        plugin.action(jPlayer, new ItemActionInfo(resultStack, ActionType.CRAFT), multiplier);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        Jobs.action(jPlayer, new ItemActionInfo(resultStack, ActionType.CRAFT), multiplier);
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
@@ -243,7 +246,7 @@ public class JobsPaymentListener implements Listener {
         if (resultStack == null)
             return;
         
-        if (!plugin.hasWorldPermission(player, player.getWorld()))
+        if (!hasWorldPermission(player, player.getWorld()))
             return;
         
         // check if in creative
@@ -275,9 +278,9 @@ public class JobsPaymentListener implements Listener {
             }
         }
         
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-        plugin.action(jPlayer, new ItemActionInfo(resultStack, ActionType.REPAIR), multiplier);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        Jobs.action(jPlayer, new ItemActionInfo(resultStack, ActionType.REPAIR), multiplier);
     }
 
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
@@ -309,16 +312,16 @@ public class JobsPaymentListener implements Listener {
         if (resultStack == null)
             return;
         
-        if (!plugin.hasWorldPermission(player, player.getWorld()))
+        if (!hasWorldPermission(player, player.getWorld()))
             return;
         
         // check if in creative
         if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
         
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-        plugin.action(jPlayer, new ItemActionInfo(resultStack, ActionType.ENCHANT), multiplier);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        Jobs.action(jPlayer, new ItemActionInfo(resultStack, ActionType.ENCHANT), multiplier);
     }
     
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
@@ -342,12 +345,12 @@ public class JobsPaymentListener implements Listener {
         if (player == null || !player.isOnline())
             return;
         
-        if (!plugin.hasWorldPermission(player, player.getWorld()))
+        if (!hasWorldPermission(player, player.getWorld()))
             return;
         
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-        plugin.action(jPlayer, new ItemActionInfo(event.getResult(), ActionType.SMELT), multiplier);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        Jobs.action(jPlayer, new ItemActionInfo(event.getResult(), ActionType.SMELT), multiplier);
     }
     
     @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
@@ -371,12 +374,12 @@ public class JobsPaymentListener implements Listener {
         if (player == null || !player.isOnline())
             return;
         
-        if (!plugin.hasWorldPermission(player, player.getWorld()))
+        if (!hasWorldPermission(player, player.getWorld()))
             return;
         
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = plugin.getPlayerManager().getJobsPlayer(player.getName());
-        plugin.action(jPlayer, new ItemActionInfo(event.getContents().getIngredient(), ActionType.BREW), multiplier);
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        Jobs.action(jPlayer, new ItemActionInfo(event.getContents().getIngredient(), ActionType.BREW), multiplier);
     }
     
     @EventHandler(priority=EventPriority.MONITOR)
@@ -414,14 +417,14 @@ public class JobsPaymentListener implements Listener {
                 if (pDamager.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
                     return;
 
-                if (!plugin.hasWorldPermission(pDamager, pDamager.getWorld()))
+                if (!hasWorldPermission(pDamager, pDamager.getWorld()))
                     return;
                 
                 // restricted area multiplier
-                double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(pDamager);
+                double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(pDamager));
                 // pay
-                JobsPlayer jDamager = plugin.getPlayerManager().getJobsPlayer(pDamager.getName());
-                plugin.action(jDamager, new EntityActionInfo(lVictim.getType(), ActionType.KILL), multiplier);
+                JobsPlayer jDamager = Jobs.getPlayerManager().getJobsPlayer(pDamager.getName());
+                Jobs.action(jDamager, new EntityActionInfo(lVictim.getType(), ActionType.KILL), multiplier);
             }
         }
     }
@@ -457,6 +460,17 @@ public class JobsPaymentListener implements Listener {
                 block.removeMetadata(brewingOwnerMetadata, plugin);
             
             block.setMetadata(brewingOwnerMetadata, new FixedMetadataValue(plugin, event.getPlayer().getName()));
+        }
+    }
+    
+    /**
+     * Check World permissions
+     */
+    private boolean hasWorldPermission(Player player, World world) {
+        if (!player.hasPermission("jobs.use")) {
+            return false;
+        } else {
+            return player.hasPermission("jobs.world."+world.getName().toLowerCase());
         }
     }
 }

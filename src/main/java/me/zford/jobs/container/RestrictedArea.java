@@ -18,8 +18,8 @@
 
 package me.zford.jobs.container;
 
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import me.zford.jobs.Location;
+import me.zford.jobs.Player;
 
 /**
  * Restricted Area Class

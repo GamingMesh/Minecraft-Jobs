@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import me.zford.jobs.Jobs;
 import me.zford.jobs.bukkit.JobsPlugin;
 import me.zford.jobs.config.JobConfig;
 import me.zford.jobs.container.ActionType;
@@ -55,15 +56,15 @@ public class BukkitJobConfig extends JobConfig {
      * loads from Jobs/jobConfig.yml
      */
     private void loadJobSettings(){
-        File f = new File(plugin.getJobsCore().getDataFolder(), "jobConfig.yml");
+        File f = new File(plugin.getDataFolder(), "jobConfig.yml");
         ArrayList<Job> jobs = new ArrayList<Job>();
-        plugin.getJobsCore().setJobs(jobs);
-        plugin.getJobsCore().setNoneJob(null);
+        Jobs.setJobs(jobs);
+        Jobs.setNoneJob(null);
         if (!f.exists()) {
             try {
                 f.createNewFile();
             } catch (IOException e) {
-                plugin.getJobsCore().getPluginLogger().severe("Unable to create jobConfig.yml!  No jobs were loaded!");
+                Jobs.getPluginLogger().severe("Unable to create jobConfig.yml!  No jobs were loaded!");
                 return;
             }
         }
@@ -72,12 +73,12 @@ public class BukkitJobConfig extends JobConfig {
         try {
             conf.load(f);
         } catch (Exception e) {
-            plugin.getJobsCore().getServerLogger().severe("==================== Jobs ====================");
-            plugin.getJobsCore().getServerLogger().severe("Unable to load jobConfig.yml!");
-            plugin.getJobsCore().getServerLogger().severe("Check your config for formatting issues!");
-            plugin.getJobsCore().getServerLogger().severe("No jobs were loaded!");
-            plugin.getJobsCore().getServerLogger().severe("Error: "+e.getMessage());
-            plugin.getJobsCore().getServerLogger().severe("==============================================");
+            Jobs.getServer().getLogger().severe("==================== Jobs ====================");
+            Jobs.getServer().getLogger().severe("Unable to load jobConfig.yml!");
+            Jobs.getServer().getLogger().severe("Check your config for formatting issues!");
+            Jobs.getServer().getLogger().severe("No jobs were loaded!");
+            Jobs.getServer().getLogger().severe("Error: "+e.getMessage());
+            Jobs.getServer().getLogger().severe("==============================================");
             return;
         }
         conf.options().header(new StringBuilder()
@@ -95,7 +96,7 @@ public class BukkitJobConfig extends JobConfig {
             ConfigurationSection jobSection = jobsSection.getConfigurationSection(jobKey);
             String jobName = jobSection.getString("fullname");
             if (jobName == null) {
-                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid fullname property. Skipping job!");
+                Jobs.getPluginLogger().warning("Job " + jobKey + " has an invalid fullname property. Skipping job!");
                 continue;
             }
             
@@ -110,7 +111,7 @@ public class BukkitJobConfig extends JobConfig {
 
             String jobShortName = jobSection.getString("shortname");
             if (jobShortName == null) {
-                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " is missing the shortname property.  Skipping job!");
+                Jobs.getPluginLogger().warning("Job " + jobKey + " is missing the shortname property.  Skipping job!");
                 continue;
             }
             
@@ -119,12 +120,12 @@ public class BukkitJobConfig extends JobConfig {
                 color = ChatColor.matchColor(jobSection.getString("ChatColour", ""));
                 if (color == null) {
                     color = ChatColor.WHITE;
-                    plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid ChatColour property.  Defaulting to WHITE!");
+                    Jobs.getPluginLogger().warning("Job " + jobKey + " has an invalid ChatColour property.  Defaulting to WHITE!");
                 }
             }
             DisplayMethod displayMethod = DisplayMethod.matchMethod(jobSection.getString("chat-display", ""));
             if (displayMethod == null) {
-                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid chat-display property. Defaulting to None!");
+                Jobs.getPluginLogger().warning("Job " + jobKey + " has an invalid chat-display property. Defaulting to None!");
                 displayMethod = DisplayMethod.NONE;
             }
             
@@ -137,7 +138,7 @@ public class BukkitJobConfig extends JobConfig {
                 maxExpEquation.setVariable("joblevel", 1);
                 maxExpEquation.getValue();
             } catch(Exception e) {
-                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid leveling-progression-equation property. Skipping job!");
+                Jobs.getPluginLogger().warning("Job " + jobKey + " has an invalid leveling-progression-equation property. Skipping job!");
                 continue;
             }
             
@@ -151,7 +152,7 @@ public class BukkitJobConfig extends JobConfig {
                 incomeEquation.setVariable("baseincome", 1);
                 incomeEquation.getValue();
             } catch(Exception e) {
-                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid income-progression-equation property. Skipping job!");
+                Jobs.getPluginLogger().warning("Job " + jobKey + " has an invalid income-progression-equation property. Skipping job!");
                 continue;
             }
             
@@ -165,7 +166,7 @@ public class BukkitJobConfig extends JobConfig {
                 expEquation.setVariable("baseexperience", 1);
                 expEquation.getValue();
             } catch(Exception e) {
-                plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid experience-progression-equation property. Skipping job!");
+                Jobs.getPluginLogger().warning("Job " + jobKey + " has an invalid experience-progression-equation property. Skipping job!");
                 continue;
             }
             
@@ -178,7 +179,7 @@ public class BukkitJobConfig extends JobConfig {
                     
                     String node = permissionKey.toLowerCase();
                     if (permissionSection == null) {
-                        plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid permission key" + permissionKey + "!");
+                        Jobs.getPluginLogger().warning("Job " + jobKey + " has an invalid permission key" + permissionKey + "!");
                         continue;
                     }
                     boolean value = permissionSection.getBoolean("value", true);
@@ -220,7 +221,7 @@ public class BukkitJobConfig extends JobConfig {
                             // Break and Place actions MUST be blocks
                             if (actionType == ActionType.BREAK || actionType == ActionType.PLACE) {
                                 if (!material.isBlock()) {
-                                    plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid " + actionType.getName() + " type property: " + key + "! Material must be a block!");
+                                    Jobs.getPluginLogger().warning("Job " + jobKey + " has an invalid " + actionType.getName() + " type property: " + key + "! Material must be a block!");
                                     continue;
                                 }
                             }
@@ -236,10 +237,10 @@ public class BukkitJobConfig extends JobConfig {
                              * configurations broken.
                              */
                             if (material == Material.REDSTONE_ORE) {
-                                plugin.getLogger().warning("Job "+jobKey+" is using REDSTONE_ORE instead of GLOWING_REDSTONE_ORE.");
-                                plugin.getLogger().warning("Automatically changing block to GLOWING_REDSTONE_ORE.  Please update your configuration.");
-                                plugin.getLogger().warning("In vanilla minecraft, REDSTONE_ORE changes to GLOWING_REDSTONE_ORE when interacted with.");
-                                plugin.getLogger().warning("In the future, Jobs using REDSTONE_ORE instead of GLOWING_REDSTONE_ORE may fail to work correctly.");
+                                Jobs.getPluginLogger().warning("Job "+jobKey+" is using REDSTONE_ORE instead of GLOWING_REDSTONE_ORE.");
+                                Jobs.getPluginLogger().warning("Automatically changing block to GLOWING_REDSTONE_ORE.  Please update your configuration.");
+                                Jobs.getPluginLogger().warning("In vanilla minecraft, REDSTONE_ORE changes to GLOWING_REDSTONE_ORE when interacted with.");
+                                Jobs.getPluginLogger().warning("In the future, Jobs using REDSTONE_ORE instead of GLOWING_REDSTONE_ORE may fail to work correctly.");
                                 material = Material.GLOWING_REDSTONE_ORE;
                             }
                             // END HACK
@@ -259,7 +260,7 @@ public class BukkitJobConfig extends JobConfig {
                         }
                         
                         if (type == null) {
-                            plugin.getJobsCore().getPluginLogger().warning("Job " + jobKey + " has an invalid " + actionType.getName() + " type property: " + key + "!");
+                            Jobs.getPluginLogger().warning("Job " + jobKey + " has an invalid " + actionType.getName() + " type property: " + key + "!");
                             continue;
                         }
                         
@@ -273,7 +274,7 @@ public class BukkitJobConfig extends JobConfig {
             }
             
             if (jobKey.equalsIgnoreCase("none")) {
-                plugin.getJobsCore().setNoneJob(job);
+                Jobs.setNoneJob(job);
             } else {
                 jobs.add(job);
             }

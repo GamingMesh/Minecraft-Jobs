@@ -25,8 +25,8 @@ import me.zford.jobs.Jobs;
 
 public class JobsDAOMySQL extends JobsDAO {
     
-    public JobsDAOMySQL(Jobs core, String url, String username, String password, String prefix) {
-        super(core, "com.mysql.jdbc.Driver", url, username, password, prefix);
+    public JobsDAOMySQL(String url, String username, String password, String prefix) {
+        super("com.mysql.jdbc.Driver", url, username, password, prefix);
         setUp();
     }
     
@@ -34,7 +34,7 @@ public class JobsDAOMySQL extends JobsDAO {
         try {
             JobsConnection conn = getConnection();
             if (conn == null) {
-                core.getPluginLogger().severe("Could not initialize database!  Could not connect to MySQL!");
+                Jobs.getPluginLogger().severe("Could not initialize database!  Could not connect to MySQL!");
                 return;
             }
             Statement st = conn.createStatement();

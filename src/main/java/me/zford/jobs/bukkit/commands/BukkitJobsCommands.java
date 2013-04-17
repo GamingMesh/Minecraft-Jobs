@@ -16,15 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.bukkit.actions;
+package me.zford.jobs.bukkit.commands;
 
-import me.zford.jobs.container.ActionInfo;
-import me.zford.jobs.container.ActionType;
+import me.zford.jobs.bukkit.BukkitUtil;
+import me.zford.jobs.bukkit.JobsPlugin;
+import me.zford.jobs.commands.JobsCommands;
 
-import org.bukkit.block.Block;
-
-public class BlockActionInfo extends MaterialActionInfo implements ActionInfo {
-    public BlockActionInfo(Block block, ActionType type) {
-        super(block.getType(), block.getData(), type);
+public class BukkitJobsCommands extends JobsCommands implements org.bukkit.command.CommandExecutor {
+    public BukkitJobsCommands(JobsPlugin plugin) {
+        super();
+    }
+    
+    @Override
+    public boolean onCommand(org.bukkit.command.CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
+        return super.onCommand(BukkitUtil.wrapCommandSender(sender), label, args);
     }
 }

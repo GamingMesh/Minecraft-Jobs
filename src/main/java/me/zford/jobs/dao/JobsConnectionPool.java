@@ -30,8 +30,8 @@ public class JobsConnectionPool {
     private String url;
     private String username;
     private String password;
-    public JobsConnectionPool(Jobs core, String driverName, String url, String username, String password) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
-        Driver driver = (Driver) Class.forName(driverName, true, core.getJobsClassloader()).newInstance();
+    public JobsConnectionPool(String driverName, String url, String username, String password) throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException {
+        Driver driver = (Driver) Class.forName(driverName, true, Jobs.getJobsClassloader()).newInstance();
         JobsDriver jDriver = new JobsDriver(driver);
         DriverManager.registerDriver(jDriver);
         this.url = url;

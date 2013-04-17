@@ -16,26 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.bukkit.tasks;
+package me.zford.jobs.tasks;
 
-import me.zford.jobs.bukkit.JobsPlugin;
+import me.zford.jobs.Jobs;
+import me.zford.jobs.economy.BufferedEconomy;
 
-public class DatabaseSaveTask extends Thread {
-    
-    private JobsPlugin plugin;
-    
+public class BufferedPaymentThread extends Thread {
     private volatile boolean running = true;
     private int sleep;
     
-    public DatabaseSaveTask(JobsPlugin plugin, int duration) {
-        super("Jobs-DatabaseSaveTask");
-        this.plugin = plugin;
-        this.sleep = duration * 60000;
+    public BufferedPaymentThread(int duration) {
+        super("Jobs-BufferedPaymentThread");
+        this.sleep = duration * 1000;
     }
 
     @Override
     public void run() {
-        plugin.getLogger().info("Started database save task");
+        Jobs.getPluginLogger().info("Started buffered payment thread");
         while (running) {
             try {
                 sleep(sleep);
@@ -44,15 +41,16 @@ public class DatabaseSaveTask extends Thread {
                 continue;
             }
             try {
-                plugin.getPlayerManager().saveAll();
+                BufferedEconomy economy = Jobs.getEconomy();
+                if (economy != null)
+                    economy.payAll();
             } catch (Throwable t) {
                 t.printStackTrace();
-                plugin.getLogger().severe("Exception in DatabaseSaveTask, stopping auto save!");
+                Jobs.getPluginLogger().severe("Exception in BufferedPaymentThread, stopping economy payments!");
                 running = false;
             }
         }
-        plugin.getLogger().info("Database save task shutdown");
-        
+        Jobs.getPluginLogger().info("Buffered payment thread shutdown");   
     }
     
     public void shutdown() {
