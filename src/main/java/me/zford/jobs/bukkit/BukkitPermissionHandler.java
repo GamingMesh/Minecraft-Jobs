@@ -50,22 +50,34 @@ public class BukkitPermissionHandler implements PermissionHandler {
         boolean changed = false;
         
         // remove old permissions
-        String permissionName = "jobs.players."+player.getName();
-        Permission permission = plugin.getServer().getPluginManager().getPermission(permissionName);
-        if (permission != null) {
-            plugin.getServer().getPluginManager().removePermission(permission);
+        String negativePermName = "jobs.players."+player.getName()+".negative";
+        String positivePermName = "jobs.players."+player.getName()+".positive";
+        Permission negativePermission = plugin.getServer().getPluginManager().getPermission(negativePermName);
+        if (negativePermission != null) {
+            plugin.getServer().getPluginManager().removePermission(negativePermission);
+            changed = true;
+        }
+        
+        Permission positivePermission = plugin.getServer().getPluginManager().getPermission(positivePermName);
+        if (positivePermission != null) {
+            plugin.getServer().getPluginManager().removePermission(positivePermission);
             changed = true;
         }
         
         List<JobProgression> progression = jPlayer.getJobProgression();
         // calculate new permissions
-        HashMap<String, Boolean> permissions = new HashMap<String, Boolean>();
+        HashMap<String, Boolean> negative = new HashMap<String, Boolean>();
+        HashMap<String, Boolean> positive = new HashMap<String, Boolean>();
         if (progression.size() == 0) {
             Job job = Jobs.getNoneJob();
             if (job != null) {
                 for (JobPermission perm : job.getPermissions()) {
                     if (perm.getLevelRequirement() <= 0) {
-                        permissions.put(perm.getNode(), perm.getValue());
+                        if (perm.getValue()) {
+                            positive.put(perm.getNode(), true);
+                        } else {
+                            negative.put(perm.getNode(), false);
+                        }
                     }
                 }
             }
@@ -73,15 +85,24 @@ public class BukkitPermissionHandler implements PermissionHandler {
             for (JobProgression prog : progression) {
                 for (JobPermission perm : prog.getJob().getPermissions()) {
                     if (prog.getLevel() >= perm.getLevelRequirement()) {
-                        permissions.put(perm.getNode(), perm.getValue());
+                        if (perm.getValue()) {
+                            positive.put(perm.getNode(), true);
+                        } else {
+                            negative.put(perm.getNode(), false);
+                        }
                     }
                 }
             }
         }
         
         // add new permissions (if applicable)
-        if (permissions.size() > 0) {
-            plugin.getServer().getPluginManager().addPermission(new Permission(permissionName, PermissionDefault.FALSE, permissions));
+        if (negative.size() > 0) {
+            plugin.getServer().getPluginManager().addPermission(new Permission(negativePermName, PermissionDefault.FALSE, negative));
+            changed = true;
+        }
+        
+        if (positive.size() > 0) {
+            plugin.getServer().getPluginManager().addPermission(new Permission(positivePermName, PermissionDefault.FALSE, positive));
             changed = true;
         }
         
@@ -100,7 +121,8 @@ public class BukkitPermissionHandler implements PermissionHandler {
         // create if attachment doesn't exist
         if (attachment == null) {
             attachment = player.addAttachment(plugin);
-            attachment.setPermission(permissionName, true);
+            attachment.setPermission(negativePermName, true);
+            attachment.setPermission(positivePermName, true);
         }
         
         // recalculate!
