@@ -57,7 +57,7 @@ public class JobsPlugin extends JavaPlugin {
         ConfigManager.registerJobsConfiguration(new BukkitJobsConfiguration(this));
         ConfigManager.registerJobConfig(new BukkitJobConfig(this));
         
-        getCommand("jobs").setExecutor(new BukkitJobsCommands(this));
+        getCommand("jobs").setExecutor(new BukkitJobsCommands());
         
         Jobs.startup();
         

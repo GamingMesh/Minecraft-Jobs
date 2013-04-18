@@ -19,14 +19,9 @@
 package me.zford.jobs.bukkit.commands;
 
 import me.zford.jobs.bukkit.BukkitUtil;
-import me.zford.jobs.bukkit.JobsPlugin;
 import me.zford.jobs.commands.JobsCommands;
 
 public class BukkitJobsCommands extends JobsCommands implements org.bukkit.command.CommandExecutor {
-    public BukkitJobsCommands(JobsPlugin plugin) {
-        super();
-    }
-    
     @Override
     public boolean onCommand(org.bukkit.command.CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
         return super.onCommand(BukkitUtil.wrapCommandSender(sender), label, args);
