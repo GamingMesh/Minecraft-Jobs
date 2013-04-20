@@ -1,6 +1,6 @@
-name: Jobs
-description: Job plugin for bukkit
-main: me.zford.jobs.bukkit.JobsPlugin
+name: ${project.name}
+description: ${project.description}
+main: ${project.groupId}.${project.artifactId}.bukkit.${project.name}Plugin
 version: ${project.version}
 author: phrstbrn
 softdepend: [Vault]
