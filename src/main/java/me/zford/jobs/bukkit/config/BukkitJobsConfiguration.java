@@ -31,7 +31,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import me.zford.jobs.Jobs;
 import me.zford.jobs.Location;
 import me.zford.jobs.bukkit.JobsPlugin;
-import me.zford.jobs.config.JobsConfiguration;
+import me.zford.jobs.config.BaseJobsConfiguration;
 import me.zford.jobs.container.RestrictedArea;
 import me.zford.jobs.container.Title;
 import me.zford.jobs.dao.JobsDAOH2;
@@ -40,7 +40,7 @@ import me.zford.jobs.dao.JobsDAOSQLite;
 import me.zford.jobs.util.ChatColor;
 import me.zford.jobs.util.FileDownloader;
 
-public class BukkitJobsConfiguration extends JobsConfiguration {
+public class BukkitJobsConfiguration extends BaseJobsConfiguration {
     private JobsPlugin plugin;
     public BukkitJobsConfiguration(JobsPlugin plugin) {
         super();

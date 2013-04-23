@@ -1,0 +1,8 @@
+name: ${project.name}
+version: ${project.version}
+description: ${project.description}
+author: phrstbrn
+
+main: ${project.groupId}.${project.artifactId}.spout.${project.name}Plugin
+platform: SERVER
+reload: true
