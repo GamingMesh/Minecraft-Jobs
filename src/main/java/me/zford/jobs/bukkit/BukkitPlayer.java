@@ -43,6 +43,11 @@ public class BukkitPlayer extends Player {
     }
     
     @Override
+    public String getDisplayName() {
+        return player.getDisplayName();
+    }
+    
+    @Override
     public boolean hasPermission(String name) {
         return player.hasPermission(name);
     }

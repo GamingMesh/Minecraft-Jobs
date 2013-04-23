@@ -276,7 +276,11 @@ public class PlayerManager {
         if (prog.getTitle() != null) {
             message = message.replace("%titlename%", prog.getTitle().getChatColor() + prog.getTitle().getName() + ChatColor.WHITE);
         }
-        message = message.replace("%playername%", jPlayer.getName());
+        if (player != null) {
+            message = message.replace("%playername%", player.getDisplayName());
+        } else {
+            message = message.replace("%playername%", jPlayer.getName());
+        }
         message = message.replace("%joblevel%", ""+prog.getLevel());
         for (String line: message.split("\n")) {
             if (ConfigManager.getJobsConfiguration().isBroadcastingLevelups()) {
@@ -294,7 +298,11 @@ public class PlayerManager {
             } else {
                 message = Language.getMessage("message.skillup.nobroadcast");
             }
-            message = message.replace("%playername%", jPlayer.getName());
+            if (player != null) {
+                message = message.replace("%playername%", player.getDisplayName());
+            } else {
+                message = message.replace("%playername%", jPlayer.getName());
+            }
             message = message.replace("%titlename%", levelTitle.getChatColor() + levelTitle.getName() + ChatColor.WHITE);
             message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
             for (String line: message.split("\n")) {

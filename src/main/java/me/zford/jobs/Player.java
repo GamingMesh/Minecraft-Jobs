@@ -22,6 +22,7 @@ import me.zford.jobs.commands.CommandSender;
 
 public abstract class Player implements CommandSender {
     public abstract String getName();
+    public abstract String getDisplayName();
     public abstract Location getLocation();
     public abstract void giveExp(int amount);
 }
