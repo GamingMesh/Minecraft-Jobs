@@ -21,7 +21,7 @@ package me.zford.jobs.bukkit;
 import me.zford.jobs.Location;
 import me.zford.jobs.Player;
 
-public class BukkitPlayer extends Player {
+public class BukkitPlayer implements Player {
     private org.bukkit.entity.Player player;
     public BukkitPlayer(org.bukkit.entity.Player player) {
         this.player = player;
