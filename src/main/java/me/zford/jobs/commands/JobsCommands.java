@@ -22,7 +22,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashSet;
 import java.util.List;
 
 import me.zford.jobs.Jobs;
@@ -39,26 +38,6 @@ import me.zford.jobs.util.ChatColor;
 
 public abstract class JobsCommands {
     private static final String label = "jobs";
-    private LinkedHashSet<String> commands = new LinkedHashSet<String>();
-    
-    public JobsCommands() {
-        commands.add("browse");
-        commands.add("stats");
-        commands.add("join");
-        commands.add("leave");
-        commands.add("leaveall");
-        commands.add("info");
-        commands.add("playerinfo");
-        commands.add("fire");
-        commands.add("fireall");
-        commands.add("employ");
-        commands.add("promote");
-        commands.add("demote");
-        commands.add("grantxp");
-        commands.add("removexp");
-        commands.add("transfer");
-        commands.add("reload");
-    }
     
     public boolean onCommand(CommandSender sender, String label, String[] args) {
         if (args.length == 0)
@@ -66,25 +45,25 @@ public abstract class JobsCommands {
         
         String cmd = args[0].toLowerCase();
         
-        if (!commands.contains(cmd))
-            return help(sender);
-        
-        String[] myArgs = reduceArgs(args);
-        
-        if (myArgs.length > 0) {
-            if (myArgs[myArgs.length - 1].equals("?")) {
-                sendUsage(sender, cmd);
-                return true;
-            }
-        }
-        
         try {
             Method m = getClass().getMethod(cmd, CommandSender.class, String[].class);
-            if (!hasCommandPermission(sender, cmd)) {
-                sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.permission"));
-                return true;
+            if (m.isAnnotationPresent(JobCommand.class)) {
+                if (!hasCommandPermission(sender, cmd)) {
+                    sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.permission"));
+                    return true;
+                }
+                
+                String[] myArgs = reduceArgs(args);
+                
+                if (myArgs.length > 0) {
+                    if (myArgs[myArgs.length - 1].equals("?")) {
+                        sendUsage(sender, cmd);
+                        return true;
+                    }
+                }
+                
+                return (Boolean) m.invoke(this, sender, myArgs);
             }
-            return (Boolean) m.invoke(this, sender, myArgs);
         } catch (SecurityException e) {
             e.printStackTrace();
         } catch (IllegalArgumentException e) {
@@ -93,11 +72,9 @@ public abstract class JobsCommands {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
             e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            return help(sender);
-        }
+        } catch (NoSuchMethodException e) {}
         
-        return false;
+        return help(sender);
     }
     
     private static String[] reduceArgs(String[] args) {
@@ -148,15 +125,19 @@ public abstract class JobsCommands {
     
     protected boolean help(CommandSender sender) {
         sender.sendMessage(ChatColor.GREEN+"*** "+ChatColor.YELLOW+"Jobs"+ChatColor.GREEN+" ***");
-        for (String cmd : commands) {
-            if (!hasCommandPermission(sender, cmd))
-                continue;
-            sender.sendMessage(getUsage(cmd));
+        for (Method m : getClass().getMethods()) {
+            if (m.isAnnotationPresent(JobCommand.class)) {
+                String cmd = m.getName();
+                if (!hasCommandPermission(sender, cmd))
+                    continue;
+                sender.sendMessage(getUsage(cmd));
+            }
         }
         sender.sendMessage(ChatColor.YELLOW + Language.getMessage("command.help.output"));
         return true;
     }
     
+    @JobCommand
     public boolean join(CommandSender sender, String[] args) {
         if (!(sender instanceof Player))
             return false;
@@ -211,7 +192,8 @@ public abstract class JobsCommands {
         sender.sendMessage(message);
         return true;
     }
-    
+
+    @JobCommand
     public boolean leave(CommandSender sender, String[] args) {
         if (!(sender instanceof Player))
             return false;
@@ -237,7 +219,8 @@ public abstract class JobsCommands {
         sender.sendMessage(message);
         return true;
     }
-    
+
+    @JobCommand
     public boolean leaveall(CommandSender sender, String[] args) {
         if (!(sender instanceof Player))
             return false;
@@ -255,7 +238,8 @@ public abstract class JobsCommands {
         sender.sendMessage(Language.getMessage("command.leaveall.success"));
         return true;
     }
-    
+
+    @JobCommand
     public boolean info(CommandSender sender, String[] args) {
         if (!(sender instanceof Player))
             return false;
@@ -282,7 +266,8 @@ public abstract class JobsCommands {
         sender.sendMessage(jobInfoMessage(jPlayer, job, type).split("\n"));
         return true;
     }
-    
+
+    @JobCommand
     public boolean stats(CommandSender sender, String[] args) {
         JobsPlayer jPlayer = null;
         if (args.length >= 1) {
@@ -315,7 +300,8 @@ public abstract class JobsCommands {
         }
         return true;
     }
-    
+
+    @JobCommand
     public boolean browse(CommandSender sender, String[] args) {
         ArrayList<String> jobs = new ArrayList<String>();
         for (Job job: Jobs.getJobs()) {
@@ -341,7 +327,8 @@ public abstract class JobsCommands {
         sender.sendMessage(Language.getMessage("command.browse.output.footer"));
         return true;
     }
-    
+
+    @JobCommand
     public boolean playerinfo(CommandSender sender, String[] args) {
         if (args.length < 2) {
             sendUsage(sender, "playerinfo");
@@ -365,7 +352,8 @@ public abstract class JobsCommands {
         sender.sendMessage(jobInfoMessage(jPlayer, job, type).split("\n"));
         return true;
     }
-    
+
+    @JobCommand
     public boolean reload(CommandSender sender, String[] args) {
         try {
             Jobs.reload();
@@ -377,7 +365,8 @@ public abstract class JobsCommands {
         }
         return true;
     }
-    
+
+    @JobCommand
     public boolean fire(CommandSender sender, String[] args) {
         if (args.length < 2) {
             sendUsage(sender, "fire");
@@ -415,7 +404,8 @@ public abstract class JobsCommands {
         }
         return true;
     }
-    
+
+    @JobCommand
     public boolean fireall(CommandSender sender, String[] args) {
         if (args.length < 1) {
             sendUsage(sender, "fireall");
@@ -447,7 +437,8 @@ public abstract class JobsCommands {
         }
         return true;
     }
-    
+
+    @JobCommand
     public boolean employ(CommandSender sender, String[] args) {
         if (args.length < 2) {
             sendUsage(sender, "employ");
@@ -486,7 +477,8 @@ public abstract class JobsCommands {
         }
         return true;
     }
-    
+
+    @JobCommand
     public boolean promote(CommandSender sender, String[] args) {
         if (args.length < 3) {
             sendUsage(sender, "promote");
@@ -524,7 +516,8 @@ public abstract class JobsCommands {
         }
         return true;
     }
-    
+
+    @JobCommand
     public boolean demote(CommandSender sender, String[] args) {
         if (args.length < 3) {
             sendUsage(sender, "demote");
@@ -563,7 +556,8 @@ public abstract class JobsCommands {
         }
         return true;
     }
-    
+
+    @JobCommand
     public boolean grantxp(CommandSender sender, String[] args) {
         if (args.length < 3) {
             sendUsage(sender, "grantxp");
@@ -607,7 +601,8 @@ public abstract class JobsCommands {
         }
         return true;
     }
-    
+
+    @JobCommand
     public boolean removexp(CommandSender sender, String[] args) {
         if (args.length < 3) {
             sendUsage(sender, "removexp");
@@ -651,7 +646,8 @@ public abstract class JobsCommands {
         }
         return true;
     }
-    
+
+    @JobCommand
     public boolean transfer(CommandSender sender, String[] args) {
         if (args.length < 3) {
             sendUsage(sender, "transfer");
