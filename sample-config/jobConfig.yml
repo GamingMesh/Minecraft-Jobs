@@ -22,6 +22,7 @@ Jobs:
     # Shortened version of the name of the job. Used as a prefix when the user has more 
     # than 1 job
     shortname: W
+    description: Earns money felling and planting trees  
     # The colour of the name, for a full list of supported colours, go to the message config.
     ChatColour: GREEN
     # Option to let you choose what kind of prefix this job adds to your name.
@@ -138,6 +139,7 @@ Jobs:
   Miner:
     fullname: Miner
     shortname: M
+    description: Earns money mining minerals and ores.
     ChatColour: DARK_GRAY
     chat-display: full
     #max-level: 10
@@ -194,6 +196,7 @@ Jobs:
   Builder:
     fullname: Builder
     shortname: B
+    description: Earns money for building structures.
     ChatColour: WHITE
     chat-display: full
     #max-level: 10
@@ -267,6 +270,7 @@ Jobs:
   Digger:
     fullname: Digger
     shortname: D
+    description: Earns money for terraforming the world.
     ChatColour: GOLD
     chat-display: full
     #max-level: 10
@@ -301,6 +305,7 @@ Jobs:
   Farmer:
     fullname: Farmer
     shortname: Fa
+    description: Earns money farming crops.
     ChatColour: BLUE
     chat-display: full
     #max-level: 10
@@ -333,6 +338,7 @@ Jobs:
   Hunter:
     fullname: Hunter
     shortname: H
+    description: Earns money killing animals and monsters.
     ChatColour: RED
     chat-display: full
     #max-level: 10
@@ -393,6 +399,7 @@ Jobs:
   Fisherman:
     fullname: Fisherman
     shortname: Fi
+    description: Earns money from fishing.
     ChatColour: AQUA
     chat-display: full
     #max-level: 10
@@ -415,6 +422,7 @@ Jobs:
   Weaponsmith:
     fullname: Weaponsmith
     shortname: W
+    description: Earns money from crafting and repairing weapons.
     ChatColour: DARK_PURPLE
     chat-display: full
     #max-level: 10
@@ -458,6 +466,7 @@ Jobs:
   Brewer:
     fullname: Brewer
     shortname: Br
+    description: Earns money brewing potions.
     ChatColour: LIGHT_PURPLE
     chat-display: full
     leveling-progression-equation: 100*((1.13+(0.01*(numjobs-1)))^(joblevel-1))
@@ -497,6 +506,7 @@ Jobs:
   Enchanter:
     fullname: Enchanter
     shortname: E
+    description: Earns money enchanting weapons.
     ChatColour: DARK_BLUE
     chat-display: full
     #max-level: 10

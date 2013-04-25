@@ -35,6 +35,8 @@ public class Job {
     private String jobName;
     // job short name (for use in multiple jobs)
     private String jobShortName;
+    // short description of the job
+    private String description;
     // job chat colour
     private ChatColor jobColour;
     // job leveling equation
@@ -48,37 +50,34 @@ public class Job {
 
     /**
      * Constructor
-     * @param jobBreakInfo - information about base rewards for breaking a block
-     * @param jobPlaceInfo - information about base rewards for placing a block
-     * @param jobKillInfo - information about base rewards for killing a LivingEntity
-     * @param jobCraftInfo - information about base rewards for crafting an item
-     * @param jobKillCustomInfo - information about base rewards for killing a custom jobs class
      * @param jobName - the name of the job
      * @param jobShortName - the shortened version of the name of the job.
+     * @param description - a short description of the job.
      * @param jobColour - the colour of the job title as displayed in chat.
      * @param maxExpEquation - the equation by which the exp needed to level up is calculated
-     * @param incomeEquation - the equation by which the income given for a level is calculated
-     * @param expEquation - the equation by which the exp given for a level is calculated
      * @param displayMethod - the display method for this job.
      * @param maxLevel - the maximum level allowed (null for no max level)
      * @param maxSlots - the maximum number of people allowed to have this job at one time (null for no limits)
+     * @param jobPermissions - permissions gained for having the job
      */
-    public Job(List<JobPermission> jobPermissions,
-            String jobName,
+    public Job(String jobName,
             String jobShortName,
+            String description,
             ChatColor jobColour,
             Parser maxExpEquation,
             DisplayMethod displayMethod,
             int maxLevel,
-            Integer maxSlots) {
-        this.jobPermissions = jobPermissions;
+            Integer maxSlots,
+            List<JobPermission> jobPermissions) {
         this.jobName = jobName;
         this.jobShortName = jobShortName;
+        this.description = description;
         this.jobColour = jobColour;
         this.maxExpEquation = maxExpEquation;
         this.displayMethod = displayMethod;
         this.maxLevel = maxLevel;
         this.maxSlots = maxSlots;
+        this.jobPermissions = jobPermissions;
     }
     
     /**
@@ -148,6 +147,14 @@ public class Job {
      */
     public String getShortName(){
         return jobShortName;
+    }
+    
+    /**
+     * Gets the description
+     * @return description
+     */
+    public String getDescription() {
+        return description;
     }
     
     /**

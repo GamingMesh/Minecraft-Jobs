@@ -303,26 +303,35 @@ public abstract class JobsCommands {
 
     @JobCommand
     public boolean browse(CommandSender sender, String[] args) {
-        ArrayList<String> jobs = new ArrayList<String>();
+        ArrayList<String> lines = new ArrayList<String>();
         for (Job job: Jobs.getJobs()) {
             if (ConfigManager.getJobsConfiguration().getHideJobsWithoutPermission()) {
                 if (!hasJobPermission(sender, job))
                     continue;
             }
+            StringBuilder builder = new StringBuilder();
+            builder.append("  ");
+            builder.append(job.getChatColor().toString());
+            builder.append(job.getName());
             if (job.getMaxLevel() > 0) {
-                jobs.add(job.getChatColor() + job.getName() + ChatColor.WHITE + " - max lvl: " + job.getMaxLevel());
-            } else {
-                jobs.add(job.getChatColor() + job.getName());
+                builder.append(ChatColor.WHITE.toString());
+                builder.append(" - max level: ");
+                builder.append(job.getMaxLevel());
+            }
+            lines.add(builder.toString());
+            if (!job.getDescription().isEmpty()) {
+                lines.add("  - "+job.getDescription());
             }
         }
         
-        if (jobs.size() == 0) {
+        if (lines.size() == 0) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.browse.error.nojobs"));
             return true;   
         }
+        
         sender.sendMessage(Language.getMessage("command.browse.output.header"));
-        for(String job : jobs) {
-            sender.sendMessage("    "+job);
+        for (String line : lines) {
+            sender.sendMessage(line);
         }
         sender.sendMessage(Language.getMessage("command.browse.output.footer"));
         return true;

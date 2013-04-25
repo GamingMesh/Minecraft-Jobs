@@ -115,6 +115,8 @@ public class BukkitJobConfig extends JobConfig {
                 continue;
             }
             
+            String description = jobSection.getString("description", "");
+            
             ChatColor color = ChatColor.WHITE;
             if (jobSection.contains("ChatColour")) {
                 color = ChatColor.matchColor(jobSection.getString("ChatColour", ""));
@@ -188,7 +190,7 @@ public class BukkitJobConfig extends JobConfig {
                 }
             }
             
-            Job job = new Job(jobPermissions, jobName, jobShortName, color, maxExpEquation, displayMethod, maxLevel, maxSlots);
+            Job job = new Job(jobName, jobShortName, description, color, maxExpEquation, displayMethod, maxLevel, maxSlots, jobPermissions);
             
             for (ActionType actionType : ActionType.values()) {
                 ConfigurationSection typeSection = jobSection.getConfigurationSection(actionType.getName());
