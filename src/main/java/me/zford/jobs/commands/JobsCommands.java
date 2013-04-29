@@ -32,7 +32,6 @@ import me.zford.jobs.container.Job;
 import me.zford.jobs.container.JobInfo;
 import me.zford.jobs.container.JobProgression;
 import me.zford.jobs.container.JobsPlayer;
-import me.zford.jobs.economy.BufferedEconomy;
 import me.zford.jobs.i18n.Language;
 import me.zford.jobs.util.ChatColor;
 
@@ -761,13 +760,11 @@ public abstract class JobsCommands {
             level = prog.getLevel();
         int numjobs = player.getJobProgression().size();
         List<JobInfo> jobInfo = job.getJobInfo(type);
-        BufferedEconomy economy = Jobs.getEconomy();
         for (JobInfo info: jobInfo) {
             String materialName = info.getName().toLowerCase().replace('_', ' ');
             
             double income = info.getIncome(level, numjobs);
             ChatColor incomeColor = income >= 0 ? ChatColor.GREEN : ChatColor.DARK_RED;
-            String incomeString = economy != null ? economy.format(income) : String.format("$%.2f", income);
             
             double xp = info.getExperience(level, numjobs);
             ChatColor xpColor = xp >= 0 ? ChatColor.YELLOW : ChatColor.GRAY;
@@ -783,7 +780,7 @@ public abstract class JobsCommands {
             message.append(' ');
             
             message.append(incomeColor.toString());
-            message.append(incomeString);
+            message.append(Jobs.getEconomy().format(income));
             
             message.append('\n');
         }

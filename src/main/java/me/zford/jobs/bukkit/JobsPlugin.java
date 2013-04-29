@@ -26,6 +26,7 @@ import me.zford.jobs.bukkit.economy.VaultEconomy;
 import me.zford.jobs.bukkit.listeners.JobsListener;
 import me.zford.jobs.bukkit.listeners.JobsPaymentListener;
 import me.zford.jobs.config.ConfigManager;
+import me.zford.jobs.economy.BlackholeEconomy;
 import net.milkbowl.vault.economy.Economy;
 
 import org.bukkit.plugin.Plugin;
@@ -43,17 +44,6 @@ public class JobsPlugin extends JavaPlugin {
         
         Jobs.setDataFolder(getDataFolder());
         
-        if (!loadVault()) {
-            Jobs.getServer().getLogger().severe("==================== Jobs ====================");
-            Jobs.getServer().getLogger().severe("Vault is required by this plugin to operate!");
-            Jobs.getServer().getLogger().severe("Please install Vault first!");
-            Jobs.getServer().getLogger().severe("You can find the latest version here:");
-            Jobs.getServer().getLogger().severe("http://dev.bukkit.org/server-mods/vault/");
-            Jobs.getServer().getLogger().severe("==============================================");
-            setEnabled(false);
-            return;
-        }
-        
         ConfigManager.registerJobsConfiguration(new BukkitJobsConfiguration(this));
         ConfigManager.registerJobConfig(new BukkitJobConfig(this));
         
@@ -68,16 +58,28 @@ public class JobsPlugin extends JavaPlugin {
         // register economy
         Jobs.getScheduler().scheduleTask(new Runnable() {
             public void run() {
-                RegisteredServiceProvider<Economy> provider = getServer().getServicesManager().getRegistration(Economy.class);
-                if (provider == null)
-                    return;
+                Plugin test = getServer().getPluginManager().getPlugin("Vault");
+                if (test != null) {
+                    RegisteredServiceProvider<Economy> provider = getServer().getServicesManager().getRegistration(Economy.class);
+                    if (provider != null) {
+                        Economy economy = provider.getProvider();
+                        
+                        if (economy != null && economy.isEnabled()) {
+                            Jobs.setEconomy(new VaultEconomy(economy));
+                            Jobs.getPluginLogger().info("["+getDescription().getName()+"] Successfully linked with Vault.");
+                            return;
+                        }
+                    }
+                }
                 
-                Economy economy = provider.getProvider();
-                
-                if (economy == null || !economy.isEnabled())
-                    return;
-                
-                Jobs.setEconomy(new VaultEconomy(economy));
+                // no Vault found
+                Jobs.setEconomy(new BlackholeEconomy());
+                Jobs.getServer().getLogger().severe("==================== Jobs ====================");
+                Jobs.getServer().getLogger().severe("Vault is required by this plugin for economy support!");
+                Jobs.getServer().getLogger().severe("Please install Vault first!");
+                Jobs.getServer().getLogger().severe("You can find the latest version here:");
+                Jobs.getServer().getLogger().severe("http://dev.bukkit.org/server-mods/vault/");
+                Jobs.getServer().getLogger().severe("==============================================");
             }
         });
         
@@ -89,17 +91,5 @@ public class JobsPlugin extends JavaPlugin {
     public void onDisable() {
         Jobs.shutdown();
         Jobs.getPluginLogger().info("Plugin has been disabled succesfully.");
-    }
-    
-    /**
-     * Loads vault and sets as default economy
-     */
-    private boolean loadVault() {
-        Plugin test = getServer().getPluginManager().getPlugin("Vault");
-        if (test == null)
-            return false;
-        
-        Jobs.getPluginLogger().info("["+getDescription().getName()+"] Successfully linked with Vault.");
-        return true;
     }
 }
