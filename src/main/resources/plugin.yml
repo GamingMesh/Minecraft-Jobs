@@ -43,6 +43,7 @@ permissions:
       jobs.command.removexp: true
       jobs.command.transfer: true
       jobs.command.reload: true
+      jobs.command.help: true
   jobs.command.browse:
     description: Grants access to the browse command
     default: true
@@ -94,4 +95,6 @@ permissions:
   jobs.command.reload:
     description: Grants access to the reload command
     default: op
-  
+  jobs.command.help:
+    description: Grants access to the help command
+    default: true  
