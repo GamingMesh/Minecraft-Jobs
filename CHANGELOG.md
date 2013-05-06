@@ -1,5 +1,13 @@
 # Jobs plugin change log summary
 
+## 2.11.0
+* Finished modularizing code (ready for Spout and Bukkit API ports!)
+* Added /jobs help command
+* Added description field in jobConfig.yml that shows up in /jobs browse command
+* Fixed ordering of permissions, "true" will always win over "false" now.
+* Made Vault completely optional, will use "blackhole" economy if Vault is missing
+* Added multiple translations (es, fr, jp, ru)
+
 ## 2.10.2
 * Fixed /jobs reload command
 * Faster permission handling
