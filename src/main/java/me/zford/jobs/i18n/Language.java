@@ -43,7 +43,7 @@ public class Language {
     public static void reload(Locale locale) {
         InputStream stream = null;
         try {
-            stream = Language.class.getResourceAsStream("/i18n/messages_" + locale.toLanguageTag() + ".properties");
+            stream = Language.class.getResourceAsStream("/i18n/messages_" + locale.toString() + ".properties");
         } catch (Exception e) { }
         if (stream == null) {
             try {
