@@ -1,5 +1,9 @@
 # Jobs plugin change log summary
 
+## 2.11.1
+* Fixed experience per level and titles which were incorrectly being calculated under certain circumstances
+* Added translations (pl, zh)
+
 ## 2.11.0
 * Finished modularizing code (ready for Spout and Bukkit API ports!)
 * Added /jobs help command
