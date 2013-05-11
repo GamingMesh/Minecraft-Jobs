@@ -62,7 +62,7 @@ public class JobsPlayer {
                     Job job = Jobs.getJob(jobdata.getJobName());
                     if (job != null) {
                         // create the progression object
-                        JobProgression jobProgression = new JobProgression(job, this, jobdata.getLevel(), jobdata.getExperience(), ConfigManager.getJobsConfiguration().getTitleForLevel(jobdata.getLevel()));
+                        JobProgression jobProgression = new JobProgression(job, this, jobdata.getLevel(), jobdata.getExperience());
                         // calculate the max level
                         
                         // add the progression level.
@@ -70,6 +70,16 @@ public class JobsPlayer {
                     }
                 }
             }
+            reloadMaxExperience();
+        }
+    }
+    
+    /**
+     * Reloads max experience for this job.
+     */
+    private void reloadMaxExperience() {
+        for (JobProgression prog : progression) {
+            prog.reloadMaxExperience();
         }
     }
     
@@ -112,7 +122,8 @@ public class JobsPlayer {
     public boolean joinJob(Job job) {
         synchronized (saveLock) {
             if (!isInJob(job)) {
-                progression.add(new JobProgression(job, this, 1, 0.0, ConfigManager.getJobsConfiguration().getTitleForLevel(1)));
+                progression.add(new JobProgression(job, this, 1, 0.0));
+                reloadMaxExperience();
                 reloadHonorific();
                 Jobs.getPermissionHandler().recalculatePermissions(this);
                 return true;
@@ -128,8 +139,9 @@ public class JobsPlayer {
     public boolean leaveJob(Job job) {
         synchronized (saveLock) {
             JobProgression prog = getJobProgression(job);
-            progression.remove(prog);
             if (prog != null) {
+                progression.remove(prog);
+                reloadMaxExperience();
                 reloadHonorific();
                 Jobs.getPermissionHandler().recalculatePermissions(this);
                 return true;
@@ -227,6 +239,7 @@ public class JobsPlayer {
                     if (newjob.getMaxLevel() > 0 && prog.getLevel() > newjob.getMaxLevel()) {
                         prog.setLevel(newjob.getMaxLevel());
                     }
+                    reloadMaxExperience();
                     reloadHonorific();
                     Jobs.getPermissionHandler().recalculatePermissions(this);;
                     return true;
@@ -267,11 +280,12 @@ public class JobsPlayer {
                 builder.append(" ");
                 gotTitle = false;
             }
+            Title title = ConfigManager.getJobsConfiguration().getTitleForLevel(prog.getLevel());
             
             if (numJobs == 1) {
                 if (method.equals(DisplayMethod.FULL) || method.equals(DisplayMethod.TITLE)) {
-                    if (prog.getTitle() != null) {
-                        builder.append(prog.getTitle().getChatColor() + prog.getTitle().getName() + ChatColor.WHITE);
+                    if (title != null) {
+                        builder.append(title.getChatColor() + title.getName() + ChatColor.WHITE);
                         gotTitle = true;
                     }
                 }
@@ -289,8 +303,8 @@ public class JobsPlayer {
                     method.equals(DisplayMethod.SHORT_FULL) ||
                     method.equals(DisplayMethod.SHORT_TITLE)) {
                 // add title to honorific
-                if (prog.getTitle() != null) {
-                    builder.append(prog.getTitle().getChatColor() + prog.getTitle().getShortName() + ChatColor.WHITE);
+                if (title != null) {
+                    builder.append(title.getChatColor() + title.getShortName() + ChatColor.WHITE);
                     gotTitle = true;
                 }
             }

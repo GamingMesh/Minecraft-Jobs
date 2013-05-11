@@ -25,16 +25,13 @@ public class JobProgression {
     private JobsPlayer jPlayer;
     private double experience;
     private int level;
-    private transient Title title;
-    private transient int maxExperience;
+    private transient int maxExperience = -1;
     
-    public JobProgression(Job job, JobsPlayer jPlayer, int level, double experience, Title title) {
+    public JobProgression(Job job, JobsPlayer jPlayer, int level, double experience) {
         this.job = job;
         this.jPlayer = jPlayer;
         this.experience = experience;
         this.level = level;
-        this.title = title;
-        reloadMaxExperienceAndCheckLevelUp();
     }
     
     /**
@@ -114,27 +111,11 @@ public class JobProgression {
             reloadMaxExperienceAndCheckLevelUp();
         }
     }
-
-    /**
-     * Set a current title
-     * @param title - the new title
-     */
-    public void setTitle(Title title) {
-        this.title = title;
-    }
-
-    /**
-     * Get the title
-     * @return the current title
-     */
-    public Title getTitle() {
-        return title;
-    }
     
     /**
      * Reloads max experience
      */
-    private void reloadMaxExperience() {
+    public void reloadMaxExperience() {
         HashMap<String, Double> param = new HashMap<String, Double>();
         param.put("joblevel", (double) level);
         param.put("numjobs", (double) jPlayer.getJobProgression().size());
@@ -156,6 +137,7 @@ public class JobProgression {
             ret = true;
             reloadMaxExperience();
         }
+        
         // At max level
         if (experience > maxExperience)
             experience = maxExperience;

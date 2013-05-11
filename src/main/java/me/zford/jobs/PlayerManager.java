@@ -230,8 +230,9 @@ public class PlayerManager {
             JobProgression prog = jPlayer.getJobProgression(job);
             if (prog == null)
                 return;
+            int oldLevel = prog.getLevel();
             if (prog.addExperience(experience))
-                performLevelUp(jPlayer, job);
+                performLevelUp(jPlayer, job, oldLevel);
     
             jPlayer.save(Jobs.getJobsDAO());
         }
@@ -259,8 +260,9 @@ public class PlayerManager {
      * Broadcasts level up about a player
      * @param jPlayer
      * @param job
+     * @param oldLevel
      */
-    public void performLevelUp(JobsPlayer jPlayer, Job job) {
+    public void performLevelUp(JobsPlayer jPlayer, Job job, int oldLevel) {
         Player player = Jobs.getServer().getPlayer(jPlayer.getName());
         JobProgression prog = jPlayer.getJobProgression(job);
         if (prog == null)
@@ -273,8 +275,9 @@ public class PlayerManager {
             message = Language.getMessage("message.levelup.nobroadcast");
         }
         message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
-        if (prog.getTitle() != null) {
-            message = message.replace("%titlename%", prog.getTitle().getChatColor() + prog.getTitle().getName() + ChatColor.WHITE);
+        Title oldTitle = ConfigManager.getJobsConfiguration().getTitleForLevel(oldLevel);
+        if (oldTitle != null) {
+            message = message.replace("%titlename%", oldTitle.getChatColor() + oldTitle.getName() + ChatColor.WHITE);
         }
         if (player != null) {
             message = message.replace("%playername%", player.getDisplayName());
@@ -290,8 +293,8 @@ public class PlayerManager {
             }
         }
         
-        Title levelTitle = ConfigManager.getJobsConfiguration().getTitleForLevel(prog.getLevel());
-        if (levelTitle != null && !levelTitle.equals(prog.getTitle())) {        
+        Title newTitle = ConfigManager.getJobsConfiguration().getTitleForLevel(prog.getLevel());
+        if (newTitle != null && !newTitle.equals(oldTitle)) {
             // user would skill up
             if (ConfigManager.getJobsConfiguration().isBroadcastingSkillups()) {
                 message = Language.getMessage("message.skillup.broadcast");
@@ -303,7 +306,7 @@ public class PlayerManager {
             } else {
                 message = message.replace("%playername%", jPlayer.getName());
             }
-            message = message.replace("%titlename%", levelTitle.getChatColor() + levelTitle.getName() + ChatColor.WHITE);
+            message = message.replace("%titlename%", newTitle.getChatColor() + newTitle.getName() + ChatColor.WHITE);
             message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
             for (String line: message.split("\n")) {
                 if (ConfigManager.getJobsConfiguration().isBroadcastingLevelups()) {
@@ -313,7 +316,6 @@ public class PlayerManager {
                 }
             }
         }
-        prog.setTitle(levelTitle);
         jPlayer.reloadHonorific();
         Jobs.getPermissionHandler().recalculatePermissions(jPlayer);
     }
