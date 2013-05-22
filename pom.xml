@@ -71,6 +71,13 @@
         <directory>${basedir}/src/main/resources/</directory>
         <includes>
           <include>plugin.yml</include>
+        </includes>
+      </resource>
+      <resource>
+        <targetPath>.</targetPath>
+        <filtering>false</filtering>
+        <directory>${basedir}/src/main/resources/</directory>
+        <includes>
           <include>i18n/*</include>
         </includes>
       </resource>
