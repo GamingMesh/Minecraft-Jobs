@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 
 public interface Server {
     public Player getPlayer(String name);
+    public Player getPlayerExact(String name);
     public Player[] getOnlinePlayers();
     public Logger getLogger();
     public void broadcastMessage(String message);

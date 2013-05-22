@@ -21,6 +21,7 @@ package me.zford.jobs.bukkit.listeners;
 import java.util.List;
 
 import me.zford.jobs.Jobs;
+import me.zford.jobs.Player;
 import me.zford.jobs.bukkit.BukkitUtil;
 import me.zford.jobs.bukkit.JobsPlugin;
 import me.zford.jobs.bukkit.actions.BlockActionInfo;
@@ -32,12 +33,10 @@ import me.zford.jobs.container.JobsPlayer;
 
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
@@ -89,20 +88,20 @@ public class JobsPaymentListener implements Listener {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
         
-        Player player = event.getPlayer();
+        Player player = BukkitUtil.wrapPlayer(event.getPlayer());
         
         if (!player.isOnline())
             return;
         
         // check if in creative
-        if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
+        if (event.getPlayer().getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
         
-        if (!hasWorldPermission(player, player.getWorld()))
+        if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld()))
             return;
         
         // restricted area multiplier
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         Jobs.action(jPlayer, new BlockActionInfo(block, ActionType.BREAK), multiplier);
     }
@@ -118,21 +117,21 @@ public class JobsPaymentListener implements Listener {
         
         // check to make sure you can build
         if(!event.canBuild()) return;
-        
-        Player player = event.getPlayer();
+
+        Player player = BukkitUtil.wrapPlayer(event.getPlayer());
         
         if (!player.isOnline())
             return;
         
         // check if in creative
-        if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
+        if (event.getPlayer().getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
         
-        if (!hasWorldPermission(player, player.getWorld()))
+        if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld()))
             return;
         
         // restricted area multiplier
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         Jobs.action(jPlayer, new BlockActionInfo(block, ActionType.PLACE), multiplier);
     }
@@ -141,18 +140,18 @@ public class JobsPaymentListener implements Listener {
     public void onPlayerFish(PlayerFishEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-        
-        Player player = event.getPlayer();
+
+        Player player = BukkitUtil.wrapPlayer(event.getPlayer());
         
         // check if in creative
-        if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
+        if (event.getPlayer().getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
 
-        if (!hasWorldPermission(player, player.getWorld()))
+        if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld()))
             return;
         
         // restricted area multiplier
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         
         if (event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
             JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
@@ -175,26 +174,27 @@ public class JobsPaymentListener implements Listener {
         if (recipe == null)
             return;
         
-        if (!(event.getWhoClicked() instanceof Player))
+        if (!(event.getWhoClicked() instanceof org.bukkit.entity.Player))
             return;
         
-        Player player = (Player) event.getWhoClicked();
+        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) event.getWhoClicked();
+        Player player = BukkitUtil.wrapPlayer(bukkitPlayer);
         
         ItemStack resultStack = recipe.getResult();
         
         if (resultStack == null)
             return;
         
-        if (!hasWorldPermission(player, player.getWorld()))
+        if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld()))
             return;
         
         // check if in creative
-        if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
+        if (bukkitPlayer.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
         
         if (event.isShiftClick()) {
             // check for full inventory
-            PlayerInventory pInv = player.getInventory();
+            PlayerInventory pInv = bukkitPlayer.getInventory();
             boolean isFull = true;
             for (ItemStack stack : pInv.getContents()) {
                 if (stack == null || stack.getType().equals(Material.AIR)) {
@@ -206,7 +206,7 @@ public class JobsPaymentListener implements Listener {
                 return;
         } else {
             // check item on cursor
-            ItemStack cursor = player.getItemOnCursor();
+            ItemStack cursor = bukkitPlayer.getItemOnCursor();
             if (cursor != null && !cursor.getType().equals(Material.AIR)) {
                 // don't craft if it's a different item
                 if (!cursor.getType().equals(resultStack.getType()))
@@ -217,7 +217,7 @@ public class JobsPaymentListener implements Listener {
             }
         }
         
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         Jobs.action(jPlayer, new ItemActionInfo(resultStack, ActionType.CRAFT), multiplier);
     }
@@ -235,27 +235,28 @@ public class JobsPaymentListener implements Listener {
         // Must be "container" slot 9
         if (!event.getSlotType().equals(SlotType.CONTAINER) || event.getSlot() != 9)
             return;
-        
-        if (!(event.getWhoClicked() instanceof Player))
+
+        if (!(event.getWhoClicked() instanceof org.bukkit.entity.Player))
             return;
         
-        Player player = (Player) event.getWhoClicked();
+        org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) event.getWhoClicked();
+        Player player = BukkitUtil.wrapPlayer(bukkitPlayer);
         
         ItemStack resultStack = event.getCurrentItem();
         
         if (resultStack == null)
             return;
         
-        if (!hasWorldPermission(player, player.getWorld()))
+        if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld()))
             return;
         
         // check if in creative
-        if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
+        if (bukkitPlayer.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
         
         if (event.isShiftClick()) {
             // check for full inventory
-            PlayerInventory pInv = player.getInventory();
+            PlayerInventory pInv = bukkitPlayer.getInventory();
             boolean isFull = true;
             for (ItemStack stack : pInv.getContents()) {
                 if (stack == null || stack.getType().equals(Material.AIR)) {
@@ -267,7 +268,7 @@ public class JobsPaymentListener implements Listener {
                 return;
         } else {
             // check item on cursor
-            ItemStack cursor = player.getItemOnCursor();
+            ItemStack cursor = bukkitPlayer.getItemOnCursor();
             if (cursor != null && !cursor.getType().equals(Material.AIR)) {
                 // don't craft if it's a different item
                 if (!cursor.getType().equals(resultStack.getType()))
@@ -278,7 +279,7 @@ public class JobsPaymentListener implements Listener {
             }
         }
         
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         Jobs.action(jPlayer, new ItemActionInfo(resultStack, ActionType.REPAIR), multiplier);
     }
@@ -296,30 +297,32 @@ public class JobsPaymentListener implements Listener {
         List<HumanEntity> viewers = event.getViewers();
         if (viewers.size() == 0)
             return;
-        Player player = null;
+        org.bukkit.entity.Player bukkitPlayer = null;
         for (HumanEntity viewer : event.getViewers()) {
-            if (viewer instanceof Player) {
-                player = (Player) viewer;
+            if (viewer instanceof org.bukkit.entity.Player) {
+                bukkitPlayer = (org.bukkit.entity.Player) viewer;
                 break;
             }
         }
         
-        if (player == null)
+        if (bukkitPlayer == null)
             return;
+        
+        Player player = BukkitUtil.wrapPlayer(bukkitPlayer);
         
         ItemStack resultStack = ((EnchantingInventory) inv).getItem();
         
         if (resultStack == null)
             return;
         
-        if (!hasWorldPermission(player, player.getWorld()))
+        if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld()))
             return;
         
         // check if in creative
-        if (player.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
+        if (bukkitPlayer.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
             return;
         
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         Jobs.action(jPlayer, new ItemActionInfo(resultStack, ActionType.ENCHANT), multiplier);
     }
@@ -341,14 +344,14 @@ public class JobsPaymentListener implements Listener {
         // only care about first
         MetadataValue value = data.get(0);
         String playerName = value.asString();
-        Player player = plugin.getServer().getPlayerExact(playerName);
+        Player player = Jobs.getServer().getPlayerExact(playerName);
         if (player == null || !player.isOnline())
             return;
         
-        if (!hasWorldPermission(player, player.getWorld()))
+        if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld()))
             return;
         
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         Jobs.action(jPlayer, new ItemActionInfo(event.getResult(), ActionType.SMELT), multiplier);
     }
@@ -370,14 +373,14 @@ public class JobsPaymentListener implements Listener {
         // only care about first
         MetadataValue value = data.get(0);
         String playerName = value.asString();
-        Player player = plugin.getServer().getPlayerExact(playerName);
+        Player player = Jobs.getServer().getPlayerExact(playerName);
         if (player == null || !player.isOnline())
             return;
         
-        if (!hasWorldPermission(player, player.getWorld()))
+        if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld()))
             return;
         
-        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(player));
+        double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
         Jobs.action(jPlayer, new ItemActionInfo(event.getContents().getIngredient(), ActionType.BREW), multiplier);
     }
@@ -401,29 +404,30 @@ public class JobsPaymentListener implements Listener {
         
         if (event.getEntity().getLastDamageCause() instanceof EntityDamageByEntityEvent){
             EntityDamageByEntityEvent e = (EntityDamageByEntityEvent)event.getEntity().getLastDamageCause();
-            Player pDamager = null;
-            if(e.getDamager() instanceof Player) {
-                pDamager = (Player)e.getDamager();
-            } else if(e.getDamager() instanceof Projectile && ((Projectile)e.getDamager()).getShooter() instanceof Player) {
-                pDamager = (Player)((Projectile)e.getDamager()).getShooter();
+            org.bukkit.entity.Player pDamager = null;
+            if(e.getDamager() instanceof org.bukkit.entity.Player) {
+                pDamager = (org.bukkit.entity.Player) e.getDamager();
+            } else if(e.getDamager() instanceof Projectile && ((Projectile)e.getDamager()).getShooter() instanceof org.bukkit.entity.Player) {
+                pDamager = (org.bukkit.entity.Player)((Projectile)e.getDamager()).getShooter();
             } else if(e.getDamager() instanceof Tameable) {
                 Tameable t = (Tameable) e.getDamager();
-                if (t.isTamed() && t.getOwner() instanceof Player) {
-                    pDamager = (Player) t.getOwner();
+                if (t.isTamed() && t.getOwner() instanceof org.bukkit.entity.Player) {
+                    pDamager = (org.bukkit.entity.Player) t.getOwner();
                 }
             }
             if(pDamager != null) {
                 // check if in creative
                 if (pDamager.getGameMode().equals(GameMode.CREATIVE) && !ConfigManager.getJobsConfiguration().payInCreative())
                     return;
-
-                if (!hasWorldPermission(pDamager, pDamager.getWorld()))
+                
+                Player player = BukkitUtil.wrapPlayer(pDamager);
+                if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld()))
                     return;
                 
                 // restricted area multiplier
-                double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(BukkitUtil.wrapPlayer(pDamager));
+                double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
                 // pay
-                JobsPlayer jDamager = Jobs.getPlayerManager().getJobsPlayer(pDamager.getName());
+                JobsPlayer jDamager = Jobs.getPlayerManager().getJobsPlayer(player.getName());
                 Jobs.action(jDamager, new EntityActionInfo(lVictim.getType(), ActionType.KILL), multiplier);
             }
         }
@@ -460,17 +464,6 @@ public class JobsPaymentListener implements Listener {
                 block.removeMetadata(brewingOwnerMetadata, plugin);
             
             block.setMetadata(brewingOwnerMetadata, new FixedMetadataValue(plugin, event.getPlayer().getName()));
-        }
-    }
-    
-    /**
-     * Check World permissions
-     */
-    private boolean hasWorldPermission(Player player, World world) {
-        if (!player.hasPermission("jobs.use")) {
-            return false;
-        } else {
-            return player.hasPermission("jobs.world."+world.getName().toLowerCase());
         }
     }
 }

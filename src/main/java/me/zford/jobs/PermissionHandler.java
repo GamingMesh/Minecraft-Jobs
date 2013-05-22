@@ -23,4 +23,5 @@ import me.zford.jobs.container.JobsPlayer;
 public interface PermissionHandler {
     public void recalculatePermissions(JobsPlayer jPlayer);
     public void registerPermissions();
+    public boolean hasWorldPermission(Player player, String world);
 }

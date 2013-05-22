@@ -25,4 +25,5 @@ public interface Player extends CommandSender {
     public String getDisplayName();
     public Location getLocation();
     public void giveExp(int amount);
+    public boolean isOnline();
 }

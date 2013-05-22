@@ -35,6 +35,14 @@ public class BukkitServer implements Server {
     }
     
     @Override
+    public Player getPlayerExact(String name) {
+        org.bukkit.entity.Player player = Bukkit.getServer().getPlayerExact(name);
+        if (player == null)
+            return null;
+        return BukkitUtil.wrapPlayer(player);
+    }
+    
+    @Override
     public Player[] getOnlinePlayers() {
         org.bukkit.entity.Player[] players = Bukkit.getServer().getOnlinePlayers();
         Player[] copy = new Player[players.length];

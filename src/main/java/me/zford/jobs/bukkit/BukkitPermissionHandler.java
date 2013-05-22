@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionAttachment;
 import org.bukkit.permissions.PermissionAttachmentInfo;
@@ -31,6 +30,7 @@ import org.bukkit.plugin.PluginManager;
 
 import me.zford.jobs.Jobs;
 import me.zford.jobs.PermissionHandler;
+import me.zford.jobs.Player;
 import me.zford.jobs.container.Job;
 import me.zford.jobs.container.JobPermission;
 import me.zford.jobs.container.JobProgression;
@@ -43,7 +43,7 @@ public class BukkitPermissionHandler implements PermissionHandler {
     }
     @Override
     public void recalculatePermissions(JobsPlayer jPlayer) {
-        Player player = plugin.getServer().getPlayer(jPlayer.getName());
+        org.bukkit.entity.Player player = plugin.getServer().getPlayer(jPlayer.getName());
         if (player == null)
             return;
         
@@ -139,6 +139,18 @@ public class BukkitPermissionHandler implements PermissionHandler {
         for (Job job : Jobs.getJobs()) {
             if (pm.getPermission("jobs.join."+job.getName().toLowerCase()) == null)
                 pm.addPermission(new Permission("jobs.join."+job.getName().toLowerCase(), PermissionDefault.TRUE));
+        }
+    }
+    
+    /**
+     * Check World permissions
+     */
+    @Override
+    public boolean hasWorldPermission(Player player, String world) {
+        if (!player.hasPermission("jobs.use")) {
+            return false;
+        } else {
+            return player.hasPermission("jobs.world."+world.toLowerCase());
         }
     }
 

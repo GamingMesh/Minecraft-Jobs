@@ -61,6 +61,11 @@ public class BukkitPlayer implements Player {
     public void giveExp(int amount) {
         player.giveExp(amount);
     }
+
+    @Override
+    public boolean isOnline() {
+        return player.isOnline();
+    }
     
     @Override
     public boolean equals(Object obj) {
