@@ -64,46 +64,49 @@ public class BukkitPermissionHandler implements PermissionHandler {
             changed = true;
         }
         
-        List<JobProgression> progression = jPlayer.getJobProgression();
-        // calculate new permissions
-        HashMap<String, Boolean> negative = new HashMap<String, Boolean>();
-        HashMap<String, Boolean> positive = new HashMap<String, Boolean>();
-        if (progression.size() == 0) {
-            Job job = Jobs.getNoneJob();
-            if (job != null) {
-                for (JobPermission perm : job.getPermissions()) {
-                    if (perm.getLevelRequirement() <= 0) {
-                        if (perm.getValue()) {
-                            positive.put(perm.getNode(), true);
-                        } else {
-                            negative.put(perm.getNode(), false);
+        // Permissions should only apply if we have permission to use jobs in this world
+        if (hasWorldPermission(BukkitUtil.wrapPlayer(player), player.getWorld().getName())) {
+            List<JobProgression> progression = jPlayer.getJobProgression();
+            // calculate new permissions
+            HashMap<String, Boolean> negative = new HashMap<String, Boolean>();
+            HashMap<String, Boolean> positive = new HashMap<String, Boolean>();
+            if (progression.size() == 0) {
+                Job job = Jobs.getNoneJob();
+                if (job != null) {
+                    for (JobPermission perm : job.getPermissions()) {
+                        if (perm.getLevelRequirement() <= 0) {
+                            if (perm.getValue()) {
+                                positive.put(perm.getNode(), true);
+                            } else {
+                                negative.put(perm.getNode(), false);
+                            }
+                        }
+                    }
+                }
+            } else {
+                for (JobProgression prog : progression) {
+                    for (JobPermission perm : prog.getJob().getPermissions()) {
+                        if (prog.getLevel() >= perm.getLevelRequirement()) {
+                            if (perm.getValue()) {
+                                positive.put(perm.getNode(), true);
+                            } else {
+                                negative.put(perm.getNode(), false);
+                            }
                         }
                     }
                 }
             }
-        } else {
-            for (JobProgression prog : progression) {
-                for (JobPermission perm : prog.getJob().getPermissions()) {
-                    if (prog.getLevel() >= perm.getLevelRequirement()) {
-                        if (perm.getValue()) {
-                            positive.put(perm.getNode(), true);
-                        } else {
-                            negative.put(perm.getNode(), false);
-                        }
-                    }
-                }
+            
+            // add new permissions (if applicable)
+            if (negative.size() > 0) {
+                plugin.getServer().getPluginManager().addPermission(new Permission(negativePermName, PermissionDefault.FALSE, negative));
+                changed = true;
             }
-        }
-        
-        // add new permissions (if applicable)
-        if (negative.size() > 0) {
-            plugin.getServer().getPluginManager().addPermission(new Permission(negativePermName, PermissionDefault.FALSE, negative));
-            changed = true;
-        }
-        
-        if (positive.size() > 0) {
-            plugin.getServer().getPluginManager().addPermission(new Permission(positivePermName, PermissionDefault.FALSE, positive));
-            changed = true;
+            
+            if (positive.size() > 0) {
+                plugin.getServer().getPluginManager().addPermission(new Permission(positivePermName, PermissionDefault.FALSE, positive));
+                changed = true;
+            }
         }
         
         // If the permissions changed, recalculate them
