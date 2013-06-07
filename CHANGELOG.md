@@ -1,5 +1,11 @@
 # Jobs plugin change log summary
 
+## 2.11.2
+* Added translations (pt, no)
+* Fixed output of special characters in multiple translations
+* Permissions are only applied in worlds where players have world permission (jobs.world.WORLD_NAME)
+* Minor change to how permissions are applied have it behave more like 2.10.2 (however, positive still wins over negative)
+
 ## 2.11.1
 * Fixed experience per level and titles which were incorrectly being calculated under certain circumstances
 * Added translations (pl, zh)
