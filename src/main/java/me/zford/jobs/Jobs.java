@@ -346,8 +346,24 @@ public class Jobs {
                     Double exp = prog.getJob().getExperience(info, level, numjobs);
                     if (ConfigManager.getJobsConfiguration().addXpPlayer()) {
                         Player player = getServer().getPlayer(jPlayer.getName());
-                        if (player != null)
-                            player.giveExp(exp.intValue());
+                        if (player != null) {
+                            /*
+                             * Minecraft experience is calculated in whole numbers only.
+                             * Calculate the fraction of an experience point and perform a dice roll.
+                             * That way jobs that give fractions of experience points will slowly give
+                             * experience in the aggregate
+                             */
+                            int expInt = exp.intValue();
+                            double remainder = exp.doubleValue() - expInt;
+                            if (Math.abs(remainder) > Math.random()) {
+                                if (exp.doubleValue() < 0) {
+                                    expInt--;
+                                } else {
+                                    expInt++;
+                                }
+                            }
+                            player.giveExp(expInt);
+                        }
                     }
                     // give income
                     Jobs.getEconomy().pay(jPlayer, income*multiplier);
