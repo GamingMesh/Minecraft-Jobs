@@ -1,5 +1,11 @@
 # Jobs plugin change log summary
 
+## 2.11.3
+* Added translations (it, ko)
+* Updated translations (de)
+* When using add-xp-player, added workaround to give player fraction of xp points (use dicerolls) when dealing with non-whole numbers
+* Refactored inventory listeners for 1.5.2-R1.0
+
 ## 2.11.2
 * Added translations (pt, no)
 * Fixed output of special characters in multiple translations
