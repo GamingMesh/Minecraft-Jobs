@@ -169,9 +169,21 @@ public class JobsPaymentListener implements Listener {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
         
-        // If event is nothing, do nothing
+        // If event is nothing or place, do nothing
+        switch (event.getAction()) {
+            case NOTHING:
+            case PLACE_ONE:
+            case PLACE_ALL:
+            case PLACE_SOME:
+                return;
+            default:
+                break;
+        }
+        
         if (event.getAction() == InventoryAction.NOTHING)
             return;
+        
+        System.out.println(event.getAction().toString());
         
         CraftingInventory inv = event.getInventory();
         
@@ -185,6 +197,7 @@ public class JobsPaymentListener implements Listener {
         
         if (!(event.getWhoClicked() instanceof org.bukkit.entity.Player))
             return;
+        System.out.println(event.getRecipe().getResult().getType().toString());
         
         org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) event.getWhoClicked();
         Player player = BukkitUtil.wrapPlayer(bukkitPlayer);
@@ -212,9 +225,16 @@ public class JobsPaymentListener implements Listener {
         if(!plugin.isEnabled()) return;
         Inventory inv = event.getInventory();
         
-        // If event is nothing, do nothing
-        if (event.getAction() == InventoryAction.NOTHING)
-            return;
+        // If event is nothing or place, do nothing
+        switch (event.getAction()) {
+            case NOTHING:
+            case PLACE_ONE:
+            case PLACE_ALL:
+            case PLACE_SOME:
+                return;
+            default:
+                break;
+        }
         
         // must be anvil inventory
         if (!(inv instanceof AnvilInventory))
