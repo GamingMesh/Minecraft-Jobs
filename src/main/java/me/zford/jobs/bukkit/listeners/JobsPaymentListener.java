@@ -34,7 +34,6 @@ import me.zford.jobs.container.JobsPlayer;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Projectile;
@@ -276,27 +275,14 @@ public class JobsPaymentListener implements Listener {
         if (!(inv instanceof EnchantingInventory))
             return;
         
-        // restricted area multiplier
-        List<HumanEntity> viewers = event.getViewers();
-        if (viewers.size() == 0)
-            return;
-        org.bukkit.entity.Player bukkitPlayer = null;
-        for (HumanEntity viewer : event.getViewers()) {
-            if (viewer instanceof org.bukkit.entity.Player) {
-                bukkitPlayer = (org.bukkit.entity.Player) viewer;
-                break;
-            }
-        }
-        
-        if (bukkitPlayer == null)
-            return;
-        
-        Player player = BukkitUtil.wrapPlayer(bukkitPlayer);
+        org.bukkit.entity.Player bukkitPlayer = event.getEnchanter();
         
         ItemStack resultStack = ((EnchantingInventory) inv).getItem();
         
         if (resultStack == null)
             return;
+
+        Player player = BukkitUtil.wrapPlayer(bukkitPlayer);
         
         if (!Jobs.getPermissionHandler().hasWorldPermission(player, player.getLocation().getWorld()))
             return;
