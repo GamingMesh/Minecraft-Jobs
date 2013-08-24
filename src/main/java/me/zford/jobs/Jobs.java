@@ -335,14 +335,18 @@ public class Jobs {
             Job jobNone = Jobs.getNoneJob();
             if (jobNone != null) {
                 Double income = jobNone.getIncome(info, 1, numjobs);
-                if (income != null)
-                    Jobs.getEconomy().pay(jPlayer, income*multiplier);
+                if (income != null) {
+                    income = jPlayer.calculatePaymentVersusLimit(income*multiplier);
+                    Jobs.getEconomy().pay(jPlayer, income);
+                }
             }
         } else {
             for (JobProgression prog : progression) {
                 int level = prog.getLevel();
                 Double income = prog.getJob().getIncome(info, level, numjobs);
+                income = jPlayer.calculatePaymentVersusLimit(income*multiplier);
                 if (income != null) {
+                    income = jPlayer.calculatePaymentVersusLimit(income*multiplier);
                     Double exp = prog.getJob().getExperience(info, level, numjobs);
                     if (ConfigManager.getJobsConfiguration().addXpPlayer()) {
                         Player player = getServer().getPlayer(jPlayer.getName());
@@ -366,7 +370,7 @@ public class Jobs {
                         }
                     }
                     // give income
-                    Jobs.getEconomy().pay(jPlayer, income*multiplier);
+                    Jobs.getEconomy().pay(jPlayer, income);
                     int oldLevel = prog.getLevel();
                     if (prog.addExperience(exp*multiplier))
                         Jobs.getPlayerManager().performLevelUp(jPlayer, prog.getJob(), oldLevel);
