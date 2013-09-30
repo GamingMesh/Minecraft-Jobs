@@ -182,8 +182,6 @@ public class JobsPaymentListener implements Listener {
         if (event.getAction() == InventoryAction.NOTHING)
             return;
         
-        System.out.println(event.getAction().toString());
-        
         CraftingInventory inv = event.getInventory();
         
         if (!(inv instanceof CraftingInventory) || !event.getSlotType().equals(SlotType.RESULT))
@@ -196,7 +194,6 @@ public class JobsPaymentListener implements Listener {
         
         if (!(event.getWhoClicked() instanceof org.bukkit.entity.Player))
             return;
-        System.out.println(event.getRecipe().getResult().getType().toString());
         
         org.bukkit.entity.Player bukkitPlayer = (org.bukkit.entity.Player) event.getWhoClicked();
         Player player = BukkitUtil.wrapPlayer(bukkitPlayer);
