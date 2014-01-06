@@ -119,6 +119,19 @@ public class BukkitJobsConfiguration extends JobsConfiguration {
                 "Use 0 for no maximum"
         );
         config.addDefault("max-jobs", 3);
+
+        writer.addComment("max-wage",
+                "Maximum amount of money a player can earn in a the pay-period.",
+                "Use 0 for no maximum"
+        );
+        config.addDefault("max-wage", 0);
+
+        writer.addComment("pay-period",
+                "The time range of the limit reset in seconds.",
+                "not used if max-wage is 0",
+                "If set to 0 max-wage is not used"
+        );
+        config.addDefault("pay-period", 86400);
         
         writer.addComment("hide-jobs-without-permission", "Hide jobs from player if they lack the permission to join the job");
         config.addDefault("hide-jobs-without-permission", false);
@@ -203,11 +216,13 @@ public class BukkitJobsConfiguration extends JobsConfiguration {
         addXpPlayer = config.getBoolean("add-xp-player");
         hideJobsWithoutPermission = config.getBoolean("hide-jobs-without-permission");
         maxJobs = config.getInt("max-jobs");
+        maxWage = config.getDouble("max-wage");
+        payPeriod = config.getLong("pay-period");
         payNearSpawner = config.getBoolean("enable-pay-near-spawner");
         modifyChat = config.getBoolean("modify-chat");
         economyBatchDelay = config.getInt("economy-batch-delay");
         saveOnDisconnect = config.getBoolean("save-on-disconnect");
-        
+
         // Make sure we're only copying settings we care about
         copySetting(config, writer, "locale-language");
         copySetting(config, writer, "storage-method");
@@ -220,6 +235,8 @@ public class BukkitJobsConfiguration extends JobsConfiguration {
         copySetting(config, writer, "broadcast-on-skill-up");
         copySetting(config, writer, "broadcast-on-level-up");
         copySetting(config, writer, "max-jobs");
+        copySetting(config, writer, "max-wage");
+        copySetting(config, writer, "pay-period");
         copySetting(config, writer, "hide-jobs-without-permission");
         copySetting(config, writer, "enable-pay-near-spawner");
         copySetting(config, writer, "enable-pay-creative");

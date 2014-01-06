@@ -20,6 +20,7 @@ package me.zford.jobs.container;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import me.zford.jobs.Jobs;
@@ -39,7 +40,10 @@ public class JobsPlayer {
     private volatile boolean isSaved = true;
     // player online status
     private volatile boolean isOnline = false;
-    
+    // Daily Earning Amount
+    private volatile double earnAmount;
+    // Date and time of when the daily limit started
+    private volatile Date limitStart;
     // save lock
     public final Object saveLock = new Object();
     
@@ -362,5 +366,72 @@ public class JobsPlayer {
     
     public void setSaved(boolean value) {
         isSaved = value;
+    }
+
+    /**
+     * Calculates payment based on MaxDailyWage in generalConfig.yml. Works out how much of that payment can be paid
+     * Once limit has been reached 0 will be returned. until a day has passed fro the first payment
+     *
+     * @param payment The amount you would like to pay the user
+     * @return The actual amount that can be paid
+     */
+    public double calculatePaymentVersusLimit(double payment)
+    {
+        checkDailyLimitReset();
+        double returner;
+        if(ConfigManager.getJobsConfiguration().getMaxWage() > 0) {
+            if(earnAmount < ConfigManager.getJobsConfiguration().getMaxWage()) {
+                if((earnAmount + payment) > ConfigManager.getJobsConfiguration().getMaxWage()) {
+                    returner = ConfigManager.getJobsConfiguration().getMaxWage() - earnAmount;
+                    earnAmount = ConfigManager.getJobsConfiguration().getMaxWage();
+                } else {
+                    returner = payment;
+                    earnAmount += payment;
+                }
+            } else {
+                returner = 0;
+            }
+        } else {
+            returner = payment;
+            earnAmount += payment;
+        }
+        return returner;
+    }
+
+    public double getEarnAmount()
+    {
+        return earnAmount;
+    }
+
+    /**
+     * reset earnAmount if more than a day has passed
+     */
+    private void checkDailyLimitReset()
+    {
+        if(limitStart == null) {
+            limitStart = new Date();
+            earnAmount = 0;
+        }
+        Date now = new Date();
+        long difference = now.getTime() - limitStart.getTime();
+        if(difference > (ConfigManager.getJobsConfiguration().getPayPeriod() * 1000)) {
+            limitStart = new Date();
+            earnAmount = 0;
+        }
+        return;
+    }
+
+    /**
+     * Testing method to get limit date difference
+     */
+    public long getDateDifference()
+    {
+        if(limitStart == null) {
+            limitStart = new Date();
+            earnAmount = 0;
+        }
+        Date now = new Date();
+        long difference = (now.getTime() - limitStart.getTime()) / 1000;
+        return difference;
     }
 }

@@ -42,6 +42,8 @@ public abstract class JobsConfiguration {
     protected boolean modifyChat;
     protected int economyBatchDelay;
     protected boolean saveOnDisconnect;
+    protected Double maxWage;
+    protected long payPeriod;
     
     public abstract void reload();
     
@@ -157,5 +159,13 @@ public abstract class JobsConfiguration {
     
     public synchronized Locale getLocale() {
         return locale;
+    }
+
+    public synchronized Double getMaxWage() {
+        return maxWage;
+    }
+
+    public synchronized long getPayPeriod() {
+        return payPeriod;
     }
 }

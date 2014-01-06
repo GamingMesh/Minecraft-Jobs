@@ -5,3 +5,9 @@
 /.classpath
 /.project
 /.settings/
+
+#intellij
+*.iml
+.idea
+bin
+dist
