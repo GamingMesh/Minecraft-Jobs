@@ -216,6 +216,11 @@ public class BukkitJobConfig extends JobConfig {
                             } catch (NumberFormatException e) {}
                             if (matId != null) {
                                 material = Material.getMaterial(matId);
+                                if (material != null) {
+                                    Jobs.getPluginLogger().warning("Job " + jobKey + " " + actionType.getName() + " is using a block by number ID: " + key + "!");
+                                    Jobs.getPluginLogger().warning("Please switch to using the Material name instead: "+material.toString()+"!");
+                                    Jobs.getPluginLogger().warning("Blocks by number IDs may break in a future release!");
+                                }
                             }
                         }
                         
