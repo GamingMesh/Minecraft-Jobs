@@ -1,5 +1,10 @@
 # Jobs plugin change log summary
 
+## 2.11.4
+* Bugfix CraftItemEvent for invalid crafting events
+* Updated translations (fr)
+* Added new translations (et, cs)
+
 ## 2.11.3
 * Added translations (it, ko)
 * Updated translations (de)
