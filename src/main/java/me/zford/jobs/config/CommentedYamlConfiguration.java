@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.bukkit.config;
+package me.zford.jobs.config;
 
 import java.io.File;
 import java.io.FileWriter;

@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+
 import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.container.Job;
 import me.zford.jobs.container.JobProgression;
@@ -263,7 +266,7 @@ public class PlayerManager {
      * @param oldLevel
      */
     public void performLevelUp(JobsPlayer jPlayer, Job job, int oldLevel) {
-        Player player = Jobs.getServer().getPlayer(jPlayer.getName());
+        Player player = Bukkit.getServer().getPlayer(jPlayer.getName());
         JobProgression prog = jPlayer.getJobProgression(job);
         if (prog == null)
             return;
@@ -287,7 +290,7 @@ public class PlayerManager {
         message = message.replace("%joblevel%", ""+prog.getLevel());
         for (String line: message.split("\n")) {
             if (ConfigManager.getJobsConfiguration().isBroadcastingLevelups()) {
-                Jobs.getServer().broadcastMessage(line);
+                Bukkit.getServer().broadcastMessage(line);
             } else if (player != null) {
                 player.sendMessage(line);
             }
@@ -310,7 +313,7 @@ public class PlayerManager {
             message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
             for (String line: message.split("\n")) {
                 if (ConfigManager.getJobsConfiguration().isBroadcastingLevelups()) {
-                    Jobs.getServer().broadcastMessage(line);
+                    Bukkit.getServer().broadcastMessage(line);
                 } else if (player != null) {
                     player.sendMessage(line);
                 }

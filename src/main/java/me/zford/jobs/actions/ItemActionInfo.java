@@ -16,14 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs;
+package me.zford.jobs.actions;
 
-import me.zford.jobs.commands.CommandSender;
+import me.zford.jobs.container.ActionInfo;
+import me.zford.jobs.container.ActionType;
 
-public interface Player extends CommandSender {
-    public String getName();
-    public String getDisplayName();
-    public Location getLocation();
-    public void giveExp(int amount);
-    public boolean isOnline();
+import org.bukkit.inventory.ItemStack;
+
+public class ItemActionInfo extends MaterialActionInfo implements ActionInfo {
+    public ItemActionInfo(ItemStack items, ActionType type) {
+        super(items.getType(), items.getData().getData(), type);
+    }
 }

@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.bukkit.listeners;
+package me.zford.jobs.listeners;
 
 import me.zford.jobs.Jobs;
-import me.zford.jobs.bukkit.JobsPlugin;
+import me.zford.jobs.JobsPlugin;
 import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.container.JobsPlayer;
 

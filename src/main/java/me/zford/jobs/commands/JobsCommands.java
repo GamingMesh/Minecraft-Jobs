@@ -24,8 +24,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
 import me.zford.jobs.Jobs;
-import me.zford.jobs.Player;
 import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.container.ActionType;
 import me.zford.jobs.container.Job;
@@ -35,10 +40,10 @@ import me.zford.jobs.container.JobsPlayer;
 import me.zford.jobs.i18n.Language;
 import me.zford.jobs.util.ChatColor;
 
-public abstract class JobsCommands {
+public class JobsCommands implements CommandExecutor {
     private static final String label = "jobs";
     
-    public boolean onCommand(CommandSender sender, String label, String[] args) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0)
             return help(sender);
         
@@ -274,7 +279,7 @@ public abstract class JobsCommands {
                 sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.permission"));
                 return true;
             }
-            Player player = Jobs.getServer().getPlayer(args[0]);
+            Player player = Bukkit.getServer().getPlayer(args[0]);
             if (player == null) {
                 jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
             } else {
@@ -381,7 +386,7 @@ public abstract class JobsCommands {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = Jobs.getServer().getPlayer(args[0]);
+        Player player = Bukkit.getServer().getPlayer(args[0]);
         if (player == null) {
             jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
@@ -420,7 +425,7 @@ public abstract class JobsCommands {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = Jobs.getServer().getPlayer(args[0]);
+        Player player = Bukkit.getServer().getPlayer(args[0]);
         if (player == null) {
             jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
@@ -453,7 +458,7 @@ public abstract class JobsCommands {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = Jobs.getServer().getPlayer(args[0]);
+        Player player = Bukkit.getServer().getPlayer(args[0]);
         if (player == null) {
             jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
@@ -493,7 +498,7 @@ public abstract class JobsCommands {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = Jobs.getServer().getPlayer(args[0]);
+        Player player = Bukkit.getServer().getPlayer(args[0]);
         if (player == null) {
             jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
@@ -532,7 +537,7 @@ public abstract class JobsCommands {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = Jobs.getServer().getPlayer(args[0]);
+        Player player = Bukkit.getServer().getPlayer(args[0]);
         if (player == null) {
             jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
@@ -572,7 +577,7 @@ public abstract class JobsCommands {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = Jobs.getServer().getPlayer(args[0]);
+        Player player = Bukkit.getServer().getPlayer(args[0]);
         if (player == null) {
             jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
@@ -617,7 +622,7 @@ public abstract class JobsCommands {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = Jobs.getServer().getPlayer(args[0]);
+        Player player = Bukkit.getServer().getPlayer(args[0]);
         if (player == null) {
             jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {
@@ -662,7 +667,7 @@ public abstract class JobsCommands {
             return true;
         }
         JobsPlayer jPlayer = null;
-        Player player = Jobs.getServer().getPlayer(args[0]);
+        Player player = Bukkit.getServer().getPlayer(args[0]);
         if (player == null) {
             jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
         } else {

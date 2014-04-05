@@ -23,16 +23,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import me.zford.jobs.Jobs;
+import org.bukkit.Bukkit;
+
+import me.zford.jobs.JobsPlugin;
 import me.zford.jobs.container.JobsPlayer;
 import me.zford.jobs.tasks.BufferedPaymentTask;
 
 public class BufferedEconomy {
+    private JobsPlugin plugin;
     private Economy economy;
     private LinkedBlockingQueue<BufferedPayment> payments = new LinkedBlockingQueue<BufferedPayment>();
     private final Map<String, BufferedPayment> paymentCache = Collections.synchronizedMap(new HashMap<String, BufferedPayment>());
     
-    public BufferedEconomy (Economy economy) {
+    public BufferedEconomy (JobsPlugin plugin, Economy economy) {
+        this.plugin = plugin;
         this.economy = economy;
     }
     /**
@@ -80,7 +84,7 @@ public class BufferedEconomy {
             int i = 0;
             for (BufferedPayment payment : paymentCache.values()) {
                 i++;
-                Jobs.getScheduler().scheduleTask(new BufferedPaymentTask(this, economy, payment), i);
+                Bukkit.getScheduler().runTaskLater(plugin, new BufferedPaymentTask(this, economy, payment), i);
             }
             // empty payment cache
             paymentCache.clear();
