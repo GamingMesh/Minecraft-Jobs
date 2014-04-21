@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -220,14 +221,15 @@ public class JobsConfiguration {
                 "Example: en, en_US");
         config.addDefault("locale-language", Locale.getDefault().getLanguage());
 
-        writer.addComment("storage-method", "storage method, can be MySQL, sqlite, h2");
+        writer.addComment("storage-method", "storage method, can be MySQL, sqlite");
         config.addDefault("storage-method", "sqlite");
         
         writer.addComment("mysql-username", "Requires Mysql.");
         config.addDefault("mysql-username", "root");        
-        config.addDefault("mysql-password", "");
-        config.addDefault("mysql-url", "jdbc:mysql://localhost:3306/minecraft");
-        config.addDefault("mysql-table-prefix", "");
+        config.addDefault("mysql-password", "");   
+        config.addDefault("mysql-hostname", "localhost:3306");
+        config.addDefault("mysql-database", "minecraft");
+        config.addDefault("mysql-table-prefix", "jobs_");
         
         writer.addComment("save-period",  "How often in minutes you want it to save.  This must be a non-zero number");
         config.addDefault("save-period", 10);
@@ -277,14 +279,16 @@ public class JobsConfiguration {
                 Jobs.getPluginLogger().severe("mysql-username property invalid or missing");
             }
             String password = config.getString("mysql-password");
-            String url = config.getString("mysql-url");
+            String hostname = config.getString("mysql-hostname");
+            String database = config.getString("mysql-database");
             String prefix = config.getString("mysql-table-prefix");
             if (plugin.isEnabled())
-                Jobs.setDAO(new JobsDAOMySQL(url, username, password, prefix));
+                Jobs.setDAO(JobsDAOMySQL.initialize(hostname, database, username, password, prefix));
         } else if(storageMethod.equalsIgnoreCase("h2")) {
             File h2jar = new File(plugin.getDataFolder(), "h2.jar");
+            Jobs.getPluginLogger().warning("H2 database no longer supported!  Converting to SQLite.");
             if (!h2jar.exists()) {
-                Jobs.getPluginLogger().info("[Jobs] H2 library not found, downloading...");
+                Jobs.getPluginLogger().info("H2 library not found, downloading...");
                 try {
                     FileDownloader.downloadFile(new URL("http://dev.bukkit.org/media/files/692/88/h2-1.3.171.jar"), h2jar);
                 } catch (MalformedURLException e) {
@@ -299,14 +303,23 @@ public class JobsConfiguration {
                 } catch (IOException e) {
                     Jobs.getPluginLogger().severe("Could not load database library!");
                 }
-                if (plugin.isEnabled())
-                    Jobs.setDAO(new JobsDAOH2());
+                if (plugin.isEnabled()) {
+                    try {
+                        JobsDAOH2.convertToSQLite();
+                        Jobs.setDAO(JobsDAOSQLite.initialize());
+                        config.set("storage-method", "sqlite");
+                    } catch (SQLException e) {
+                        Jobs.getPluginLogger().severe("Error when converting from H2 to SQLite!");
+                        e.printStackTrace();
+                    }
+                }
             }
         } else if(storageMethod.equalsIgnoreCase("sqlite")) {
-            Jobs.setDAO(new JobsDAOSQLite());
+            Jobs.setDAO(JobsDAOSQLite.initialize());
         } else {
-            Jobs.getPluginLogger().warning("Invalid storage method!  Defaulting to sqlite!");
-            Jobs.setDAO(new JobsDAOSQLite());
+            Jobs.getPluginLogger().warning("Invalid storage method!  Changing method to sqlite!");
+            config.set("storage-method", "sqlite");
+            Jobs.setDAO(JobsDAOSQLite.initialize());
         }
         
         if (config.getInt("save-period") <= 0) {
@@ -344,7 +357,8 @@ public class JobsConfiguration {
         copySetting(config, writer, "storage-method");
         copySetting(config, writer, "mysql-username");
         copySetting(config, writer, "mysql-password");
-        copySetting(config, writer, "mysql-url");
+        copySetting(config, writer, "mysql-hostname");
+        copySetting(config, writer, "mysql-database");
         copySetting(config, writer, "mysql-table-prefix");
         copySetting(config, writer, "save-period");
         copySetting(config, writer, "save-on-disconnect");

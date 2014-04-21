@@ -41,7 +41,7 @@ public class PermissionHandler {
     }
     
     public void recalculatePermissions(JobsPlayer jPlayer) {
-        Player player = plugin.getServer().getPlayer(jPlayer.getName());
+        Player player = plugin.getServer().getPlayer(jPlayer.getPlayerUUID());
         if (player == null)
             return;
         

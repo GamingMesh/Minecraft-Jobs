@@ -16,23 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package me.zford.jobs.economy;
+package me.zford.jobs.util;
 
-import org.bukkit.OfflinePlayer;
+import java.nio.ByteBuffer;
+import java.util.UUID;
 
-public class BlackholeEconomy implements Economy {
-    @Override
-    public boolean depositPlayer(OfflinePlayer offlinePlayer, double money) {
-        return true;
+public class UUIDUtil {
+    public static byte[] toBytes(UUID uuid) {
+        ByteBuffer bb = ByteBuffer.allocate(16);
+        bb.putLong(uuid.getMostSignificantBits());
+        bb.putLong(uuid.getLeastSignificantBits());
+        return bb.array();
     }
-    
-    @Override
-    public boolean withdrawPlayer(OfflinePlayer offlinePlayer, double money) {
-        return true;
-    }
-    
-    @Override
-    public String format(double money) {
-        return String.format("$%.2f", money);
+
+    public static UUID fromBytes(byte[] array) {
+        ByteBuffer bb = ByteBuffer.wrap(array);
+        long most = bb.getLong();
+        long least = bb.getLong();
+        return new UUID(most, least);
     }
 }

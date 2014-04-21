@@ -18,8 +18,10 @@
 
 package me.zford.jobs.economy;
 
+import org.bukkit.OfflinePlayer;
+
 public interface Economy {
-    public boolean depositPlayer(String playerName, double money);
-    public boolean withdrawPlayer(String playerName, double money);
+    public boolean depositPlayer(OfflinePlayer offlinePlayer, double money);
+    public boolean withdrawPlayer(OfflinePlayer offlinePlayer, double money);
     public String format(double money);
 }

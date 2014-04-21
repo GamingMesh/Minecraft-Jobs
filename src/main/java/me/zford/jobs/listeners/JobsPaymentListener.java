@@ -102,7 +102,7 @@ public class JobsPaymentListener implements Listener {
         
         // restricted area multiplier
         double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
         Jobs.action(jPlayer, new BlockActionInfo(block, ActionType.BREAK), multiplier);
     }
 
@@ -132,7 +132,7 @@ public class JobsPaymentListener implements Listener {
         
         // restricted area multiplier
         double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
         Jobs.action(jPlayer, new BlockActionInfo(block, ActionType.PLACE), multiplier);
     }
 
@@ -154,7 +154,7 @@ public class JobsPaymentListener implements Listener {
         double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
         
         if (event.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && event.getCaught() instanceof Item) {
-            JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+            JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
             ItemStack items = ((Item) event.getCaught()).getItemStack();
             Jobs.action(jPlayer, new ItemActionInfo(items, ActionType.FISH), multiplier);
         }
@@ -210,7 +210,7 @@ public class JobsPaymentListener implements Listener {
             return;
         
         double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
         Jobs.action(jPlayer, new ItemActionInfo(resultStack, ActionType.CRAFT), multiplier);
     }
 
@@ -257,7 +257,7 @@ public class JobsPaymentListener implements Listener {
             return;
         
         double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
         Jobs.action(jPlayer, new ItemActionInfo(resultStack, ActionType.REPAIR), multiplier);
     }
 
@@ -285,7 +285,7 @@ public class JobsPaymentListener implements Listener {
             return;
         
         double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
         Jobs.action(jPlayer, new ItemActionInfo(resultStack, ActionType.ENCHANT), multiplier);
     }
     
@@ -314,7 +314,7 @@ public class JobsPaymentListener implements Listener {
             return;
         
         double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
         Jobs.action(jPlayer, new ItemActionInfo(event.getResult(), ActionType.SMELT), multiplier);
     }
     
@@ -343,7 +343,7 @@ public class JobsPaymentListener implements Listener {
             return;
         
         double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(player);
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
         Jobs.action(jPlayer, new ItemActionInfo(event.getContents().getIngredient(), ActionType.BREW), multiplier);
     }
     
@@ -388,7 +388,7 @@ public class JobsPaymentListener implements Listener {
                 // restricted area multiplier
                 double multiplier = ConfigManager.getJobsConfiguration().getRestrictedMultiplier(pDamager);
                 // pay
-                JobsPlayer jDamager = Jobs.getPlayerManager().getJobsPlayer(pDamager.getName());
+                JobsPlayer jDamager = Jobs.getPlayerManager().getJobsPlayer(pDamager);
                 Jobs.action(jDamager, new EntityActionInfo(lVictim.getType(), ActionType.KILL), multiplier);
             }
         }

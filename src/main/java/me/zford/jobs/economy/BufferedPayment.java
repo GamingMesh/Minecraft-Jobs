@@ -18,16 +18,18 @@
 
 package me.zford.jobs.economy;
 
+import org.bukkit.OfflinePlayer;
+
 public class BufferedPayment {
-    private String playername;
+    private OfflinePlayer offlinePlayer;
     private double amount;
-    public BufferedPayment(String playername, double amount) {
-        this.playername = playername;
+    public BufferedPayment(OfflinePlayer offlinePlayer, double amount) {
+        this.offlinePlayer = offlinePlayer;
         this.amount = amount;
     }
     
-    public String getPlayerName() {
-        return playername;
+    public OfflinePlayer getOfflinePlayer() {
+        return offlinePlayer;
     }
     
     public double getAmount() {

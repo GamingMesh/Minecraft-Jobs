@@ -167,7 +167,7 @@ public class Jobs {
         
         // add all online players
         for (Player online: Bukkit.getServer().getOnlinePlayers()){
-            Jobs.getPlayerManager().playerJoin(online.getName());
+            Jobs.getPlayerManager().playerJoin(online);
         }
     }
     
@@ -175,6 +175,20 @@ public class Jobs {
      * Reloads all data
      */
     public static void reload() {
+        if (saveTask != null) {
+            saveTask.shutdown();
+            saveTask = null;
+        }
+        
+        if (paymentThread != null) {
+            paymentThread.shutdown();
+            paymentThread = null;
+        }
+        
+        if (dao != null) {
+            dao.closeConnections();
+        }
+        
         ConfigManager.getJobsConfiguration().reload();
         Language.reload(ConfigManager.getJobsConfiguration().getLocale());
         ConfigManager.getJobConfig().reload();
@@ -184,16 +198,6 @@ public class Jobs {
         }
         pManager.reload();
         permissionHandler.registerPermissions();
-        
-        if (paymentThread != null) {
-            paymentThread.shutdown();
-            paymentThread = null;
-        }
-        
-        if (saveTask != null) {
-            saveTask.shutdown();
-            saveTask = null;
-        }
         
         // set the system to auto save
         if (ConfigManager.getJobsConfiguration().getSavePeriod() > 0) {
@@ -314,7 +318,7 @@ public class Jobs {
                 if (income != null) {
                     Double exp = prog.getJob().getExperience(info, level, numjobs);
                     if (ConfigManager.getJobsConfiguration().addXpPlayer()) {
-                        Player player = Bukkit.getServer().getPlayer(jPlayer.getName());
+                        Player player = Bukkit.getServer().getPlayer(jPlayer.getPlayerUUID());
                         if (player != null) {
                             /*
                              * Minecraft experience is calculated in whole numbers only.

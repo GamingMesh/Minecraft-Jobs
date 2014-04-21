@@ -21,6 +21,10 @@ package me.zford.jobs.container;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
+
+import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 
 import me.zford.jobs.Jobs;
 import me.zford.jobs.config.ConfigManager;
@@ -30,8 +34,9 @@ import me.zford.jobs.util.ChatColor;
 
 public class JobsPlayer {
     // the player the object belongs to
-    private String playername;
+    private String userName;
     // progression of the player in each job
+    private UUID playerUUID;
     private ArrayList<JobProgression> progression = new ArrayList<JobProgression>();
     // display honorific
     private String honorific;
@@ -43,35 +48,33 @@ public class JobsPlayer {
     // save lock
     public final Object saveLock = new Object();
     
-    /**
-     * Constructor.
-     * Reads data storage and configures itself.
-     * @param playername - the player this represents
-     * @param dao - the data access object
-     */
-    public JobsPlayer(String playername) {
-        this.playername = playername;
+    private JobsPlayer(String userName) {
+        this.userName = userName;
     }
     
-    public void loadDAOData(List<JobsDAOData> list) {
-        synchronized (saveLock) {
-            progression.clear();
+    public static JobsPlayer loadFromDao(JobsDAO dao, OfflinePlayer player) {
+        JobsPlayer jPlayer = new JobsPlayer(player.getName());
+        jPlayer.playerUUID = player.getUniqueId();
+        List<JobsDAOData> list = dao.getAllJobs(player);
+        synchronized (jPlayer.saveLock) {
+            jPlayer.progression.clear();
             for (JobsDAOData jobdata: list) {
                 if (Jobs.getJob(jobdata.getJobName()) != null) {
                     // add the job
                     Job job = Jobs.getJob(jobdata.getJobName());
                     if (job != null) {
                         // create the progression object
-                        JobProgression jobProgression = new JobProgression(job, this, jobdata.getLevel(), jobdata.getExperience());
+                        JobProgression jobProgression = new JobProgression(job, jPlayer, jobdata.getLevel(), jobdata.getExperience());
                         // calculate the max level
                         
                         // add the progression level.
-                        progression.add(jobProgression);
+                        jPlayer.progression.add(jobProgression);
                     }
                 }
             }
-            reloadMaxExperience();
+            jPlayer.reloadMaxExperience();
         }
+        return jPlayer;
     }
     
     /**
@@ -104,11 +107,19 @@ public class JobsPlayer {
     }
     
     /**
-     * get the player
-     * @return the player
+     * get the userName
+     * @return the userName
      */
-    public String getName(){
-        return playername;
+    public String getUserName() {
+        return userName;
+    }
+    
+    /**
+     * get the playerUUID
+     * @return the playerUUID
+     */
+    public UUID getPlayerUUID() {
+        return playerUUID;
     }
     
     public String getDisplayHonorific() {

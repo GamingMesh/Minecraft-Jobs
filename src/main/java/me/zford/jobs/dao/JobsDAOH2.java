@@ -19,32 +19,86 @@
 package me.zford.jobs.dao;
 
 import java.io.File;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 import me.zford.jobs.Jobs;
 
 public class JobsDAOH2 extends JobsDAO {
-    public JobsDAOH2() {
+    private JobsDAOH2() {
         super("org.h2.Driver", "jdbc:h2:"+new File(Jobs.getDataFolder(), "jobs").getPath(), "sa", "sa", "");
-        File dir = Jobs.getDataFolder();
-        if (!dir.exists())
-            dir.mkdirs();
-        setUp();
     }
     
-    public synchronized void setUp(){
+    public static void convertToSQLite() throws SQLException {
+        Jobs.getPluginLogger().info("Converting H2 to SQLite.  This could take a long time!");
+        
+        JobsDAOH2 h2dao = new JobsDAOH2();        
+        JobsConnection h2Conn = h2dao.getConnection();
+        
+        JobsDAOH2SQLiteImporter sqliteDao = JobsDAOH2SQLiteImporter.initialize();
+        JobsConnection sqliteConn = sqliteDao.getConnection();
+        
+        PreparedStatement pst1 = null;
+        PreparedStatement pst2 = null;
+        
         try {
-            JobsConnection conn = getConnection();
-            if (conn == null) {
-                Jobs.getPluginLogger().severe("Could not initialize database!  Could not connect to H2!");
-                return;
+            sqliteDao.executeSQL("CREATE TABLE `" + sqliteDao.getPrefix() + "jobs` (`username` varchar(20), `job` varchar(20), `experience` int, `level` int);");
+            
+            pst1 = h2Conn.prepareStatement("SELECT `username`, `job`, `experience`, `level` FROM `" + h2dao.getPrefix() + "jobs`");
+            pst2 = sqliteConn.prepareStatement("INSERT INTO `" + sqliteDao.getPrefix() + "jobs` (`username`, `job`, `experience`, `level`) VALUES (?, ?, ?, ?);");
+            ResultSet rs = pst1.executeQuery();
+            while (rs.next()) {
+                pst2.setString(1, rs.getString(1));
+                pst2.setString(2, rs.getString(2));
+                pst2.setInt(3, rs.getInt(3));
+                pst2.setInt(4, rs.getInt(4));
+                pst2.execute();
             }
-            Statement st = conn.createStatement();
-            String table = "CREATE TABLE IF NOT EXISTS `" + getPrefix() + "jobs` (username varchar(20), experience INT, level INT, job varchar(20));";
-            st.executeUpdate(table);
-        } catch (SQLException e) {
-            e.printStackTrace();
+            Jobs.getPluginLogger().info("Conversion from H2 to SQLite complete!");
+        } finally {
+            if (pst1 != null) {
+                try {
+                    pst1.close();
+                } catch (SQLException e) {}
+            }
+            if (pst2 != null) {
+                try {
+                    pst2.close();
+                } catch (SQLException e) {}
+            }
+            h2Conn.closeConnection();
+            sqliteConn.closeConnection();
+        }
+    }
+    
+    @Override
+    protected synchronized void setupConfig() throws SQLException {
+    }
+
+    @Override
+    protected void checkUpdate1() throws SQLException {
+    }
+    
+    public static class JobsDAOH2SQLiteImporter extends JobsDAO {
+        public static JobsDAOH2SQLiteImporter initialize() {
+            JobsDAOH2SQLiteImporter dao = new JobsDAOH2SQLiteImporter();
+            File dir = Jobs.getDataFolder();
+            if (!dir.exists())
+                dir.mkdirs();
+            return dao;
+        }
+        
+        private JobsDAOH2SQLiteImporter() {
+            super("org.sqlite.JDBC", "jdbc:sqlite:"+new File(Jobs.getDataFolder(), "jobs.sqlite.db").getPath(), null, null, "");
+        }
+
+        @Override
+        protected void setupConfig() throws SQLException {
+        }
+
+        @Override
+        protected void checkUpdate1() throws SQLException {
         }
     }
 }

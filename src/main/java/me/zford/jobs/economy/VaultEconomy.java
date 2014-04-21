@@ -18,6 +18,8 @@
 
 package me.zford.jobs.economy;
 
+import org.bukkit.OfflinePlayer;
+
 
 public class VaultEconomy implements Economy {
     private net.milkbowl.vault.economy.Economy vault;
@@ -26,13 +28,13 @@ public class VaultEconomy implements Economy {
     }
 
     @Override
-    public boolean depositPlayer(String playerName, double money) {
-        return vault.depositPlayer(playerName, money).transactionSuccess();
+    public boolean depositPlayer(OfflinePlayer offlinePlayer, double money) {
+        return vault.depositPlayer(offlinePlayer, money).transactionSuccess();
     }
 
     @Override
-    public boolean withdrawPlayer(String playerName, double money) {
-        return vault.withdrawPlayer(playerName, money).transactionSuccess();
+    public boolean withdrawPlayer(OfflinePlayer offlinePlayer, double money) {
+        return vault.withdrawPlayer(offlinePlayer, money).transactionSuccess();
     }
 
     @Override

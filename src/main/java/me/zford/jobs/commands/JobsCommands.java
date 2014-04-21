@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -152,7 +153,7 @@ public class JobsCommands implements CommandExecutor {
         }
         
         Player pSender = (Player) sender;
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(pSender.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(pSender);
         
         String jobName = args[0];
         Job job = Jobs.getJob(jobName);
@@ -208,7 +209,7 @@ public class JobsCommands implements CommandExecutor {
         }
         
         Player pSender = (Player) sender;
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(pSender.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(pSender);
         
         String jobName = args[0];
         Job job = Jobs.getJob(jobName);
@@ -230,7 +231,7 @@ public class JobsCommands implements CommandExecutor {
             return false;
         
         Player pSender = (Player) sender;
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(pSender.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(pSender);
         
         List<JobProgression> jobs = jPlayer.getJobProgression();
         if (jobs.size() == 0) {
@@ -255,7 +256,7 @@ public class JobsCommands implements CommandExecutor {
         }
         
         Player pSender = (Player) sender;
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(pSender.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(pSender);
         
         String jobName = args[0];
         Job job = Jobs.getJob(jobName);
@@ -279,17 +280,13 @@ public class JobsCommands implements CommandExecutor {
                 sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.permission"));
                 return true;
             }
-            Player player = Bukkit.getServer().getPlayer(args[0]);
-            if (player == null) {
-                jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
-            } else {
-                jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
-            }
+            OfflinePlayer offlinePlayer = Bukkit.getServer().getOfflinePlayer(args[0]);
+            jPlayer = Jobs.getPlayerManager().getJobsPlayerOffline(offlinePlayer);
         } else if (sender instanceof Player) {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(((Player) sender).getName());
+            jPlayer = Jobs.getPlayerManager().getJobsPlayer((Player) sender);
         }
         
-        if(jPlayer == null) {
+        if (jPlayer == null) {
             sendUsage(sender, "stats");
             return true;
         }
@@ -349,8 +346,8 @@ public class JobsCommands implements CommandExecutor {
             return true;
         }
         
-        String playerName = args[0];
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(playerName);
+        OfflinePlayer offlinePlayer = Bukkit.getServer().getOfflinePlayer(args[0]);
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayerOffline(offlinePlayer);
         
         String jobName = args[1];
         Job job = Jobs.getJob(jobName);
@@ -385,13 +382,10 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "fire");
             return true;
         }
-        JobsPlayer jPlayer = null;
-        Player player = Bukkit.getServer().getPlayer(args[0]);
-        if (player == null) {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
-        } else {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
-        }
+        
+        OfflinePlayer offlinePlayer = Bukkit.getServer().getOfflinePlayer(args[0]);
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayerOffline(offlinePlayer);
+        
         Job job = Jobs.getJob(args[1]);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
@@ -405,6 +399,7 @@ public class JobsCommands implements CommandExecutor {
         }
         try {
             Jobs.getPlayerManager().leaveJob(jPlayer, job);
+            Player player = Bukkit.getServer().getPlayer(offlinePlayer.getUniqueId());
             if (player != null) {
                 String message = Language.getMessage("command.fire.output.target");
                 message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
@@ -424,13 +419,9 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "fireall");
             return true;
         }
-        JobsPlayer jPlayer = null;
-        Player player = Bukkit.getServer().getPlayer(args[0]);
-        if (player == null) {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
-        } else {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
-        }
+        
+        OfflinePlayer offlinePlayer = Bukkit.getServer().getOfflinePlayer(args[0]);
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayerOffline(offlinePlayer);
         
         List<JobProgression> jobs = jPlayer.getJobProgression();
         if (jobs.size() == 0) {
@@ -440,6 +431,7 @@ public class JobsCommands implements CommandExecutor {
         
         try {
             Jobs.getPlayerManager().leaveAllJobs(jPlayer);
+            Player player = Bukkit.getServer().getPlayer(offlinePlayer.getUniqueId());
             if (player != null) {
                 player.sendMessage(Language.getMessage("command.fireall.output.target"));
             }
@@ -457,13 +449,10 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "employ");
             return true;
         }
-        JobsPlayer jPlayer = null;
-        Player player = Bukkit.getServer().getPlayer(args[0]);
-        if (player == null) {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
-        } else {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
-        }
+        
+        OfflinePlayer offlinePlayer = Bukkit.getServer().getOfflinePlayer(args[0]);
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayerOffline(offlinePlayer);
+        
         Job job = Jobs.getJob(args[1]);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
@@ -479,11 +468,13 @@ public class JobsCommands implements CommandExecutor {
         try {
             // check if player already has the job
             Jobs.getPlayerManager().joinJob(jPlayer, job);
+            Player player = Bukkit.getServer().getPlayer(offlinePlayer.getUniqueId());
             if (player != null) {
                 String message = Language.getMessage("command.employ.output.target");
                 message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
                 player.sendMessage(message);
             }
+            
             sender.sendMessage(Language.getMessage("command.admin.success"));
         } catch (Exception e) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.admin.error"));
@@ -497,13 +488,10 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "promote");
             return true;
         }
-        JobsPlayer jPlayer = null;
-        Player player = Bukkit.getServer().getPlayer(args[0]);
-        if (player == null) {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
-        } else {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
-        }
+        
+        OfflinePlayer offlinePlayer = Bukkit.getServer().getOfflinePlayer(args[0]);
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayerOffline(offlinePlayer);
+        
         Job job = Jobs.getJob(args[1]);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
@@ -514,7 +502,8 @@ public class JobsCommands implements CommandExecutor {
             if (jPlayer.isInJob(job)) {
                 Integer levelsGained = Integer.parseInt(args[2]);
                 Jobs.getPlayerManager().promoteJob(jPlayer, job, levelsGained);
-                
+
+                Player player = Bukkit.getServer().getPlayer(offlinePlayer.getUniqueId());
                 if (player != null) {
                     String message = Language.getMessage("command.promote.output.target");
                     message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
@@ -536,13 +525,10 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "demote");
             return true;
         }
-        JobsPlayer jPlayer = null;
-        Player player = Bukkit.getServer().getPlayer(args[0]);
-        if (player == null) {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
-        } else {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
-        }
+        
+        OfflinePlayer offlinePlayer = Bukkit.getServer().getOfflinePlayer(args[0]);
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayerOffline(offlinePlayer);
+        
         Job job = Jobs.getJob(args[1]);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
@@ -553,7 +539,8 @@ public class JobsCommands implements CommandExecutor {
             if (jPlayer.isInJob(job)) {
                 Integer levelsLost = Integer.parseInt(args[2]);
                 Jobs.getPlayerManager().demoteJob(jPlayer, job, levelsLost);
-                
+
+                Player player = Bukkit.getServer().getPlayer(offlinePlayer.getUniqueId());
                 if (player != null) {
                     String message = Language.getMessage("command.demote.output.target");
                     message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
@@ -576,13 +563,10 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "grantxp");
             return true;
         }
-        JobsPlayer jPlayer = null;
-        Player player = Bukkit.getServer().getPlayer(args[0]);
-        if (player == null) {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
-        } else {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
-        }
+        
+        OfflinePlayer offlinePlayer = Bukkit.getServer().getOfflinePlayer(args[0]);
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayerOffline(offlinePlayer);
+        
         Job job = Jobs.getJob(args[1]);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
@@ -602,7 +586,8 @@ public class JobsCommands implements CommandExecutor {
         // check if player already has the job
         if (jPlayer.isInJob(job)) {
             Jobs.getPlayerManager().addExperience(jPlayer, job, xpGained);
-            
+
+            Player player = Bukkit.getServer().getPlayer(offlinePlayer.getUniqueId());
             if (player != null) {
                 String message = Language.getMessage("command.grantxp.output.target");
                 message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
@@ -621,13 +606,10 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "removexp");
             return true;
         }
-        JobsPlayer jPlayer = null;
-        Player player = Bukkit.getServer().getPlayer(args[0]);
-        if (player == null) {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
-        } else {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
-        }
+        
+        OfflinePlayer offlinePlayer = Bukkit.getServer().getOfflinePlayer(args[0]);
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayerOffline(offlinePlayer);
+        
         Job job = Jobs.getJob(args[1]);
         if (job == null) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.error.job"));
@@ -647,7 +629,8 @@ public class JobsCommands implements CommandExecutor {
         // check if player already has the job
         if (jPlayer.isInJob(job)) {
             Jobs.getPlayerManager().removeExperience(jPlayer, job, xpLost);
-            
+
+            Player player = Bukkit.getServer().getPlayer(offlinePlayer.getUniqueId());
             if (player != null) {
                 String message = Language.getMessage("command.removexp.output.target");
                 message = message.replace("%jobname%", job.getChatColor() + job.getName() + ChatColor.WHITE);
@@ -666,13 +649,10 @@ public class JobsCommands implements CommandExecutor {
             sendUsage(sender, "transfer");
             return true;
         }
-        JobsPlayer jPlayer = null;
-        Player player = Bukkit.getServer().getPlayer(args[0]);
-        if (player == null) {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(args[0]);
-        } else {
-            jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
-        }
+        
+        OfflinePlayer offlinePlayer = Bukkit.getServer().getOfflinePlayer(args[0]);
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayerOffline(offlinePlayer);
+        
         Job oldjob = Jobs.getJob(args[1]);
         Job newjob = Jobs.getJob(args[2]);
         if (oldjob == null) {
@@ -686,14 +666,16 @@ public class JobsCommands implements CommandExecutor {
         try {
             if(jPlayer.isInJob(oldjob) && !jPlayer.isInJob(newjob)) {
                 Jobs.getPlayerManager().transferJob(jPlayer, oldjob, newjob);
-                
+
+                Player player = Bukkit.getServer().getPlayer(offlinePlayer.getUniqueId());
                 if (player != null) {
                     String message = Language.getMessage("command.transfer.output.target");
                     message = message.replace("%oldjobname%", oldjob.getChatColor() + oldjob.getName() + ChatColor.WHITE);
                     message = message.replace("%newjobname%", newjob.getChatColor() + newjob.getName() + ChatColor.WHITE);
                     player.sendMessage(message);
                 }
-                player.sendMessage(Language.getMessage("command.admin.success"));
+                
+                sender.sendMessage(Language.getMessage("command.admin.success"));
             }
         } catch (Exception e) {
             sender.sendMessage(ChatColor.RED + Language.getMessage("command.admin.error"));

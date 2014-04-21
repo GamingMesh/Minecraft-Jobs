@@ -49,7 +49,7 @@ public class JobsListener implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-        Jobs.getPlayerManager().playerJoin(event.getPlayer().getName());
+        Jobs.getPlayerManager().playerJoin(event.getPlayer());
     }
 
     @EventHandler(priority=EventPriority.MONITOR)
@@ -64,7 +64,7 @@ public class JobsListener implements Listener {
          * plugin on entry to the world.
          */
         
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(event.getPlayer().getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(event.getPlayer());
         Jobs.getPermissionHandler().recalculatePermissions(jPlayer);
     }
 
@@ -72,14 +72,14 @@ public class JobsListener implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         // make sure plugin is enabled
         if(!plugin.isEnabled()) return;
-        Jobs.getPlayerManager().playerQuit(event.getPlayer().getName());
+        Jobs.getPlayerManager().playerQuit(event.getPlayer());
     }
     
     @EventHandler(priority=EventPriority.MONITOR)
     public void onPlayerWorldChange(PlayerChangedWorldEvent event) {
         if(!plugin.isEnabled()) return;
         
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(event.getPlayer().getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(event.getPlayer());
         Jobs.getPermissionHandler().recalculatePermissions(jPlayer);
     }
     
@@ -100,7 +100,7 @@ public class JobsListener implements Listener {
         if (!plugin.isEnabled()) return;
         
         Player player = event.getPlayer();
-        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player.getName());
+        JobsPlayer jPlayer = Jobs.getPlayerManager().getJobsPlayer(player);
         String honorific = "";
         if (jPlayer != null)
             honorific = jPlayer.getDisplayHonorific();
