@@ -116,14 +116,6 @@ Jobs:
         income: 7.5
         # base experience
         experience: 7.5
-    # killing a jobs class
-    custom-kill:
-      # full name of the jobs class
-      Woodcutter:
-        # base income
-        income: 10.0
-        # base experience
-        experience: 10.0
     # permissions granted for joining class
     permissions:
       # example node
@@ -189,10 +181,6 @@ Jobs:
       Player:
         income: 7.5
         experience: 7.5
-    custom-kill:
-      Miner:
-        income: 10.0
-        experience: 10.0
   Builder:
     fullname: Builder
     shortname: B
@@ -263,10 +251,6 @@ Jobs:
       Player:
         income: 7.5
         experience: 7.5
-    custom-kill:
-      Builder:
-        income: 10.0
-        experience: 10.0
   Digger:
     fullname: Digger
     shortname: D
@@ -331,10 +315,6 @@ Jobs:
       Player:
         income: 7.5
         experience: 7.5
-    custom-kill:
-      Farmer:
-        income: 10.0
-        experience: 10.0
   Hunter:
     fullname: Hunter
     shortname: H
@@ -377,25 +357,6 @@ Jobs:
       Player:
         income: 7.5
         experience: 7.5
-    custom-kill:
-      Woodcutter:
-        income: 10.0
-        experience: 10.0
-      Miner:
-        income: 10.0
-        experience: 10.0
-      Digger:
-        income: 10.0
-        experience: 10.0
-      Farmer:
-        income: 10.0
-        experience: 10.0
-      Builder:
-        income: 10.0
-        experience: 10.0
-      Hunter:
-        income: 20.0
-        experience: 20.0
   Fisherman:
     fullname: Fisherman
     shortname: Fi
@@ -415,10 +376,6 @@ Jobs:
       Player:
         income: 7.5
         experience: 7.5
-    custom-kill:
-      Fisherman:
-        income: 10.0
-        experience: 10.0
   Weaponsmith:
     fullname: Weaponsmith
     shortname: W
