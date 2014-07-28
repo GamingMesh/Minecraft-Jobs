@@ -28,6 +28,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import me.zford.jobs.JobsPlugin;
+import me.zford.jobs.config.ConfigManager;
 import me.zford.jobs.container.JobsPlayer;
 import me.zford.jobs.tasks.BufferedPaymentTask;
 
@@ -87,7 +88,11 @@ public class BufferedEconomy {
             int i = 0;
             for (BufferedPayment payment : paymentCache.values()) {
                 i++;
-                Bukkit.getScheduler().runTaskLater(plugin, new BufferedPaymentTask(this, economy, payment), i);
+                if (ConfigManager.getJobsConfiguration().isEconomyAsync()) {
+                    Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, new BufferedPaymentTask(this, economy, payment), i);
+                } else {
+                    Bukkit.getScheduler().runTaskLater(plugin, new BufferedPaymentTask(this, economy, payment), i);
+                }
             }
             // empty payment cache
             paymentCache.clear();

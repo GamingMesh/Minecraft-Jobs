@@ -51,6 +51,7 @@ public class JobsConfiguration {
     protected ArrayList<RestrictedArea> restrictedAreas = new ArrayList<RestrictedArea>();
     protected Locale locale;
     protected int savePeriod;
+    protected boolean economyAsync;
     protected boolean isBroadcastingSkillups;
     protected boolean isBroadcastingLevelups;
     protected boolean payInCreative;
@@ -72,6 +73,15 @@ public class JobsConfiguration {
      */
     public synchronized int getSavePeriod() {
         return savePeriod;
+    }
+    
+    /**
+     * Should we use asynchronous economy calls
+     * @return true - use async
+     * @return false - use sync
+     */
+    public synchronized boolean isEconomyAsync() {
+        return economyAsync;
     }
     
     /**
@@ -272,6 +282,10 @@ public class JobsConfiguration {
                 "Setting this too low may cause tick lag.  Increase this to improve economy performance (at the cost of delays in payment)");
         config.addDefault("economy-batch-delay", 5);
         
+        writer.addComment("economy-async",  "Enable async economy calls.",
+                "Only enable if your economy plugin is thread safe, use with EXTREME caution.");
+        config.addDefault("economy-async", false);
+        
         String storageMethod = config.getString("storage-method");
         if(storageMethod.equalsIgnoreCase("mysql")) {
             String username = config.getString("mysql-username");
@@ -339,8 +353,9 @@ public class JobsConfiguration {
             locale = Locale.getDefault();
             Jobs.getPluginLogger().warning("Invalid locale \""+localeString+"\" defaulting to "+locale.getLanguage());
         }
-        
+
         savePeriod = config.getInt("save-period");
+        economyAsync = config.getBoolean("economy-async");
         isBroadcastingSkillups = config.getBoolean("broadcast-on-skill-up");
         isBroadcastingLevelups = config.getBoolean("broadcast-on-level-up");
         payInCreative = config.getBoolean("enable-pay-creative");
@@ -371,6 +386,7 @@ public class JobsConfiguration {
         copySetting(config, writer, "add-xp-player");
         copySetting(config, writer, "modify-chat");
         copySetting(config, writer, "economy-batch-delay");
+        copySetting(config, writer, "economy-async");
         
         // Write back config
         try {
