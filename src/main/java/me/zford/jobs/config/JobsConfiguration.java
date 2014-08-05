@@ -288,6 +288,18 @@ public class JobsConfiguration {
         
         String storageMethod = config.getString("storage-method");
         if(storageMethod.equalsIgnoreCase("mysql")) {
+            String legacyUrl = config.getString("mysql-url");
+            if (legacyUrl != null) {
+                String jdbcString = "jdbc:mysql://";
+                if (legacyUrl.toLowerCase().startsWith(jdbcString)) {
+                    legacyUrl = legacyUrl.substring(jdbcString.length());
+                    String[] parts = legacyUrl.split("/");
+                    if (parts.length >= 2) {
+                        config.set("mysql-hostname", parts[0]);
+                        config.set("mysql-database", parts[1]);
+                    }
+                }
+            }
             String username = config.getString("mysql-username");
             if(username == null) {
                 Jobs.getPluginLogger().severe("mysql-username property invalid or missing");
