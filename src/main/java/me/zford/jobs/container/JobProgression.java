@@ -40,7 +40,7 @@ public class JobProgression {
      * @return false if the job cannot
      */
     public boolean canLevelUp() {
-        return experience >= maxExperience;
+        return experience >= maxExperience && maxExperience > 0;
     }
     
     /**
