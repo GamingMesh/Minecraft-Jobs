@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>me.zford</groupId>
+  <groupId>com.gamingmesh</groupId>
   <artifactId>jobs</artifactId>
   <version>2.12.1-SNAPSHOT</version>
   <packaging>jar</packaging>
@@ -22,7 +22,7 @@
     <profile>
       <id>travis</id>
       <properties>
-        <build.version>2.11.${env.TRAVIS_BUILD_NUMBER}</build.version>
+        <build.version>2.12.${env.TRAVIS_BUILD_NUMBER}</build.version>
       </properties>
     </profile>
   </profiles>
