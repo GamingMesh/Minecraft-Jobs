@@ -2,10 +2,10 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.gamingmesh</groupId>
   <artifactId>jobs</artifactId>
-  <version>2.12.1-SNAPSHOT</version>
+  <version>2.13-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Jobs</name>
-  <description>A fully configurable plugin that allows you to get paid for playing Minecraft</description>
+  <description>Jobs Plugin for the BukkitAPI</description>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -20,9 +20,9 @@
       </properties>
     </profile>
     <profile>
-      <id>travis</id>
+      <id>ci</id>
       <properties>
-        <build.version>2.12.${env.TRAVIS_BUILD_NUMBER}</build.version>
+        <build.version>2.13.${build.number}</build.version>
       </properties>
     </profile>
   </profiles>

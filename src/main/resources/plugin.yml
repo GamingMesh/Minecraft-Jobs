@@ -1,5 +1,5 @@
 name: Jobs
-description: Job plugin for bukkit
+description: Jobs Plugin for the BukkitAPI
 main: com.gamingmesh.jobs.JobsPlugin
 version: ${build.version}
 author: phrstbrn
