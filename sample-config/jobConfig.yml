@@ -164,6 +164,7 @@ Jobs:
       OBSIDIAN: 
         income: 7.5
         experience: 7.5
+        unlock-at: 10
       MOSSY_COBBLESTONE:
         income: 6.0
         experience: 6.0
