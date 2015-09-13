@@ -197,6 +197,9 @@ public class JobsPaymentListener implements Listener {
         
         Player player = (Player) event.getWhoClicked();
         
+        if(e.isShiftClick()&&player.getInventory().firstEmpty() == -1)
+        	return;
+        
         ItemStack resultStack = recipe.getResult();
         
         if (resultStack == null)
