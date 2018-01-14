@@ -51,7 +51,6 @@ command:
      boostalladded: Boost Punktow %boost% zostal wlaczony dla wszystkich prac!
      boostadded: Boost punktow &9%boost% &3zostal wlaczony dla pracy &9%jobname%!
      infostats: '&c-----> &aBoost punktow x%boost% zostal wlaczony&c <-------'
-
   expboost:
     help:
       info: Boost zwieksza zdobywanie Exp dla wszystkich graczy.
@@ -258,10 +257,10 @@ tntbreak:
         info: Zabijanie mitycznych potworow
         none:'%jobname% nie dostaje pieniedzy za zabijanie mitycznych potworow'
        fish:
-	   info:Lowienie
+        info: Lowienie
         none: '%jobname% nie dostaje pieniedzy za lowienie.'
       craft:
-        info:Tworzenie
+        info: Tworzenie
         none: '%jobname% nie dostaje pieniedzy za tworzenie.''
       smelt:
         info: Wytapanie
