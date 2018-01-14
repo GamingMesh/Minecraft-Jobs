@@ -159,7 +159,7 @@ command:
       args: ''
     output:
       name: ' &eNazwa bloku: &6%blockname%'
-     id: ' &eId bloku: &6%blockid%'
+      id: ' &eId bloku: &6%blockid%'
       data: ' &eData bloku: &6%blockdata%'
       usage: ' &eUzyj: &6%first% &elub &6%second%'
   iteminfo:
